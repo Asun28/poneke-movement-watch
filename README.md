@@ -3,6 +3,58 @@
 **Wellington City Council Emergency Management × Claude Code Community NZ**
 Saturday 8 August 2026 · Waimanga Room, Wellington City Council
 
+## Working prototype
+
+**Pōneke movement watch** maps unusual hourly pedestrian and vehicle counts at
+WCC Transport Sensor countlines. It publishes the same evidence as WGS84 GeoJSON
+for the shared common operating picture.
+
+- Detection: matched weekday/hour median + MAD over the prior 12 weeks.
+- Precision gates: robust score ≥ 4.5, absolute change ≥ 10 and relative change
+  ≥ 35%.
+- Truth boundary: signals mean **investigate**; they do not diagnose disruption,
+  evacuation or loss of access.
+- Cadence: the WCC source is updated at least monthly, so the current build is a
+  labelled batch replay rather than a live feed.
+
+The included 6 August 2026 12:00 replay produces **12 signals** and exposes
+**207 expected-but-missing groups** as data gaps rather than zero counts.
+
+### Run it
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\pip install -e ".[test]"
+.\.venv\Scripts\python -m pytest -q
+
+cd site
+npm install
+npm test
+npm run dev
+```
+
+To rebuild the COP artifacts from the official WCC Transport Sensors Parquet
+shards and countline metadata:
+
+```powershell
+.\.venv\Scripts\python scripts\build_demo.py `
+  --data-dir data\transport_sensors `
+  --metadata data\countline_meta_info.csv `
+  --target-at 2026-08-06T12:00:00+12:00 `
+  --output-dir site\public\cop\v1
+```
+
+Outputs:
+
+- `movement-signals.geojson` — investigation candidates and evidence;
+- `movement-health.json` — coverage, gaps, cadence and limitations;
+- `countline-coverage.geojson` — the 414 sensor line geometries.
+
+See [`docs/model-card.md`](docs/model-card.md) for the model comparison and
+[`artifacts/model-benchmark.json`](artifacts/model-benchmark.json) for its
+machine-readable result. The four-minute walkthrough is in
+[`docs/demo-script.md`](docs/demo-script.md).
+
 ---
 
 ## Problem 05 — Detect unusual changes in movement around the city
