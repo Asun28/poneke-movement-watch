@@ -19,6 +19,9 @@
 - 2026-08-10: Final Phase 7 regression passes: 22 Python tests, 12 site/layer
   tests, production build and ESLint. The final pytest temporary directory was
   removed after verification.
+- 2026-08-10: Pushed the exact verified source, saved Sites version 9 and
+  completed the owner-only production deployment at the existing live URL.
+  Phases 6 and 7 are complete.
 
 - 2026-08-10: Started Phase 6 to add a Wellington city ontology explorer. The
   chosen boundary is a backward-compatible v3 semantic graph built only from

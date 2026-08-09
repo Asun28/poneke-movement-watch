@@ -16,7 +16,7 @@ that uses only selected layers with real records.
 - [completed] Connect basemap, coverage, movement and source toggles to map/replay state.
 - [completed] Add neutral map-symbol size adjustment without person/car pictograms.
 - [completed] Run site, ontology, lint and production-build regressions.
-- [pending] Publish Phase 6 and 7 together to the existing private site.
+- [completed] Publish Phase 6 and 7 together to the existing private site.
 
 ### Acceptance criteria
 
@@ -70,7 +70,7 @@ state and potential access impact without promoting an inference to fact.
 - [completed] Generate the deterministic city ontology from existing replay evidence.
 - [completed] Add an accessible semantic-rail explorer and truth-boundary copy.
 - [completed] Run ontology, artifact, rendered-site, lint and production-build regressions.
-- [pending] Rebuild the source download and publish the existing site.
+- [completed] Rebuild the source download and publish the existing site.
 
 ### Acceptance criteria
 
