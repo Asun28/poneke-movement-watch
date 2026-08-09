@@ -15,7 +15,7 @@ truthful summary without losing the spatial context.
 - [completed] Add the transparent inspection surface and compact marker summary.
 - [completed] Add responsive styling and document the keyboard-accessible alternative.
 - [completed] Run site, Python, lint and production-build regressions.
-- [in_progress] Publish the validated build to the existing private site.
+- [completed] Publish the validated build to the existing private site.
 
 ### Acceptance criteria
 

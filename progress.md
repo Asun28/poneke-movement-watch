@@ -13,6 +13,9 @@
 - 2026-08-10: Final local regression passes: 22 Python tests, 15 site/layer
   tests, production build, ESLint and whitespace checks. The verified pytest
   temporary directory was removed.
+- 2026-08-10: Pushed the exact feature source, saved Sites version 10 and
+  completed the owner-only production deployment at the existing live URL.
+  Phase 8 is complete.
 
 ---
 
