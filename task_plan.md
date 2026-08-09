@@ -14,7 +14,7 @@ direction arrows and investigation interactions.
 - [completed] Add a failing rendered-contract test for the real basemap and attribution.
 - [completed] Implement a dependency-free OpenStreetMap tile layer with a safe grid fallback.
 - [completed] Verify build, regression, and desktop/mobile interaction.
-- [pending] Publish the update to the existing site and open the live result.
+- [completed] Publish the update to the existing site and open the live result.
 
 ### Acceptance criteria
 

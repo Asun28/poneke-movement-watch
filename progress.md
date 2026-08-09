@@ -19,6 +19,8 @@
 - 2026-08-10: Final local regression passes: 20 Python tests, seven rendered-site
   tests, production build and ESLint. The temporary preview and QA artifacts were
   removed after verification.
+- 2026-08-10: Pushed commit `3e63b60`, saved Sites version 7 and completed the
+  owner-only production deployment at the existing Pōneke Movement Watch URL.
 
 - 2026-08-09: Started Phase 3 to verify additional official open-source evidence
   feeds for the Wellington ontology, prioritising keyless, spatial and
