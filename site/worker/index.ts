@@ -1,6 +1,11 @@
 /** Cloudflare Worker entry point for the vinext-starter template. */
 import { handleImageOptimization, DEFAULT_DEVICE_SIZES, DEFAULT_IMAGE_SIZES } from "vinext/server/image-optimization";
 import handler from "vinext/server/app-router-entry";
+import registry from "../public/cop/v2/source-registry.json";
+import { buildLiveSnapshot, buildSourceContracts, createAlertCandidates } from "../lib/dataIntegration.mjs";
+import { makeLiveAdapters } from "../lib/liveAdapters.mjs";
+import { PROVIDER_FIXTURES } from "../lib/providerFixtures.mjs";
+import { SOURCE_MANIFEST } from "../lib/sourceManifest.mjs";
 
 interface Env {
   ASSETS: Fetcher;
@@ -19,6 +24,50 @@ interface ExecutionContext {
   passThroughOnException(): void;
 }
 
+const integrationContracts = buildSourceContracts(registry, SOURCE_MANIFEST);
+
+function jsonResponse(payload: unknown, init: ResponseInit = {}) {
+  const headers = new Headers(init.headers);
+  headers.set("content-type", "application/json; charset=utf-8");
+  headers.set("access-control-allow-origin", "*");
+  headers.set("cache-control", "no-store");
+  headers.set("x-content-type-options", "nosniff");
+  return new Response(JSON.stringify(payload, null, 2), { ...init, headers });
+}
+
+async function handleIntegrationApi(request: Request, pathname: string) {
+  if (request.method === "OPTIONS") {
+    return new Response(null, {
+      status: 204,
+      headers: {
+        "access-control-allow-origin": "*",
+        "access-control-allow-methods": "GET, OPTIONS",
+        "access-control-allow-headers": "accept, content-type",
+      },
+    });
+  }
+  if (request.method !== "GET") {
+    return jsonResponse({ error: "method_not_allowed" }, { status: 405, headers: { allow: "GET, OPTIONS" } });
+  }
+  if (pathname === "/api/integration/v1/contracts") {
+    return jsonResponse(integrationContracts, {
+      headers: { "cache-control": "public, max-age=300, stale-while-revalidate=3600" },
+    });
+  }
+
+  const snapshot = await buildLiveSnapshot({
+    contracts: integrationContracts,
+    adapters: makeLiveAdapters(fetch),
+    mockFixtures: PROVIDER_FIXTURES,
+    now: new Date(),
+  });
+  if (pathname === "/api/integration/v1/snapshot") return jsonResponse(snapshot);
+  if (pathname === "/api/alerts/v1/candidates") {
+    return jsonResponse(createAlertCandidates(snapshot));
+  }
+  return jsonResponse({ error: "not_found" }, { status: 404 });
+}
+
 // Image security config. SVG sources with .svg extension auto-skip the
 // optimization endpoint on the client side (served directly, no proxy).
 // To route SVGs through the optimizer (with security headers), set
@@ -28,6 +77,10 @@ interface ExecutionContext {
 const worker = {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
+
+    if (url.pathname.startsWith("/api/integration/") || url.pathname.startsWith("/api/alerts/")) {
+      return handleIntegrationApi(request, url.pathname);
+    }
 
     if (url.pathname === "/_vinext/image") {
       const allowedWidths = [...DEFAULT_DEVICE_SIZES, ...DEFAULT_IMAGE_SIZES];

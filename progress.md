@@ -1,5 +1,125 @@
 # Progress — Phase 2 ontology and sources
 
+- 2026-08-10: Phase 13 TDD RED confirmed in-process: the new integration-model
+  test fails on the intentionally missing shared module after locking contracts
+  for all 33 sources, partial failure, Mock zero-weight and review-only alerts.
+- 2026-08-10: Completed WorldMonitor architecture audit at upstream commit
+  `0fca203`; selected server-owned adapters/health/alerts, bounded concurrency,
+  explicit freshness and versioned contracts while rejecting browser alert authority.
+- 2026-08-10: Completed the literal 33-source adapter matrix. Selected 13
+  connectable families, one empty activation feed and explicit Context, Key,
+  Permission, Terms-review and Stale states with official-format fixture rules.
+- 2026-08-10: Implemented the server-owned v1 Integration Contracts, Live
+  Snapshot and Alert Candidates APIs. Ten permitted keyless adapters run with
+  bounded timeouts; 14 gated products use official-shape zero-weight fixtures.
+- 2026-08-10: Added Live Operations, Alert Centre, Replay Analyzer and Data
+  Integration routes with shared responsive navigation. Live uses a real OSM
+  canvas map with layer filters, pan, zoom, fullscreen and record inspection.
+- 2026-08-10: Live verification at 11:48 NZST returned 61 normalized records and
+  seven locally eligible review candidates (six NZTA road events, one approved
+  WCC road closure). Non-local CAP, stale and Mock records were excluded.
+- 2026-08-10: Phase 13 regression is green: 31 site/API/unit/rendered tests,
+  22 Python tests, production build and ESLint. Next: save and deploy the exact
+  verified source state to the existing owner-only Sites project.
+
+- 2026-08-10: Started Phase 13 to separate a shared Data Integration Layer from
+  the historical Replay Analyzer and add Live Operations plus an Alert Centre.
+  Goal Graph authorises three parallel read-only audits; all source writes remain
+  serialized in the main thread. Real/keyed/paid/restricted truth boundaries are
+  explicit, and no deployment or credential activation is authorised.
+
+- 2026-08-10: Started Phase 12 for zoomed-map selection and UI/UX polish.
+  Audited the dirty worktree without changing prior Phase 11 files. Root cause:
+  zoom is fixed-centre with no pan, while the map interaction layer is hover-only.
+  Selected a redesign-preserve pass with no new dependency or data-semantic change.
+- 2026-08-10: Phase 12 RED verified through the production build. Exactly two
+  intended tests fail: anchored zoom math is absent and the rendered map has no
+  hover/click/drag selection guidance. Eighteen unrelated site tests remain green.
+- 2026-08-10: Phase 12 GREEN passes 20/20 through the production build. Added
+  cursor-anchored wheel zoom, ref-driven drag pan, click-to-select, drag click
+  suppression and reset of zoom plus position. UI polish tightens the intro and
+  map hierarchy, enlarges the map work area, clarifies controls and extends
+  focus-visible states without changing data or ontology behavior.
+- 2026-08-10: Real in-app-browser verification has started against the local
+  production-shaped page on port 3013. The accessible DOM confirms the new map
+  guidance, selectable overlay, controls, evidence panel and 33-source truth
+  labels are present without changing replay semantics.
+- 2026-08-10: Desktop interaction check verified wheel zoom from 100% to 150%
+  at the pointer location and confirmed Reset becomes available.
+- 2026-08-10: Desktop drag check verified real map panning at 150%. Continuing
+  with a precise marker-hit probe and mobile layout verification.
+- 2026-08-10: The real zoomed selection path is now verified. At 150%, clicking
+  a visible marker changed the selected evidence from Thorndon Quay road to Ara
+  Moana left.
+- 2026-08-10: Desktop console is clean. Responsive QA is using a temporary
+  390×844 viewport override and will restore the normal viewport afterward.
+- 2026-08-10: Mobile QA passed at 390×844 with the layer rail expanded and
+  collapsed. No horizontal overflow or browser errors were observed; replay,
+  map, zoom, inspection and fullscreen controls remain usable.
+- 2026-08-10: Phase 12 verification is complete. Site production build and all
+  20 site tests pass; site lint passes; all 22 Python tests pass; repository
+  diff whitespace checks pass. The temporary browser viewport was restored,
+  browser tabs were finalized and the local port 3013 preview was stopped.
+
+
+- 2026-08-10: Started Phase 11 after the user requested all available 2026 data
+  layers be fed into the ontology. The safe default is a source-layer ontology:
+  permitted 2026 records may be real, activation feeds may be explicitly empty,
+  static/planned layers remain context, and restricted/key/paid/terms-review
+  capabilities remain zero-weight and unfetched.
+- 2026-08-10: User added Eventfinda events and Metlink bus disruption/delay data.
+  Added them to the Phase 11 contract: events are planned-demand context, static
+  GTFS is real network/schedule context, and GTFS-RT service alerts/trip updates
+  require the documented key and remain `not_configured` without one.
+- 2026-08-10: Added Phase 11 RED tests for 33 source contracts, typed 2026
+  `DataLayer` nodes, Eventfinda credentials, Metlink bus alert/trip-update/
+  vehicle/stop-prediction endpoints, zero-weight access states and visible layer
+  labels. Direct Node execution hit the known sandbox worker `EPERM`, so site
+  RED verification will use the approved repository test command.
+- 2026-08-10: Python RED verified the intended missing behavior: the city graph
+  has 0 `DataLayer` nodes instead of 33 and the registry has 24 sources instead
+  of 33. The CLI fixture also hit the known default-temp permission boundary;
+  later runs will use an explicit writable base directory.
+- 2026-08-10: Site RED verified all intended missing behavior through the real
+  build: no 2026 year label, still 24 rather than 33 source layers, and no 2026
+  ontology register/Eventfinda/Metlink bus-delay UI. Thirteen unrelated site
+  tests remained green.
+- 2026-08-10: Python GREEN for the core contract: registry expanded to 33,
+  every source has an explicit 2026 state, the v3 graph adds 33 zero-safe
+  `DataLayer` nodes plus typed `sourced_from`/`describes` relations, Eventfinda
+  is credentials-gated, and Metlink bus alerts/trip updates/vehicles/predictions
+  are declared without embedding a key. Seven focused ontology tests pass.
+- 2026-08-10: Site GREEN passes 18/18 through the production build. The layer
+  workspace now exposes 33 contracts with 2026 state labels, the v3 explorer
+  renders all 33 typed data layers, Eventfinda and Metlink bus delay/disruption
+  contracts are visible, and only WCC Transport Sensors remains playable.
+- 2026-08-10: User added adjustable replay speed to Phase 11. Implemented
+  `0.5×`, `1×`, `2×`, `4×` with `1×` as the 900 ms default. The timer is the
+  only changed behavior; the current slot, source filters and evidence persist.
+- 2026-08-10: Final verification passes: 22/22 Python tests, 19/19 site tests,
+  production build, ESLint and `git diff --check`. Browser QA confirmed the
+  control starts at `1×`, `4×` advanced 12:00→15:00, live switching from
+  `0.5×` to `4×` preserved 15:00 before advancing to 16:00, and logged no
+  runtime errors. Phase 11 is complete locally; no production deploy was made.
+
+---
+
+- 2026-08-10: Started Phase 10 to inventory official data sources not already
+  present in the 24-source registry. Scope is research and ranking only; no
+  records, layers or deployment changes are authorised.
+- 2026-08-10: Agent Reach's main executable was unavailable, so research moved
+  to its documented Exa/mcporter route plus official publisher verification.
+- 2026-08-10: Completed the official WCC, GWRC, NZTA, NEMA, FENZ, LINZ,
+  Transpower, KiwiRail and lifeline-source sweep. Direct checks captured counts,
+  fields, dates, geometry, freshness and access limits for the priority feeds.
+- 2026-08-10: Deduplicated 53 remaining source groups against the current 24 and
+  documented eight connect-next candidates, permission/key/terms-review items,
+  context layers, existing-source extensions, optional corroborators and hard
+  exclusions in `docs/remaining-data-sources.md`. No registry, layer, app or
+  deployment files were changed.
+
+---
+
 - 2026-08-10: Started Phase 9 for continuous map zoom and map-only fullscreen.
   Restored the clean deployed state and audited the existing projection,
   transparent inspection layer and fixed-step controls.

@@ -1,5 +1,340 @@
 # Pōneke Movement Watch — evidence ontology roadmap
 
+## Phase 13 — shared integration layer, live operations and alert centre
+
+### Goal
+
+Lift the prototype into a modular emergency-information platform: one shared
+Data Integration Layer supplies the existing Replay Analyzer, a new Live
+Operations Dashboard, an Alert Centre and future WCC dashboards without
+changing source truth or presenting model output as a confirmed emergency.
+
+### Status
+
+- [completed] Restore the dirty worktree and audit routes, build/runtime limits,
+  current source registry, ontology artifacts and reusable map components.
+- [completed] Verify WorldMonitor's relevant architecture and the official live API
+  contracts for the 33 registered source products.
+- [completed] Define the shared observation envelope, adapter lifecycle, source
+  health, mock fidelity and alert-candidate contract.
+- [completed] Add RED tests for integration snapshots, live/mock/access states,
+  alert gating and the three new operator modules.
+- [completed] Implement the minimal shared integration layer and deterministic
+  live/mock demo adapters.
+- [completed] Implement Live Operations, Data Integration and Alert Centre modules
+  while preserving Replay Analyzer behavior.
+- [completed] Run site, Python, artifact, lint, responsive and truth-label
+  verification; document production credential and deployment boundaries.
+
+### Acceptance criteria
+
+- A versioned Data Integration Layer exposes stable source contracts, normalized
+  observations, provenance, freshness, spatial scope, access/cost state, adapter
+  health and raw-payload format metadata for multiple downstream modules.
+- Replay Analyzer remains historical/batch. Live Operations shows only current
+  time-aligned observations and labels each record `live`, `mock`, `empty`,
+  `stale`, `credentials_required`, `permission_required` or `unavailable`.
+- Keyless, licensed live APIs are connected where technically safe. Paid/keyed
+  and restricted products use deterministic mock fixtures that preserve the
+  verified official response envelope and are always zero-weight until replaced
+  by an authorised adapter.
+- Alert Centre receives candidate alerts from sensor-monitor output plus ontology
+  relationships and an optional LLM explanation. Rules and provenance remain
+  inspectable; the LLM cannot publish, confirm, dispatch or change access state.
+- Every alert exposes supporting, contradicting, missing and context evidence,
+  observation/freshness times, severity basis and a human review state.
+- New modules are routable, responsive, keyboard accessible and share source
+  state without duplicating adapter logic.
+- No credential, personal data, restricted NEMA record or unlicensed raw record
+  is committed or exposed by the public build.
+
+### Goal Graph policy
+
+| Node | Independently verifiable goal | Resource claim | Mode/state |
+|---|---|---|---|
+| G13-A | Audit current runtime and define integration/alert contracts | repository read | main thread, in progress |
+| G13-B | Verify WorldMonitor patterns and official API envelopes | web/repository read | subagent, authorised |
+| G13-C | Classify 33 source adapters as live/mock/empty/gated | registry/docs read | subagent, authorised |
+| G13-D | Design Live/Integration/Alert operator UX | site read, no writes | subagent, authorised |
+| G13-E | Write RED contracts and implement shared layer | shared repository write | main thread, blocked by A-C |
+| G13-F | Implement operator modules | shared repository write | main thread, blocked by D-E |
+| G13-V | Independent build/test/browser verification | repository read/runtime | main thread, blocked by E-F |
+
+- `G13-B`, `G13-C` and `G13-D` are parallel read-only branches that inform or
+  feed `G13-E/F`. All shared writes are serialized in the main thread.
+- Agent reports enter review only. Official contracts, literal tests, generated
+  artifacts and observed browser behavior release implementation/verification gates.
+- Concurrency is bounded to the four available slots already authorised by the
+  user. One validated deployment to the existing private Sites target is in
+  scope after tests pass; no public-access change, key activation or paid call is authorised.
+
+### Key assumptions and exclusions
+
+- “All available live APIs” is scoped first to the existing verified 33-source
+  registry and its documented endpoint families. New publishers require a
+  separate verified contract before entering the integration layer.
+- A public endpoint being reachable does not override licence, privacy or
+  responder-only restrictions. Such sources remain permission-gated mocks.
+- Mock fidelity means official field names, nesting, enum and time/geometry
+  shape, not invented claims that a publisher emitted the record.
+- The existing pre-trained sensor monitor remains the only implemented anomaly
+  detector in this phase. No new classifier is trained without labelled outcomes.
+- The LLM produces bounded explanations and suggested investigation questions;
+  deterministic policy creates the alert candidate and humans decide disposition.
+- No public warning, dispatch, route optimisation, automatic confirmed fact,
+  credential storage, billing activation or public production launch is in scope.
+
+### Initial file-level plan
+
+- `site/lib/`: shared source manifest, fixtures, live adapters, normalization and alert policy.
+- `site/scripts/`: read-only live connector health check.
+- `site/worker/`: versioned integration snapshot and alert-candidate APIs.
+- `site/app/`: shared navigation plus Live Operations, Integration and Alert
+  Centre routes/components; Replay Analyzer remains backward compatible.
+- `tests/` and `site/tests/`: literal contract, alert-gate, rendered-route and
+  artifact tests written before production code.
+- `README.md` and `docs/`: architecture, API examples, operational boundary and
+  real/mock/key/permission/paid deployment matrix.
+
+### Rejected major alternatives
+
+- Do not let every dashboard call external publishers independently; adapters,
+  freshness and provenance belong in one integration boundary.
+- Do not pass raw mixed payloads directly to an LLM or let an LLM set severity.
+- Do not label deterministic fixtures as current simply because their schema is real.
+- Do not make all 33 sources evidence-bearing; schedules, static context,
+  duplicates and unavailable products retain their ontology roles and zero weights.
+
+### Errors encountered
+
+| Error | Attempt | Resolution |
+|---|---:|---|
+| PowerShell rejected piping directly after a `foreach` block in three inspection probes. | 3 | Stop using that output-composition shape entirely; emit JSON inside each loop body or use a different reader. |
+| Agent Reach's first `gh api` content/tree request hit the sandbox's dead proxy. | 1 | Retry the same read-only GitHub API request with approved external network access. |
+| Node's isolated `--test` child process was denied with `spawn EPERM`. | 1 | Execute the node:test file directly in-process for the RED check; it then failed on the intended missing integration module. |
+| This Node 22 build does not recognise `--test-isolation=none`. | 1 | Do not retry the unsupported flag; use direct test-file execution in the sandbox. |
+| The first snapshot test assumed only one unconfigured source, but registry defaults correctly exposed all unconfigured contracts. | 1 | Assert the targeted provider state and require at least one unavailable source instead of coupling the test to unrelated registry defaults. |
+| The sandbox denied Vite's Windows helper process with `spawn EPERM`. | 1 | Re-run the production build with the approved scoped `npm run build` permission. |
+| The first two full rendered regressions used obsolete monolithic-page copy and a privacy keyword in a non-sensitive manifest note. | 2 | Update route-aware assertions and remove the sensitive field name from the serialized client contract note. |
+| ESLint rejected synchronous initial refresh, an implicit label association and one misplaced current-event filter. | 3 | Defer initial refresh, bind/label the checkbox explicitly, and apply the event filter to NZTA rather than GWRC. |
+
+---
+
+## Phase 12 — zoomed map selection and operator UI polish
+
+### Goal
+
+Make the map reliably navigable and selectable after zooming, then improve the
+operator-facing hierarchy and interaction feedback without changing data,
+ontology, replay or evidence semantics.
+
+### Status
+
+- [completed] Restore the dirty worktree and audit the map rendering, hit targets, zoom and current visual system.
+- [completed] Add RED tests for anchored zoom, zoomed-region selection and visible interaction guidance.
+- [completed] Implement cursor-anchored zoom, drag-to-pan, click-to-select and reset behavior.
+- [completed] Apply a targeted civic-operations UI polish with improved map prominence, control rhythm and focus states.
+- [completed] Run focused, full, build, lint, browser interaction and responsive visual verification.
+
+### Acceptance criteria
+
+- Wheel zoom keeps the map location under the pointer stable instead of always
+  enlarging around the fixed city centre.
+- A paused user can drag the zoomed map, hover a visible signal and click it to
+  select the corresponding evidence; a drag must not accidentally select.
+- Reset restores both `100%` zoom and the original map centre.
+- Playback continues to disable map inspection and the signal list remains the
+  keyboard-accessible selection path.
+- Visible guidance explains hover, click and drag behavior, with clear pointer,
+  touch and focus states.
+- UI polish makes the map and current task easier to scan while preserving URLs,
+  section order, copy meaning, civic palette and all ontology/source truth labels.
+
+### Assumptions and exclusions
+
+- “Region” means the visible movement signal/countline area. No administrative
+  suburb polygon is invented because the playable layer does not contain one.
+- This is a redesign-preserve pass, not a new brand or information architecture.
+- Design read: public-sector operations tool for WCC reviewers. Use native React
+  and CSS already in the project, with `DESIGN_VARIANCE=3`,
+  `MOTION_INTENSITY=2`, `VISUAL_DENSITY=6`.
+- No new dependency, basemap provider, data source, model, ontology relation,
+  evidence weight, route, deployment or external write is in scope.
+
+### File-level plan
+
+- `site/app/layerModel.mjs`: pure anchored-zoom math used by real interaction.
+- `site/tests/layer-model.test.mjs`: literal behavior tests for stable pointer anchor.
+- `site/app/MovementCanvas.tsx`: pan refs, pointer lifecycle and click selection.
+- `site/tests/rendered-html.test.mjs`: accessible guidance/control contract.
+- `site/app/globals.css`: targeted layout, interaction and focus-state polish.
+- `README.md`, `findings.md`, `progress.md`: behavior and verification record.
+
+### Rejected major alternatives
+
+- Do not replace the dependency-free canvas with a new mapping framework during
+  a focused interaction fix; that would risk projection and replay regressions.
+- Do not add a fake region polygon layer or interpret a countline as a suburb.
+- Do not use per-frame React state for dragging; keep pointer movement in refs
+  and coalesce canvas redraws with the existing animation-frame renderer.
+
+### Errors encountered
+
+| Error | Attempt | Resolution |
+|---|---:|---|
+| First GREEN run passed anchored zoom but one legacy rendered test still required the established paused-status label. | 1 | Preserve `Paused · hover markers` and add the new click/drag guidance beneath it. |
+| Second GREEN run still required the playback-off and keyboard-alternative explanation in the initial accessible document. | 2 | Keep that invariant as screen-reader text while showing concise active guidance visually. |
+| ESLint rejected a click handler on the non-interactive map overlay because it had no native keyboard behavior. | 1 | Select on pointer-up when no drag occurred; keep the existing signal list as the explicit keyboard selection path. |
+| The in-app browser locator does not expose `scrollIntoViewIfNeeded()`. | 1 | Use browser-visible scrolling and read-only bounding-box inspection instead of relying on the unsupported locator helper. |
+| The first CUA scroll call used Playwright-style delta names. | 1 | Use the browser CUA contract's required `scrollX` and `scrollY` fields. |
+| The CUA object has no per-object `documentation()` method. | 1 | Reuse the already loaded browser documentation and inspect only the public gesture method names when needed. |
+| The first drag attempt used `from`/`to` fields. | 1 | Use the CUA contract's required non-empty `{x, y}` path. |
+| Treating the browser screenshot wrapper directly as PNG bytes produced invalid dimensions. | 1 | Do not depend on rendered-image pixels; calculate marker positions from CSS overlay bounds and the same projection data instead. |
+| A source-file search included a non-existent `site/public/data` path and returned exit 1 after finding the required v1 files. | 1 | Use only the verified `site/public/cop/v1` paths for projection evidence. |
+| Screenshot metadata inspection enumerated every `Uint8Array` index and produced excessive output. | 1 | Inspect only constructor, length and a bounded header; the screenshot is JPEG, not PNG. |
+| Reading the range input's HTML `value` attribute after fill/keypress stayed at the server default. | 1 | Read the live DOM value property and visible zoom status; attributes do not reflect controlled input state. |
+| The final parallel check invoked `npm run lint` at the repository root, which has no lint script. | 1 | Run lint from `site/`; keep root `npm test` for the full project suite. |
+
+---
+
+## Phase 11 — 2026 data-layer ontology ingestion
+
+### Goal
+
+Feed every verified, relevant 2026 data layer that is safe and technically
+available into the ontology, while preserving the distinction between a real
+record, an empty activation feed, a static/context layer and a restricted or
+paid capability.
+
+### Status
+
+- [completed] Audit the registry, ontology builders, generated artifacts, UI layer model and tests.
+- [completed] Define the 2026 eligibility, freshness, access and evidence-weight contract.
+- [completed] Add failing tests for 2026 layer nodes, exclusions and generated artifacts.
+- [completed] Implement the minimal ontology/registry ingestion and rebuild artifacts.
+- [completed] Expose the 2026 layer state without enabling mock/restricted replay.
+- [completed] Add adjustable replay speed and run focused, full, build, lint, artifact and browser verification.
+
+### Acceptance criteria
+
+- Every eligible layer is represented by a stable ontology node with publisher,
+  ontology role, access status, 2026 coverage/as-of state and demo truth state.
+- Real records are included only when the official source supplies a permitted,
+  time-stamped 2026 record; an empty activation feed remains an explicit empty state.
+- Static and planned layers contribute context only; cameras require human review;
+  restricted, paid, key-required or terms-review sources contribute zero evidence.
+- Stale pre-2026 sources are excluded from the 2026 active set but remain visible
+  in the broader source registry with the reason.
+- Existing v1/v2/v3 endpoints remain backward compatible and the map never
+  animates a layer without real playable records.
+- Eventfinda 2026 Wellington events are represented as planned-demand context;
+  scheduled attendance or capacity never becomes an observed crowd count.
+- Metlink static GTFS is represented as real schedule/network context. Bus
+  disruption, delay, trip-update and vehicle records are ingested only through
+  the documented realtime API with a configured key, retaining route/trip IDs,
+  timestamps, alert validity and cancellation/delay semantics.
+- Replay speed is adjustable at `0.5×`, `1×`, `2×` and `4×`, defaults to `1×`,
+  and changes only the playback interval. Changing speed preserves the selected
+  time slot, source selection, filters and evidence state.
+
+### Assumptions and exclusions
+
+- “All 2026 data layers” means all relevant layers in the verified inventory
+  that have 2026 temporal coverage and an allowed public integration contract,
+  not every dataset on the internet or every row in a national feed.
+- Source availability is not evidence of an incident. Source-layer nodes may be
+  real even when they contain zero Wellington records for the selected time.
+- Do not fetch or publish NEMA restricted polygons, responder-only feeds,
+  paid Google output, personal data, street-level outage detail or unlicensed data.
+- No classifier training, causal declaration, automatic confirmed fact, route
+  optimisation, dispatch or public-warning behavior is added.
+- Do not scrape around Eventfinda or Metlink authentication. Without credentials,
+  publish the real contract and an explicit `not_configured` state with zero
+  playable/evidence records.
+
+### File-level plan
+
+- `src/movement_anomaly/ontology.py`: 2026 layer eligibility and graph nodes.
+- `scripts/build_ontology_demo.py`: publish deterministic ontology artifacts.
+- `tests/test_ontology.py`: RED/GREEN contract and exclusion tests.
+- `site/app/` and `site/tests/`: expose truthful 2026 layer state if the existing
+  registry-driven UI needs no new interaction model; add a tested, accessible
+  replay-speed control beside the existing date/hour controls.
+- `README.md`, `docs/ontology-and-exclusions.md` and planning files: document boundaries.
+
+### Rejected major alternatives
+
+- Do not ingest every external endpoint into one evidence score; it would count
+  duplicated, stale and context-only data as corroboration.
+- Do not scrape restricted or unclear-licence sources merely because a public URL responds.
+
+### Errors encountered
+
+| Error | Attempt | Resolution |
+|---|---:|---|
+| Hosting-manifest discovery returned exit 1 because no matching file exists. | 1 | Treat absence as a verified result; do not invoke Sites skills automatically. |
+| Direct Node test runner could not spawn its isolated worker in the sandbox (`EPERM`). | 1 | Use the repository's approved `npm test` build-and-test path, which runs the same real tests outside that restriction. |
+| Focused pytest reached the intended RED failures but its CLI test could not create a fixture under the default user temp root. | 1 | Keep the valid 0-vs-33 and 24-vs-33 RED evidence; use an explicit workspace-owned `--basetemp` for later CLI/full runs. |
+| A PowerShell `rg` locator used over-escaped quotes and produced an invalid regular expression. | 1 | Stop regex location probing; use already-known line ranges and literal patches. |
+| A progress-log patch used an outdated surrounding paragraph and failed verification. | 1 | Read the current file head and apply the update against the exact latest paragraph. |
+| A broad playback-code locator produced valid but truncated output. | 1 | Re-run narrow, line-bounded searches for the timer, state and control regions. |
+| Full pytest created six fixture errors and then failed cleanup because Windows denied access to the workspace `--basetemp`. | 1 | Treat as a sandbox filesystem failure, not a test assertion; rerun the same suite with approved unsandboxed access. |
+| The first browser-skill read incorrectly combined the `sites` and `browser` cache roots. | 1 | Use the exact `r3` root from the available-skills catalogue. |
+| Foreground local-preview launch exceeded the one-second shell timeout. | 1 | Launch the dedicated preview process hidden, then verify its listening port before browser QA. |
+| Browser QA initially called unsupported `browser.tabs.open`. | 1 | Read the browser API contract and use `browser.tabs.new()` followed by `tab.goto()`. |
+| Preview shutdown verification returned exit 1 because the listener was already absent. | 1 | Verify the three exact preview process IDs directly; all were stopped. |
+
+---
+
+## Phase 10 — Remaining official data-source inventory
+
+### Goal
+
+Find and verify the remaining official Wellington-region datasets that could
+extend the movement and city ontology beyond the current 24-source registry,
+without integrating records or changing the live demo.
+
+### Status
+
+- [completed] Restore project state and enumerate the current 24 registered sources.
+- [completed] Search official transport, event, hazard, lifeline and context catalogues.
+- [completed] Verify access, machine interface, geometry, time fields, licence and ontology role.
+- [completed] Deduplicate against the current registry and rank the remaining candidates.
+- [completed] Document direct-use, permission/key, context-only and excluded groups.
+
+### Acceptance criteria
+
+- Every recommended candidate is absent from the current 24-source registry.
+- Each entry identifies an official publisher surface and honest access status.
+- Direct observations are separated from schedules, static context and modelled risk.
+- No candidate is described as live, open, mappable or reusable without evidence.
+- Research does not ingest data, add layers or alter the deployed prototype.
+
+### Assumptions and exclusions
+
+- “All remaining” means a systematic pass over relevant official Wellington/NZ
+  public catalogues, not every dataset on the internet.
+- Prefer WCC, GWRC/Metlink, NZTA, NEMA, GeoNet/GNS, LINZ, Stats NZ and local
+  lifeline/transport publishers; third-party aggregators are discovery-only.
+- Social posts, personal data, 111 records and unlicensed scraped content remain excluded.
+
+### File-level plan
+
+- `site/public/cop/v2/source-registry.json`: read-only deduplication baseline.
+- `docs/remaining-data-sources.md`: verified candidate inventory and ranking.
+- `findings.md`, `progress.md`: research evidence and task state.
+
+### Errors encountered
+
+| Error | Attempt | Resolution |
+|---|---:|---|
+| `agent-reach` executable is not available in this shell. | 1 | Use the skill's documented `mcporter` Exa path and official-page verification fallback. |
+| Repository scan named a non-existent local `data/` path. | 1 | Restrict the local audit to the published registry, README and docs that exist. |
+| Generic web open rejected direct ArcGIS/JSON endpoints as unsafe. | 1 | Read the same official public endpoints directly and emit only metadata/count summaries. |
+| First street-light date summary encountered a null-valued pipeline row. | 1 | Normalise ArcGIS features to attribute objects and handle null strings explicitly. |
+
+---
+
 ## Phase 9 — Continuous zoom and map fullscreen
 
 ### Goal

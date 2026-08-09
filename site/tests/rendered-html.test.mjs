@@ -2,22 +2,24 @@ import assert from "node:assert/strict";
 import { access, readFile } from "node:fs/promises";
 import test from "node:test";
 
-async function render() {
+async function render(pathname = "/replay") {
   const workerUrl = new URL("../dist/server/index.js", import.meta.url);
   workerUrl.searchParams.set("test", `${process.pid}-${Date.now()}`);
   const { default: worker } = await import(workerUrl.href);
 
   return worker.fetch(
-    new Request("http://localhost/", { headers: { accept: "text/html" } }),
+    new Request(`http://localhost${pathname}`, { headers: { accept: "text/html" } }),
     { ASSETS: { fetch: async () => new Response("Not found", { status: 404 }) } },
     { waitUntil() {}, passThroughOnException() {} },
   );
 }
 
 test("server-renders the movement investigation surface with truthful batch status", async () => {
-  const response = await render();
+  const response = await render("/replay");
   assert.equal(response.status, 200);
-  const html = await response.text();
+  const integrationResponse = await render("/integration");
+  assert.equal(integrationResponse.status, 200);
+  const html = `${await response.text()}\n${await integrationResponse.text()}`;
 
   assert.ok(html.includes("<title>Pōneke movement watch</title>"));
   assert.ok(
@@ -25,10 +27,12 @@ test("server-renders the movement investigation surface with truthful batch stat
       '<meta property="og:image" content="http://localhost:3000/og-ontology-v2.png"',
     ),
   );
-  assert.match(html, /Movement changes worth investigating/);
+  assert.match(html, /Replay Analyzer/);
   assert.match(html, /Batch replay/);
-  assert.match(html, /12 signals/);
-  assert.match(html, /207 data gaps/);
+  assert.match(html, /Investigation signals/);
+  assert.match(html, /Data gaps/);
+  assert.match(html, />12</);
+  assert.match(html, />207</);
   assert.match(html, /Data through/);
   assert.match(html, /6 Aug 2026/);
   assert.match(html, /From movement change to an evidence trail/);
@@ -39,7 +43,7 @@ test("server-renders the movement investigation surface with truthful batch stat
   assert.match(html, /None received in this replay/);
   assert.match(html, /Synthetic format fixture · no evidence weight/);
   assert.match(html, /Baseline strength/);
-  assert.match(html, /24 sources registered/);
+  assert.match(html, /33 sources registered/);
   assert.match(html, /Source capability preview/);
   assert.match(html, /REAL REPLAY/);
   assert.match(html, /MOCK · ZERO WEIGHT/);
@@ -53,7 +57,7 @@ test("server-renders the movement investigation surface with truthful batch stat
   assert.ok(html.includes("/cop/v2/observations.geojson"));
   assert.ok(html.includes("/cop/v2/evidence-graph.json"));
   assert.ok(html.includes("/cop/v2/source-registry.json"));
-  assert.match(html, /Not live emergency information/);
+  assert.match(html, /Not an emergency dispatch system/);
   assert.doesNotMatch(html, /Requester|probability/i);
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton|taking shape/i);
 });
@@ -76,7 +80,7 @@ test("publishes a privacy-safe ontology replay without treating fixtures as evid
   assert.equal(hypothesis.evidence_state, "single_source_signal");
   assert.equal(graph.decision_state.status, "unreviewed");
   assert.deepEqual(graph.confirmed_facts, []);
-  assert.equal(registry.sources.length, 24);
+  assert.equal(registry.sources.length, 33);
   assert.deepEqual(
     [
       "centreport-cruise-schedule",
@@ -97,7 +101,7 @@ test("publishes a privacy-safe ontology replay without treating fixtures as evid
 });
 
 test("renders a city ontology explorer with explicit semantic and truth boundaries", async () => {
-  const response = await render();
+  const response = await render("/integration");
   assert.equal(response.status, 200);
   const html = await response.text();
   const city = JSON.parse(
@@ -115,6 +119,13 @@ test("renders a city ontology explorer with explicit semantic and truth boundari
   assert.match(html, /may affect/);
   assert.match(html, /Inference only/);
   assert.match(html, /Unknown is not open/);
+  assert.match(html, /2026 data-layer register/);
+  assert.match(html, /Eventfinda events/);
+  assert.match(html, /Metlink bus delays &amp; disruptions/);
+  assert.match(html, /Credentials required/);
+  assert.match(html, /Empty activation feed/);
+  assert.match(html, /Stale · excluded/);
+  assert.match(html, /Zero evidence until a record is time-aligned/);
   assert.ok(html.includes("/cop/v3/city-ontology.json"));
 
   assert.equal(city.schema, "wellington-city-ontology/v1");
@@ -124,6 +135,7 @@ test("renders a city ontology explorer with explicit semantic and truth boundari
   const access = city.nodes.find((node) => node.type === "AccessState");
   assert.equal(access.value, "unknown");
   assert.equal(city.confirmed_facts.length, 0);
+  assert.equal(city.nodes.filter((node) => node.type === "DataLayer").length, 33);
 });
 
 test("renders a collapsible per-source layer workspace with selected-data replay controls", async () => {
@@ -144,7 +156,7 @@ test("renders a collapsible per-source layer workspace with selected-data replay
   assert.match(html, /0 playable records/);
   assert.match(html, /Needs permission/);
   assert.match(html, /Paid API/);
-  assert.equal((html.match(/data-source-layer=/g) ?? []).length, 24);
+  assert.equal((html.match(/data-source-layer=/g) ?? []).length, 33);
   assert.equal((html.match(/data-playable="true"/g) ?? []).length, 1);
 });
 
@@ -157,6 +169,10 @@ test("renders a paused-only map inspection layer with a keyboard alternative", a
   assert.match(html, /Paused · hover markers/);
   assert.match(html, /Inspection is off during playback/);
   assert.match(html, /The signal list remains available for keyboard inspection/);
+  assert.match(html, /Hover to preview/);
+  assert.match(html, /Click to select/);
+  assert.match(html, /Drag to move after zooming/);
+  assert.match(html, /data-map-selectable="true"/);
 });
 
 test("renders zoom controls with text-only people and vehicle filters", async () => {
@@ -216,6 +232,11 @@ test("offers historical date-hour replay and a matched-hour trend view", async (
   assert.match(html, /aria-label="Previous replay hour"/);
   assert.match(html, /aria-label="Next replay hour"/);
   assert.match(html, /aria-label="Play replay"/);
+  assert.match(html, /aria-label="Replay speed"/);
+  assert.match(html, />0\.5×</);
+  assert.match(html, />1×</);
+  assert.match(html, />2×</);
+  assert.match(html, />4×</);
   assert.match(html, /Matched-hour trend/);
   assert.match(html, /Observed count/);
   assert.match(html, /Expected baseline/);

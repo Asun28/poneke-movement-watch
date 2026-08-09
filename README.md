@@ -1,14 +1,15 @@
 # Pōneke Movement Watch
 
-An evidence-first prototype for Wellington City Council (WCC) Emergency
-Management. It maps unusual pedestrian and vehicle counts, keeps source facts
-separate from hypotheses and decisions, and publishes open Common Operating
-Picture (COP) feeds that other modules can consume.
+An evidence-first modular prototype for Wellington City Council (WCC) Emergency
+Management. A shared Data Integration Layer supplies current official feeds,
+source health, historical movement replay and review-only alert candidates to
+multiple dashboards without collapsing observations into confirmed incidents.
 
 **Live demo:** [poneke-movement-watch.sun28long.chatgpt.site](https://poneke-movement-watch.sun28long.chatgpt.site/)
 
-The deployed view opens at 12:00, Thursday 6 August 2026 and can replay every
-published hour from 1–6 August 2026. It is not a live emergency alerting system.
+The deployed view opens in **Live Operations**. **Replay Analyzer** retains every
+published hour from 1–6 August 2026, including 12:00 Thursday 6 August. This is
+a decision-support prototype, not an emergency dispatch or public warning system.
 
 ## Problem 05
 
@@ -23,8 +24,9 @@ investigate. A signal never declares the cause or confirms an incident.
 ## Historical replay
 
 The map's date, hour, previous/next, scrub and play controls move through 144
-real publisher time slots. The map, signal list, evidence values and timestamp
-change together. The selected signal's trend compares the current count with
+real publisher time slots. Replay speed is adjustable at `0.5×`, `1×`, `2×`
+or `4×` and defaults to `1×`; it changes only the interval between time slots.
+The map, signal list, evidence values and timestamp change together. The selected signal's trend compares the current count with
 its 12 prior observations at the same weekday and hour; future rows are never
 used, and missing rows are never interpolated or converted to zero.
 
@@ -36,8 +38,11 @@ signal list exposes the same evidence as the keyboard-accessible alternative.
 
 Map navigation is not limited to fixed button steps. Use the mouse wheel or
 trackpad over the map, drag the 50%–800% zoom slider, or use the plus/minus and
-reset buttons. **Full screen** expands the map stage while keeping basemap,
-countlines, movement markers, layer state and paused inspection aligned.
+reset buttons. Wheel zoom keeps the pointed area in place. After zooming, drag
+the map to reach another countline and click a visible marker to select its
+evidence. Reset restores both zoom and map position. **Full screen** expands the
+map stage while keeping basemap, countlines, movement markers, layer state and
+paused inspection aligned.
 
 ## Design principles
 
@@ -59,27 +64,58 @@ countlines, movement markers, layer state and paused inspection aligned.
 
 ```mermaid
 flowchart LR
-    A["Source adapters<br/>WCC sensors and ticket schema"] --> B["Validate and normalise<br/>typed observations"]
-    B --> C["Movement detector<br/>matched median + MAD"]
-    B --> D["Entity resolution<br/>explicit and auditable links"]
-    C --> D
-    D --> E["Evidence graph<br/>supporting / contradicting / missing"]
-    E --> F["COP feeds<br/>GeoJSON + JSON"]
-    F --> G["Web map<br/>signals, evidence and health"]
-    G --> H["Human review<br/>authorised decision"]
-    H --> I["Confirmed fact<br/>provenance retained"]
-    I -. "may become new evidence" .-> E
+    A["Official providers<br/>free · keyed · paid · restricted"] --> B["Server provider adapters<br/>timeout · validate · provenance"]
+    M["Official-format Mock fixtures<br/>synthetic · zero evidence"] --> B
+    B --> C["Data Integration API v1<br/>contracts · snapshot · health"]
+    C --> D["Live Operations<br/>what is happening now"]
+    C --> E["Replay Analyzer<br/>known historical event"]
+    C --> F["Alert policy<br/>freshness · ontology · rules"]
+    C --> G["Future WCC modules"]
+    F --> H["LLM explanation<br/>no decision authority"]
+    F --> I["Alert Centre<br/>human review queue"]
+    H --> I
+    I --> J["Authorised human decision"]
 ```
+
+### Operator modules
+
+| Route | Module | Purpose |
+|---|---|---|
+| `/live` | Live Operations | Map current permitted observations and distinguish live, empty, stale and unavailable sources. |
+| `/alerts` | Alert Centre | Review deterministic candidates with supporting, contradicting, missing and context evidence. |
+| `/replay` | Replay Analyzer | Reconstruct the 2026 WCC sensor history with date/hour/speed and matched-hour trends. |
+| `/integration` | Data Integration | Inspect all 33 provider contracts, access/cost state, raw format and runtime policy. |
+
+The browser never calls providers directly. Server adapters fan out with bounded
+timeouts and return a partial snapshot when one provider fails. Source
+unavailable or stale is never translated to “no incident”.
+
+### Versioned integration API
+
+```text
+GET /api/integration/v1/contracts   # all 33 provider contracts
+GET /api/integration/v1/snapshot    # normalized current records + per-source health
+GET /api/alerts/v1/candidates       # review-only deterministic candidates
+```
+
+Each source contract carries ontology role, access/cost, raw provider format,
+freshness target, spatial scope, evidence eligibility and attribution. Keyed,
+paid, restricted and terms-review providers use deterministic fixtures that
+preserve the verified official response shape. They are always labelled Mock,
+carry zero evidence weight and cannot enter the Alert API.
 
 | Layer | Responsibility | Main files |
 |---|---|---|
+| Provider registry | Classify 33 source families and official envelope contracts | `site/lib/sourceManifest.mjs`, `site/lib/providerFixtures.mjs` |
+| Live adapters | Fetch permitted current APIs and normalize partial snapshots | `site/lib/liveAdapters.mjs` |
+| Integration and alerts | Enforce source health, freshness, Mock gates and review-only alert policy | `site/lib/dataIntegration.mjs`, `site/worker/index.ts` |
 | Ingestion | Parse source records and reject malformed observations | `ingest.py`, `validation.py` |
 | Detection | Build matched seasonal baselines and apply precision gates | `detector.py`, `pipeline.py` |
 | Ontology | Resolve entities, assign evidence roles and rank review cases | `ontology.py` |
 | Contracts | Stable public schemas and truth-state boundaries | `contract.py` |
 | I/O | Read source files and write reproducible artifacts | `io.py` |
 | Builders | Produce v1 movement, v2 evidence and v3 city-semantic feeds | `scripts/build_demo.py`, `scripts/build_ontology_demo.py` |
-| Interface | Layer workspace, canvas map, historical replay, trends and case ledger | `site/app/` |
+| Interface | Live map, alert review, source inventory, historical replay and ontology | `site/app/` |
 | COP artifacts | Integration-ready GeoJSON and JSON | `site/public/cop/v1/`, `site/public/cop/v2/`, `site/public/cop/v3/` |
 
 ## Wellington City Ontology
@@ -103,6 +139,7 @@ the goal is interoperable evidence, not a universal model of the city.
 | `MovementState` | An observed increase or decrease classification | No |
 | `PotentialImpact` | An investigation-only effect that evidence may indicate | No |
 | `AccessState` | `unknown`, `open`, `restricted` or `closed`, with authority | Only with authoritative evidence |
+| `DataLayer` | Source role, access, 2026 availability and record state | No; availability carries zero evidence by itself |
 
 The v3 city projection adds explicit semantic relationships:
 
@@ -111,11 +148,31 @@ observation ─measured by→ countline ─located on→ place
 observation ─observed during→ time window
 observation ─classified as→ movement state ─may indicate→ potential impact
 potential impact ─may affect→ place
+observation ─sourced from→ data layer ─describes→ movement and access domain
 ```
 
 Movement alone leaves `AccessState.value` as `unknown`. Unknown is not open,
 and a potential impact remains inference-only until a time-aligned authoritative
 record and authorised human review establish otherwise.
+
+### 2026 data-layer ontology
+
+The v3 graph carries 33 typed `DataLayer` nodes. Each declares its source role,
+access state, 2026 record state and evidence weight. The UI distinguishes real
+records, available feeds, static/planned context, an empty activation feed,
+credentials or permission requirements, paid mock-only capability, and stale
+records excluded by the freshness gate.
+
+Eventfinda is a first-class planned-demand contract, not observed attendance.
+Its API uses application-specific HTTP Basic credentials, so the public build
+does not fetch or republish records without a key issued for this application.
+
+Metlink bus disruption and delay capability is split into the documented
+GTFS-RT products: service alerts, trip updates, vehicle positions and stop
+predictions. Only bus (`route_type=3`) and school bus (`route_type=712`) belong
+in the bus view. The live API needs an `x-api-key`; static GTFS remains real
+schedule/network context, while the public build shows live data as credentials
+required with zero records.
 
 ### Epistemic lifecycle
 
@@ -220,7 +277,7 @@ The map's collapsible left workspace separates three control types:
 
 - **Street basemap** — a display-only OpenStreetMap layer;
 - **Sensor coverage** — 414 WCC countline geometries;
-- **Source layers** — one selectable integration layer for each of the 24
+- **Source layers** — one selectable integration layer for each of the 33
   source-registry contracts.
 
 Only `wcc-transport-sensors` currently has real replay records. Playback stops
@@ -241,9 +298,9 @@ no observations or evidence weight. WCC countlines and movement signals are
 projected independently over it; the sensor overlay remains visible if tiles
 cannot load.
 
-The registry contains 24 real, official source products. That does **not** mean
-24 live feeds are connected. Every source declares both its demo-data status and
-its access status.
+The registry contains 33 source contracts, including authoritative operator and
+commercial catalogues where explicitly labelled. That does **not** mean 33 live
+feeds are connected. Every source declares demo-data, access and 2026 states.
 
 | Demo status | Sources shown | Access / cost |
 |---|---|---|
@@ -253,7 +310,7 @@ its access status.
 | **Mock · zero weight** | WCC road closures | Public source; adapter preview only |
 | **Mock · zero weight** | Wellington Water jobs, NEMA electricity outages, WCC events, Wellington Airport flights, CentrePort cruise schedule | Publisher terms or reuse clearance required |
 | **Mock · zero weight** | Google Routes and Places APIs | API key and billing account required; monthly free caps exist, then usage pricing applies |
-| **Registered only** | NZTA TMS/road events, GWRC Hilltop, MetService CAP, GeoNet quake/Tilde/Shaking, WREMO hubs, emergency routes/water tanks, Metlink realtime/static GTFS, NEMA CDEM boundaries | No records from these sources affect this replay |
+| **Registered only** | NZTA, GWRC, MetService, GeoNet, WREMO, emergency assets, Metlink static/realtime, Eventfinda, planned works, EAC, public EMA CAP, cameras, FENZ and KiwiRail contracts | No records from these sources affect this replay unless a permitted adapter supplies a time-aligned record |
 
 The capability cards on the demo use synthetic examples only to show possible
 ontology links. Mock cards always carry `evidence_weight: 0`. Timetables and

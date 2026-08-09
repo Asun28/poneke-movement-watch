@@ -159,6 +159,776 @@
       "cannot_assert": [
         "A calibrated probability or confirmed incident"
       ]
+    },
+    {
+      "id": "domain:wellington-movement-and-access",
+      "type": "OntologyDomain",
+      "label": "Wellington movement and access",
+      "can_support": [
+        "Which source layers may describe movement, access or context"
+      ],
+      "cannot_assert": [
+        "That an available layer contains incident evidence"
+      ]
+    },
+    {
+      "id": "data-layer:wcc-transport-sensors",
+      "type": "DataLayer",
+      "label": "WCC Transport Sensors",
+      "source_id": "wcc-transport-sensors",
+      "ontology_role": "movement_observation",
+      "source_reality": "official_source",
+      "demo_data_status": "real_replay",
+      "access_status": "public_free",
+      "data_2026": {
+        "status": "real_records",
+        "active": true,
+        "record_state": "real_august_2026_replay",
+        "verified_at": "2026-08-10"
+      },
+      "evidence_weight": 2,
+      "can_support": [
+        "The declared source role and 2026 availability state"
+      ],
+      "cannot_assert": [
+        "An incident, cause or access state without a time-aligned resolved record"
+      ]
+    },
+    {
+      "id": "data-layer:wcc-ticket-detail",
+      "type": "DataLayer",
+      "label": "WCC TICKET_DETAIL extract",
+      "source_id": "wcc-ticket-detail",
+      "ontology_role": "public_report_observation",
+      "source_reality": "official_source",
+      "demo_data_status": "mock_preview",
+      "access_status": "council_input_required",
+      "data_2026": {
+        "status": "input_required",
+        "active": false,
+        "record_state": "no_council_extract_supplied",
+        "verified_at": "2026-08-10"
+      },
+      "evidence_weight": 0,
+      "can_support": [
+        "The declared source role and 2026 availability state"
+      ],
+      "cannot_assert": [
+        "An incident, cause or access state without a time-aligned resolved record"
+      ]
+    },
+    {
+      "id": "data-layer:nzta-tms",
+      "type": "DataLayer",
+      "label": "NZTA TMS Telemetry Sites",
+      "source_id": "nzta-tms",
+      "ontology_role": "movement_context",
+      "source_reality": "official_source",
+      "demo_data_status": "registered_only",
+      "access_status": "public_free",
+      "data_2026": {
+        "status": "available_context",
+        "active": true,
+        "record_state": "wellington_rows_through_2026_08_05_non_spatial",
+        "verified_at": "2026-08-10"
+      },
+      "evidence_weight": 0,
+      "can_support": [
+        "The declared source role and 2026 availability state"
+      ],
+      "cannot_assert": [
+        "An incident, cause or access state without a time-aligned resolved record"
+      ]
+    },
+    {
+      "id": "data-layer:gwrc-hilltop",
+      "type": "DataLayer",
+      "label": "Greater Wellington Hilltop",
+      "source_id": "gwrc-hilltop",
+      "ontology_role": "hazard_observation",
+      "source_reality": "official_source",
+      "demo_data_status": "registered_only",
+      "access_status": "public_free",
+      "data_2026": {
+        "status": "available_not_ingested",
+        "active": true,
+        "record_state": "live_series_contract_verified",
+        "verified_at": "2026-08-10"
+      },
+      "evidence_weight": 0,
+      "can_support": [
+        "The declared source role and 2026 availability state"
+      ],
+      "cannot_assert": [
+        "An incident, cause or access state without a time-aligned resolved record"
+      ]
+    },
+    {
+      "id": "data-layer:nzta-road-events",
+      "type": "DataLayer",
+      "label": "NZTA road events",
+      "source_id": "nzta-road-events",
+      "ontology_role": "official_event_observation",
+      "source_reality": "official_source",
+      "demo_data_status": "registered_only",
+      "access_status": "public_free",
+      "data_2026": {
+        "status": "available_not_ingested",
+        "active": true,
+        "record_state": "current_feed_not_bound_to_replay",
+        "verified_at": "2026-08-10"
+      },
+      "evidence_weight": 0,
+      "can_support": [
+        "The declared source role and 2026 availability state"
+      ],
+      "cannot_assert": [
+        "An incident, cause or access state without a time-aligned resolved record"
+      ]
+    },
+    {
+      "id": "data-layer:metservice-cap",
+      "type": "DataLayer",
+      "label": "MetService CAP warnings",
+      "source_id": "metservice-cap",
+      "ontology_role": "hazard_alert_observation",
+      "source_reality": "official_source",
+      "demo_data_status": "registered_only",
+      "access_status": "public_free",
+      "data_2026": {
+        "status": "available_not_ingested",
+        "active": true,
+        "record_state": "cap_feed_contract_verified",
+        "verified_at": "2026-08-10"
+      },
+      "evidence_weight": 0,
+      "can_support": [
+        "The declared source role and 2026 availability state"
+      ],
+      "cannot_assert": [
+        "An incident, cause or access state without a time-aligned resolved record"
+      ]
+    },
+    {
+      "id": "data-layer:geonet-quakes",
+      "type": "DataLayer",
+      "label": "GeoNet earthquakes",
+      "source_id": "geonet-quakes",
+      "ontology_role": "hazard_observation",
+      "source_reality": "official_source",
+      "demo_data_status": "registered_only",
+      "access_status": "public_free",
+      "data_2026": {
+        "status": "available_not_ingested",
+        "active": true,
+        "record_state": "current_event_feed_contract_verified",
+        "verified_at": "2026-08-10"
+      },
+      "evidence_weight": 0,
+      "can_support": [
+        "The declared source role and 2026 availability state"
+      ],
+      "cannot_assert": [
+        "An incident, cause or access state without a time-aligned resolved record"
+      ]
+    },
+    {
+      "id": "data-layer:wremo-hubs",
+      "type": "DataLayer",
+      "label": "WREMO Community Emergency Hubs",
+      "source_id": "wremo-hubs",
+      "ontology_role": "impact_context",
+      "source_reality": "official_source",
+      "demo_data_status": "registered_only",
+      "access_status": "permission_required",
+      "data_2026": {
+        "status": "static_context",
+        "active": true,
+        "record_state": "126_hubs_static_context",
+        "verified_at": "2026-08-10"
+      },
+      "evidence_weight": 0,
+      "can_support": [
+        "The declared source role and 2026 availability state"
+      ],
+      "cannot_assert": [
+        "An incident, cause or access state without a time-aligned resolved record"
+      ]
+    },
+    {
+      "id": "data-layer:wcc-emergency-routes",
+      "type": "DataLayer",
+      "label": "WCC emergency routes",
+      "source_id": "wcc-emergency-routes",
+      "ontology_role": "impact_context",
+      "source_reality": "official_source",
+      "demo_data_status": "registered_only",
+      "access_status": "permission_required",
+      "data_2026": {
+        "status": "static_context",
+        "active": true,
+        "record_state": "post_event_reopening_plan",
+        "verified_at": "2026-08-10"
+      },
+      "evidence_weight": 0,
+      "can_support": [
+        "The declared source role and 2026 availability state"
+      ],
+      "cannot_assert": [
+        "An incident, cause or access state without a time-aligned resolved record"
+      ]
+    },
+    {
+      "id": "data-layer:metlink-realtime",
+      "type": "DataLayer",
+      "label": "Metlink bus delays & disruptions",
+      "source_id": "metlink-realtime",
+      "ontology_role": "public_transport_observation",
+      "source_reality": "official_source",
+      "demo_data_status": "registered_only",
+      "access_status": "key_required",
+      "data_2026": {
+        "status": "credentials_required",
+        "active": false,
+        "record_state": "not_fetched_without_key",
+        "verified_at": "2026-08-10"
+      },
+      "evidence_weight": 0,
+      "can_support": [
+        "The declared source role and 2026 availability state"
+      ],
+      "cannot_assert": [
+        "An incident, cause or access state without a time-aligned resolved record"
+      ]
+    },
+    {
+      "id": "data-layer:geonet-tilde-wlgt",
+      "type": "DataLayer",
+      "label": "GeoNet Tilde WLGT detided sea level",
+      "source_id": "geonet-tilde-wlgt",
+      "ontology_role": "hazard_measurement_observation",
+      "source_reality": "official_source",
+      "demo_data_status": "registered_only",
+      "access_status": "public_free",
+      "data_2026": {
+        "status": "available_not_ingested",
+        "active": true,
+        "record_state": "live_15_second_series_contract_verified",
+        "verified_at": "2026-08-10"
+      },
+      "evidence_weight": 0,
+      "can_support": [
+        "The declared source role and 2026 availability state"
+      ],
+      "cannot_assert": [
+        "An incident, cause or access state without a time-aligned resolved record"
+      ]
+    },
+    {
+      "id": "data-layer:geonet-shaking-layers",
+      "type": "DataLayer",
+      "label": "GeoNet Shaking Layers",
+      "source_id": "geonet-shaking-layers",
+      "ontology_role": "hazard_footprint_observation",
+      "source_reality": "official_source",
+      "demo_data_status": "registered_only",
+      "access_status": "public_free",
+      "data_2026": {
+        "status": "available_not_ingested",
+        "active": true,
+        "record_state": "event_version_feed_contract_verified",
+        "verified_at": "2026-08-10"
+      },
+      "evidence_weight": 0,
+      "can_support": [
+        "The declared source role and 2026 availability state"
+      ],
+      "cannot_assert": [
+        "An incident, cause or access state without a time-aligned resolved record"
+      ]
+    },
+    {
+      "id": "data-layer:nema-cap-alerts",
+      "type": "DataLayer",
+      "label": "NEMA Emergency Mobile Alert polygons",
+      "source_id": "nema-cap-alerts",
+      "ontology_role": "official_alert_observation",
+      "source_reality": "official_source",
+      "demo_data_status": "mock_preview",
+      "access_status": "permission_required",
+      "data_2026": {
+        "status": "restricted_not_ingested",
+        "active": false,
+        "record_state": "restricted_polygon_feed_not_fetched",
+        "verified_at": "2026-08-10"
+      },
+      "evidence_weight": 0,
+      "can_support": [
+        "The declared source role and 2026 availability state"
+      ],
+      "cannot_assert": [
+        "An incident, cause or access state without a time-aligned resolved record"
+      ]
+    },
+    {
+      "id": "data-layer:wcc-road-closures",
+      "type": "DataLayer",
+      "label": "WCC Street Events and Road Closures",
+      "source_id": "wcc-road-closures",
+      "ontology_role": "official_access_event_observation",
+      "source_reality": "official_source",
+      "demo_data_status": "mock_preview",
+      "access_status": "public_free",
+      "data_2026": {
+        "status": "available_not_ingested",
+        "active": true,
+        "record_state": "2026_records_available_not_bound_to_replay",
+        "verified_at": "2026-08-10"
+      },
+      "evidence_weight": 0,
+      "can_support": [
+        "The declared source role and 2026 availability state"
+      ],
+      "cannot_assert": [
+        "An incident, cause or access state without a time-aligned resolved record"
+      ]
+    },
+    {
+      "id": "data-layer:wellington-water-jobs",
+      "type": "DataLayer",
+      "label": "Wellington Water public jobs",
+      "source_id": "wellington-water-jobs",
+      "ontology_role": "lifeline_work_observation",
+      "source_reality": "official_source",
+      "demo_data_status": "mock_preview",
+      "access_status": "publisher_clearance_required",
+      "data_2026": {
+        "status": "terms_review",
+        "active": false,
+        "record_state": "public_jobs_not_republished",
+        "verified_at": "2026-08-10"
+      },
+      "evidence_weight": 0,
+      "can_support": [
+        "The declared source role and 2026 availability state"
+      ],
+      "cannot_assert": [
+        "An incident, cause or access state without a time-aligned resolved record"
+      ]
+    },
+    {
+      "id": "data-layer:nema-electricity-outages",
+      "type": "DataLayer",
+      "label": "NEMA electricity outages",
+      "source_id": "nema-electricity-outages",
+      "ontology_role": "lifeline_impact_observation",
+      "source_reality": "official_source",
+      "demo_data_status": "mock_preview",
+      "access_status": "publisher_clearance_required",
+      "data_2026": {
+        "status": "terms_review",
+        "active": false,
+        "record_state": "public_feed_not_republished",
+        "verified_at": "2026-08-10"
+      },
+      "evidence_weight": 0,
+      "can_support": [
+        "The declared source role and 2026 availability state"
+      ],
+      "cannot_assert": [
+        "An incident, cause or access state without a time-aligned resolved record"
+      ]
+    },
+    {
+      "id": "data-layer:nema-cdem-boundaries",
+      "type": "DataLayer",
+      "label": "NEMA CDEM Group boundaries",
+      "source_id": "nema-cdem-boundaries",
+      "ontology_role": "response_authority_context",
+      "source_reality": "official_source",
+      "demo_data_status": "registered_only",
+      "access_status": "publisher_clearance_required",
+      "data_2026": {
+        "status": "static_context",
+        "active": true,
+        "record_state": "authority_boundaries_context",
+        "verified_at": "2026-08-10"
+      },
+      "evidence_weight": 0,
+      "can_support": [
+        "The declared source role and 2026 availability state"
+      ],
+      "cannot_assert": [
+        "An incident, cause or access state without a time-aligned resolved record"
+      ]
+    },
+    {
+      "id": "data-layer:metlink-static-gtfs",
+      "type": "DataLayer",
+      "label": "Metlink static GTFS",
+      "source_id": "metlink-static-gtfs",
+      "ontology_role": "transport_network_context",
+      "source_reality": "official_source",
+      "demo_data_status": "registered_only",
+      "access_status": "public_free",
+      "data_2026": {
+        "status": "available_context",
+        "active": true,
+        "record_state": "2026_schedule_and_network_context",
+        "verified_at": "2026-08-10"
+      },
+      "evidence_weight": 0,
+      "can_support": [
+        "The declared source role and 2026 availability state"
+      ],
+      "cannot_assert": [
+        "An incident, cause or access state without a time-aligned resolved record"
+      ]
+    },
+    {
+      "id": "data-layer:wcc-emergency-water-tanks",
+      "type": "DataLayer",
+      "label": "WCC emergency water tanks",
+      "source_id": "wcc-emergency-water-tanks",
+      "ontology_role": "lifeline_capability_context",
+      "source_reality": "official_source",
+      "demo_data_status": "registered_only",
+      "access_status": "public_free",
+      "data_2026": {
+        "status": "static_context",
+        "active": true,
+        "record_state": "45_tanks_static_context",
+        "verified_at": "2026-08-10"
+      },
+      "evidence_weight": 0,
+      "can_support": [
+        "The declared source role and 2026 availability state"
+      ],
+      "cannot_assert": [
+        "An incident, cause or access state without a time-aligned resolved record"
+      ]
+    },
+    {
+      "id": "data-layer:wcc-event-calendar",
+      "type": "DataLayer",
+      "label": "WCC city event calendar",
+      "source_id": "wcc-event-calendar",
+      "ontology_role": "planned_demand_context",
+      "source_reality": "official_source",
+      "demo_data_status": "mock_preview",
+      "access_status": "publisher_clearance_required",
+      "data_2026": {
+        "status": "terms_review",
+        "active": false,
+        "record_state": "eventfinda_backed_html_not_republished",
+        "verified_at": "2026-08-10"
+      },
+      "evidence_weight": 0,
+      "can_support": [
+        "The declared source role and 2026 availability state"
+      ],
+      "cannot_assert": [
+        "An incident, cause or access state without a time-aligned resolved record"
+      ]
+    },
+    {
+      "id": "data-layer:eventfinda-events",
+      "type": "DataLayer",
+      "label": "Eventfinda events",
+      "source_id": "eventfinda-events",
+      "ontology_role": "planned_demand_context",
+      "source_reality": "authoritative_commercial_source",
+      "demo_data_status": "registered_only",
+      "access_status": "key_required",
+      "data_2026": {
+        "status": "credentials_required",
+        "active": false,
+        "record_state": "not_fetched_without_application_key",
+        "verified_at": "2026-08-10"
+      },
+      "evidence_weight": 0,
+      "can_support": [
+        "The declared source role and 2026 availability state"
+      ],
+      "cannot_assert": [
+        "An incident, cause or access state without a time-aligned resolved record"
+      ]
+    },
+    {
+      "id": "data-layer:wcc-planned-works",
+      "type": "DataLayer",
+      "label": "WCC Planned Works",
+      "source_id": "wcc-planned-works",
+      "ontology_role": "planned_access_context",
+      "source_reality": "official_source",
+      "demo_data_status": "registered_only",
+      "access_status": "public_free",
+      "data_2026": {
+        "status": "available_context",
+        "active": true,
+        "record_state": "510_planned_records",
+        "verified_at": "2026-08-10"
+      },
+      "evidence_weight": 0,
+      "can_support": [
+        "The declared source role and 2026 availability state"
+      ],
+      "cannot_assert": [
+        "An incident, cause or access state without a time-aligned resolved record"
+      ]
+    },
+    {
+      "id": "data-layer:wcc-emergency-assistance-centres",
+      "type": "DataLayer",
+      "label": "WCC Emergency Assistance Centres",
+      "source_id": "wcc-emergency-assistance-centres",
+      "ontology_role": "response_capability_observation",
+      "source_reality": "official_source",
+      "demo_data_status": "registered_only",
+      "access_status": "public_free",
+      "data_2026": {
+        "status": "empty_activation",
+        "active": true,
+        "record_state": "zero_current_records",
+        "verified_at": "2026-08-10"
+      },
+      "evidence_weight": 0,
+      "can_support": [
+        "The declared source role and 2026 availability state"
+      ],
+      "cannot_assert": [
+        "An incident, cause or access state without a time-aligned resolved record"
+      ]
+    },
+    {
+      "id": "data-layer:gwrc-incident-areas",
+      "type": "DataLayer",
+      "label": "GWRC Incident Areas",
+      "source_id": "gwrc-incident-areas",
+      "ontology_role": "official_incident_area_observation",
+      "source_reality": "official_source",
+      "demo_data_status": "registered_only",
+      "access_status": "public_free",
+      "data_2026": {
+        "status": "stale_excluded",
+        "active": false,
+        "record_state": "one_2019_record_rejected_by_freshness_gate",
+        "verified_at": "2026-08-10"
+      },
+      "evidence_weight": 0,
+      "can_support": [
+        "The declared source role and 2026 availability state"
+      ],
+      "cannot_assert": [
+        "An incident, cause or access state without a time-aligned resolved record"
+      ]
+    },
+    {
+      "id": "data-layer:nzta-traffic-cameras",
+      "type": "DataLayer",
+      "label": "NZTA traffic cameras",
+      "source_id": "nzta-traffic-cameras",
+      "ontology_role": "visual_access_context",
+      "source_reality": "official_source",
+      "demo_data_status": "registered_only",
+      "access_status": "public_free",
+      "data_2026": {
+        "status": "available_context",
+        "active": true,
+        "record_state": "319_national_26_region_at_verification",
+        "verified_at": "2026-08-10"
+      },
+      "evidence_weight": 0,
+      "can_support": [
+        "The declared source role and 2026 availability state"
+      ],
+      "cannot_assert": [
+        "An incident, cause or access state without a time-aligned resolved record"
+      ]
+    },
+    {
+      "id": "data-layer:nema-public-ema-cap",
+      "type": "DataLayer",
+      "label": "NEMA public Emergency Mobile Alert CAP",
+      "source_id": "nema-public-ema-cap",
+      "ontology_role": "official_alert_observation",
+      "source_reality": "official_source",
+      "demo_data_status": "registered_only",
+      "access_status": "public_free",
+      "data_2026": {
+        "status": "available_not_ingested",
+        "active": true,
+        "record_state": "public_cap_message_feed_available",
+        "verified_at": "2026-08-10"
+      },
+      "evidence_weight": 0,
+      "can_support": [
+        "The declared source role and 2026 availability state"
+      ],
+      "cannot_assert": [
+        "An incident, cause or access state without a time-aligned resolved record"
+      ]
+    },
+    {
+      "id": "data-layer:gwrc-parks-notices",
+      "type": "DataLayer",
+      "label": "GWRC park access notices",
+      "source_id": "gwrc-parks-notices",
+      "ontology_role": "official_access_notice_context",
+      "source_reality": "official_source",
+      "demo_data_status": "registered_only",
+      "access_status": "public_free",
+      "data_2026": {
+        "status": "available_context",
+        "active": true,
+        "record_state": "official_notice_api_available",
+        "verified_at": "2026-08-10"
+      },
+      "evidence_weight": 0,
+      "can_support": [
+        "The declared source role and 2026 availability state"
+      ],
+      "cannot_assert": [
+        "An incident, cause or access state without a time-aligned resolved record"
+      ]
+    },
+    {
+      "id": "data-layer:fenz-incident-reports",
+      "type": "DataLayer",
+      "label": "FENZ seven-day incident reports",
+      "source_id": "fenz-incident-reports",
+      "ontology_role": "emergency_response_context",
+      "source_reality": "official_source",
+      "demo_data_status": "registered_only",
+      "access_status": "public_free",
+      "data_2026": {
+        "status": "available_context",
+        "active": true,
+        "record_state": "official_seven_day_reports_incomplete",
+        "verified_at": "2026-08-10"
+      },
+      "evidence_weight": 0,
+      "can_support": [
+        "The declared source role and 2026 availability state"
+      ],
+      "cannot_assert": [
+        "An incident, cause or access state without a time-aligned resolved record"
+      ]
+    },
+    {
+      "id": "data-layer:kiwirail-wellington-works",
+      "type": "DataLayer",
+      "label": "KiwiRail Wellington planned works",
+      "source_id": "kiwirail-wellington-works",
+      "ontology_role": "planned_rail_access_context",
+      "source_reality": "official_source",
+      "demo_data_status": "registered_only",
+      "access_status": "public_free",
+      "data_2026": {
+        "status": "planned_context",
+        "active": true,
+        "record_state": "significant_works_only",
+        "verified_at": "2026-08-10"
+      },
+      "evidence_weight": 0,
+      "can_support": [
+        "The declared source role and 2026 availability state"
+      ],
+      "cannot_assert": [
+        "An incident, cause or access state without a time-aligned resolved record"
+      ]
+    },
+    {
+      "id": "data-layer:wellington-airport-flights",
+      "type": "DataLayer",
+      "label": "Wellington Airport flight board",
+      "source_id": "wellington-airport-flights",
+      "ontology_role": "transport_status_observation",
+      "source_reality": "official_source",
+      "demo_data_status": "mock_preview",
+      "access_status": "publisher_clearance_required",
+      "data_2026": {
+        "status": "terms_review",
+        "active": false,
+        "record_state": "flight_board_not_republished",
+        "verified_at": "2026-08-10"
+      },
+      "evidence_weight": 0,
+      "can_support": [
+        "The declared source role and 2026 availability state"
+      ],
+      "cannot_assert": [
+        "An incident, cause or access state without a time-aligned resolved record"
+      ]
+    },
+    {
+      "id": "data-layer:centreport-cruise-schedule",
+      "type": "DataLayer",
+      "label": "CentrePort cruise schedule",
+      "source_id": "centreport-cruise-schedule",
+      "ontology_role": "planned_demand_context",
+      "source_reality": "official_source",
+      "demo_data_status": "mock_preview",
+      "access_status": "publisher_clearance_required",
+      "data_2026": {
+        "status": "terms_review",
+        "active": false,
+        "record_state": "2026_27_schedule_not_republished",
+        "verified_at": "2026-08-10"
+      },
+      "evidence_weight": 0,
+      "can_support": [
+        "The declared source role and 2026 availability state"
+      ],
+      "cannot_assert": [
+        "An incident, cause or access state without a time-aligned resolved record"
+      ]
+    },
+    {
+      "id": "data-layer:google-routes-api",
+      "type": "DataLayer",
+      "label": "Google Routes API",
+      "source_id": "google-routes-api",
+      "ontology_role": "commercial_route_context",
+      "source_reality": "official_source",
+      "demo_data_status": "mock_preview",
+      "access_status": "paid_key_required",
+      "data_2026": {
+        "status": "paid_mock_only",
+        "active": false,
+        "record_state": "no_credentials_or_google_response",
+        "verified_at": "2026-08-10"
+      },
+      "evidence_weight": 0,
+      "can_support": [
+        "The declared source role and 2026 availability state"
+      ],
+      "cannot_assert": [
+        "An incident, cause or access state without a time-aligned resolved record"
+      ]
+    },
+    {
+      "id": "data-layer:google-places-api",
+      "type": "DataLayer",
+      "label": "Google Places API (New)",
+      "source_id": "google-places-api",
+      "ontology_role": "place_accessibility_context",
+      "source_reality": "official_source",
+      "demo_data_status": "mock_preview",
+      "access_status": "paid_key_required",
+      "data_2026": {
+        "status": "paid_mock_only",
+        "active": false,
+        "record_state": "no_credentials_or_google_response",
+        "verified_at": "2026-08-10"
+      },
+      "evidence_weight": 0,
+      "can_support": [
+        "The declared source role and 2026 availability state"
+      ],
+      "cannot_assert": [
+        "An incident, cause or access state without a time-aligned resolved record"
+      ]
     }
   ],
   "edges": [
@@ -215,6 +985,210 @@
       "type": "concerns",
       "from": "hyp:physical-access-disruption:centennial-highway",
       "to": "impact:potential-access-change:centennial-highway"
+    },
+    {
+      "id": "edge:10:sourced_from",
+      "type": "sourced_from",
+      "from": "obs:movement:48038:Car:N:2026-08-06T12:00:00",
+      "to": "data-layer:wcc-transport-sensors"
+    },
+    {
+      "id": "edge:11:describes",
+      "type": "describes",
+      "from": "data-layer:wcc-transport-sensors",
+      "to": "domain:wellington-movement-and-access"
+    },
+    {
+      "id": "edge:12:describes",
+      "type": "describes",
+      "from": "data-layer:wcc-ticket-detail",
+      "to": "domain:wellington-movement-and-access"
+    },
+    {
+      "id": "edge:13:describes",
+      "type": "describes",
+      "from": "data-layer:nzta-tms",
+      "to": "domain:wellington-movement-and-access"
+    },
+    {
+      "id": "edge:14:describes",
+      "type": "describes",
+      "from": "data-layer:gwrc-hilltop",
+      "to": "domain:wellington-movement-and-access"
+    },
+    {
+      "id": "edge:15:describes",
+      "type": "describes",
+      "from": "data-layer:nzta-road-events",
+      "to": "domain:wellington-movement-and-access"
+    },
+    {
+      "id": "edge:16:describes",
+      "type": "describes",
+      "from": "data-layer:metservice-cap",
+      "to": "domain:wellington-movement-and-access"
+    },
+    {
+      "id": "edge:17:describes",
+      "type": "describes",
+      "from": "data-layer:geonet-quakes",
+      "to": "domain:wellington-movement-and-access"
+    },
+    {
+      "id": "edge:18:describes",
+      "type": "describes",
+      "from": "data-layer:wremo-hubs",
+      "to": "domain:wellington-movement-and-access"
+    },
+    {
+      "id": "edge:19:describes",
+      "type": "describes",
+      "from": "data-layer:wcc-emergency-routes",
+      "to": "domain:wellington-movement-and-access"
+    },
+    {
+      "id": "edge:20:describes",
+      "type": "describes",
+      "from": "data-layer:metlink-realtime",
+      "to": "domain:wellington-movement-and-access"
+    },
+    {
+      "id": "edge:21:describes",
+      "type": "describes",
+      "from": "data-layer:geonet-tilde-wlgt",
+      "to": "domain:wellington-movement-and-access"
+    },
+    {
+      "id": "edge:22:describes",
+      "type": "describes",
+      "from": "data-layer:geonet-shaking-layers",
+      "to": "domain:wellington-movement-and-access"
+    },
+    {
+      "id": "edge:23:describes",
+      "type": "describes",
+      "from": "data-layer:nema-cap-alerts",
+      "to": "domain:wellington-movement-and-access"
+    },
+    {
+      "id": "edge:24:describes",
+      "type": "describes",
+      "from": "data-layer:wcc-road-closures",
+      "to": "domain:wellington-movement-and-access"
+    },
+    {
+      "id": "edge:25:describes",
+      "type": "describes",
+      "from": "data-layer:wellington-water-jobs",
+      "to": "domain:wellington-movement-and-access"
+    },
+    {
+      "id": "edge:26:describes",
+      "type": "describes",
+      "from": "data-layer:nema-electricity-outages",
+      "to": "domain:wellington-movement-and-access"
+    },
+    {
+      "id": "edge:27:describes",
+      "type": "describes",
+      "from": "data-layer:nema-cdem-boundaries",
+      "to": "domain:wellington-movement-and-access"
+    },
+    {
+      "id": "edge:28:describes",
+      "type": "describes",
+      "from": "data-layer:metlink-static-gtfs",
+      "to": "domain:wellington-movement-and-access"
+    },
+    {
+      "id": "edge:29:describes",
+      "type": "describes",
+      "from": "data-layer:wcc-emergency-water-tanks",
+      "to": "domain:wellington-movement-and-access"
+    },
+    {
+      "id": "edge:30:describes",
+      "type": "describes",
+      "from": "data-layer:wcc-event-calendar",
+      "to": "domain:wellington-movement-and-access"
+    },
+    {
+      "id": "edge:31:describes",
+      "type": "describes",
+      "from": "data-layer:eventfinda-events",
+      "to": "domain:wellington-movement-and-access"
+    },
+    {
+      "id": "edge:32:describes",
+      "type": "describes",
+      "from": "data-layer:wcc-planned-works",
+      "to": "domain:wellington-movement-and-access"
+    },
+    {
+      "id": "edge:33:describes",
+      "type": "describes",
+      "from": "data-layer:wcc-emergency-assistance-centres",
+      "to": "domain:wellington-movement-and-access"
+    },
+    {
+      "id": "edge:34:describes",
+      "type": "describes",
+      "from": "data-layer:gwrc-incident-areas",
+      "to": "domain:wellington-movement-and-access"
+    },
+    {
+      "id": "edge:35:describes",
+      "type": "describes",
+      "from": "data-layer:nzta-traffic-cameras",
+      "to": "domain:wellington-movement-and-access"
+    },
+    {
+      "id": "edge:36:describes",
+      "type": "describes",
+      "from": "data-layer:nema-public-ema-cap",
+      "to": "domain:wellington-movement-and-access"
+    },
+    {
+      "id": "edge:37:describes",
+      "type": "describes",
+      "from": "data-layer:gwrc-parks-notices",
+      "to": "domain:wellington-movement-and-access"
+    },
+    {
+      "id": "edge:38:describes",
+      "type": "describes",
+      "from": "data-layer:fenz-incident-reports",
+      "to": "domain:wellington-movement-and-access"
+    },
+    {
+      "id": "edge:39:describes",
+      "type": "describes",
+      "from": "data-layer:kiwirail-wellington-works",
+      "to": "domain:wellington-movement-and-access"
+    },
+    {
+      "id": "edge:40:describes",
+      "type": "describes",
+      "from": "data-layer:wellington-airport-flights",
+      "to": "domain:wellington-movement-and-access"
+    },
+    {
+      "id": "edge:41:describes",
+      "type": "describes",
+      "from": "data-layer:centreport-cruise-schedule",
+      "to": "domain:wellington-movement-and-access"
+    },
+    {
+      "id": "edge:42:describes",
+      "type": "describes",
+      "from": "data-layer:google-routes-api",
+      "to": "domain:wellington-movement-and-access"
+    },
+    {
+      "id": "edge:43:describes",
+      "type": "describes",
+      "from": "data-layer:google-places-api",
+      "to": "domain:wellington-movement-and-access"
     }
   ],
   "allowed_relation_types": [
@@ -226,13 +1200,23 @@
     "may_indicate",
     "may_affect",
     "applies_to",
-    "concerns"
+    "concerns",
+    "sourced_from",
+    "describes"
   ],
   "assertion_rules": {
     "movement_only": "investigate_only",
     "unknown_access": "must_not_be_rendered_as_open",
     "potential_impact": "inference_only",
-    "confirmation_requires": "authorised_human_review"
+    "confirmation_requires": "authorised_human_review",
+    "data_layer_availability": "zero_evidence_until_record_is_time_aligned_and_resolved",
+    "credentials_required": "publish_contract_not_records"
+  },
+  "data_layer_summary": {
+    "total": 33,
+    "active_2026": 21,
+    "real_record_layers": 1,
+    "zero_weight_layers": 32
   },
   "confirmed_facts": []
 }

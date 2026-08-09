@@ -384,7 +384,59 @@ CITY_RELATION_TYPES = (
     "may_affect",
     "applies_to",
     "concerns",
+    "sourced_from",
+    "describes",
 )
+
+
+DATA_2026_BY_SOURCE = {
+    "wcc-transport-sensors": ("real_records", True, "real_august_2026_replay"),
+    "wcc-ticket-detail": ("input_required", False, "no_council_extract_supplied"),
+    "nzta-tms": ("available_context", True, "wellington_rows_through_2026_08_05_non_spatial"),
+    "gwrc-hilltop": ("available_not_ingested", True, "live_series_contract_verified"),
+    "nzta-road-events": ("available_not_ingested", True, "current_feed_not_bound_to_replay"),
+    "metservice-cap": ("available_not_ingested", True, "cap_feed_contract_verified"),
+    "geonet-quakes": ("available_not_ingested", True, "current_event_feed_contract_verified"),
+    "wremo-hubs": ("static_context", True, "126_hubs_static_context"),
+    "wcc-emergency-routes": ("static_context", True, "post_event_reopening_plan"),
+    "metlink-realtime": ("credentials_required", False, "not_fetched_without_key"),
+    "geonet-tilde-wlgt": ("available_not_ingested", True, "live_15_second_series_contract_verified"),
+    "geonet-shaking-layers": ("available_not_ingested", True, "event_version_feed_contract_verified"),
+    "nema-cap-alerts": ("restricted_not_ingested", False, "restricted_polygon_feed_not_fetched"),
+    "wcc-road-closures": ("available_not_ingested", True, "2026_records_available_not_bound_to_replay"),
+    "wellington-water-jobs": ("terms_review", False, "public_jobs_not_republished"),
+    "nema-electricity-outages": ("terms_review", False, "public_feed_not_republished"),
+    "nema-cdem-boundaries": ("static_context", True, "authority_boundaries_context"),
+    "metlink-static-gtfs": ("available_context", True, "2026_schedule_and_network_context"),
+    "wcc-emergency-water-tanks": ("static_context", True, "45_tanks_static_context"),
+    "wcc-event-calendar": ("terms_review", False, "eventfinda_backed_html_not_republished"),
+    "wellington-airport-flights": ("terms_review", False, "flight_board_not_republished"),
+    "centreport-cruise-schedule": ("terms_review", False, "2026_27_schedule_not_republished"),
+    "google-routes-api": ("paid_mock_only", False, "no_credentials_or_google_response"),
+    "google-places-api": ("paid_mock_only", False, "no_credentials_or_google_response"),
+    "eventfinda-events": ("credentials_required", False, "not_fetched_without_application_key"),
+    "wcc-planned-works": ("available_context", True, "510_planned_records"),
+    "wcc-emergency-assistance-centres": ("empty_activation", True, "zero_current_records"),
+    "gwrc-incident-areas": ("stale_excluded", False, "one_2019_record_rejected_by_freshness_gate"),
+    "nzta-traffic-cameras": ("available_context", True, "319_national_26_region_at_verification"),
+    "nema-public-ema-cap": ("available_not_ingested", True, "public_cap_message_feed_available"),
+    "gwrc-parks-notices": ("available_context", True, "official_notice_api_available"),
+    "fenz-incident-reports": ("available_context", True, "official_seven_day_reports_incomplete"),
+    "kiwirail-wellington-works": ("planned_context", True, "significant_works_only"),
+}
+
+
+def _source_data_2026(source_id: str) -> dict:
+    try:
+        status, active, record_state = DATA_2026_BY_SOURCE[source_id]
+    except KeyError as exc:
+        raise ValueError(f"source registry entry lacks a 2026 data contract: {source_id}") from exc
+    return {
+        "status": status,
+        "active": active,
+        "record_state": record_state,
+        "verified_at": "2026-08-10",
+    }
 
 
 def build_city_ontology(*, entity, movement_feature, movement_observation, hypothesis):
@@ -507,6 +559,43 @@ def build_city_ontology(*, entity, movement_feature, movement_observation, hypot
         },
     ]
 
+    domain_id = "domain:wellington-movement-and-access"
+    nodes.append(
+        {
+            "id": domain_id,
+            "type": "OntologyDomain",
+            "label": "Wellington movement and access",
+            "can_support": ["Which source layers may describe movement, access or context"],
+            "cannot_assert": ["That an available layer contains incident evidence"],
+        }
+    )
+    registry_sources = source_registry()["sources"]
+    for source in registry_sources:
+        preview = source.get("capability_preview", {})
+        evidence_weight = (
+            preview.get("evidence_weight", 0)
+            if source["id"] == "wcc-transport-sensors"
+            else 0
+        )
+        nodes.append(
+            {
+                "id": f"data-layer:{source['id']}",
+                "type": "DataLayer",
+                "label": source["name"],
+                "source_id": source["id"],
+                "ontology_role": source["role"],
+                "source_reality": source["source_reality"],
+                "demo_data_status": source["demo_data_status"],
+                "access_status": source["access_status"],
+                "data_2026": deepcopy(source["data_2026"]),
+                "evidence_weight": evidence_weight,
+                "can_support": ["The declared source role and 2026 availability state"],
+                "cannot_assert": [
+                    "An incident, cause or access state without a time-aligned resolved record"
+                ],
+            }
+        )
+
     edge_specs = [
         (observation_id, "measured_by", asset_id),
         (asset_id, "located_on", place_id),
@@ -517,7 +606,12 @@ def build_city_ontology(*, entity, movement_feature, movement_observation, hypot
         (impact_id, "may_affect", place_id),
         (access_id, "applies_to", place_id),
         (hypothesis_id, "concerns", impact_id),
+        (observation_id, "sourced_from", "data-layer:wcc-transport-sensors"),
     ]
+    edge_specs.extend(
+        (f"data-layer:{source['id']}", "describes", domain_id)
+        for source in registry_sources
+    )
     edges = [
         {
             "id": f"edge:{index}:{relation}",
@@ -540,16 +634,33 @@ def build_city_ontology(*, entity, movement_feature, movement_observation, hypot
             "unknown_access": "must_not_be_rendered_as_open",
             "potential_impact": "inference_only",
             "confirmation_requires": "authorised_human_review",
+            "data_layer_availability": "zero_evidence_until_record_is_time_aligned_and_resolved",
+            "credentials_required": "publish_contract_not_records",
+        },
+        "data_layer_summary": {
+            "total": len(registry_sources),
+            "active_2026": sum(source["data_2026"]["active"] for source in registry_sources),
+            "real_record_layers": sum(
+                source["data_2026"]["status"] == "real_records"
+                for source in registry_sources
+            ),
+            "zero_weight_layers": len(registry_sources) - 1,
         },
         "confirmed_facts": [],
     }
 
 
 def source_registry():
-    def source(*, demo_data_status, access_status, **fields):
+    def source(
+        *,
+        demo_data_status,
+        access_status,
+        source_reality="official_source",
+        **fields,
+    ):
         return {
             **fields,
-            "source_reality": "official_source",
+            "source_reality": source_reality,
             "demo_data_status": demo_data_status,
             "access_status": access_status,
         }
@@ -562,13 +673,27 @@ def source_registry():
             "evidence_weight": 0,
         }
 
-    return {
+    registry = {
         "schema": "wellington-source-registry/v1",
-        "verified_at": "2026-08-09",
+        "verified_at": "2026-08-10",
         "demo_status_legend": {
             "real_replay": "Official source records used in this replay",
             "mock_preview": "Synthetic capability preview with zero evidence weight",
             "registered_only": "Official source registered; no records used in this replay",
+        },
+        "data_2026_status_legend": {
+            "real_records": "Permitted 2026 source records are present in this replay",
+            "available_not_ingested": "A 2026 feed exists but no record is bound to this replay",
+            "available_context": "A 2026 layer is available for schedule, network or visual context",
+            "planned_context": "A 2026 planned activity may explain expected demand",
+            "static_context": "The layer supports entity or exposure context only",
+            "empty_activation": "The official activation feed is connected and currently empty",
+            "credentials_required": "The official contract exists but this app has no key",
+            "input_required": "A council-provided input is required",
+            "terms_review": "Automated redistribution is not cleared",
+            "restricted_not_ingested": "Authorised access is required and no records are fetched",
+            "paid_mock_only": "No paid provider response is used",
+            "stale_excluded": "The available record is pre-2026 and fails freshness",
         },
         "sources": [
             source(
@@ -681,12 +806,23 @@ def source_registry():
             ),
             source(
                 id="metlink-realtime",
-                name="Metlink realtime",
+                name="Metlink bus delays & disruptions",
                 role="public_transport_observation",
                 availability="requires_key",
                 demo_data_status="registered_only",
                 access_status="key_required",
-                temporal_alignment="not connected in this demo",
+                developer_portal="https://opendata.metlink.org.nz/",
+                authentication="x-api-key",
+                bus_route_types=[3, 712],
+                endpoints={
+                    "service_alerts": "https://api.opendata.metlink.org.nz/v1/gtfs-rt/servicealerts",
+                    "trip_updates": "https://api.opendata.metlink.org.nz/v1/gtfs-rt/tripupdates",
+                    "vehicle_positions": "https://api.opendata.metlink.org.nz/v1/gtfs-rt/vehiclepositions",
+                    "stop_predictions": "https://api.opendata.metlink.org.nz/v1/stop-predictions",
+                },
+                entity_resolution="route_id_trip_id_stop_id_and_vehicle_id",
+                temporal_alignment="GTFS-RT header and entity timestamps must overlap the selected time",
+                evidence_policy="alerts_and_trip_updates_are_observations_not_movement_counts",
             ),
             source(
                 id="geonet-tilde-wlgt",
@@ -850,6 +986,127 @@ def source_registry():
                 ),
             ),
             source(
+                id="eventfinda-events",
+                name="Eventfinda events",
+                publisher="Eventfinda",
+                source_reality="authoritative_commercial_source",
+                role="planned_demand_context",
+                availability="requires_application_api_key",
+                demo_data_status="registered_only",
+                access_status="key_required",
+                endpoint="https://api.eventfinda.co.nz/v2/events.json",
+                developer_portal="https://www.eventfinda.co.nz/api/v2/index",
+                authentication="http_basic",
+                connection_status="not_configured",
+                entity_resolution="event_id_location_id_and_optional_point",
+                temporal_alignment="local event start/end and session window must overlap the selected time",
+                evidence_policy="schedule_only_not_attendance_or_disruption",
+                display_terms="content may be displayed only in the application named in the key request",
+            ),
+            source(
+                id="wcc-planned-works",
+                name="WCC Planned Works",
+                role="planned_access_context",
+                availability="public_keyless",
+                demo_data_status="registered_only",
+                access_status="public_free",
+                endpoint="https://gis.wcc.govt.nz/arcgis/rest/services/Transportation/PlannedWorks/MapServer/1/query",
+                licence="CC BY 3.0 NZ",
+                entity_resolution="provider_polygon_and_job_id",
+                temporal_alignment="proposed and expected work dates must overlap the selected time",
+                evidence_policy="planned_work_is_not_a_closure",
+            ),
+            source(
+                id="wcc-emergency-assistance-centres",
+                name="WCC Emergency Assistance Centres",
+                role="response_capability_observation",
+                availability="public_keyless_activation_feed",
+                demo_data_status="registered_only",
+                access_status="public_free",
+                endpoint="https://services1.arcgis.com/CPYspmTk3abe6d7i/arcgis/rest/services/WCC_Emergency_Assistance_Centres_(EACs)_VIEW/FeatureServer/0/query",
+                entity_resolution="provider_facility_point",
+                temporal_alignment="current activation state only",
+                evidence_policy="empty_feed_is_not_counter_evidence",
+                privacy={"address": "drop_from_public_output"},
+            ),
+            source(
+                id="gwrc-incident-areas",
+                name="GWRC Incident Areas",
+                role="official_incident_area_observation",
+                availability="public_keyless_but_stale",
+                demo_data_status="registered_only",
+                access_status="public_free",
+                endpoint="https://services2.arcgis.com/RS7BXJAO6ksvblJm/arcgis/rest/services/GWRC_EM_Incident_Areas_Layer_View/FeatureServer/0/query",
+                licence="CC BY 4.0 unless service-specific terms state otherwise",
+                entity_resolution="provider_polygon",
+                temporal_alignment="reject the 2019 row; require a fresh activation timestamp",
+                evidence_policy="stale_record_excluded",
+            ),
+            source(
+                id="nzta-traffic-cameras",
+                name="NZTA traffic cameras",
+                role="visual_access_context",
+                availability="public_keyless",
+                demo_data_status="registered_only",
+                access_status="public_free",
+                endpoint="https://www.journeys.nzta.govt.nz/assets/map-data-cache/cameras.json",
+                entity_resolution="camera_id_and_provider_point",
+                temporal_alignment="camera feed lastUpdated and fetch time must be current",
+                evidence_policy="human_review_required",
+                privacy="public_low_resolution_still_only",
+            ),
+            source(
+                id="nema-public-ema-cap",
+                name="NEMA public Emergency Mobile Alert CAP",
+                role="official_alert_observation",
+                availability="public_keyless",
+                demo_data_status="registered_only",
+                access_status="public_free",
+                endpoint="https://alerthub.civildefence.govt.nz/rss/pwp",
+                atom_endpoint="https://alerthub.civildefence.govt.nz/atom/pwp",
+                entity_resolution="CAP area and geocode when published",
+                temporal_alignment="sent, effective and expires must overlap the selected time",
+                evidence_policy="message_must_remain_attributed_and_unmodified",
+                deduplication_key="cap_identifier",
+            ),
+            source(
+                id="gwrc-parks-notices",
+                name="GWRC park access notices",
+                role="official_access_notice_context",
+                availability="public_keyless",
+                demo_data_status="registered_only",
+                access_status="public_free",
+                endpoint="https://www.gw.govt.nz/api/v1/parks/",
+                licence="CC BY 4.0 unless stated otherwise",
+                entity_resolution="park_url_and_named_location",
+                temporal_alignment="notice publication and stated validity must overlap the selected time",
+                evidence_policy="park_notice_does_not_establish_road_access",
+            ),
+            source(
+                id="fenz-incident-reports",
+                name="FENZ seven-day incident reports",
+                role="emergency_response_context",
+                availability="public_html",
+                demo_data_status="registered_only",
+                access_status="public_free",
+                endpoint="https://www.fireandemergency.nz/incidents-and-news/incident-reports/",
+                entity_resolution="command_region_day_and_reported_location_only",
+                temporal_alignment="reported incident time must overlap the selected time",
+                evidence_policy="incomplete_icad_extract_not_for_statistical_training",
+            ),
+            source(
+                id="kiwirail-wellington-works",
+                name="KiwiRail Wellington planned works",
+                role="planned_rail_access_context",
+                availability="public_html",
+                demo_data_status="registered_only",
+                access_status="public_free",
+                endpoint="https://www.kiwirail.co.nz/our-network/our-regions/wellington/where-we-are-working/",
+                entity_resolution="named_corridor_and_place_only",
+                temporal_alignment="published work window must overlap the selected time",
+                evidence_policy="significant_planned_work_only_not_live_service_status",
+            ),
+            source(
                 id="wellington-airport-flights",
                 name="Wellington Airport flight board",
                 role="transport_status_observation",
@@ -927,3 +1184,6 @@ def source_registry():
             ),
         ],
     }
+    for registry_source in registry["sources"]:
+        registry_source["data_2026"] = _source_data_2026(registry_source["id"])
+    return registry

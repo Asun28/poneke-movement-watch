@@ -87,6 +87,20 @@ workflow fields needed for review.
 - no trained classifier until verified disruption labels exist;
 - no uncalibrated score presented as incident likelihood.
 
+## 2026 source-layer contract
+
+The v3 ontology includes 33 `DataLayer` nodes. A layer node records publisher
+role, access, current 2026 state and zero-safe evidence weight; it is not an
+incident observation. Only the WCC movement replay currently contributes an
+evidence weight. Empty activation, credentials-required, restricted, paid,
+terms-review, static/planned and stale-excluded states all remain explicit.
+
+Eventfinda events are planned-demand context and require HTTP Basic credentials
+issued for this application. No HTML scraping fallback is used. Metlink static
+GTFS provides real network and schedule context; realtime bus service alerts,
+trip updates, vehicle positions and stop predictions require an `x-api-key`.
+Without keys, both contracts publish zero records and zero evidence.
+
 ## Build the v2 replay
 
 ```powershell

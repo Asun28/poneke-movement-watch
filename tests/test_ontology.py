@@ -122,6 +122,53 @@ def test_city_ontology_links_observation_place_time_state_and_potential_impact()
     assert city["assertion_rules"]["movement_only"] == "investigate_only"
     assert city["assertion_rules"]["confirmation_requires"] == "authorised_human_review"
 
+    data_layers = {
+        node["source_id"]: node for node in city["nodes"] if node["type"] == "DataLayer"
+    }
+    assert len(data_layers) == 33
+    assert {
+        "eventfinda-events",
+        "metlink-realtime",
+        "metlink-static-gtfs",
+        "wcc-planned-works",
+        "wcc-emergency-assistance-centres",
+        "gwrc-incident-areas",
+        "nzta-traffic-cameras",
+        "nema-public-ema-cap",
+        "gwrc-parks-notices",
+        "fenz-incident-reports",
+        "kiwirail-wellington-works",
+    } <= data_layers.keys()
+    assert data_layers["wcc-transport-sensors"]["data_2026"] == {
+        "status": "real_records",
+        "active": True,
+        "record_state": "real_august_2026_replay",
+        "verified_at": "2026-08-10",
+    }
+    assert data_layers["eventfinda-events"]["data_2026"]["status"] == "credentials_required"
+    assert data_layers["metlink-realtime"]["data_2026"]["status"] == "credentials_required"
+    assert data_layers["metlink-static-gtfs"]["data_2026"]["status"] == "available_context"
+    assert data_layers["gwrc-incident-areas"]["data_2026"] == {
+        "status": "stale_excluded",
+        "active": False,
+        "record_state": "one_2019_record_rejected_by_freshness_gate",
+        "verified_at": "2026-08-10",
+    }
+    assert data_layers["wcc-emergency-assistance-centres"]["data_2026"]["status"] == "empty_activation"
+    assert data_layers["wcc-emergency-assistance-centres"]["data_2026"]["active"] is True
+    assert all(
+        layer["evidence_weight"] == 0
+        for source_id, layer in data_layers.items()
+        if source_id != "wcc-transport-sensors"
+    )
+    assert data_layers["wcc-transport-sensors"]["evidence_weight"] == 2
+    assert any(
+        edge["type"] == "sourced_from"
+        and edge["from"] == observation["id"]
+        and edge["to"] == "data-layer:wcc-transport-sensors"
+        for edge in city["edges"]
+    )
+
 
 def test_ticket_detail_becomes_an_unverified_observation_without_personal_fields():
     observation = normalize_ticket_detail(ticket_row())
@@ -232,7 +279,7 @@ def test_source_registry_declares_role_access_and_temporal_limitations():
     assert sources["gwrc-hilltop"]["role"] == "hazard_observation"
     assert sources["wremo-hubs"]["role"] == "impact_context"
     assert sources["metlink-realtime"]["availability"] == "requires_key"
-    assert len(sources) == 24
+    assert len(sources) == 33
     assert {
         "geonet-tilde-wlgt",
         "geonet-shaking-layers",
@@ -248,9 +295,23 @@ def test_source_registry_declares_role_access_and_temporal_limitations():
         "centreport-cruise-schedule",
         "google-routes-api",
         "google-places-api",
+        "eventfinda-events",
+        "wcc-planned-works",
+        "wcc-emergency-assistance-centres",
+        "gwrc-incident-areas",
+        "nzta-traffic-cameras",
+        "nema-public-ema-cap",
+        "gwrc-parks-notices",
+        "fenz-incident-reports",
+        "kiwirail-wellington-works",
     } <= sources.keys()
 
-    assert all(source["source_reality"] == "official_source" for source in sources.values())
+    assert all(
+        source["source_reality"] == "official_source"
+        for source_id, source in sources.items()
+        if source_id != "eventfinda-events"
+    )
+    assert sources["eventfinda-events"]["source_reality"] == "authoritative_commercial_source"
     assert {source["demo_data_status"] for source in sources.values()} <= {
         "real_replay",
         "mock_preview",
@@ -275,6 +336,16 @@ def test_source_registry_declares_role_access_and_temporal_limitations():
     assert sources["nema-electricity-outages"]["deduplication_key"] == "distributor+distributoroutageid"
     assert sources["nema-cdem-boundaries"]["evidence_policy"] == "context_only"
     assert sources["metlink-static-gtfs"]["evidence_policy"] == "schedule_and_entity_context_only"
+    assert sources["metlink-static-gtfs"]["data_2026"]["status"] == "available_context"
+    assert sources["metlink-realtime"]["authentication"] == "x-api-key"
+    assert sources["metlink-realtime"]["bus_route_types"] == [3, 712]
+    assert sources["metlink-realtime"]["endpoints"] == {
+        "service_alerts": "https://api.opendata.metlink.org.nz/v1/gtfs-rt/servicealerts",
+        "trip_updates": "https://api.opendata.metlink.org.nz/v1/gtfs-rt/tripupdates",
+        "vehicle_positions": "https://api.opendata.metlink.org.nz/v1/gtfs-rt/vehiclepositions",
+        "stop_predictions": "https://api.opendata.metlink.org.nz/v1/stop-predictions",
+    }
+    assert sources["metlink-realtime"]["data_2026"]["status"] == "credentials_required"
     assert sources["wcc-emergency-water-tanks"]["evidence_policy"] == "context_only"
     assert sources["wcc-event-calendar"]["role"] == "planned_demand_context"
     assert sources["wellington-airport-flights"]["role"] == "transport_status_observation"
@@ -285,6 +356,20 @@ def test_source_registry_declares_role_access_and_temporal_limitations():
     assert sources["google-places-api"]["role"] == "place_accessibility_context"
     assert sources["google-places-api"]["access_status"] == "paid_key_required"
     assert sources["google-places-api"]["capability_preview"]["evidence_weight"] == 0
+
+    assert sources["eventfinda-events"]["role"] == "planned_demand_context"
+    assert sources["eventfinda-events"]["endpoint"] == "https://api.eventfinda.co.nz/v2/events.json"
+    assert sources["eventfinda-events"]["authentication"] == "http_basic"
+    assert sources["eventfinda-events"]["access_status"] == "key_required"
+    assert sources["eventfinda-events"]["data_2026"]["status"] == "credentials_required"
+    assert sources["eventfinda-events"]["evidence_policy"] == "schedule_only_not_attendance_or_disruption"
+    assert sources["wcc-planned-works"]["data_2026"]["record_state"] == "510_planned_records"
+    assert sources["wcc-emergency-assistance-centres"]["data_2026"]["status"] == "empty_activation"
+    assert sources["gwrc-incident-areas"]["data_2026"]["status"] == "stale_excluded"
+    assert sources["nzta-traffic-cameras"]["evidence_policy"] == "human_review_required"
+    assert sources["nema-public-ema-cap"]["access_status"] == "public_free"
+    assert sources["nema-public-ema-cap"]["deduplication_key"] == "cap_identifier"
+    assert all("data_2026" in source for source in sources.values())
 
     assert "wellington-electricity-outages" not in sources
 

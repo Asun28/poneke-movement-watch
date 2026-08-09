@@ -16,16 +16,19 @@ const sources = [
     id: "wcc-transport-sensors",
     demo_data_status: "real_replay",
     access_status: "public_free",
+    data_2026: { status: "real_records" },
   },
   {
     id: "nema-cap-alerts",
     demo_data_status: "mock_preview",
     access_status: "permission_required",
+    data_2026: { status: "restricted_not_ingested" },
   },
   {
     id: "google-routes-api",
     demo_data_status: "mock_preview",
     access_status: "paid_key_required",
+    data_2026: { status: "paid_mock_only" },
   },
 ];
 const signals = [{ id: "movement:1" }, { id: "movement:2" }];
@@ -52,18 +55,21 @@ test("mock permission and paid layers remain zero-record integration layers", ()
     access_label: "Public / free",
     playable: true,
     record_label: "Playable history",
+    year_label: "2026 real records",
   });
   assert.deepEqual(sourceLayerState(sources[1]), {
     truth_label: "Mock preview",
     access_label: "Needs permission",
     playable: false,
     record_label: "0 playable records",
+    year_label: "2026 restricted",
   });
   assert.deepEqual(sourceLayerState(sources[2]), {
     truth_label: "Mock preview",
     access_label: "Paid API",
     playable: false,
     record_label: "0 playable records",
+    year_label: "2026 paid / mock",
   });
 });
 
@@ -102,4 +108,35 @@ test("map wheel input adjusts zoom in both directions without fixed button jumps
   assert.equal(viewportModel.zoomFromWheel?.(2, -120), 2.25);
   assert.equal(viewportModel.zoomFromWheel?.(2, 120), 1.75);
   assert.equal(viewportModel.zoomFromWheel?.(2, 0), 2);
+});
+
+test("anchored zoom keeps the pointed map region under the pointer", () => {
+  assert.deepEqual(
+    viewportModel.zoomPanOffsetAtPoint?.(
+      [0, 0],
+      1,
+      2,
+      [200, 150],
+      [800, 600],
+    ),
+    [200, 150],
+  );
+  assert.deepEqual(
+    viewportModel.zoomPanOffsetAtPoint?.(
+      [30, -20],
+      2,
+      4,
+      [300, 200],
+      [800, 600],
+    ),
+    [160, 60],
+  );
+});
+
+test("replay speed changes only the playback interval and fails closed to 1x", () => {
+  assert.equal(viewportModel.replayIntervalMs?.(0.5), 1800);
+  assert.equal(viewportModel.replayIntervalMs?.(1), 900);
+  assert.equal(viewportModel.replayIntervalMs?.(2), 450);
+  assert.equal(viewportModel.replayIntervalMs?.(4), 225);
+  assert.equal(viewportModel.replayIntervalMs?.(99), 900);
 });

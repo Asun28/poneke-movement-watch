@@ -9,9 +9,11 @@ import {
   clampMapZoom,
   findNearestMapMarker,
   playableSignalsForSources,
+  replayIntervalMs,
   sourceLayerState,
   sourceSelectionSummary,
   zoomFromWheel,
+  zoomPanOffsetAtPoint,
 } from "./layerModel.mjs";
 
 type Coordinate = [number, number];
@@ -22,6 +24,7 @@ type LineFeature = {
 };
 type FeatureCollection = { type: "FeatureCollection"; features: LineFeature[] };
 type Filter = "all" | "people" | "vehicles";
+type ReplaySpeed = 0.5 | 1 | 2 | 4;
 type HistoryPoint = { observed_at: string; observed_count: number };
 type SignalConfidence = { level: string; history_samples: number; basis: string };
 type ReplaySignal = {
@@ -62,6 +65,12 @@ type SourceLayer = {
   role: string;
   demo_data_status: string;
   access_status: string;
+  data_2026?: {
+    status: string;
+    active: boolean;
+    record_state: string;
+    verified_at: string;
+  };
 };
 type MapHitTarget = {
   id: string;
@@ -74,6 +83,12 @@ type MapInspection = {
   feature: LineFeature;
   left: number;
   top: number;
+};
+type MapDragState = {
+  pointerId: number;
+  last: Coordinate;
+  distance: number;
+  moved: boolean;
 };
 
 const PEOPLE = new Set(["Pedestrian", "Cyclist", "E-scooter"]);
@@ -142,6 +157,7 @@ function createViewport(
   width: number,
   height: number,
   zoom: number,
+  panOffset: Coordinate,
 ) {
   const worldCoordinates = coordinates.map(lonLatToWorld);
   const worldXs = worldCoordinates.map(([x]) => x);
@@ -165,12 +181,13 @@ function createViewport(
     (bounds.north + bounds.south) / 2,
   ];
   const projectWorld = ([worldX, worldY]: Coordinate): Coordinate => [
-    width / 2 + (worldX - center[0]) * worldScale,
-    height / 2 + (worldY - center[1]) * worldScale,
+    width / 2 + panOffset[0] + (worldX - center[0]) * worldScale,
+    height / 2 + panOffset[1] + (worldY - center[1]) * worldScale,
   ];
 
   return {
     center,
+    panOffset,
     worldScale,
     tileZoom: Math.max(0, Math.min(19, Math.round(Math.log2(worldScale / TILE_SIZE)))),
     project: (coordinate: Coordinate) => projectWorld(lonLatToWorld(coordinate)),
@@ -186,10 +203,14 @@ function drawStreetTiles(
   onTileSettled: () => void,
 ) {
   const tileCount = 2 ** viewport.tileZoom;
-  const left = viewport.center[0] - width / (2 * viewport.worldScale);
-  const right = viewport.center[0] + width / (2 * viewport.worldScale);
-  const top = viewport.center[1] - height / (2 * viewport.worldScale);
-  const bottom = viewport.center[1] + height / (2 * viewport.worldScale);
+  const left = viewport.center[0]
+    + (-width / 2 - viewport.panOffset[0]) / viewport.worldScale;
+  const right = viewport.center[0]
+    + (width / 2 - viewport.panOffset[0]) / viewport.worldScale;
+  const top = viewport.center[1]
+    + (-height / 2 - viewport.panOffset[1]) / viewport.worldScale;
+  const bottom = viewport.center[1]
+    + (height / 2 - viewport.panOffset[1]) / viewport.worldScale;
   const minTileX = Math.floor(left * tileCount);
   const maxTileX = Math.floor(right * tileCount);
   const minTileY = Math.max(0, Math.floor(top * tileCount));
@@ -239,6 +260,7 @@ function drawMap(
   signals: LineFeature[],
   selectedId: string | null,
   zoom: number,
+  panOffset: Coordinate,
   showBasemap: boolean,
   showCoverage: boolean,
   symbolSize: number,
@@ -257,7 +279,7 @@ function drawMap(
   context.clearRect(0, 0, width, height);
 
   const coordinates = coverage.flatMap((feature) => feature.geometry.coordinates);
-  const viewport = createViewport(coordinates, width, height, zoom);
+  const viewport = createViewport(coordinates, width, height, zoom, panOffset);
   const project = viewport.project;
   if (showBasemap) drawStreetTiles(context, width, height, viewport, onTileSettled);
 
@@ -620,6 +642,7 @@ function LayerWorkspace({
                     <em>{state.truth_label}</em>
                     <em>{state.access_label}</em>
                     <em>{state.record_label}</em>
+                    <em>{state.year_label}</em>
                   </span>
                 </span>
               </label>
@@ -643,14 +666,20 @@ export default function MovementCanvas() {
   const mapStageRef = useRef<HTMLDivElement>(null);
   const mapInteractionRef = useRef<HTMLDivElement>(null);
   const hitTargetsRef = useRef<MapHitTarget[]>([]);
+  const panOffsetRef = useRef<Coordinate>([0, 0]);
+  const mapDragRef = useRef<MapDragState | null>(null);
+  const redrawMapRef = useRef<() => void>(() => undefined);
   const [coverage, setCoverage] = useState<LineFeature[]>([]);
   const [snapshotSignals, setSnapshotSignals] = useState<LineFeature[]>([]);
   const [replay, setReplay] = useState<ReplayPayload | null>(null);
   const [slotIndex, setSlotIndex] = useState(0);
   const [selectedSignalKey, setSelectedSignalKey] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [replaySpeed, setReplaySpeed] = useState<ReplaySpeed>(1);
   const [filter, setFilter] = useState<Filter>("all");
   const [zoom, setZoom] = useState(1);
+  const [hasPanned, setHasPanned] = useState(false);
+  const [isPanning, setIsPanning] = useState(false);
   const [tileRevision, setTileRevision] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [replayWarning, setReplayWarning] = useState<string | null>(null);
@@ -733,9 +762,9 @@ export default function MovementCanvas() {
         }
         return current + 1;
       });
-    }, 900);
+    }, replayIntervalMs(replaySpeed));
     return () => window.clearInterval(timer);
-  }, [isPlaying, replay, replaySourceSelected]);
+  }, [isPlaying, replay, replaySourceSelected, replaySpeed]);
 
   const replayDates = useMemo(() => replay
     ? [...new Set(replay.slots.map((slot) => slot.target_at.slice(0, 10)))]
@@ -787,6 +816,7 @@ export default function MovementCanvas() {
           filteredSignals,
           selected?.id ?? null,
           zoom,
+          panOffsetRef.current,
           showBasemap,
           showCoverage,
           symbolSize,
@@ -794,10 +824,12 @@ export default function MovementCanvas() {
         );
       });
     };
+    redrawMapRef.current = render;
     window.addEventListener("resize", render);
     render();
     return () => {
       cancelAnimationFrame(animationFrame);
+      redrawMapRef.current = () => undefined;
       window.removeEventListener("resize", render);
     };
   }, [coverage, filteredSignals, selected, showBasemap, showCoverage, symbolSize, tileRevision, zoom]);
@@ -818,38 +850,142 @@ export default function MovementCanvas() {
     if (!mapInteraction) return;
     const handleWheel = (event: WheelEvent) => {
       event.preventDefault();
-      setZoom((value) => zoomFromWheel(value, event.deltaY));
+      const nextZoom = zoomFromWheel(zoom, event.deltaY);
+      if (nextZoom === zoom) return;
+      const rect = mapInteraction.getBoundingClientRect();
+      panOffsetRef.current = zoomPanOffsetAtPoint(
+        panOffsetRef.current,
+        zoom,
+        nextZoom,
+        [event.clientX - rect.left, event.clientY - rect.top],
+        [rect.width, rect.height],
+      );
+      setHasPanned(
+        Math.abs(panOffsetRef.current[0]) > 0.5
+          || Math.abs(panOffsetRef.current[1]) > 0.5,
+      );
+      setZoom(nextZoom);
       setMapInspection(null);
     };
     mapInteraction.addEventListener("wheel", handleWheel, { passive: false });
     return () => mapInteraction.removeEventListener("wheel", handleWheel);
-  }, []);
+  }, [zoom]);
+
+  const mapTargetAtPoint = (
+    element: HTMLDivElement,
+    clientX: number,
+    clientY: number,
+  ) => {
+    const rect = element.getBoundingClientRect();
+    const target = findNearestMapMarker(
+      hitTargetsRef.current,
+      { x: clientX - rect.left, y: clientY - rect.top },
+      symbolSize + 9,
+    ) as MapHitTarget | null;
+    return { rect, target };
+  };
+
+  const inspectionForTarget = (target: MapHitTarget, rect: DOMRect): MapInspection => ({
+    feature: target.feature,
+    left: Math.min(Math.max(12, target.x + target.radius + 12), Math.max(12, rect.width - 272)),
+    top: Math.min(Math.max(12, target.y - 34), Math.max(12, rect.height - 190)),
+  });
 
   const inspectMap = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (!inspectionEnabled) {
+    if (!inspectionEnabled || mapDragRef.current) {
       setMapInspection(null);
       return;
     }
-    const rect = event.currentTarget.getBoundingClientRect();
-    const target = findNearestMapMarker(
-      hitTargetsRef.current,
-      { x: event.clientX - rect.left, y: event.clientY - rect.top },
-      symbolSize + 9,
-    ) as MapHitTarget | null;
+    const { rect, target } = mapTargetAtPoint(
+      event.currentTarget,
+      event.clientX,
+      event.clientY,
+    );
     if (!target) {
       setMapInspection(null);
       return;
     }
-    setMapInspection({
-      feature: target.feature,
-      left: Math.min(Math.max(12, target.x + target.radius + 12), Math.max(12, rect.width - 272)),
-      top: Math.min(Math.max(12, target.y - 34), Math.max(12, rect.height - 190)),
-    });
+    setMapInspection(inspectionForTarget(target, rect));
+  };
+
+  const startMapPan = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (event.button !== 0) return;
+    event.currentTarget.setPointerCapture(event.pointerId);
+    mapDragRef.current = {
+      pointerId: event.pointerId,
+      last: [event.clientX, event.clientY],
+      distance: 0,
+      moved: false,
+    };
+    setIsPanning(true);
+  };
+
+  const moveMapPan = (event: React.PointerEvent<HTMLDivElement>) => {
+    const drag = mapDragRef.current;
+    if (!drag || drag.pointerId !== event.pointerId) return;
+    const deltaX = event.clientX - drag.last[0];
+    const deltaY = event.clientY - drag.last[1];
+    drag.last = [event.clientX, event.clientY];
+    drag.distance += Math.hypot(deltaX, deltaY);
+    drag.moved = drag.moved || drag.distance > 3;
+    if (!drag.moved) return;
+    panOffsetRef.current = [
+      panOffsetRef.current[0] + deltaX,
+      panOffsetRef.current[1] + deltaY,
+    ];
+    setMapInspection(null);
+    redrawMapRef.current();
+  };
+
+  const finishMapPan = (event: React.PointerEvent<HTMLDivElement>) => {
+    const drag = mapDragRef.current;
+    if (!drag || drag.pointerId !== event.pointerId) return;
+    if (drag.moved) {
+      setHasPanned(true);
+    } else if (inspectionEnabled) {
+      const { rect, target } = mapTargetAtPoint(
+        event.currentTarget,
+        event.clientX,
+        event.clientY,
+      );
+      if (target) {
+        setSelectedSignalKey(signalKey(target.feature));
+        setMapInspection(inspectionForTarget(target, rect));
+      }
+    }
+    mapDragRef.current = null;
+    setIsPanning(false);
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
   };
 
   const adjustZoom = (nextZoom: number) => {
-    setZoom(clampMapZoom(nextZoom));
+    const clampedZoom = clampMapZoom(nextZoom);
+    const rect = mapInteractionRef.current?.getBoundingClientRect();
+    if (rect) {
+      panOffsetRef.current = zoomPanOffsetAtPoint(
+        panOffsetRef.current,
+        zoom,
+        clampedZoom,
+        [rect.width / 2, rect.height / 2],
+        [rect.width, rect.height],
+      );
+      setHasPanned(
+        Math.abs(panOffsetRef.current[0]) > 0.5
+          || Math.abs(panOffsetRef.current[1]) > 0.5,
+      );
+    }
+    setZoom(clampedZoom);
     setMapInspection(null);
+  };
+
+  const resetMapView = () => {
+    panOffsetRef.current = [0, 0];
+    setHasPanned(false);
+    setZoom(1);
+    setMapInspection(null);
+    redrawMapRef.current();
   };
 
   const toggleMapFullscreen = async () => {
@@ -922,7 +1058,7 @@ export default function MovementCanvas() {
               <span id="replay-heading">History replay</span>
               <small>
                 {replay
-                  ? `${formatReplayTime(replay.available_from)} — ${formatReplayTime(replay.available_to)}`
+                  ? `${formatReplayTime(replay.available_from)} to ${formatReplayTime(replay.available_to)}`
                   : "Loading published history range…"}
               </small>
             </div>
@@ -958,6 +1094,20 @@ export default function MovementCanvas() {
                 {(availableHours.length > 0 ? availableHours : ["12"]).map((hour) => (
                   <option key={hour} value={hour}>{hour}:00</option>
                 ))}
+              </select>
+            </label>
+            <label className="replay-speed-control">
+              <span>Speed</span>
+              <select
+                aria-label="Replay speed"
+                value={replaySpeed}
+                disabled={!replayEnabled}
+                onChange={(event) => setReplaySpeed(Number(event.currentTarget.value) as ReplaySpeed)}
+              >
+                <option value={0.5}>0.5×</option>
+                <option value={1}>1×</option>
+                <option value={2}>2×</option>
+                <option value={4}>4×</option>
               </select>
             </label>
             <div className="replay-buttons">
@@ -1009,12 +1159,35 @@ export default function MovementCanvas() {
             className="map-inspection-layer"
             aria-label="Paused map inspection layer"
             data-active={inspectionEnabled}
+            data-map-selectable={inspectionEnabled}
+            data-panning={isPanning}
             onMouseMove={inspectMap}
-            onMouseLeave={() => setMapInspection(null)}
+            onMouseLeave={() => {
+              if (!mapDragRef.current) setMapInspection(null);
+            }}
+            onPointerDown={startMapPan}
+            onPointerMove={moveMapPan}
+            onPointerUp={finishMapPan}
+            onPointerCancel={finishMapPan}
           />
           <div className={`map-inspection-status ${inspectionEnabled ? "is-ready" : "is-off"}`}>
-            <strong>{inspectionEnabled ? "Paused · hover markers" : isPlaying ? "Playing · inspection off" : "Paused · select real replay layer"}</strong>
-            <span>Inspection is off during playback. The signal list remains available for keyboard inspection.</span>
+            <strong>
+              {isPanning
+                ? "Moving map"
+                : inspectionEnabled
+                ? "Paused · hover markers"
+                : isPlaying
+                ? "Playing · inspection off"
+                : "Paused · select real replay layer"}
+            </strong>
+            <span>
+              {inspectionEnabled
+                ? "Hover to preview. Click to select. Drag to move after zooming."
+                : "Inspection is off during playback. The signal list remains available for keyboard inspection."}
+            </span>
+            <span className="sr-only">
+              Inspection is off during playback. The signal list remains available for keyboard inspection.
+            </span>
           </div>
           {mapInspection ? (
             <aside
@@ -1072,8 +1245,8 @@ export default function MovementCanvas() {
               <button
                 type="button"
                 aria-label="Reset map view"
-                disabled={zoom === 1}
-                onClick={() => adjustZoom(1)}
+                disabled={zoom === 1 && !hasPanned}
+                onClick={resetMapView}
               >Reset</button>
               <button
                 type="button"

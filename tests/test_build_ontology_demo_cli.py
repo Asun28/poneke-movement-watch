@@ -86,7 +86,7 @@ def test_cli_builds_v2_and_v3_ontology_artifacts_from_required_ticket_format(tmp
     }
     assert all(edge["type"] in city["allowed_relation_types"] for edge in city["edges"])
     source_ids = {source["id"] for source in registry["sources"]}
-    assert len(source_ids) == 24
+    assert len(source_ids) == 33
     assert {
         "geonet-tilde-wlgt",
         "nema-cap-alerts",
@@ -96,7 +96,17 @@ def test_cli_builds_v2_and_v3_ontology_artifacts_from_required_ticket_format(tmp
         "centreport-cruise-schedule",
         "google-routes-api",
         "google-places-api",
+        "eventfinda-events",
+        "wcc-planned-works",
+        "wcc-emergency-assistance-centres",
+        "nzta-traffic-cameras",
+        "nema-public-ema-cap",
     } <= source_ids
+    data_layers = {node["source_id"]: node for node in city["nodes"] if node["type"] == "DataLayer"}
+    assert len(data_layers) == 33
+    assert data_layers["eventfinda-events"]["evidence_weight"] == 0
+    assert data_layers["metlink-realtime"]["data_2026"]["record_state"] == "not_fetched_without_key"
+    assert data_layers["metlink-static-gtfs"]["data_2026"]["active"] is True
     restricted_nema = next(
         source for source in registry["sources"] if source["id"] == "nema-cap-alerts"
     )
@@ -109,3 +119,5 @@ def test_cli_builds_v2_and_v3_ontology_artifacts_from_required_ticket_format(tmp
     assert "Jane Doe" not in public_payload
     assert "10 Example Street" not in public_payload
     assert "rocks are near her home" not in public_payload
+    assert "METLINK_API_KEY" not in public_payload
+    assert "EVENTFINDA_API_KEY" not in public_payload

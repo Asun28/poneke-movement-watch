@@ -10,6 +10,16 @@ type CityNode = {
   end_exclusive?: string;
   transport_class?: string;
   direction?: string;
+  source_id?: string;
+  ontology_role?: string;
+  access_status?: string;
+  evidence_weight?: number;
+  data_2026?: {
+    status: string;
+    active: boolean;
+    record_state: string;
+    verified_at: string;
+  };
   can_support: string[];
   cannot_assert: string[];
 };
@@ -29,6 +39,22 @@ const timeWindow = findNode("TimeWindow");
 const movementState = findNode("MovementState");
 const potentialImpact = findNode("PotentialImpact");
 const accessState = findNode("AccessState");
+const dataLayers = graph.nodes.filter((node) => node.type === "DataLayer");
+
+const layerStatusLabels: Record<string, string> = {
+  real_records: "Real 2026 records",
+  available_not_ingested: "Feed available · not in replay",
+  available_context: "2026 context available",
+  planned_context: "Static or planned context",
+  static_context: "Static or planned context",
+  empty_activation: "Empty activation feed",
+  credentials_required: "Credentials required",
+  input_required: "Council input required",
+  terms_review: "Terms review",
+  restricted_not_ingested: "Restricted · not ingested",
+  paid_mock_only: "Paid · mock only",
+  stale_excluded: "Stale · excluded",
+};
 
 function SemanticNode({ kind, node }: { kind: string; node: CityNode }) {
   return (
@@ -91,6 +117,41 @@ export default function CityOntologyExplorer() {
           <SemanticNode kind="Place" node={place} />
         </div>
       </div>
+
+      <section className="data-layer-register" aria-labelledby="data-layer-register-heading">
+        <header>
+          <div>
+            <p className="eyebrow">Source → role → 2026 state</p>
+            <h3 id="data-layer-register-heading">2026 data-layer register</h3>
+            <p>
+              All 33 contracts sit inside the ontology with their access and time
+              state. Zero evidence until a record is time-aligned, entity-resolved
+              and permitted for this application.
+            </p>
+          </div>
+          <dl aria-label="2026 ontology layer totals">
+            <div><dt>Layers</dt><dd>{dataLayers.length}</dd></div>
+            <div><dt>Active context</dt><dd>{dataLayers.filter((layer) => layer.data_2026?.active).length}</dd></div>
+            <div><dt>Real replay</dt><dd>{dataLayers.filter((layer) => layer.data_2026?.status === "real_records").length}</dd></div>
+          </dl>
+        </header>
+        <div className="data-layer-list" aria-label={`${dataLayers.length} typed 2026 data layers`}>
+          {dataLayers.map((layer) => (
+            <article
+              className={`data-layer-row status-${layer.data_2026?.status ?? "unknown"}`}
+              data-ontology-layer={layer.source_id}
+              key={layer.id}
+            >
+              <div>
+                <span>{layer.ontology_role?.replaceAll("_", " ")}</span>
+                <strong>{layer.label}</strong>
+              </div>
+              <em>{layerStatusLabels[layer.data_2026?.status ?? ""] ?? "State unknown"}</em>
+              <small>{layer.access_status?.replaceAll("_", " ")} · weight {layer.evidence_weight ?? 0}</small>
+            </article>
+          ))}
+        </div>
+      </section>
 
       <div className="ontology-guardrails">
         <article>

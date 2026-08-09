@@ -1,10 +1,24 @@
 {
   "schema": "wellington-source-registry/v1",
-  "verified_at": "2026-08-09",
+  "verified_at": "2026-08-10",
   "demo_status_legend": {
     "real_replay": "Official source records used in this replay",
     "mock_preview": "Synthetic capability preview with zero evidence weight",
     "registered_only": "Official source registered; no records used in this replay"
+  },
+  "data_2026_status_legend": {
+    "real_records": "Permitted 2026 source records are present in this replay",
+    "available_not_ingested": "A 2026 feed exists but no record is bound to this replay",
+    "available_context": "A 2026 layer is available for schedule, network or visual context",
+    "planned_context": "A 2026 planned activity may explain expected demand",
+    "static_context": "The layer supports entity or exposure context only",
+    "empty_activation": "The official activation feed is connected and currently empty",
+    "credentials_required": "The official contract exists but this app has no key",
+    "input_required": "A council-provided input is required",
+    "terms_review": "Automated redistribution is not cleared",
+    "restricted_not_ingested": "Authorised access is required and no records are fetched",
+    "paid_mock_only": "No paid provider response is used",
+    "stale_excluded": "The available record is pre-2026 and fails freshness"
   },
   "sources": [
     {
@@ -21,7 +35,13 @@
       },
       "source_reality": "official_source",
       "demo_data_status": "real_replay",
-      "access_status": "public_free"
+      "access_status": "public_free",
+      "data_2026": {
+        "status": "real_records",
+        "active": true,
+        "record_state": "real_august_2026_replay",
+        "verified_at": "2026-08-10"
+      }
     },
     {
       "id": "wcc-ticket-detail",
@@ -42,7 +62,13 @@
       },
       "source_reality": "official_source",
       "demo_data_status": "mock_preview",
-      "access_status": "council_input_required"
+      "access_status": "council_input_required",
+      "data_2026": {
+        "status": "input_required",
+        "active": false,
+        "record_state": "no_council_extract_supplied",
+        "verified_at": "2026-08-10"
+      }
     },
     {
       "id": "nzta-tms",
@@ -54,7 +80,13 @@
       "temporal_alignment": "insufficient count-window semantics",
       "source_reality": "official_source",
       "demo_data_status": "registered_only",
-      "access_status": "public_free"
+      "access_status": "public_free",
+      "data_2026": {
+        "status": "available_context",
+        "active": true,
+        "record_state": "wellington_rows_through_2026_08_05_non_spatial",
+        "verified_at": "2026-08-10"
+      }
     },
     {
       "id": "gwrc-hilltop",
@@ -68,7 +100,13 @@
       "temporal_alignment": "LatestTime must be fresh and overlap the case window",
       "source_reality": "official_source",
       "demo_data_status": "registered_only",
-      "access_status": "public_free"
+      "access_status": "public_free",
+      "data_2026": {
+        "status": "available_not_ingested",
+        "active": true,
+        "record_state": "live_series_contract_verified",
+        "verified_at": "2026-08-10"
+      }
     },
     {
       "id": "nzta-road-events",
@@ -79,7 +117,13 @@
       "temporal_alignment": "current feed; not evidence for a past replay",
       "source_reality": "official_source",
       "demo_data_status": "registered_only",
-      "access_status": "public_free"
+      "access_status": "public_free",
+      "data_2026": {
+        "status": "available_not_ingested",
+        "active": true,
+        "record_state": "current_feed_not_bound_to_replay",
+        "verified_at": "2026-08-10"
+      }
     },
     {
       "id": "metservice-cap",
@@ -90,7 +134,13 @@
       "temporal_alignment": "warning validity must overlap the case window",
       "source_reality": "official_source",
       "demo_data_status": "registered_only",
-      "access_status": "public_free"
+      "access_status": "public_free",
+      "data_2026": {
+        "status": "available_not_ingested",
+        "active": true,
+        "record_state": "cap_feed_contract_verified",
+        "verified_at": "2026-08-10"
+      }
     },
     {
       "id": "geonet-quakes",
@@ -102,7 +152,13 @@
       "temporal_alignment": "event time must overlap the case window",
       "source_reality": "official_source",
       "demo_data_status": "registered_only",
-      "access_status": "public_free"
+      "access_status": "public_free",
+      "data_2026": {
+        "status": "available_not_ingested",
+        "active": true,
+        "record_state": "current_event_feed_contract_verified",
+        "verified_at": "2026-08-10"
+      }
     },
     {
       "id": "wremo-hubs",
@@ -113,7 +169,13 @@
       "temporal_alignment": "static context only",
       "source_reality": "official_source",
       "demo_data_status": "registered_only",
-      "access_status": "permission_required"
+      "access_status": "permission_required",
+      "data_2026": {
+        "status": "static_context",
+        "active": true,
+        "record_state": "126_hubs_static_context",
+        "verified_at": "2026-08-10"
+      }
     },
     {
       "id": "wcc-emergency-routes",
@@ -124,17 +186,43 @@
       "temporal_alignment": "static context only",
       "source_reality": "official_source",
       "demo_data_status": "registered_only",
-      "access_status": "permission_required"
+      "access_status": "permission_required",
+      "data_2026": {
+        "status": "static_context",
+        "active": true,
+        "record_state": "post_event_reopening_plan",
+        "verified_at": "2026-08-10"
+      }
     },
     {
       "id": "metlink-realtime",
-      "name": "Metlink realtime",
+      "name": "Metlink bus delays & disruptions",
       "role": "public_transport_observation",
       "availability": "requires_key",
-      "temporal_alignment": "not connected in this demo",
+      "developer_portal": "https://opendata.metlink.org.nz/",
+      "authentication": "x-api-key",
+      "bus_route_types": [
+        3,
+        712
+      ],
+      "endpoints": {
+        "service_alerts": "https://api.opendata.metlink.org.nz/v1/gtfs-rt/servicealerts",
+        "trip_updates": "https://api.opendata.metlink.org.nz/v1/gtfs-rt/tripupdates",
+        "vehicle_positions": "https://api.opendata.metlink.org.nz/v1/gtfs-rt/vehiclepositions",
+        "stop_predictions": "https://api.opendata.metlink.org.nz/v1/stop-predictions"
+      },
+      "entity_resolution": "route_id_trip_id_stop_id_and_vehicle_id",
+      "temporal_alignment": "GTFS-RT header and entity timestamps must overlap the selected time",
+      "evidence_policy": "alerts_and_trip_updates_are_observations_not_movement_counts",
       "source_reality": "official_source",
       "demo_data_status": "registered_only",
-      "access_status": "key_required"
+      "access_status": "key_required",
+      "data_2026": {
+        "status": "credentials_required",
+        "active": false,
+        "record_state": "not_fetched_without_key",
+        "verified_at": "2026-08-10"
+      }
     },
     {
       "id": "geonet-tilde-wlgt",
@@ -149,7 +237,13 @@
       "evidence_policy": "measurement_only_until_baseline_and_quality_gates_pass",
       "source_reality": "official_source",
       "demo_data_status": "registered_only",
-      "access_status": "public_free"
+      "access_status": "public_free",
+      "data_2026": {
+        "status": "available_not_ingested",
+        "active": true,
+        "record_state": "live_15_second_series_contract_verified",
+        "verified_at": "2026-08-10"
+      }
     },
     {
       "id": "geonet-shaking-layers",
@@ -164,7 +258,13 @@
       "evidence_policy": "published_version_only; modelled_shaking_is_not_damage_confirmation",
       "source_reality": "official_source",
       "demo_data_status": "registered_only",
-      "access_status": "public_free"
+      "access_status": "public_free",
+      "data_2026": {
+        "status": "available_not_ingested",
+        "active": true,
+        "record_state": "event_version_feed_contract_verified",
+        "verified_at": "2026-08-10"
+      }
     },
     {
       "id": "nema-cap-alerts",
@@ -185,7 +285,13 @@
       },
       "source_reality": "official_source",
       "demo_data_status": "mock_preview",
-      "access_status": "permission_required"
+      "access_status": "permission_required",
+      "data_2026": {
+        "status": "restricted_not_ingested",
+        "active": false,
+        "record_state": "restricted_polygon_feed_not_fetched",
+        "verified_at": "2026-08-10"
+      }
     },
     {
       "id": "wcc-road-closures",
@@ -206,7 +312,13 @@
       },
       "source_reality": "official_source",
       "demo_data_status": "mock_preview",
-      "access_status": "public_free"
+      "access_status": "public_free",
+      "data_2026": {
+        "status": "available_not_ingested",
+        "active": true,
+        "record_state": "2026_records_available_not_bound_to_replay",
+        "verified_at": "2026-08-10"
+      }
     },
     {
       "id": "wellington-water-jobs",
@@ -231,7 +343,13 @@
       },
       "source_reality": "official_source",
       "demo_data_status": "mock_preview",
-      "access_status": "publisher_clearance_required"
+      "access_status": "publisher_clearance_required",
+      "data_2026": {
+        "status": "terms_review",
+        "active": false,
+        "record_state": "public_jobs_not_republished",
+        "verified_at": "2026-08-10"
+      }
     },
     {
       "id": "nema-electricity-outages",
@@ -252,7 +370,13 @@
       },
       "source_reality": "official_source",
       "demo_data_status": "mock_preview",
-      "access_status": "publisher_clearance_required"
+      "access_status": "publisher_clearance_required",
+      "data_2026": {
+        "status": "terms_review",
+        "active": false,
+        "record_state": "public_feed_not_republished",
+        "verified_at": "2026-08-10"
+      }
     },
     {
       "id": "nema-cdem-boundaries",
@@ -266,7 +390,13 @@
       "temporal_alignment": "static response-authority context",
       "source_reality": "official_source",
       "demo_data_status": "registered_only",
-      "access_status": "publisher_clearance_required"
+      "access_status": "publisher_clearance_required",
+      "data_2026": {
+        "status": "static_context",
+        "active": true,
+        "record_state": "authority_boundaries_context",
+        "verified_at": "2026-08-10"
+      }
     },
     {
       "id": "metlink-static-gtfs",
@@ -280,7 +410,13 @@
       "evidence_policy": "schedule_and_entity_context_only",
       "source_reality": "official_source",
       "demo_data_status": "registered_only",
-      "access_status": "public_free"
+      "access_status": "public_free",
+      "data_2026": {
+        "status": "available_context",
+        "active": true,
+        "record_state": "2026_schedule_and_network_context",
+        "verified_at": "2026-08-10"
+      }
     },
     {
       "id": "wcc-emergency-water-tanks",
@@ -295,7 +431,13 @@
       "temporal_alignment": "static capability context",
       "source_reality": "official_source",
       "demo_data_status": "registered_only",
-      "access_status": "public_free"
+      "access_status": "public_free",
+      "data_2026": {
+        "status": "static_context",
+        "active": true,
+        "record_state": "45_tanks_static_context",
+        "verified_at": "2026-08-10"
+      }
     },
     {
       "id": "wcc-event-calendar",
@@ -315,7 +457,198 @@
       },
       "source_reality": "official_source",
       "demo_data_status": "mock_preview",
-      "access_status": "publisher_clearance_required"
+      "access_status": "publisher_clearance_required",
+      "data_2026": {
+        "status": "terms_review",
+        "active": false,
+        "record_state": "eventfinda_backed_html_not_republished",
+        "verified_at": "2026-08-10"
+      }
+    },
+    {
+      "id": "eventfinda-events",
+      "name": "Eventfinda events",
+      "publisher": "Eventfinda",
+      "role": "planned_demand_context",
+      "availability": "requires_application_api_key",
+      "endpoint": "https://api.eventfinda.co.nz/v2/events.json",
+      "developer_portal": "https://www.eventfinda.co.nz/api/v2/index",
+      "authentication": "http_basic",
+      "connection_status": "not_configured",
+      "entity_resolution": "event_id_location_id_and_optional_point",
+      "temporal_alignment": "local event start/end and session window must overlap the selected time",
+      "evidence_policy": "schedule_only_not_attendance_or_disruption",
+      "display_terms": "content may be displayed only in the application named in the key request",
+      "source_reality": "authoritative_commercial_source",
+      "demo_data_status": "registered_only",
+      "access_status": "key_required",
+      "data_2026": {
+        "status": "credentials_required",
+        "active": false,
+        "record_state": "not_fetched_without_application_key",
+        "verified_at": "2026-08-10"
+      }
+    },
+    {
+      "id": "wcc-planned-works",
+      "name": "WCC Planned Works",
+      "role": "planned_access_context",
+      "availability": "public_keyless",
+      "endpoint": "https://gis.wcc.govt.nz/arcgis/rest/services/Transportation/PlannedWorks/MapServer/1/query",
+      "licence": "CC BY 3.0 NZ",
+      "entity_resolution": "provider_polygon_and_job_id",
+      "temporal_alignment": "proposed and expected work dates must overlap the selected time",
+      "evidence_policy": "planned_work_is_not_a_closure",
+      "source_reality": "official_source",
+      "demo_data_status": "registered_only",
+      "access_status": "public_free",
+      "data_2026": {
+        "status": "available_context",
+        "active": true,
+        "record_state": "510_planned_records",
+        "verified_at": "2026-08-10"
+      }
+    },
+    {
+      "id": "wcc-emergency-assistance-centres",
+      "name": "WCC Emergency Assistance Centres",
+      "role": "response_capability_observation",
+      "availability": "public_keyless_activation_feed",
+      "endpoint": "https://services1.arcgis.com/CPYspmTk3abe6d7i/arcgis/rest/services/WCC_Emergency_Assistance_Centres_(EACs)_VIEW/FeatureServer/0/query",
+      "entity_resolution": "provider_facility_point",
+      "temporal_alignment": "current activation state only",
+      "evidence_policy": "empty_feed_is_not_counter_evidence",
+      "privacy": {
+        "address": "drop_from_public_output"
+      },
+      "source_reality": "official_source",
+      "demo_data_status": "registered_only",
+      "access_status": "public_free",
+      "data_2026": {
+        "status": "empty_activation",
+        "active": true,
+        "record_state": "zero_current_records",
+        "verified_at": "2026-08-10"
+      }
+    },
+    {
+      "id": "gwrc-incident-areas",
+      "name": "GWRC Incident Areas",
+      "role": "official_incident_area_observation",
+      "availability": "public_keyless_but_stale",
+      "endpoint": "https://services2.arcgis.com/RS7BXJAO6ksvblJm/arcgis/rest/services/GWRC_EM_Incident_Areas_Layer_View/FeatureServer/0/query",
+      "licence": "CC BY 4.0 unless service-specific terms state otherwise",
+      "entity_resolution": "provider_polygon",
+      "temporal_alignment": "reject the 2019 row; require a fresh activation timestamp",
+      "evidence_policy": "stale_record_excluded",
+      "source_reality": "official_source",
+      "demo_data_status": "registered_only",
+      "access_status": "public_free",
+      "data_2026": {
+        "status": "stale_excluded",
+        "active": false,
+        "record_state": "one_2019_record_rejected_by_freshness_gate",
+        "verified_at": "2026-08-10"
+      }
+    },
+    {
+      "id": "nzta-traffic-cameras",
+      "name": "NZTA traffic cameras",
+      "role": "visual_access_context",
+      "availability": "public_keyless",
+      "endpoint": "https://www.journeys.nzta.govt.nz/assets/map-data-cache/cameras.json",
+      "entity_resolution": "camera_id_and_provider_point",
+      "temporal_alignment": "camera feed lastUpdated and fetch time must be current",
+      "evidence_policy": "human_review_required",
+      "privacy": "public_low_resolution_still_only",
+      "source_reality": "official_source",
+      "demo_data_status": "registered_only",
+      "access_status": "public_free",
+      "data_2026": {
+        "status": "available_context",
+        "active": true,
+        "record_state": "319_national_26_region_at_verification",
+        "verified_at": "2026-08-10"
+      }
+    },
+    {
+      "id": "nema-public-ema-cap",
+      "name": "NEMA public Emergency Mobile Alert CAP",
+      "role": "official_alert_observation",
+      "availability": "public_keyless",
+      "endpoint": "https://alerthub.civildefence.govt.nz/rss/pwp",
+      "atom_endpoint": "https://alerthub.civildefence.govt.nz/atom/pwp",
+      "entity_resolution": "CAP area and geocode when published",
+      "temporal_alignment": "sent, effective and expires must overlap the selected time",
+      "evidence_policy": "message_must_remain_attributed_and_unmodified",
+      "deduplication_key": "cap_identifier",
+      "source_reality": "official_source",
+      "demo_data_status": "registered_only",
+      "access_status": "public_free",
+      "data_2026": {
+        "status": "available_not_ingested",
+        "active": true,
+        "record_state": "public_cap_message_feed_available",
+        "verified_at": "2026-08-10"
+      }
+    },
+    {
+      "id": "gwrc-parks-notices",
+      "name": "GWRC park access notices",
+      "role": "official_access_notice_context",
+      "availability": "public_keyless",
+      "endpoint": "https://www.gw.govt.nz/api/v1/parks/",
+      "licence": "CC BY 4.0 unless stated otherwise",
+      "entity_resolution": "park_url_and_named_location",
+      "temporal_alignment": "notice publication and stated validity must overlap the selected time",
+      "evidence_policy": "park_notice_does_not_establish_road_access",
+      "source_reality": "official_source",
+      "demo_data_status": "registered_only",
+      "access_status": "public_free",
+      "data_2026": {
+        "status": "available_context",
+        "active": true,
+        "record_state": "official_notice_api_available",
+        "verified_at": "2026-08-10"
+      }
+    },
+    {
+      "id": "fenz-incident-reports",
+      "name": "FENZ seven-day incident reports",
+      "role": "emergency_response_context",
+      "availability": "public_html",
+      "endpoint": "https://www.fireandemergency.nz/incidents-and-news/incident-reports/",
+      "entity_resolution": "command_region_day_and_reported_location_only",
+      "temporal_alignment": "reported incident time must overlap the selected time",
+      "evidence_policy": "incomplete_icad_extract_not_for_statistical_training",
+      "source_reality": "official_source",
+      "demo_data_status": "registered_only",
+      "access_status": "public_free",
+      "data_2026": {
+        "status": "available_context",
+        "active": true,
+        "record_state": "official_seven_day_reports_incomplete",
+        "verified_at": "2026-08-10"
+      }
+    },
+    {
+      "id": "kiwirail-wellington-works",
+      "name": "KiwiRail Wellington planned works",
+      "role": "planned_rail_access_context",
+      "availability": "public_html",
+      "endpoint": "https://www.kiwirail.co.nz/our-network/our-regions/wellington/where-we-are-working/",
+      "entity_resolution": "named_corridor_and_place_only",
+      "temporal_alignment": "published work window must overlap the selected time",
+      "evidence_policy": "significant_planned_work_only_not_live_service_status",
+      "source_reality": "official_source",
+      "demo_data_status": "registered_only",
+      "access_status": "public_free",
+      "data_2026": {
+        "status": "planned_context",
+        "active": true,
+        "record_state": "significant_works_only",
+        "verified_at": "2026-08-10"
+      }
     },
     {
       "id": "wellington-airport-flights",
@@ -335,7 +668,13 @@
       },
       "source_reality": "official_source",
       "demo_data_status": "mock_preview",
-      "access_status": "publisher_clearance_required"
+      "access_status": "publisher_clearance_required",
+      "data_2026": {
+        "status": "terms_review",
+        "active": false,
+        "record_state": "flight_board_not_republished",
+        "verified_at": "2026-08-10"
+      }
     },
     {
       "id": "centreport-cruise-schedule",
@@ -355,7 +694,13 @@
       },
       "source_reality": "official_source",
       "demo_data_status": "mock_preview",
-      "access_status": "publisher_clearance_required"
+      "access_status": "publisher_clearance_required",
+      "data_2026": {
+        "status": "terms_review",
+        "active": false,
+        "record_state": "2026_27_schedule_not_republished",
+        "verified_at": "2026-08-10"
+      }
     },
     {
       "id": "google-routes-api",
@@ -379,7 +724,13 @@
       },
       "source_reality": "official_source",
       "demo_data_status": "mock_preview",
-      "access_status": "paid_key_required"
+      "access_status": "paid_key_required",
+      "data_2026": {
+        "status": "paid_mock_only",
+        "active": false,
+        "record_state": "no_credentials_or_google_response",
+        "verified_at": "2026-08-10"
+      }
     },
     {
       "id": "google-places-api",
@@ -403,7 +754,13 @@
       },
       "source_reality": "official_source",
       "demo_data_status": "mock_preview",
-      "access_status": "paid_key_required"
+      "access_status": "paid_key_required",
+      "data_2026": {
+        "status": "paid_mock_only",
+        "active": false,
+        "record_state": "no_credentials_or_google_response",
+        "verified_at": "2026-08-10"
+      }
     }
   ]
 }

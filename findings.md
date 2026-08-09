@@ -1,5 +1,428 @@
 # Findings — Phase 2 ontology and sources
 
+## Phase 13 integration, live operations and alerts
+
+### Local architecture and UI audit
+
+- The site now contains `site/.openai/hosting.json` with an existing Sites
+  project ID and no D1/R2 bindings. This supersedes Phase 11's earlier manifest-
+  absence observation and requires the Sites capability/build/hosting path.
+- The current product is one long `/` page. `MovementCanvas.tsx` owns data fetch,
+  replay state, map rendering, layer selection, inspection and evidence state;
+  source registry data is imported separately by multiple components. There is
+  no shared runtime connector-health or normalized live-observation contract.
+- The correct route split is `/live`, `/alerts`, `/replay` and `/integration`,
+  ordered by the operator questions “what is happening now?”, “what needs
+  review?”, “what happened then?” and “which sources are connected?”.
+- Preserve the existing civic ink/harbour/amber/coral system at low variance,
+  subtle motion and high information density. The dashboard needs a shared
+  operator shell, not a generic card redesign.
+- Live and replay semantics must be structurally separate: Live has current
+  source freshness and partial-failure states; Replay retains date/hour/speed
+  controls, publisher cadence and historical trend. A paused live view freezes
+  presentation only and must not imply ingestion stopped.
+- Alert Centre should reuse the evidence lifecycle but take a prop-driven alert
+  record: observation IDs, supporting/contradicting/missing/context evidence,
+  ontology relations, rule basis and a human review state. LLM output remains
+  inference text and never upgrades an alert or confirmed fact.
+- Data Integration should render exactly one registry-driven row per source and
+  keep truth, access, 2026 state and runtime health as four separate dimensions.
+  Connected-zero must say “No current records”, never “All clear”.
+- Mobile should use four labelled navigation destinations, full-height layer/
+  detail drawers and 44px targets; the map stays the primary Live/Replay surface.
+  Required distinct states are loading, connected-zero, filtered-zero, partial
+  error, total error, stale, mock, restricted and paid/key-required.
+- UI/UX Pro Max was queried with React, variance 3, motion 2 and density 8. Its
+  loading feedback, stable-key, responsive, contrast, focus and reduced-motion
+  rules are applicable. Its exaggerated-minimalist landing pattern, oversized
+  type, luxury-style whitespace, red-dominant palette, Google Fonts and GSAP
+  reveal are rejected because they conflict with the established WCC operations
+  system, dense scanning tasks and no-new-dependency boundary.
+
+### WorldMonitor first repository pass
+
+- Agent Reach's GitHub route verifies `koala73/worldmonitor` is a large real-time
+  intelligence dashboard with separate `api`, `server`, `workers`, `shared`,
+  `src`, `data` and test surfaces. Its root publishes `ARCHITECTURE.md` and
+  `CONCEPTS.md`; the repository uses a non-standard `Other` licence, so no source
+  code or visual assets should be copied without a licence review.
+- The tree shows useful patterns to inspect rather than transplant: versioned
+  domain RPC routes, shared freshness/source-unavailable helpers, health and
+  seed-envelope contracts, bounded provider proxies, CORS/rate limits,
+  notification channels and domain-specific dashboards.
+
+### WorldMonitor architecture decision
+
+- The audited upstream commit is `0fca203`. Adopt its server-owned provider
+  boundary, bounded per-feed timeouts, request coalescing, last-known-good
+  fallback, source-health ledger and distinct transport-age/content-age checks.
+- Each WCC adapter contract must declare source/schema version, raw provider
+  format, validator, freshness target, stale budget, provenance, geographic
+  scope and failure class. Deterministic fixture adapters implement the same
+  contract but always stay synthetic and zero-weight.
+- Health precedence must keep `unavailable`, `blocked`, `degraded`, `partial`,
+  `stale`, `empty` and `live` distinct. A dashboard must not translate failed or
+  stale ingestion into “no incidents”.
+- Adopt a declarative map-layer registry and a server health-to-view-model
+  boundary. Avoid WorldMonitor's dual-map and very large central config shapes.
+- Alert ingestion, correlation, deduplication, severity policy and delivery
+  belong on the server. The browser can subscribe, display and acknowledge but
+  cannot create a confirmed incident or initiate life-safety notification.
+- Use versioned query/command routes. Polling may provide a recovery path, but
+  future high-priority operations should use a server stream with polling
+  fallback. This hackathon slice implements the query/snapshot boundary only.
+
+### Phase 13 TDD boundary
+
+- The first RED contract covers one integration record for all 33 registered
+  sources, partial source failure without blanking healthy records, official-
+  envelope Mock records at zero evidence weight, and deterministic review-only
+  alert candidates. The expected failure is the missing shared integration
+  module, before any production code exists.
+
+### Literal 33-source adapter audit
+
+- Classification is complete: 13 immediately connectable source families, one
+  connected empty activation feed, four static/planned context products, four
+  API-key/paid fixtures, four permission/input fixtures, six terms-review
+  fixtures and one stale source.
+- Highest-priority current adapters are WCC road closures, public NEMA EMA CAP,
+  GeoNet WLGT sea level, GeoNet shaking products and GWRC Hilltop. Existing WCC
+  Transport Sensor data remains batch replay because the publisher cadence is
+  at least monthly, even though its rows are hourly.
+- `metservice-cap` and WCC Emergency Assistance Centres can legitimately return
+  zero records. Their state is “No current records”, never an all-clear claim.
+- Paid/keyed official mock envelopes are: GTFS-RT `FeedMessage` for Metlink,
+  Eventfinda `events[]` with paging, Google Routes `routes[]`/matrix elements and
+  Google Places top-level Place fields. NEMA authorised EMA uses CAP 1.2-shaped
+  synthetic data only; no restricted record or endpoint is fetched.
+- Terms-review sources (water jobs, NEMA electricity/boundaries, WCC calendar,
+  airport and cruise) remain Mock/zero-weight until redistribution clearance.
+  Public reachability does not change this state.
+- Static schedules, facilities, boundaries and planned works are ontology
+  context and never become current incident evidence without a separate,
+  time-stamped operational observation.
+- Live connector parsers must preserve source-specific time and geometry: NZTA
+  `lastUpdated` plus event time, CAP `effective/expires`, GeoNet event/sample
+  time, ArcGIS native NZTM converted through `outSR=4326`, and empty activation
+  arrays without synthetic rows.
+
+### Implemented Phase 13 runtime
+
+- The Worker now owns three versioned read-only boundaries:
+  `/api/integration/v1/contracts`, `/api/integration/v1/snapshot` and
+  `/api/alerts/v1/candidates`. All provider fan-out is server-side and partial
+  failure preserves healthy source results.
+- Ten keyless current adapters are enabled: GWRC rainfall/Hilltop spatial view,
+  NZTA road events, MetService CAP, GeoNet quakes, GeoNet WLGT Tilde, WCC road
+  closures, WCC Emergency Assistance Centres, NZTA camera metadata, public NEMA
+  EMA CAP and GWRC park notices. The other 23 contracts remain batch, context,
+  stale or official-format Mock according to the literal matrix.
+- The 2026-08-10 11:48 NZST operational check returned 61 normalized records.
+  Six connectors had fresh records, three were connected-empty and one live
+  connector family returned only stale records; four non-live/context contracts
+  also retained their declared stale/unavailable state.
+- Seven current alert candidates passed all gates in that check: six active NZTA
+  road events and one approved WCC road closure. Planned NZTA events, stale
+  earthquakes, the non-local public CAP record, camera/context records and every
+  Mock source were excluded.
+- Provider epoch seconds are normalized separately from milliseconds. CAP
+  freshness is evaluated as an active feed snapshot while preserving `sent_at`,
+  `effective` and `expires`; validity and Wellington locality gates are applied
+  before CAP can enter the alert queue.
+- `/live`, `/alerts`, `/replay` and `/integration` now share one operator shell.
+  Live has selectable source layers, real OSM tiles, distinct map symbols, pan,
+  zoom, fullscreen, hover/select inspection and a keyboard observation list.
+  Replay retains the existing date/hour/speed/trend surface.
+- Alert Centre exposes the deterministic sensor/ontology/policy boundary and a
+  clearly synthetic LLM workflow preview. The live API marks LLM authority as
+  explanation-only and returns no confirmed facts.
+
+
+## Phase 12 map and UI audit
+
+- The current canvas projection multiplies scale by `zoom` around a fixed city
+  centre. Wheel, button and slider zoom never adjust the view centre and there
+  is no pan state, so peripheral countlines leave the viewport and cannot be
+  reached after zooming.
+- Canvas hit targets and pointer positions are both stored in CSS pixels, so
+  device-pixel ratio is not the mismatch. The selection gap is an interaction
+  model problem, not a raw coordinate-unit bug.
+- The transparent interaction layer supports hover only. It does not expose a
+  click handler that updates `selectedSignalKey`, so the map cannot directly
+  select an evidence region even when the marker is visible.
+- The correct minimal fix is cursor-anchored zoom plus drag-to-pan and
+  click-to-select. Pan values should stay in refs during pointer movement and
+  use the existing requestAnimationFrame draw path; only drag start/end need
+  React state for feedback.
+- `Reset map view` currently resets zoom only. Its contract must expand to clear
+  pan and restore the fitted city view.
+- The current style is a recognisable sharp-edged civic operations language:
+  harbour paper, civic ink, amber state accent, narrow headings and mono data.
+  Preserve these tokens. Improve hierarchy by bringing the map forward,
+  tightening the oversized intro, clarifying interaction guidance and extending
+  focus-visible states to form controls.
+- No new design-system dependency is justified. The chosen redesign-preserve
+  dials are variance 3, motion 2 and density 6; motion is limited to direct
+  hover, focus, pressed and drag feedback.
+- The first real browser snapshot at 1440-class desktop width renders all Phase
+  12 guidance and controls in the intended operator order. The map exposes a
+  paused inspection layer, direct click/drag guidance, zoom controls and a
+  keyboard-accessible signal list; source and replay truth labels are preserved.
+- The scrolled desktop map remains legible with the source rail and evidence
+  rail visible together. Marker direction arrows are distinct, the map controls
+  do not cover the central signals, and the new instruction card does not
+  obscure the active Wellington CBD cluster.
+- A real wheel gesture over the Wellington map changed the continuous zoom from
+  100% to 150%, kept the pointed CBD area in view and enabled Reset. This
+  verifies the real pointer-anchored path rather than only the pure helper.
+- A real drag gesture at 150% shifted the visible Wellington extent while the
+  marker cluster and basemap stayed aligned. The first manual click probe landed
+  outside the small marker hit radius and intentionally did not change evidence;
+  selection still requires a direct marker hit, not an arbitrary map location.
+- Browser screenshots are visually scaled in the tool output, so screenshot
+  display pixels cannot be reused as raw CSS coordinates for precise hit tests.
+  The next probe derives coordinates from the live overlay bounds and map data.
+- The exact-hit harness now uses the real countline coverage bounds, the same
+  Web Mercator projection and the live CSS overlay rectangle. This avoids both
+  screenshot scaling and any fabricated test-only hooks in production code.
+- The browser wheel gesture also moved the document by roughly 15 CSS pixels in
+  this embedded test surface. The anchored marker remained stable inside the
+  canvas, but its viewport coordinate shifted with the page; the final click
+  probe therefore adjusts by the live overlay displacement.
+- The in-app screenshot is a 1265×712 JPEG while the CSS viewport is 1667×792.
+  CUA uses the rendered screenshot coordinate space, whereas locator clicks use
+  CSS pixels. Precise automated selection therefore uses the zoom slider and
+  CSS projection; the real wheel path remains a separate visual verification.
+- Direct automation changed the range element property without firing React's
+  controlled state. The exact selection check therefore uses the visible Zoom
+  in buttons, matching the real user path and keeping test instrumentation out
+  of the application.
+- The visible Reset and Zoom in controls restore a reproducible 150% view. The
+  percentage status follows application state correctly; the raw range element
+  may round to its native step and is not used as the verification oracle.
+- The 150% screenshot confirms several target markers remain large and visible,
+  but a local reimplementation of the renderer did not reproduce their exact
+  screen positions after responsive layout and scroll changes. Final selection
+  verification therefore uses the visible screenshot marker itself rather than
+  treating duplicate projection code as an oracle.
+- The final real-browser marker probe succeeded at 150% zoom: clicking the
+  visible CBD marker changed the evidence panel from `Thorndon Quay road` to
+  `Ara Moana left`. This directly verifies the user's failed zoom-and-select path.
+- The desktop console contains only Vite connection and React development
+  notices. There are no application errors or warnings from the new pointer,
+  zoom, pan or selection paths.
+- At 390×844, the layer workspace remains readable with no clipped controls.
+  Its prominent close control collapses the long source setup into a compact
+  `Layers 1/33` button, bringing replay and map work back into the primary flow.
+- The collapsed mobile view has no horizontal overflow (`scrollWidth 375` in a
+  390-pixel viewport). Replay controls, zoom slider, fullscreen action, pause
+  guidance, movement marker, legend and attribution remain visible and legible.
+  Mobile console inspection is also free of errors and warnings.
+
+
+## Phase 10 remaining-source inventory
+
+## Phase 11 Eventfinda and Metlink contract verification
+
+- Eventfinda's official v2 API is REST and uses HTTP Basic authentication after
+  an instant developer-key application. The events resource exposes stable event
+  ID, canonical URL, local start/end, timezone, location summary, optional point
+  coordinates and sessions. Standard-access descriptions may be truncated.
+- Eventfinda content may be displayed only in the website/application named in
+  the API-key request. The public demo therefore cannot fetch or republish real
+  Eventfinda records until a key is issued specifically for this application.
+  Without credentials the ontology must show `api_credentials_required`, zero
+  records and zero evidence; no HTML scraping fallback is allowed.
+- Eventfinda events are `planned_demand_context`. A schedule may explain an
+  expected increase, but it is not observed attendance, congestion or disruption.
+- Metlink's official developer portal provides static and realtime Wellington
+  public-transport data. Static GTFS is downloadable without a key; live APIs
+  require a portal API key and must be called with the documented authentication.
+- Bus-relevant realtime products are GTFS-RT `servicealerts`, `tripupdates` and
+  `vehiclepositions`, plus stop predictions. Bus routes are GTFS `route_type=3`
+  and school buses `route_type=712`; rail/ferry/cable car must not be silently
+  included in a bus-only view.
+- Bus delay is represented by trip-update delay seconds at a trip/stop/time,
+  while cancellation/disruption comes from trip schedule relationship and
+  service-alert validity/effect. A service alert cannot be rewritten as a
+  measured movement count.
+- No Metlink key is present in the project. The implementation may add a tested,
+  key-gated adapter contract, but must not fetch live records or commit a key.
+
+### Phase 11 implementation audit
+
+- `source_registry()` is the single deterministic contract generator and
+  currently emits 24 entries. It already has separate `metlink-static-gtfs` and
+  `metlink-realtime` contracts plus a WCC Eventfinda-backed calendar contract,
+  but no first-class Eventfinda API contract or endpoint-level Metlink bus-delay
+  semantics.
+- `build_city_ontology()` currently builds one case chain only: movement
+  observation, countline, corridor, time window, movement state, potential
+  impact, unknown access and hypothesis. It has no DataSource/DataLayer nodes,
+  so the 2026 layer catalogue must be added explicitly without altering the
+  existing case relationships.
+- `build_ontology_demo.py` writes v2 registry/evidence/observations and the v3
+  city graph from deterministic local inputs. It has no credentialed-network
+  fetch path. This is the correct security boundary: build ontology contracts
+  locally and use optional supplied snapshots rather than embedding secrets.
+- The layer UI is registry-driven and marks only `wcc-transport-sensors` as
+  playable. Adding real/context/empty source-layer ontology nodes does not need
+  to make them replayable; that hard gate should remain unchanged.
+- The source capability preview already counts truth states from the registry.
+  It can expose a separate 2026 availability state without inventing records or
+  changing map playback.
+- The visible addition should extend the existing civic operations language,
+  not redesign the page: a compact “2026 layer register” grouped by record
+  state, with source/role/access encoded structurally. The memorable element is
+  a typed provenance rail from source layer to ontology role, not decorative
+  cards or new animation.
+- No `.openai/hosting.json` exists in this repository, so the Sites-building
+  skill is not automatically required by a project hosting manifest. Existing
+  project deployment commands remain the later publishing path if authorised.
+- Existing Python tests hard-code 24 registry sources and the rendered layer
+  workspace asserts 24 source rows. Phase 11 must deliberately move both
+  boundaries to the new literal registry size after RED proves the old contract.
+- `MovementCanvas` source rows currently show role, truth, access and playable
+  record state. A small additional 2026-state tag can expose `real`, `context`,
+  `empty`, `credentials required`, `restricted` or `stale excluded` without any
+  new map behavior.
+- README still describes 24 sources and only one city-case semantic chain. It
+  must document `DataLayer` as a non-evidence ontology type, the Eventfinda
+  application-specific key condition, and Metlink bus alert/delay endpoints.
+- The existing visual system already supplies civic ink, harbour teal, amber,
+  coral, narrow display type and monospace data labels. Phase 11 should reuse
+  those tokens and add one dense provenance register beneath the semantic rails;
+  no new palette, font dependency or motion is warranted.
+- The checked-in v2/v3 artifacts are regenerated deterministically from
+  `artifacts/ontology-replay-ticket.json`, the existing v1 movement GeoJSON and
+  countline `48038`. No external credentials or network calls are needed to
+  publish the expanded 2026 source-layer ontology.
+
+### Baseline and first official sweep
+
+- The current registry has 24 contracts. It already covers WCC transport
+  counts/tickets/closures/events/water jobs/tanks/emergency routes, NZTA TMS and
+  delays, GWRC Hilltop, MetService CAP, GeoNet quake/Tilde/Shaking, WREMO hubs,
+  NEMA CAP/electricity/CDEM boundaries, Metlink static/realtime, airport/cruise,
+  and Google Routes/Places.
+- The local hackathon catalogue has 74 first-class GIS datasets and a separate
+  60+ source research sweep verified 2026-08-04. Most of its hazard layers are
+  static context, not additional active observations.
+- Official WCC/GWRC searches independently expose credible gaps not in the 24:
+  WCC Street Light Outages; GWRC activation-time Incident Areas; WCC activation-
+  time Emergency Assistance Centres; GWRC ambulance, fire, hospital, medical
+  centre and police facility layers; NZTA traffic cameras and carriageway status.
+- The same catalogue identifies additional operational candidates: FENZ active
+  fires/fire-danger; Transpower GZ8 load; 2degrees outages; CentrePort harbour
+  weather/tide telemetry; Interislander/Bluebridge disruptions; public Civil
+  Defence EMA RSS; and selected international hazard cross-checks.
+- Official catalogue evidence reconfirms NZTA TREIS/delays as verified state-
+  highway incidents. It is already represented by `nzta-road-events`, so it is
+  not a new source.
+
+### Official search verification — operations and exposure
+
+- WCC's public street-light map exposes reported time and estimated fix date.
+  This is a genuine work/outage observation, but it indicates lighting/access
+  safety context rather than road closure or general electricity loss.
+- Transpower's official GZ8 page exposes Wellington MW, MVAR and power factor,
+  normally over a 24-hour window. It is current aggregate corroboration only;
+  Transpower explicitly labels it best-effort/indicative and monitored mainly
+  during business hours.
+- FENZ's official historical incident dataset is CAD/SMS-derived and suitable
+  for baselines, but it is not a live incident feed and lacks precise public
+  coordinates.
+- LINZ NZ Facilities is CC BY 4.0, ongoing, machine-accessible and provides
+  hospital/school polygons with source IDs, use type, last-modified date and
+  estimated occupancy where known. Occupancy is static exposure context, never
+  a real-time count.
+- LINZ's emergency-management guidance identifies Stats NZ resident population,
+  buildings, addresses, suburbs/localities, property, transport and rivers as
+  authoritative context. Rapid building assessments are explicitly not yet a
+  national open dataset.
+- NationalMap's monthly Emergency Management Basemap includes hospitals,
+  schools, retirement villages, event centres, prisons, fuel, food and medical
+  facilities, but its reuse/API contract needs review before ingestion.
+
+### Official search verification — emergency and hazard extensions
+
+- FENZ publishes last-seven-day incident reports from ICAD on its official site,
+  with an explicit incompleteness/statistical-use caveat. This is a current
+  incident observation candidate, but public location precision and machine
+  reuse terms must be checked before mapping. FireMapper's richer live CAD,
+  appliance and coordinate layers are responder-facing and permission-gated.
+- New Zealand's Public Safety Network has a cross-carrier Cellular Network
+  Visibility Service with live outages/planned works, but the official material
+  describes access for emergency services/coordination centres rather than an
+  open public feed. Register as `permission_required`, not public data.
+- GWRC's public environmental viewer confirms Hilltop covers more than rainfall
+  and rivers: air quality, climate, groundwater, lakes/wetlands, tide and water
+  quality. These are additional series under the existing `gwrc-hilltop` source,
+  not independent evidence providers.
+- GeoNet's official access docs confirm Tilde includes coastal, DART, GNSS and
+  landslide series; FDSN and AWS add waveform/archive paths. These should extend
+  existing GeoNet contracts rather than inflate the source count. DART normal
+  packets are 15-minute samples every six hours, switching to 15-second event
+  mode; stale/non-operational status must be checked.
+- GeoNet strong-motion archives update recent files hourly but may contain
+  non-seismic noise. Event-linked processed products remain preferable for
+  evidence; raw streams are expert context.
+- CentrePort confirms the fixed ferry infrastructure and two operators, but no
+  additional machine-readable public disruption contract was found in search.
+  Operator pages remain clearance-required HTML/GraphQL candidates.
+
+### Direct endpoint verification — 2026-08-10
+
+- WCC Planned Works contains 510 polygon jobs, all currently classified as
+  surfacing, with proposed starts from 2025-07-01 through 2027-07-01 and expected
+  completion dates extending to 2028-06-30. It is planned-access context.
+- WCC Emergency Assistance Centres is a current public activation FeatureServer
+  with facility, suburb and wheelchair-accessibility fields and zero rows. Empty
+  is the intended peacetime state.
+- GWRC Incident Areas contains one stale ICP polygon dated 2019. The adapter must
+  reject it under a freshness rule while retaining the activation capability.
+- NZTA cameras returned 319 national points; 26 fell inside a broad Wellington-
+  region bounding box and one of those was marked offline. Camera images are
+  human-review inputs, not automatic volume measurements.
+- WCC Street Light Outages contains 452 points, but parsed dates end in June
+  2025. It is not a current outage feed as of this review.
+- Wellington Regional Transport Status holds 19,599 road, 66 rail and 3 airport
+  features, but sampled status values were all open and effective record edits
+  were from 2021–2024. It cannot contradict a 2026 disruption observation.
+- NZTA Emergency Management Carriageway Status has 1,015 segments and useful
+  network/capacity fields, but service edit metadata is from 2023. Use it for
+  road entity context, not current status.
+- NEMA's official CAP guidance confirms the public EMA RSS/Atom messages are
+  intended for attributed redistribution. This public message feed is distinct
+  from the restricted broadcast-polygon ArcGIS item.
+- The final inventory classifies 53 deduplicated source groups: 8 connect-next,
+  11 permission/key/terms-review, 17 context-only, 6 existing-source extensions,
+  4 optional non-government corroborators and 7 exclusions.
+
+### Official catalogue expansion discovered
+
+- The WCC Transportation ArcGIS folder exposes `StreetLightOutages` and
+  `PlannedWorks` as distinct services. Street-light faults are an operational
+  safety observation; planned works are expected-access context.
+- The GWRC public ArcGIS catalogue also exposes Incident Areas, public transport
+  routes, park-and-ride, bus replacement stops, pedestrian-network constraints,
+  regional cycleways, corridor resilience, strategic access points, freight
+  routes, traffic volumes, route speeds, emergency facilities, supermarkets,
+  GPs and schools.
+- Most of those GWRC datasets are static or planning context. They must not be
+  labelled live disruption evidence unless service metadata and record times
+  establish a current operational observation.
+- `Wellington_Regional_Transport_Status_V2_VIEW` and WCC `PlannedWorks` are
+  priority contracts to inspect. WCC `ForwardWorksViewer` is an aggregation
+  surface and should not be counted independently when it repeats component
+  records.
+- Final output will separate directly connectable sources, permission/key/terms
+  review, context-only layers, extensions of existing contracts and exclusions.
+  Catalogue breadth will not be presented as independent evidence breadth.
+
+---
+
 ## Phase 9 zoom/fullscreen audit
 
 - The current viewport already accepts a numeric zoom factor, but UI state is
