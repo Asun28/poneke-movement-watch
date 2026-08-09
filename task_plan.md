@@ -15,7 +15,7 @@ paused marker inspection.
 - [completed] Add wheel/trackpad zoom, a continuous slider and fullscreen toggle.
 - [completed] Preserve overlays, controls and redraw behavior in fullscreen.
 - [completed] Run site, Python, lint and production-build regressions.
-- [in_progress] Publish the validated build to the existing private site.
+- [completed] Publish the validated build to the existing private site.
 
 ### Acceptance criteria
 
