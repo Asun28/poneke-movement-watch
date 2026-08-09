@@ -1,5 +1,6 @@
 import MovementCanvas from "./MovementCanvas";
 import EvidenceCaseLedger from "./EvidenceCaseLedger";
+import CityOntologyExplorer from "./CityOntologyExplorer";
 import SourceCapabilityPreview from "./SourceCapabilityPreview";
 import health from "../public/cop/v1/movement-health.json";
 
@@ -60,6 +61,8 @@ export default function Home() {
 
       <EvidenceCaseLedger />
 
+      <CityOntologyExplorer />
+
       <SourceCapabilityPreview />
 
       <section className="handoff-section" aria-labelledby="handoff-heading">
@@ -67,8 +70,8 @@ export default function Home() {
           <p className="eyebrow">Shared operating picture</p>
           <h2 id="handoff-heading">The map is a view. The feed is the product.</h2>
           <p>
-            The v1 movement feed remains stable. The v2 feeds add typed observations,
-            evidence roles, hypotheses, decision state, provenance, and exclusions.
+            The v1 movement feed remains stable. The v2 feeds add evidence lifecycle
+            state; v3 adds typed city places, assets, time, movement and impacts.
           </p>
         </div>
         <div className="endpoint-list">
@@ -95,6 +98,10 @@ export default function Home() {
           <a href="/cop/v2/source-registry.json">
             <span>Source registry</span>
             <code>/cop/v2/source-registry.json</code>
+          </a>
+          <a href="/cop/v3/city-ontology.json">
+            <span>City ontology</span>
+            <code>/cop/v3/city-ontology.json</code>
           </a>
         </div>
       </section>

@@ -1,5 +1,68 @@
 # Pōneke Movement Watch — evidence ontology roadmap
 
+## Phase 6 — Wellington city ontology explorer
+
+### Goal
+
+Extend the evidence lifecycle with a navigable city-semantic layer that links
+each existing movement observation to its sensor, place, time window, movement
+state and potential access impact without promoting an inference to fact.
+
+### Status
+
+- [completed] Audit the current ontology generator, artifact and case-ledger UI.
+- [completed] Define and test the v3 typed-node and relationship contract.
+- [completed] Generate the deterministic city ontology from existing replay evidence.
+- [completed] Add an accessible semantic-rail explorer and truth-boundary copy.
+- [completed] Run ontology, artifact, rendered-site, lint and production-build regressions.
+- [pending] Rebuild the source download and publish the existing site.
+
+### Acceptance criteria
+
+- A stable `/cop/v3/city-ontology.json` artifact exposes typed nodes and edges.
+- The graph includes place, infrastructure, time window, movement state,
+  potential impact and access state alongside the existing evidence lifecycle.
+- Every edge references an existing node and uses a documented relation type.
+- Movement-only evidence can indicate a potential impact but cannot confirm a
+  cause, closure, evacuation or access state.
+- `access_state=unknown` is visible and never rendered as open.
+- The site lets an operator inspect the typed chain, provenance, allowed claims
+  and prohibited claims without adding a new source or synthetic event.
+
+### Assumptions and exclusions
+
+- Reuse the existing real WCC replay and current ontology case only.
+- Add a backward-compatible v3 endpoint; keep `/cop/v1/` and `/cop/v2/` stable.
+- Do not infer road identity from proximity, assert attendance, create a causal
+  incident, train a classifier, or activate restricted/paid source records.
+
+### File-level plan
+
+- `src/movement_anomaly/ontology.py`: deterministic typed graph builder and validation.
+- `scripts/build_ontology_demo.py`: publish the v3 artifact beside v2.
+- `tests/` and `site/tests/`: test graph integrity and visible truth boundaries first.
+- `site/app/CityOntologyExplorer.tsx`, `page.tsx` and `globals.css`: semantic rail.
+- `README.md` and planning files: document the endpoint and assertion limits.
+
+### Design direction
+
+- Preserve the civic ink, harbour teal, warning amber and investigation coral palette.
+- Use a horizontal semantic rail whose relationship verbs are the structure,
+  with compact node detail rather than another generic card grid.
+- Keep the current display/body/data typography and spend visual emphasis only
+  on the selected relationship path.
+
+### Errors encountered
+
+| Error | Attempt | Resolution |
+|---|---:|---|
+| Initial Python RED failed during collection because the missing API was imported directly. | 1 | Import the ontology module and call the wished-for API inside the test so RED is an intentional behavior failure. |
+| Reusing the first project-local pytest base directory ended with a Windows access-denied cleanup error. | 1 | Run focused tests with a unique writable visualization-root base directory and disable pytest's cache provider. |
+| The second sandboxed pytest base directory also passed tests but failed Windows cleanup. | 1 | Re-ran the focused suite outside the sandbox; all eight tests passed, then scheduled only the verified temporary directories for cleanup. |
+| Full regression used the system Python, whose environment lacks pandas. | 1 | Locate and use the project's existing virtual-environment interpreter for the full suite; no dependency change is needed. |
+
+---
+
 ## Phase 5 — Historical replay and trend view
 
 ### Goal

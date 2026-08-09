@@ -4,7 +4,7 @@ import subprocess
 import sys
 
 
-def test_cli_builds_v2_ontology_artifacts_from_required_ticket_format(tmp_path):
+def test_cli_builds_v2_and_v3_ontology_artifacts_from_required_ticket_format(tmp_path):
     ticket_path = tmp_path / "tickets.json"
     ticket_path.write_text(
         json.dumps(
@@ -65,6 +65,7 @@ def test_cli_builds_v2_ontology_artifacts_from_required_ticket_format(tmp_path):
     observations = json.loads((output_dir / "observations.geojson").read_text())
     graph = json.loads((output_dir / "evidence-graph.json").read_text())
     registry = json.loads((output_dir / "source-registry.json").read_text())
+    city = json.loads((tmp_path / "v3" / "city-ontology.json").read_text())
 
     assert observations["schema"] == "wellington-observations/v1"
     assert {feature["properties"]["source_id"] for feature in observations["features"]} == {
@@ -74,6 +75,16 @@ def test_cli_builds_v2_ontology_artifacts_from_required_ticket_format(tmp_path):
     assert graph["entities"][0]["id"] == "corridor:centennial-highway"
     assert graph["hypotheses"][0]["epistemic_state"] == "inference"
     assert registry["schema"] == "wellington-source-registry/v1"
+    assert city["schema"] == "wellington-city-ontology/v1"
+    assert {node["type"] for node in city["nodes"]} >= {
+        "Place",
+        "InfrastructureAsset",
+        "TimeWindow",
+        "MovementState",
+        "PotentialImpact",
+        "AccessState",
+    }
+    assert all(edge["type"] in city["allowed_relation_types"] for edge in city["edges"])
     source_ids = {source["id"] for source in registry["sources"]}
     assert len(source_ids) == 24
     assert {
@@ -94,7 +105,7 @@ def test_cli_builds_v2_ontology_artifacts_from_required_ticket_format(tmp_path):
 
     public_payload = "\n".join(
         path.read_text(encoding="utf-8") for path in output_dir.iterdir()
-    )
+    ) + (tmp_path / "v3" / "city-ontology.json").read_text(encoding="utf-8")
     assert "Jane Doe" not in public_payload
     assert "10 Example Street" not in public_payload
     assert "rocks are near her home" not in public_payload

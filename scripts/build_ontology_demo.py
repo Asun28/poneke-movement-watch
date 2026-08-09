@@ -10,6 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from movement_anomaly.ontology import (
+    build_city_ontology,
     evaluate_corridor_hypotheses,
     movement_feature_to_observation,
     normalize_nzta_tms,
@@ -87,6 +88,7 @@ def main() -> None:
         },
     }
     observations = [movement_feature_to_observation(selected, entity["id"])]
+    movement_observation = observations[0]
 
     for record in _load_json(args.tickets):
         observation = normalize_ticket_detail(record)
@@ -108,6 +110,12 @@ def main() -> None:
         "decision": "authorised human action only",
         "confirmed_fact": "none recorded in this replay",
     }
+    city_ontology = build_city_ontology(
+        entity=entity,
+        movement_feature=selected,
+        movement_observation=movement_observation,
+        hypothesis=graph["hypotheses"][0],
+    )
 
     args.output_dir.mkdir(parents=True, exist_ok=True)
     payloads = {
@@ -119,12 +127,18 @@ def main() -> None:
         (args.output_dir / name).write_text(
             json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8"
         )
+    city_output_dir = args.output_dir.parent / "v3"
+    city_output_dir.mkdir(parents=True, exist_ok=True)
+    (city_output_dir / "city-ontology.json").write_text(
+        json.dumps(city_ontology, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
     print(
         json.dumps(
             {
                 "mode": "ontology_replay",
                 "observations": len(observations),
                 "hypotheses": len(graph["hypotheses"]),
+                "city_ontology_nodes": len(city_ontology["nodes"]),
                 "output_dir": str(args.output_dir),
             }
         )

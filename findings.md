@@ -1,5 +1,28 @@
 # Findings — Phase 2 ontology and sources
 
+## Phase 6 ontology-extension decision
+
+- Preserve the existing evidence lifecycle as the epistemic spine and add a
+  city-semantic projection rather than replacing the v2 graph.
+- The current v2 artifact is deliberately compact but flat: one resolved
+  `TransportCorridor`, observation references, one hypothesis, a decision state
+  and no confirmed facts. It has no first-class sensor, time, movement-state,
+  impact or access-state nodes, so those belong in the new projection.
+- The existing builder already owns the explicit countline-to-corridor crosswalk
+  and selected real movement feature. The v3 graph can therefore be generated
+  deterministically at the same boundary without a proximity join or new input.
+- The current case ledger is server-rendered and already imports static graph
+  artifacts. A small dedicated server-rendered explorer can add semantics with
+  no client state, network request or effect on replay/map interactions.
+- The smallest useful operator path is: movement observation → countline sensor
+  → explicitly named corridor/place → selected time window → increase/decrease
+  state → potential access impact. Access remains `unknown` unless a separate,
+  authoritative, time-aligned access observation says otherwise.
+- Potential impacts are candidate inferences for investigation, never confirmed
+  causes, closures, evacuation orders or accessibility facts.
+- The UI signature will be a relationship-labelled semantic rail that explains
+  both what each node can support and what it cannot assert.
+
 ## Phase 5 history audit
 
 - The deployed interface hard-codes one target (`2026-08-06 12:00`) and fetches

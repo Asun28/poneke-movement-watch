@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
 from copy import deepcopy
+from datetime import datetime, timedelta
 import re
 
 
@@ -368,6 +369,177 @@ def evaluate_corridor_hypotheses(*, entity, observations, expected_source_ids):
             "epistemic_state": "decision",
             "status": "unreviewed",
             "authority": None,
+        },
+        "confirmed_facts": [],
+    }
+
+
+CITY_RELATION_TYPES = (
+    "measured_by",
+    "located_on",
+    "observed_during",
+    "classified_as",
+    "supports",
+    "may_indicate",
+    "may_affect",
+    "applies_to",
+    "concerns",
+)
+
+
+def build_city_ontology(*, entity, movement_feature, movement_observation, hypothesis):
+    properties = movement_feature["properties"]
+    countline_id = _clean_text(properties.get("countline_id"))
+    if not countline_id:
+        raise ValueError("movement feature requires countline_id")
+
+    observed_at = _clean_text(movement_observation.get("observed_at"))
+    try:
+        window_start = datetime.fromisoformat(observed_at)
+    except ValueError as exc:
+        raise ValueError("movement observation requires ISO-8601 observed_at") from exc
+    window_end = window_start + timedelta(hours=1)
+
+    observation_id = movement_observation["id"]
+    asset_id = f"asset:wcc-countline:{countline_id}"
+    place_id = entity["id"]
+    time_id = f"time-window:{observed_at}"
+    state_id = f"movement-state:{observation_id.removeprefix('obs:')}"
+    entity_suffix = place_id.split(":", 1)[-1]
+    impact_id = f"impact:potential-access-change:{entity_suffix}"
+    access_id = f"access-state:{entity_suffix}:{observed_at}"
+    hypothesis_id = hypothesis["id"]
+
+    direction = _clean_text(properties.get("change_direction")) or "change"
+    transport_class = _clean_text(properties.get("transport_class")) or "Movement"
+    nodes = [
+        {
+            "id": observation_id,
+            "type": "Observation",
+            "label": f"{transport_class} movement {direction}",
+            "epistemic_state": "observation",
+            "source": deepcopy(movement_observation.get("source")),
+            "measurement": deepcopy(movement_observation.get("measurement")),
+            "provenance": {
+                "observed_at": observed_at,
+                "publisher_cadence": movement_observation.get("quality", {}).get(
+                    "publisher_cadence"
+                ),
+            },
+            "can_support": ["A movement change occurred at this sensor and hour"],
+            "cannot_assert": ["Why movement changed"],
+        },
+        {
+            "id": asset_id,
+            "type": "InfrastructureAsset",
+            "subtype": "TransportCountline",
+            "label": _clean_text(properties.get("name")) or f"WCC countline {countline_id}",
+            "identifiers": {
+                "countline_id": countline_id,
+                "viewpoint_id": _clean_text(properties.get("viewpoint_id")),
+            },
+            "geometry": deepcopy(movement_feature.get("geometry")),
+            "can_support": ["Where this fixed count was measured"],
+            "cannot_assert": ["All movement on the corridor"],
+        },
+        {
+            "id": place_id,
+            "type": "Place",
+            "subtype": entity.get("type", "TransportCorridor"),
+            "label": entity.get("label"),
+            "impact_level": entity.get("impact_level"),
+            "geometry": deepcopy(entity.get("geometry")),
+            "resolution": deepcopy(entity.get("resolution")),
+            "can_support": ["The maintained place link for this demo case"],
+            "cannot_assert": ["Nearby unnamed assets are the same entity"],
+        },
+        {
+            "id": time_id,
+            "type": "TimeWindow",
+            "label": "Selected hourly replay window",
+            "start": window_start.isoformat(),
+            "end_exclusive": window_end.isoformat(),
+            "timezone": "Pacific/Auckland",
+            "can_support": ["Which records may be compared for temporal alignment"],
+            "cannot_assert": ["A record outside this window corroborates the case"],
+        },
+        {
+            "id": state_id,
+            "type": "MovementState",
+            "label": f"Measured {direction}",
+            "value": direction,
+            "epistemic_state": "observation",
+            "transport_class": transport_class,
+            "direction": _clean_text(properties.get("direction")),
+            "can_support": ["The detector classified an unusual movement direction"],
+            "cannot_assert": ["Unsafe conditions or evacuation caused the change"],
+        },
+        {
+            "id": impact_id,
+            "type": "PotentialImpact",
+            "label": "Potential access change",
+            "status": "candidate_for_investigation",
+            "epistemic_state": "inference",
+            "can_support": ["An operator should investigate possible access effects"],
+            "cannot_assert": [
+                "A cause, closure, evacuation or loss of access is confirmed"
+            ],
+        },
+        {
+            "id": access_id,
+            "type": "AccessState",
+            "label": "Corridor access is unknown",
+            "value": "unknown",
+            "epistemic_state": "inference",
+            "evidence_requirement": "time-aligned authoritative access observation",
+            "can_support": ["The current evidence does not establish access status"],
+            "cannot_assert": ["Unknown is not open"],
+        },
+        {
+            "id": hypothesis_id,
+            "type": "HypothesisAssessment",
+            "label": "Physical access disruption",
+            "epistemic_state": "inference",
+            "review_priority": hypothesis.get("review_priority"),
+            "evidence_state": hypothesis.get("evidence_state"),
+            "can_support": ["A transparent investigation rank"],
+            "cannot_assert": ["A calibrated probability or confirmed incident"],
+        },
+    ]
+
+    edge_specs = [
+        (observation_id, "measured_by", asset_id),
+        (asset_id, "located_on", place_id),
+        (observation_id, "observed_during", time_id),
+        (observation_id, "classified_as", state_id),
+        (observation_id, "supports", hypothesis_id),
+        (state_id, "may_indicate", impact_id),
+        (impact_id, "may_affect", place_id),
+        (access_id, "applies_to", place_id),
+        (hypothesis_id, "concerns", impact_id),
+    ]
+    edges = [
+        {
+            "id": f"edge:{index}:{relation}",
+            "type": relation,
+            "from": source,
+            "to": target,
+        }
+        for index, (source, relation, target) in enumerate(edge_specs, start=1)
+    ]
+
+    return {
+        "schema": "wellington-city-ontology/v1",
+        "mode": "ontology_replay",
+        "title": "Wellington City Ontology — movement and access review",
+        "nodes": nodes,
+        "edges": edges,
+        "allowed_relation_types": list(CITY_RELATION_TYPES),
+        "assertion_rules": {
+            "movement_only": "investigate_only",
+            "unknown_access": "must_not_be_rendered_as_open",
+            "potential_impact": "inference_only",
+            "confirmation_requires": "authorised_human_review",
         },
         "confirmed_facts": [],
     }

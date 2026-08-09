@@ -1,5 +1,30 @@
 # Progress — Phase 2 ontology and sources
 
+- 2026-08-10: Started Phase 6 to add a Wellington city ontology explorer. The
+  chosen boundary is a backward-compatible v3 semantic graph built only from
+  the existing replay case: place, infrastructure, time, movement state,
+  potential impact and explicitly unknown access state.
+- 2026-08-10: Audited the generator, CLI, v2 artifact, case ledger, page and
+  rendered tests. Confirmed the explicit countline crosswalk is the safe reuse
+  point and a separate v3 projection will not break existing COP consumers.
+- 2026-08-10: Added Phase 6 contract tests first. Corrected the first Python RED
+  from collection-time import failure to an intentional missing-API failure.
+- 2026-08-10: TDD RED confirmed. The focused Python test fails because
+  `build_city_ontology` does not exist; the site suite has eight passes and one
+  expected failure because the v3 artifact/explorer is not yet implemented.
+- 2026-08-10: Python TDD GREEN confirmed outside the sandbox after Windows
+  blocked pytest temporary-directory cleanup inside it: all eight focused
+  ontology/CLI tests pass. Generated the real v3 graph with eight typed nodes.
+- 2026-08-10: Implemented the server-rendered semantic rail, visible inference
+  and unknown-access guardrails, v3 endpoint handoff and README examples. All
+  nine rendered-site/artifact tests now pass with the production build.
+- 2026-08-10: The first full Python regression command selected system Python
+  and stopped at collection because pandas is absent there. Focused Phase 6
+  tests remain green; next run uses the project's existing environment.
+- 2026-08-10: Final local regression passes using the project environment: 22
+  Python tests, nine rendered site/artifact tests, production build and ESLint.
+  All temporary pytest directories were removed after verification.
+
 - 2026-08-10: Started Phase 5 for historical date/hour replay and a trend data
   view. Restored the clean deployed state, loaded the Sites, TDD, test-quality,
   planning, frontend and Agent Reach instructions, and audited the single-slot

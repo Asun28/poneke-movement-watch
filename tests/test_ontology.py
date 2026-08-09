@@ -1,7 +1,9 @@
 import json
 
+from movement_anomaly import ontology
 from movement_anomaly.ontology import (
     evaluate_corridor_hypotheses,
+    movement_feature_to_observation,
     normalize_nzta_tms,
     normalize_ticket_detail,
     source_registry,
@@ -31,6 +33,94 @@ def ticket_row(**overrides):
     }
     row.update(overrides)
     return row
+
+
+def test_city_ontology_links_observation_place_time_state_and_potential_impact():
+    feature = {
+        "type": "Feature",
+        "id": "movement:48038:Car:N:2026-08-06T12:00:00",
+        "geometry": {
+            "type": "LineString",
+            "coordinates": [[174.813293, -41.247211], [174.813202, -41.247189]],
+        },
+        "properties": {
+            "countline_id": "48038",
+            "viewpoint_id": "7332",
+            "name": "Centennial Hwy road Northbound",
+            "transport_class": "Car",
+            "direction": "N",
+            "change_direction": "decrease",
+            "observed_count": 502.0,
+            "expected_count": 873.5,
+            "robust_z": -5.331,
+            "observed_at": "2026-08-06T12:00:00",
+            "publisher_cadence": "at least monthly",
+            "signal_confidence": {
+                "level": "high",
+                "history_samples": 12,
+                "basis": "matched weekday and hour",
+            },
+        },
+    }
+    entity = {
+        "id": "corridor:centennial-highway",
+        "type": "TransportCorridor",
+        "label": "Centennial Highway northern access",
+        "impact_level": "critical",
+        "geometry": feature["geometry"],
+        "resolution": {
+            "method": "explicit_demo_crosswalk",
+            "source_ref": "wcc-countline:48038",
+        },
+    }
+    observation = movement_feature_to_observation(feature, entity["id"])
+    evidence_graph = evaluate_corridor_hypotheses(
+        entity=entity,
+        observations=[observation],
+        expected_source_ids=["nzta-road-events"],
+    )
+
+    city = ontology.build_city_ontology(
+        entity=entity,
+        movement_feature=feature,
+        movement_observation=observation,
+        hypothesis=evidence_graph["hypotheses"][0],
+    )
+
+    assert city["schema"] == "wellington-city-ontology/v1"
+    nodes = {node["id"]: node for node in city["nodes"]}
+    assert {
+        "Observation",
+        "InfrastructureAsset",
+        "Place",
+        "TimeWindow",
+        "MovementState",
+        "PotentialImpact",
+        "AccessState",
+        "HypothesisAssessment",
+    } <= {node["type"] for node in nodes.values()}
+    assert nodes["asset:wcc-countline:48038"]["subtype"] == "TransportCountline"
+    assert nodes["corridor:centennial-highway"]["resolution"]["method"] == "explicit_demo_crosswalk"
+
+    access = next(node for node in nodes.values() if node["type"] == "AccessState")
+    assert access["value"] == "unknown"
+    assert access["epistemic_state"] == "inference"
+    assert "Unknown is not open" in access["cannot_assert"]
+
+    impact = next(node for node in nodes.values() if node["type"] == "PotentialImpact")
+    assert impact["epistemic_state"] == "inference"
+    assert impact["status"] == "candidate_for_investigation"
+    assert impact["cannot_assert"] == [
+        "A cause, closure, evacuation or loss of access is confirmed"
+    ]
+
+    node_ids = set(nodes)
+    assert all(edge["from"] in node_ids and edge["to"] in node_ids for edge in city["edges"])
+    relation_types = {edge["type"] for edge in city["edges"]}
+    assert {"measured_by", "located_on", "observed_during", "classified_as", "supports", "may_indicate", "may_affect"} <= relation_types
+    assert relation_types <= set(city["allowed_relation_types"])
+    assert city["assertion_rules"]["movement_only"] == "investigate_only"
+    assert city["assertion_rules"]["confirmation_requires"] == "authorised_human_review"
 
 
 def test_ticket_detail_becomes_an_unverified_observation_without_personal_fields():

@@ -67,9 +67,9 @@ flowchart LR
 | Ontology | Resolve entities, assign evidence roles and rank review cases | `ontology.py` |
 | Contracts | Stable public schemas and truth-state boundaries | `contract.py` |
 | I/O | Read source files and write reproducible artifacts | `io.py` |
-| Builders | Produce v1 movement and v2 ontology replay feeds | `scripts/build_demo.py`, `scripts/build_ontology_demo.py` |
+| Builders | Produce v1 movement, v2 evidence and v3 city-semantic feeds | `scripts/build_demo.py`, `scripts/build_ontology_demo.py` |
 | Interface | Canvas map, historical replay, trend panel, filters and case ledger | `site/app/` |
-| COP artifacts | Integration-ready GeoJSON and JSON | `site/public/cop/v1/`, `site/public/cop/v2/` |
+| COP artifacts | Integration-ready GeoJSON and JSON | `site/public/cop/v1/`, `site/public/cop/v2/`, `site/public/cop/v3/` |
 
 ## Wellington City Ontology
 
@@ -86,6 +86,25 @@ the goal is interoperable evidence, not a universal model of the city.
 | `Decision` | An action recorded by an authorised human role | Yes, within that authority |
 | `ConfirmedFact` | A reviewed assertion with provenance | It records confirmation |
 | `SourceRegistryEntry` | Access, cadence, role, privacy and resolution limits | No |
+| `Place` | A maintained geographic identity such as a transport corridor | No |
+| `InfrastructureAsset` | A fixed sensor or lifeline asset with source identifiers | No |
+| `TimeWindow` | The interval in which records may be compared | No |
+| `MovementState` | An observed increase or decrease classification | No |
+| `PotentialImpact` | An investigation-only effect that evidence may indicate | No |
+| `AccessState` | `unknown`, `open`, `restricted` or `closed`, with authority | Only with authoritative evidence |
+
+The v3 city projection adds explicit semantic relationships:
+
+```text
+observation ─measured by→ countline ─located on→ place
+observation ─observed during→ time window
+observation ─classified as→ movement state ─may indicate→ potential impact
+potential impact ─may affect→ place
+```
+
+Movement alone leaves `AccessState.value` as `unknown`. Unknown is not open,
+and a potential impact remains inference-only until a time-aligned authoritative
+record and authorised human review establish otherwise.
 
 ### Epistemic lifecycle
 
@@ -233,6 +252,7 @@ The site publishes static, cacheable contracts that can slot into a shared map.
 | `/cop/v2/observations.geojson` | Privacy-safe typed observations |
 | `/cop/v2/evidence-graph.json` | Entities, evidence roles, hypotheses and decision state |
 | `/cop/v2/source-registry.json` | Source role, access, cadence and resolution limits |
+| `/cop/v3/city-ontology.json` | Typed place, asset, time, state, impact and access relationships |
 
 Example:
 

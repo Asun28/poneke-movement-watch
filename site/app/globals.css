@@ -237,6 +237,46 @@ h2 { font-size: clamp(29px, 3.2vw, 47px); line-height: 1; }
 .empty-row strong { color: #ee947f; }
 .case-id { display: block; margin-top: 18px; color: #789199; font: 10px/1.4 Consolas, monospace; overflow-wrap: anywhere; }
 
+.city-ontology {
+  margin: 0 clamp(12px, 2.6vw, 44px) clamp(76px, 9vw, 126px);
+  padding: clamp(24px, 4vw, 52px);
+  border: 1px solid var(--civic-ink);
+  background: #e9f1ef;
+  box-shadow: 12px 14px 0 rgba(30, 106, 141, .18);
+}
+.city-ontology-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(270px, .42fr);
+  gap: clamp(30px, 7vw, 100px);
+  align-items: end;
+  margin-bottom: 32px;
+}
+.city-ontology-header h2 { max-width: 760px; }
+.city-ontology-header p:not(.eyebrow) { max-width: 720px; margin: 18px 0 0; color: var(--muted-ink); line-height: 1.55; }
+.city-ontology-header a { display: block; padding: 15px; color: inherit; border: 1px solid var(--civic-ink); text-decoration: none; background: rgba(248, 251, 251, .62); }
+.city-ontology-header a:hover { background: var(--white); }
+.city-ontology-header a span, .city-ontology-header a code { display: block; }
+.city-ontology-header a span { font-weight: 700; }
+.city-ontology-header a code { margin-top: 8px; color: var(--movement-blue); font-size: 11px; overflow-wrap: anywhere; }
+.semantic-rails { border-top: 1px solid var(--civic-ink); }
+.semantic-rail { display: grid; grid-template-columns: minmax(170px, 1fr) 92px minmax(170px, 1fr) 92px minmax(170px, 1fr); align-items: stretch; border-bottom: 1px solid var(--civic-ink); }
+.semantic-rail.is-inference { background: rgba(215, 137, 22, .08); }
+.semantic-node { min-height: 132px; padding: 16px; background: rgba(248, 251, 251, .68); }
+.semantic-node span { color: var(--movement-blue); font: 700 10px/1 Consolas, monospace; letter-spacing: .08em; text-transform: uppercase; }
+.semantic-node strong, .semantic-node small { display: block; }
+.semantic-node strong { margin-top: 22px; font: 750 18px/1.05 "Arial Narrow", sans-serif; }
+.semantic-node small { margin-top: 8px; color: var(--muted-ink); font-size: 11px; line-height: 1.4; }
+.node-potentialimpact { background: #fff3dc; }
+.semantic-relation { display: flex; min-width: 0; flex-direction: column; align-items: center; justify-content: center; padding: 8px; border-inline: 1px dashed rgba(16, 42, 51, .3); color: var(--corroboration-teal); text-align: center; }
+.semantic-relation b { font: 700 23px/1 Consolas, monospace; }
+.semantic-relation em { margin-top: 7px; color: var(--muted-ink); font: 700 9px/1.25 Consolas, monospace; font-style: normal; text-transform: uppercase; }
+.ontology-guardrails { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 26px; border-top: 1px solid var(--civic-ink); border-left: 1px solid var(--civic-ink); }
+.ontology-guardrails article { min-height: 150px; padding: 17px; border-right: 1px solid var(--civic-ink); border-bottom: 1px solid var(--civic-ink); background: rgba(248, 251, 251, .62); }
+.ontology-guardrails span { color: var(--muted-ink); font: 700 10px/1 Consolas, monospace; text-transform: uppercase; }
+.ontology-guardrails strong { display: block; margin-top: 24px; color: var(--corroboration-teal); font: 750 24px/1 "Arial Narrow", sans-serif; text-transform: uppercase; }
+.ontology-guardrails p { margin: 10px 0 0; color: var(--muted-ink); font-size: 12px; line-height: 1.45; }
+.ontology-guardrails .access-unknown strong { color: var(--uncertainty-coral); }
+
 .source-preview { padding: 0 clamp(20px, 6vw, 96px) clamp(76px, 9vw, 126px); }
 .source-preview-header { display: grid; grid-template-columns: minmax(0, 1fr) minmax(360px, .55fr); gap: clamp(34px, 8vw, 120px); align-items: end; margin-bottom: 28px; }
 .source-preview-header > div > p:not(.eyebrow) { max-width: 720px; margin: 18px 0 0; color: var(--muted-ink); line-height: 1.55; }
@@ -273,7 +313,7 @@ footer { padding: 23px clamp(20px, 4vw, 68px); background: var(--civic-ink); col
 footer strong { color: var(--white); }
 
 @media (max-width: 980px) {
-  .watch-intro, .handoff-section, .source-preview-header { grid-template-columns: 1fr; }
+  .watch-intro, .handoff-section, .source-preview-header, .city-ontology-header { grid-template-columns: 1fr; }
   .investigation-frame { grid-template-columns: 1fr; }
   .map-column { border-right: 0; border-bottom: 1px solid var(--civic-ink); }
   .signal-list { max-height: 280px; }
@@ -281,6 +321,9 @@ footer strong { color: var(--white); }
   .source-card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .case-ledger-header { grid-template-columns: 1fr; }
   .case-rank { max-width: 240px; }
+  .semantic-rails { overflow-x: auto; }
+  .semantic-rail { min-width: 820px; }
+  .ontology-guardrails { grid-template-columns: 1fr; }
   .epistemic-track { grid-template-columns: repeat(2, 1fr); }
   .epistemic-track li:nth-child(3) { border-left: 0; border-top: 1px solid rgba(248, 251, 251, .2); }
   .epistemic-track li:nth-child(4) { border-top: 1px solid rgba(248, 251, 251, .2); }
@@ -309,6 +352,7 @@ footer strong { color: var(--white); }
   .source-totals { grid-template-columns: 1fr; }
   .source-totals div + div { border-left: 0; border-top: 1px solid var(--hairline); }
   .case-ledger { margin-inline: 8px; padding: 24px 17px; box-shadow: 6px 7px 0 rgba(45, 122, 104, .24); }
+  .city-ontology { margin-inline: 8px; padding: 24px 17px; box-shadow: 6px 7px 0 rgba(30, 106, 141, .18); }
   .epistemic-track, .evidence-board { grid-template-columns: 1fr; }
   .epistemic-track li + li { border-left: 0; border-top: 1px solid rgba(248, 251, 251, .2); }
   .limit-grid p + p { border-left: 0; border-top: 1px solid var(--hairline); padding-left: 0; }

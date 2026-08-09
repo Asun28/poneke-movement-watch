@@ -96,6 +96,36 @@ test("publishes a privacy-safe ontology replay without treating fixtures as evid
   assert.doesNotMatch(publicPayload, /probability/i);
 });
 
+test("renders a city ontology explorer with explicit semantic and truth boundaries", async () => {
+  const response = await render();
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  const city = JSON.parse(
+    await readFile(new URL("../public/cop/v3/city-ontology.json", import.meta.url), "utf8"),
+  );
+
+  assert.match(html, /City ontology explorer/);
+  assert.match(html, /Infrastructure/);
+  assert.match(html, /Time window/);
+  assert.match(html, /Movement state/);
+  assert.match(html, /Potential impact/);
+  assert.match(html, /Access state/);
+  assert.match(html, /measured by/);
+  assert.match(html, /located on/);
+  assert.match(html, /may affect/);
+  assert.match(html, /Inference only/);
+  assert.match(html, /Unknown is not open/);
+  assert.ok(html.includes("/cop/v3/city-ontology.json"));
+
+  assert.equal(city.schema, "wellington-city-ontology/v1");
+  const nodeIds = new Set(city.nodes.map((node) => node.id));
+  assert.ok(city.edges.every((edge) => nodeIds.has(edge.from) && nodeIds.has(edge.to)));
+  assert.ok(city.edges.every((edge) => city.allowed_relation_types.includes(edge.type)));
+  const access = city.nodes.find((node) => node.type === "AccessState");
+  assert.equal(access.value, "unknown");
+  assert.equal(city.confirmed_facts.length, 0);
+});
+
 test("renders zoom controls with text-only people and vehicle filters", async () => {
   const response = await render();
   assert.equal(response.status, 200);

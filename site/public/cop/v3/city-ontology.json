@@ -1,0 +1,238 @@
+{
+  "schema": "wellington-city-ontology/v1",
+  "mode": "ontology_replay",
+  "title": "Wellington City Ontology — movement and access review",
+  "nodes": [
+    {
+      "id": "obs:movement:48038:Car:N:2026-08-06T12:00:00",
+      "type": "Observation",
+      "label": "Car movement decrease",
+      "epistemic_state": "observation",
+      "source": {
+        "id": "wcc-transport-sensors",
+        "record_id": "movement:48038:Car:N:2026-08-06T12:00:00",
+        "authority": "direct_measurement"
+      },
+      "measurement": {
+        "transport_class": "Car",
+        "direction": "N",
+        "observed_count": 502.0,
+        "expected_count": 873.5,
+        "robust_z": -5.331347173309683
+      },
+      "provenance": {
+        "observed_at": "2026-08-06T12:00:00+12:00",
+        "publisher_cadence": "at least monthly"
+      },
+      "can_support": [
+        "A movement change occurred at this sensor and hour"
+      ],
+      "cannot_assert": [
+        "Why movement changed"
+      ]
+    },
+    {
+      "id": "asset:wcc-countline:48038",
+      "type": "InfrastructureAsset",
+      "subtype": "TransportCountline",
+      "label": "Centennial Hwy road Northbound",
+      "identifiers": {
+        "countline_id": "48038",
+        "viewpoint_id": "7332"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            174.813293,
+            -41.247211
+          ],
+          [
+            174.813202,
+            -41.247189
+          ]
+        ]
+      },
+      "can_support": [
+        "Where this fixed count was measured"
+      ],
+      "cannot_assert": [
+        "All movement on the corridor"
+      ]
+    },
+    {
+      "id": "corridor:centennial-highway",
+      "type": "Place",
+      "subtype": "TransportCorridor",
+      "label": "Centennial Highway northern access",
+      "impact_level": "critical",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            174.813293,
+            -41.247211
+          ],
+          [
+            174.813202,
+            -41.247189
+          ]
+        ]
+      },
+      "resolution": {
+        "method": "explicit_demo_crosswalk",
+        "source_ref": "wcc-countline:48038"
+      },
+      "can_support": [
+        "The maintained place link for this demo case"
+      ],
+      "cannot_assert": [
+        "Nearby unnamed assets are the same entity"
+      ]
+    },
+    {
+      "id": "time-window:2026-08-06T12:00:00+12:00",
+      "type": "TimeWindow",
+      "label": "Selected hourly replay window",
+      "start": "2026-08-06T12:00:00+12:00",
+      "end_exclusive": "2026-08-06T13:00:00+12:00",
+      "timezone": "Pacific/Auckland",
+      "can_support": [
+        "Which records may be compared for temporal alignment"
+      ],
+      "cannot_assert": [
+        "A record outside this window corroborates the case"
+      ]
+    },
+    {
+      "id": "movement-state:movement:48038:Car:N:2026-08-06T12:00:00",
+      "type": "MovementState",
+      "label": "Measured decrease",
+      "value": "decrease",
+      "epistemic_state": "observation",
+      "transport_class": "Car",
+      "direction": "N",
+      "can_support": [
+        "The detector classified an unusual movement direction"
+      ],
+      "cannot_assert": [
+        "Unsafe conditions or evacuation caused the change"
+      ]
+    },
+    {
+      "id": "impact:potential-access-change:centennial-highway",
+      "type": "PotentialImpact",
+      "label": "Potential access change",
+      "status": "candidate_for_investigation",
+      "epistemic_state": "inference",
+      "can_support": [
+        "An operator should investigate possible access effects"
+      ],
+      "cannot_assert": [
+        "A cause, closure, evacuation or loss of access is confirmed"
+      ]
+    },
+    {
+      "id": "access-state:centennial-highway:2026-08-06T12:00:00+12:00",
+      "type": "AccessState",
+      "label": "Corridor access is unknown",
+      "value": "unknown",
+      "epistemic_state": "inference",
+      "evidence_requirement": "time-aligned authoritative access observation",
+      "can_support": [
+        "The current evidence does not establish access status"
+      ],
+      "cannot_assert": [
+        "Unknown is not open"
+      ]
+    },
+    {
+      "id": "hyp:physical-access-disruption:centennial-highway",
+      "type": "HypothesisAssessment",
+      "label": "Physical access disruption",
+      "epistemic_state": "inference",
+      "review_priority": "high",
+      "evidence_state": "single_source_signal",
+      "can_support": [
+        "A transparent investigation rank"
+      ],
+      "cannot_assert": [
+        "A calibrated probability or confirmed incident"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge:1:measured_by",
+      "type": "measured_by",
+      "from": "obs:movement:48038:Car:N:2026-08-06T12:00:00",
+      "to": "asset:wcc-countline:48038"
+    },
+    {
+      "id": "edge:2:located_on",
+      "type": "located_on",
+      "from": "asset:wcc-countline:48038",
+      "to": "corridor:centennial-highway"
+    },
+    {
+      "id": "edge:3:observed_during",
+      "type": "observed_during",
+      "from": "obs:movement:48038:Car:N:2026-08-06T12:00:00",
+      "to": "time-window:2026-08-06T12:00:00+12:00"
+    },
+    {
+      "id": "edge:4:classified_as",
+      "type": "classified_as",
+      "from": "obs:movement:48038:Car:N:2026-08-06T12:00:00",
+      "to": "movement-state:movement:48038:Car:N:2026-08-06T12:00:00"
+    },
+    {
+      "id": "edge:5:supports",
+      "type": "supports",
+      "from": "obs:movement:48038:Car:N:2026-08-06T12:00:00",
+      "to": "hyp:physical-access-disruption:centennial-highway"
+    },
+    {
+      "id": "edge:6:may_indicate",
+      "type": "may_indicate",
+      "from": "movement-state:movement:48038:Car:N:2026-08-06T12:00:00",
+      "to": "impact:potential-access-change:centennial-highway"
+    },
+    {
+      "id": "edge:7:may_affect",
+      "type": "may_affect",
+      "from": "impact:potential-access-change:centennial-highway",
+      "to": "corridor:centennial-highway"
+    },
+    {
+      "id": "edge:8:applies_to",
+      "type": "applies_to",
+      "from": "access-state:centennial-highway:2026-08-06T12:00:00+12:00",
+      "to": "corridor:centennial-highway"
+    },
+    {
+      "id": "edge:9:concerns",
+      "type": "concerns",
+      "from": "hyp:physical-access-disruption:centennial-highway",
+      "to": "impact:potential-access-change:centennial-highway"
+    }
+  ],
+  "allowed_relation_types": [
+    "measured_by",
+    "located_on",
+    "observed_during",
+    "classified_as",
+    "supports",
+    "may_indicate",
+    "may_affect",
+    "applies_to",
+    "concerns"
+  ],
+  "assertion_rules": {
+    "movement_only": "investigate_only",
+    "unknown_access": "must_not_be_rendered_as_open",
+    "potential_impact": "inference_only",
+    "confirmation_requires": "authorised_human_review"
+  },
+  "confirmed_facts": []
+}
