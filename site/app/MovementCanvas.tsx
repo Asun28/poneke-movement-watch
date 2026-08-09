@@ -18,8 +18,10 @@ function drawMap(
   coverage: LineFeature[],
   signals: LineFeature[],
   selectedId: string | null,
+  zoom: number,
 ) {
   const rect = canvas.getBoundingClientRect();
+  if (rect.width < 2 || rect.height < 2) return;
   const ratio = window.devicePixelRatio || 1;
   canvas.width = Math.max(1, Math.floor(rect.width * ratio));
   canvas.height = Math.max(1, Math.floor(rect.height * ratio));
@@ -40,19 +42,27 @@ function drawMap(
     north: Math.max(...latitudes),
   };
   const padding = 28;
-  const project = ([longitude, latitude]: Coordinate): Coordinate => [
-    padding + ((longitude - bounds.west) / (bounds.east - bounds.west)) * (width - padding * 2),
-    height - padding - ((latitude - bounds.south) / (bounds.north - bounds.south)) * (height - padding * 2),
-  ];
+  const project = ([longitude, latitude]: Coordinate): Coordinate => {
+    const baseX = padding + ((longitude - bounds.west) / (bounds.east - bounds.west)) * (width - padding * 2);
+    const baseY = height - padding - ((latitude - bounds.south) / (bounds.north - bounds.south)) * (height - padding * 2);
+    return [
+      width / 2 + (baseX - width / 2) * zoom,
+      height / 2 + (baseY - height / 2) * zoom,
+    ];
+  };
 
-  context.strokeStyle = "rgba(70, 111, 124, 0.22)";
-  context.lineWidth = 1;
+  context.strokeStyle = "rgba(55, 92, 104, 0.48)";
+  context.fillStyle = "rgba(55, 92, 104, 0.62)";
+  context.lineWidth = 1.25;
   for (const feature of coverage) {
     const [start, end] = feature.geometry.coordinates.map(project);
     context.beginPath();
     context.moveTo(...start);
     context.lineTo(...end);
     context.stroke();
+    context.beginPath();
+    context.arc((start[0] + end[0]) / 2, (start[1] + end[1]) / 2, 1.6, 0, Math.PI * 2);
+    context.fill();
   }
 
   for (const feature of signals) {
@@ -72,20 +82,78 @@ function drawMap(
     context.moveTo(...start);
     context.lineTo(...end);
     context.stroke();
-    context.fillStyle = isSelected ? "#102A33" : context.strokeStyle;
+    drawMovementMarker(
+      context,
+      start,
+      PEOPLE.has(String(feature.properties.transport_class)),
+      isSelected,
+      decreasing ? "#C75845" : "#D78916",
+    );
+  }
+}
+
+function drawMovementMarker(
+  context: CanvasRenderingContext2D,
+  [x, y]: Coordinate,
+  isPerson: boolean,
+  isSelected: boolean,
+  colour: string,
+) {
+  const radius = isSelected ? 12 : 9;
+  context.fillStyle = "#F8FBFB";
+  context.strokeStyle = isSelected ? "#102A33" : colour;
+  context.lineWidth = isSelected ? 3 : 2;
+  context.beginPath();
+  context.arc(x, y, radius, 0, Math.PI * 2);
+  context.fill();
+  context.stroke();
+
+  context.strokeStyle = "#102A33";
+  context.fillStyle = "#102A33";
+  context.lineWidth = 1.6;
+  context.lineCap = "round";
+  if (isPerson) {
     context.beginPath();
-    context.arc(start[0], start[1], isSelected ? 5 : 3.5, 0, Math.PI * 2);
+    context.arc(x, y - 4, 2, 0, Math.PI * 2);
+    context.fill();
+    context.beginPath();
+    context.moveTo(x, y - 1);
+    context.lineTo(x, y + 4);
+    context.moveTo(x - 4, y + 1);
+    context.lineTo(x + 4, y + 1);
+    context.moveTo(x, y + 4);
+    context.lineTo(x - 3, y + 7);
+    context.moveTo(x, y + 4);
+    context.lineTo(x + 3, y + 7);
+    context.stroke();
+  } else {
+    context.fillRect(x - 5, y - 3, 10, 6);
+    context.fillRect(x - 3, y - 5, 6, 2);
+    context.beginPath();
+    context.arc(x - 3, y + 4, 1.6, 0, Math.PI * 2);
+    context.arc(x + 3, y + 4, 1.6, 0, Math.PI * 2);
     context.fill();
   }
 }
 
+function SignalIcon({ person, hidden = false }: { person: boolean; hidden?: boolean }) {
+  return (
+    <i
+      className={`marker-icon ${person ? "person" : "vehicle"}`}
+      aria-label={hidden ? undefined : person ? "Person signal" : "Vehicle signal"}
+      aria-hidden={hidden || undefined}
+      role={hidden ? undefined : "img"}
+    />
+  );
+}
+
 export default function MovementCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const frameRef = useRef<HTMLDivElement>(null);
   const [coverage, setCoverage] = useState<LineFeature[]>([]);
   const [signals, setSignals] = useState<LineFeature[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [filter, setFilter] = useState<Filter>("all");
+  const [zoom, setZoom] = useState(1);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -112,14 +180,21 @@ export default function MovementCanvas() {
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    const frame = frameRef.current;
-    if (!canvas || !frame) return;
-    const render = () => drawMap(canvas, coverage, filteredSignals, selected?.id ?? null);
-    const observer = new ResizeObserver(render);
-    observer.observe(frame);
+    if (!canvas) return;
+    let animationFrame = 0;
+    const render = () => {
+      cancelAnimationFrame(animationFrame);
+      animationFrame = requestAnimationFrame(() => {
+        drawMap(canvas, coverage, filteredSignals, selected?.id ?? null, zoom);
+      });
+    };
+    window.addEventListener("resize", render);
     render();
-    return () => observer.disconnect();
-  }, [coverage, filteredSignals, selected]);
+    return () => {
+      cancelAnimationFrame(animationFrame);
+      window.removeEventListener("resize", render);
+    };
+  }, [coverage, filteredSignals, selected, zoom]);
 
   return (
     <section className="investigation-frame" aria-labelledby="map-heading">
@@ -138,20 +213,44 @@ export default function MovementCanvas() {
                 aria-pressed={filter === value}
                 onClick={() => setFilter(value)}
               >
+                {value !== "all" ? <SignalIcon person={value === "people"} hidden /> : null}
                 {value === "all" ? "All" : value === "people" ? "People" : "Vehicles"}
               </button>
             ))}
           </div>
         </div>
-        <div className="map-stage" ref={frameRef}>
+        <div className="map-stage">
           <canvas
             ref={canvasRef}
             role="img"
             aria-label={`${filteredSignals.length} unusual movement changes across 414 WCC countlines`}
           />
-          <div className="map-key" aria-hidden="true">
+          <div className="map-controls" aria-label="Map zoom controls">
+            <button
+              type="button"
+              aria-label="Zoom in"
+              disabled={zoom >= 4}
+              onClick={() => setZoom((value) => Math.min(4, value + 0.5))}
+            >+</button>
+            <output aria-live="polite">{Math.round(zoom * 100)}% zoom</output>
+            <button
+              type="button"
+              aria-label="Zoom out"
+              disabled={zoom <= 1}
+              onClick={() => setZoom((value) => Math.max(1, value - 0.5))}
+            >−</button>
+            <button
+              type="button"
+              aria-label="Reset map view"
+              disabled={zoom === 1}
+              onClick={() => setZoom(1)}
+            >Reset</button>
+          </div>
+          <div className="map-key">
             <span><i className="increase" />Increase</span>
             <span><i className="decrease" />Decrease</span>
+            <span><SignalIcon person={true} />People</span>
+            <span><SignalIcon person={false} />Vehicles</span>
             <span><i className="coverage" />Sensor coverage</span>
           </div>
           {coverage.length === 0 && !error ? <p className="map-message">Loading countlines…</p> : null}
@@ -196,7 +295,7 @@ export default function MovementCanvas() {
               onClick={() => setSelectedId(feature.id)}
             >
               <span>
-                <strong>{String(feature.properties.name)}</strong>
+                <strong><SignalIcon person={PEOPLE.has(String(feature.properties.transport_class))} hidden />{String(feature.properties.name)}</strong>
                 <small>{String(feature.properties.transport_class)} · {String(feature.properties.direction)}</small>
               </span>
               <em className={String(feature.properties.change_direction)}>

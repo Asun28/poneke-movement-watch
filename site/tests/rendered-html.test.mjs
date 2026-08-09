@@ -75,6 +75,19 @@ test("publishes a privacy-safe ontology replay without treating fixtures as evid
   assert.doesNotMatch(publicPayload, /probability/i);
 });
 
+test("renders zoom controls and distinct people and vehicle marker keys", async () => {
+  const response = await render();
+  assert.equal(response.status, 200);
+  const html = await response.text();
+
+  assert.match(html, /aria-label="Zoom in"/);
+  assert.match(html, /aria-label="Zoom out"/);
+  assert.match(html, /aria-label="Reset map view"/);
+  assert.match(html, /aria-label="Person signal"/);
+  assert.match(html, /aria-label="Vehicle signal"/);
+  assert.match(html, />100(?:<!-- -->)?% zoom</);
+});
+
 test("ships internally consistent COP artifacts with WGS84 line geometry", async () => {
   const [healthText, signalsText, coverageText] = await Promise.all([
     readFile(new URL("../public/cop/v1/movement-health.json", import.meta.url), "utf8"),
