@@ -14,7 +14,7 @@ Confirmed Fact.
 - [completed] Add failing contract tests for the ontology and contradictory-evidence behavior.
 - [completed] Implement source normalization, entity resolution, evidence/hypothesis outputs, and backward-compatible COP feeds.
 - [completed] Extend the operator UI to distinguish observation, inference, decision, and confirmed fact.
-- [in_progress] Run replay, regression, build, and visual checks; update documentation and downloadable source archive.
+- [completed] Run replay, regression, build, and visual checks; update documentation and downloadable source archive.
 
 ## Acceptance criteria
 
@@ -38,3 +38,4 @@ Confirmed Fact.
 
 | Error | Attempt | Resolution |
 |---|---:|---|
+| Git Bash treated a `C:` archive path as a remote tar target | 1 | Re-ran the official packaging script with an MSYS `/c/...` path. |
