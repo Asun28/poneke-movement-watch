@@ -142,6 +142,61 @@ def test_source_registry_declares_role_access_and_temporal_limitations():
     assert sources["gwrc-hilltop"]["role"] == "hazard_observation"
     assert sources["wremo-hubs"]["role"] == "impact_context"
     assert sources["metlink-realtime"]["availability"] == "requires_key"
+    assert len(sources) == 24
+    assert {
+        "geonet-tilde-wlgt",
+        "geonet-shaking-layers",
+        "nema-cap-alerts",
+        "wcc-road-closures",
+        "wellington-water-jobs",
+        "nema-electricity-outages",
+        "nema-cdem-boundaries",
+        "metlink-static-gtfs",
+        "wcc-emergency-water-tanks",
+        "wcc-event-calendar",
+        "wellington-airport-flights",
+        "centreport-cruise-schedule",
+        "google-routes-api",
+        "google-places-api",
+    } <= sources.keys()
+
+    assert all(source["source_reality"] == "official_source" for source in sources.values())
+    assert {source["demo_data_status"] for source in sources.values()} <= {
+        "real_replay",
+        "mock_preview",
+        "registered_only",
+    }
+
+    assert sources["geonet-tilde-wlgt"]["connection_status"] == "ready_for_adapter"
+    assert sources["geonet-tilde-wlgt"]["licence"] == "CC BY 3.0 NZ"
+    assert sources["geonet-shaking-layers"]["entity_resolution"] == "exact_geonet_public_id"
+    assert sources["nema-cap-alerts"]["connection_status"] == "restricted_not_ingested"
+    assert sources["nema-cap-alerts"]["public_release"] == "prohibited_without_nema_permission"
+    assert "endpoint" not in sources["nema-cap-alerts"]
+    assert sources["nema-cap-alerts"]["demo_data_status"] == "mock_preview"
+    assert sources["nema-cap-alerts"]["access_status"] == "permission_required"
+    assert sources["nema-cap-alerts"]["capability_preview"]["evidence_weight"] == 0
+    assert sources["wcc-road-closures"]["evidence_policy"] == "approved_and_time_overlapping_only"
+    assert sources["wellington-water-jobs"]["privacy"] == {
+        "address": "generalise_or_drop_from_public_output",
+        "description": "drop_from_public_output",
+    }
+    assert sources["nema-electricity-outages"]["connection_status"] == "registry_only_pending_licence"
+    assert sources["nema-electricity-outages"]["deduplication_key"] == "distributor+distributoroutageid"
+    assert sources["nema-cdem-boundaries"]["evidence_policy"] == "context_only"
+    assert sources["metlink-static-gtfs"]["evidence_policy"] == "schedule_and_entity_context_only"
+    assert sources["wcc-emergency-water-tanks"]["evidence_policy"] == "context_only"
+    assert sources["wcc-event-calendar"]["role"] == "planned_demand_context"
+    assert sources["wellington-airport-flights"]["role"] == "transport_status_observation"
+    assert sources["centreport-cruise-schedule"]["role"] == "planned_demand_context"
+    assert sources["google-routes-api"]["demo_data_status"] == "mock_preview"
+    assert sources["google-routes-api"]["access_status"] == "paid_key_required"
+    assert sources["google-routes-api"]["capability_preview"]["evidence_weight"] == 0
+    assert sources["google-places-api"]["role"] == "place_accessibility_context"
+    assert sources["google-places-api"]["access_status"] == "paid_key_required"
+    assert sources["google-places-api"]["capability_preview"]["evidence_weight"] == 0
+
+    assert "wellington-electricity-outages" not in sources
 
 
 def test_nzta_tms_remains_non_spatial_and_time_insufficient_without_crosswalk():

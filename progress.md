@@ -1,5 +1,42 @@
 # Progress — Phase 2 ontology and sources
 
+- 2026-08-09: Started Phase 3 to verify additional official open-source evidence
+  feeds for the Wellington ontology, prioritising keyless, spatial and
+  time-aligned contracts.
+- 2026-08-09: Located the deterministic source-registry generator/tests and the
+  local `wcc-emergency-gis-data` additional-source catalogue; launched parallel
+  official-source research for mobility, lifelines and hazard/impact roles.
+- 2026-08-09: Agent Reach/Exa confirmed the relevant official publisher surfaces;
+  switched ArcGIS verification to direct JSON endpoints after the generic web
+  extractor returned no page content.
+- 2026-08-09: Directly verified NEMA CAP alerts and electricity outages,
+  Wellington Water jobs, WCC road events/closures, and GeoNet Tilde WLGT sea
+  level; recorded live counts, temporal fields, geometry and evidence limits.
+- 2026-08-09: Verified Wellington Electricity's direct provider feed, NEMA CDEM
+  authority polygons, WCC emergency water tanks and building footprints; added
+  deduplication and privacy requirements for provider-level outage detail.
+- 2026-08-09: Parallel research completed. Selected nine new registry contracts
+  plus one GWRC enhancement; excluded publicly reachable NEMA EMA records after
+  its official item licence proved restricted, and deferred weaker/fragile feeds.
+- 2026-08-09: User expanded Phase 3 to include city events, plane timetables and
+  cruise schedules; reopened source verification and assigned them planned-demand
+  context rather than automatic disruption evidence.
+- 2026-08-09: Agent Reach and direct checks verified the WCC Eventfinda-backed
+  calendar, Wellington Airport JSON flight board and official CentrePort
+  cruise/live-shipping pages; recorded licensing and schedule-vs-observation limits.
+- 2026-08-09: User requested NEMA EMA in the WCC demo. Chosen safe contract:
+  register its capability and restriction state, but omit its endpoint and data
+  from the public site until explicit NEMA/WCC permission is confirmed.
+- 2026-08-09: User authorised mock capability data and Google APIs provided every
+  item is visibly classified. Added 24 official source contracts with independent
+  `real_replay`/`mock_preview`/`registered_only` and access/cost labels. NEMA EMA,
+  Google Routes and Google Places examples are synthetic and carry zero evidence weight.
+- 2026-08-09: Added a responsive source-capability ledger to the demo. Focused
+  ontology/CLI tests pass 7/7 and rendered-site tests pass 6/6.
+- 2026-08-09: Final regression passes: Python 20/20, rendered site 6/6 and
+  ESLint clean. Desktop and 390px mobile visual checks show legible truth labels,
+  preserved map zoom controls and unchanged movement-direction arrows.
+
 - 2026-08-09: Read the supplied ontology brief and extracted its epistemic-state, evidence, entity-resolution, and human-confirmation requirements.
 - 2026-08-09: Loaded Agent Reach, planning-with-files, and TDD instructions. Created project-local planning files before source research or implementation.
 - 2026-08-09: Confirmed the current branch is `codex/movement-anomaly-prototype` at commit `e84d08a`; the worktree was clean before this phase.

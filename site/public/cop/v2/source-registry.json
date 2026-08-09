@@ -1,12 +1,27 @@
 {
   "schema": "wellington-source-registry/v1",
+  "verified_at": "2026-08-09",
+  "demo_status_legend": {
+    "real_replay": "Official source records used in this replay",
+    "mock_preview": "Synthetic capability preview with zero evidence weight",
+    "registered_only": "Official source registered; no records used in this replay"
+  },
   "sources": [
     {
       "id": "wcc-transport-sensors",
       "name": "WCC Transport Sensors",
       "role": "movement_observation",
       "availability": "batch_replay",
-      "temporal_alignment": "hourly source; publisher refresh at least monthly"
+      "temporal_alignment": "hourly source; publisher refresh at least monthly",
+      "capability_preview": {
+        "label": "Measured movement change",
+        "summary": "502 cars measured against an 873.5 matched baseline.",
+        "is_synthetic": false,
+        "evidence_weight": 2
+      },
+      "source_reality": "official_source",
+      "demo_data_status": "real_replay",
+      "access_status": "public_free"
     },
     {
       "id": "wcc-ticket-detail",
@@ -18,7 +33,16 @@
         "requester_name": "drop_at_ingest",
         "incident_address": "withhold_from_public_output",
         "description": "withhold_from_public_output"
-      }
+      },
+      "capability_preview": {
+        "label": "Council report adapter",
+        "summary": "A synthetic slips report demonstrates taxonomy and privacy removal.",
+        "is_synthetic": true,
+        "evidence_weight": 0
+      },
+      "source_reality": "official_source",
+      "demo_data_status": "mock_preview",
+      "access_status": "council_input_required"
     },
     {
       "id": "nzta-tms",
@@ -27,7 +51,10 @@
       "availability": "public_keyless",
       "endpoint": "https://services.arcgis.com/CXBb7LAjgIIdcsPt/ArcGIS/rest/services/TMS_Telemetry_Sites/FeatureServer/0/query",
       "entity_resolution": "unresolved_without_crosswalk",
-      "temporal_alignment": "insufficient count-window semantics"
+      "temporal_alignment": "insufficient count-window semantics",
+      "source_reality": "official_source",
+      "demo_data_status": "registered_only",
+      "access_status": "public_free"
     },
     {
       "id": "gwrc-hilltop",
@@ -35,7 +62,13 @@
       "role": "hazard_observation",
       "availability": "public_keyless",
       "endpoint": "https://hilltop.gw.govt.nz/Telemetry.hts",
-      "temporal_alignment": "must overlap the case window"
+      "spatial_endpoint": "https://mapping.gw.govt.nz/arcgis/rest/services/Rainfall/MapServer/1/query",
+      "licence": "CC BY 4.0",
+      "entity_resolution": "site_id_and_source_coordinates",
+      "temporal_alignment": "LatestTime must be fresh and overlap the case window",
+      "source_reality": "official_source",
+      "demo_data_status": "registered_only",
+      "access_status": "public_free"
     },
     {
       "id": "nzta-road-events",
@@ -43,7 +76,10 @@
       "role": "official_event_observation",
       "availability": "public_keyless",
       "endpoint": "https://www.journeys.nzta.govt.nz/assets/map-data-cache/delays.json",
-      "temporal_alignment": "current feed; not evidence for a past replay"
+      "temporal_alignment": "current feed; not evidence for a past replay",
+      "source_reality": "official_source",
+      "demo_data_status": "registered_only",
+      "access_status": "public_free"
     },
     {
       "id": "metservice-cap",
@@ -51,7 +87,10 @@
       "role": "hazard_alert_observation",
       "availability": "public_keyless",
       "endpoint": "https://alerts.metservice.com/cap/rss",
-      "temporal_alignment": "warning validity must overlap the case window"
+      "temporal_alignment": "warning validity must overlap the case window",
+      "source_reality": "official_source",
+      "demo_data_status": "registered_only",
+      "access_status": "public_free"
     },
     {
       "id": "geonet-quakes",
@@ -59,28 +98,312 @@
       "role": "hazard_observation",
       "availability": "public_keyless",
       "endpoint": "https://api.geonet.org.nz/quake?MMI=3",
-      "temporal_alignment": "event time must overlap the case window"
+      "licence": "CC BY 3.0 NZ",
+      "temporal_alignment": "event time must overlap the case window",
+      "source_reality": "official_source",
+      "demo_data_status": "registered_only",
+      "access_status": "public_free"
     },
     {
       "id": "wremo-hubs",
       "name": "WREMO Community Emergency Hubs",
       "role": "impact_context",
       "availability": "public_with_licence_restriction",
-      "temporal_alignment": "static context only"
+      "evidence_policy": "context_only",
+      "temporal_alignment": "static context only",
+      "source_reality": "official_source",
+      "demo_data_status": "registered_only",
+      "access_status": "permission_required"
     },
     {
       "id": "wcc-emergency-routes",
       "name": "WCC emergency routes",
       "role": "impact_context",
       "availability": "consult_wcc_before_use",
-      "temporal_alignment": "static context only"
+      "evidence_policy": "context_only",
+      "temporal_alignment": "static context only",
+      "source_reality": "official_source",
+      "demo_data_status": "registered_only",
+      "access_status": "permission_required"
     },
     {
       "id": "metlink-realtime",
       "name": "Metlink realtime",
       "role": "public_transport_observation",
       "availability": "requires_key",
-      "temporal_alignment": "not connected in this demo"
+      "temporal_alignment": "not connected in this demo",
+      "source_reality": "official_source",
+      "demo_data_status": "registered_only",
+      "access_status": "key_required"
+    },
+    {
+      "id": "geonet-tilde-wlgt",
+      "name": "GeoNet Tilde WLGT detided sea level",
+      "role": "hazard_measurement_observation",
+      "availability": "public_keyless",
+      "endpoint": "https://tilde.geonet.org.nz/v4/data/coastal/WLGT/water-height-detided/40/15s/nil/latest/6h",
+      "connection_status": "ready_for_adapter",
+      "licence": "CC BY 3.0 NZ",
+      "entity_resolution": "exact_station_and_series",
+      "temporal_alignment": "sample time must overlap the case window; reject stale or QC-failed rows",
+      "evidence_policy": "measurement_only_until_baseline_and_quality_gates_pass",
+      "source_reality": "official_source",
+      "demo_data_status": "registered_only",
+      "access_status": "public_free"
+    },
+    {
+      "id": "geonet-shaking-layers",
+      "name": "GeoNet Shaking Layers",
+      "role": "hazard_footprint_observation",
+      "availability": "public_keyless",
+      "endpoint": "https://shakinglayers.geonet.org.nz/api",
+      "connection_status": "ready_for_adapter",
+      "licence": "CC BY 3.0 NZ",
+      "entity_resolution": "exact_geonet_public_id",
+      "temporal_alignment": "match event publicID and retain published version and issue time",
+      "evidence_policy": "published_version_only; modelled_shaking_is_not_damage_confirmation",
+      "source_reality": "official_source",
+      "demo_data_status": "registered_only",
+      "access_status": "public_free"
+    },
+    {
+      "id": "nema-cap-alerts",
+      "name": "NEMA Emergency Mobile Alert polygons",
+      "publisher": "NEMA",
+      "role": "official_alert_observation",
+      "availability": "requires_authorised_agency_access",
+      "connection_status": "restricted_not_ingested",
+      "public_release": "prohibited_without_nema_permission",
+      "entity_resolution": "authorised_polygon_intersection",
+      "temporal_alignment": "effective and expiry times must overlap the case window",
+      "evidence_policy": "disabled_in_public_demo",
+      "capability_preview": {
+        "label": "NEMA Emergency Mobile Alert",
+        "summary": "Mock polygon overlap shows how an authorised alert could corroborate a corridor case.",
+        "is_synthetic": true,
+        "evidence_weight": 0
+      },
+      "source_reality": "official_source",
+      "demo_data_status": "mock_preview",
+      "access_status": "permission_required"
+    },
+    {
+      "id": "wcc-road-closures",
+      "name": "WCC Street Events and Road Closures",
+      "role": "official_access_event_observation",
+      "availability": "public_keyless",
+      "endpoint": "https://gis.wcc.govt.nz/arcgis/rest/services/Transportation/StreetEventsAndRoadClosures/MapServer/1/query",
+      "connection_status": "ready_for_adapter",
+      "licence": "CC BY 3.0 NZ",
+      "entity_resolution": "provider_polyline_overlap_or_maintained_road_id",
+      "temporal_alignment": "Start_Date and End_Date must overlap the case window",
+      "evidence_policy": "approved_and_time_overlapping_only",
+      "capability_preview": {
+        "label": "Road access event",
+        "summary": "Mock approved closure intersects the affected corridor during the review window.",
+        "is_synthetic": true,
+        "evidence_weight": 0
+      },
+      "source_reality": "official_source",
+      "demo_data_status": "mock_preview",
+      "access_status": "public_free"
+    },
+    {
+      "id": "wellington-water-jobs",
+      "name": "Wellington Water public jobs",
+      "role": "lifeline_work_observation",
+      "availability": "public_keyless",
+      "endpoint": "https://services7.arcgis.com/2ECs938g489DMWjt/arcgis/rest/services/Job_Status_Public_View/FeatureServer/5/query",
+      "connection_status": "registry_only_pending_licence",
+      "licence_status": "publisher_terms_review_required",
+      "entity_resolution": "provider_geometry_requested_with_outSR_4326",
+      "temporal_alignment": "reported and work times must overlap the case window",
+      "evidence_policy": "workflow_observation_not_confirmed_service_loss",
+      "privacy": {
+        "address": "generalise_or_drop_from_public_output",
+        "description": "drop_from_public_output"
+      },
+      "capability_preview": {
+        "label": "Water fault work order",
+        "summary": "Mock high-priority job near the corridor adds lifeline context, not proof of closure.",
+        "is_synthetic": true,
+        "evidence_weight": 0
+      },
+      "source_reality": "official_source",
+      "demo_data_status": "mock_preview",
+      "access_status": "publisher_clearance_required"
+    },
+    {
+      "id": "nema-electricity-outages",
+      "name": "NEMA electricity outages",
+      "role": "lifeline_impact_observation",
+      "availability": "public_keyless",
+      "endpoint": "https://services5.arcgis.com/cJn6oR1QqErYBL5d/arcgis/rest/services/electricity_outages_read_only/FeatureServer/0/query",
+      "connection_status": "registry_only_pending_licence",
+      "licence_status": "publisher_terms_review_required",
+      "deduplication_key": "distributor+distributoroutageid",
+      "temporal_alignment": "active row times must overlap the case window",
+      "evidence_policy": "active_time_aligned_provider_row_only",
+      "capability_preview": {
+        "label": "Electricity outage impact",
+        "summary": "Mock provider outage shows affected-customer context without inventing an outage area.",
+        "is_synthetic": true,
+        "evidence_weight": 0
+      },
+      "source_reality": "official_source",
+      "demo_data_status": "mock_preview",
+      "access_status": "publisher_clearance_required"
+    },
+    {
+      "id": "nema-cdem-boundaries",
+      "name": "NEMA CDEM Group boundaries",
+      "role": "response_authority_context",
+      "availability": "public_keyless",
+      "endpoint": "https://services5.arcgis.com/cJn6oR1QqErYBL5d/arcgis/rest/services/CDEM_Group_Boundaries/FeatureServer/0",
+      "connection_status": "registry_only_pending_licence",
+      "entity_resolution": "point_in_polygon",
+      "evidence_policy": "context_only",
+      "temporal_alignment": "static response-authority context",
+      "source_reality": "official_source",
+      "demo_data_status": "registered_only",
+      "access_status": "publisher_clearance_required"
+    },
+    {
+      "id": "metlink-static-gtfs",
+      "name": "Metlink static GTFS",
+      "role": "transport_network_context",
+      "availability": "public_keyless",
+      "endpoint": "https://static.opendata.metlink.org.nz/v1/gtfs/full.zip",
+      "connection_status": "ready_for_entity_graph",
+      "entity_resolution": "stop_id_route_id_and_shape_id",
+      "temporal_alignment": "schedule and calendar only; not actual movement",
+      "evidence_policy": "schedule_and_entity_context_only",
+      "source_reality": "official_source",
+      "demo_data_status": "registered_only",
+      "access_status": "public_free"
+    },
+    {
+      "id": "wcc-emergency-water-tanks",
+      "name": "WCC emergency water tanks",
+      "role": "lifeline_capability_context",
+      "availability": "public_keyless",
+      "endpoint": "https://services1.arcgis.com/CPYspmTk3abe6d7i/arcgis/rest/services/Emergency_Water_Tank_Location/FeatureServer/0",
+      "connection_status": "registry_only",
+      "licence": "CC BY 3.0 NZ",
+      "entity_resolution": "provider_asset_id_and_geometry",
+      "evidence_policy": "context_only",
+      "temporal_alignment": "static capability context",
+      "source_reality": "official_source",
+      "demo_data_status": "registered_only",
+      "access_status": "public_free"
+    },
+    {
+      "id": "wcc-event-calendar",
+      "name": "WCC city event calendar",
+      "role": "planned_demand_context",
+      "availability": "public_html",
+      "endpoint": "https://wellington.govt.nz/news-and-events/event-calendar",
+      "connection_status": "registry_only_pending_licence",
+      "entity_resolution": "venue_or_city_level_only",
+      "temporal_alignment": "scheduled event window only",
+      "evidence_policy": "schedule_only_not_attendance_or_disruption",
+      "capability_preview": {
+        "label": "City event demand",
+        "summary": "Mock waterfront event window shows a plausible planned pedestrian-demand explanation.",
+        "is_synthetic": true,
+        "evidence_weight": 0
+      },
+      "source_reality": "official_source",
+      "demo_data_status": "mock_preview",
+      "access_status": "publisher_clearance_required"
+    },
+    {
+      "id": "wellington-airport-flights",
+      "name": "Wellington Airport flight board",
+      "role": "transport_status_observation",
+      "availability": "public_keyless",
+      "endpoint": "https://www.wellingtonairport.co.nz/api/flights/",
+      "connection_status": "registry_only_pending_licence",
+      "entity_resolution": "fixed_airport_WLG_and_flight_number",
+      "temporal_alignment": "scheduled, estimated and status times must match the case window",
+      "evidence_policy": "schedule_is_context; status_changes_require_terms_clearance",
+      "capability_preview": {
+        "label": "Airport flow change",
+        "summary": "Mock delayed-arrival cluster shows how airport status could explain road-demand changes.",
+        "is_synthetic": true,
+        "evidence_weight": 0
+      },
+      "source_reality": "official_source",
+      "demo_data_status": "mock_preview",
+      "access_status": "publisher_clearance_required"
+    },
+    {
+      "id": "centreport-cruise-schedule",
+      "name": "CentrePort cruise schedule",
+      "role": "planned_demand_context",
+      "availability": "public_html",
+      "endpoint": "https://www.centreport.co.nz/what-we-do/cruise-ships/cruise-schedule",
+      "connection_status": "registry_only_requires_centreport_clearance",
+      "entity_resolution": "fixed_port_CentrePort_Wellington",
+      "temporal_alignment": "scheduled arrival and departure window only",
+      "evidence_policy": "schedule_only_not_actual_arrival_or_disruption",
+      "capability_preview": {
+        "label": "Cruise arrival demand",
+        "summary": "Mock 2,900-passenger call shows a potential planned CBD movement surge.",
+        "is_synthetic": true,
+        "evidence_weight": 0
+      },
+      "source_reality": "official_source",
+      "demo_data_status": "mock_preview",
+      "access_status": "publisher_clearance_required"
+    },
+    {
+      "id": "google-routes-api",
+      "name": "Google Routes API",
+      "role": "commercial_route_context",
+      "availability": "requires_key_and_billing",
+      "reference_page": "https://developers.google.com/maps/documentation/routes",
+      "connection_status": "mock_only_no_credentials",
+      "billing_status": "usage_based_billing_account_required",
+      "pricing_note": "Traffic-aware Compute Routes is a higher billing tier; current Pro cap is 5,000 monthly events, then usage pricing; verify before activation",
+      "display_policy": "Routes results displayed on a map must use a Google Map with required attribution",
+      "storage_policy": "ephemeral_only; most Routes API content cannot be cached; place_id is the durable exception",
+      "entity_resolution": "origin_destination_and_provider_route_token",
+      "temporal_alignment": "traffic-aware request time must overlap the case window",
+      "evidence_policy": "provider_estimate_is_context_not_observed_ground_truth",
+      "capability_preview": {
+        "label": "Google traffic-aware route",
+        "summary": "Mock route duration at 2.1× typical shows a commercial corroboration option.",
+        "is_synthetic": true,
+        "evidence_weight": 0
+      },
+      "source_reality": "official_source",
+      "demo_data_status": "mock_preview",
+      "access_status": "paid_key_required"
+    },
+    {
+      "id": "google-places-api",
+      "name": "Google Places API (New)",
+      "role": "place_accessibility_context",
+      "availability": "requires_key_and_billing",
+      "reference_page": "https://developers.google.com/maps/documentation/places/web-service",
+      "connection_status": "mock_only_no_credentials",
+      "billing_status": "field_mask_based_usage_billing_account_required",
+      "pricing_note": "Accessibility fields use a Pro SKU; current Place Details Pro cap is 5,000 monthly events, then usage pricing; verify before activation",
+      "display_policy": "Google map and attribution rules apply when Places content is map-displayed",
+      "storage_policy": "ephemeral_only; place_id is the durable exception and should be refreshed",
+      "entity_resolution": "provider_place_id",
+      "temporal_alignment": "place metadata is context and not a live accessibility observation",
+      "evidence_policy": "zero_weight_context_not_operational_status",
+      "capability_preview": {
+        "label": "Google place accessibility",
+        "summary": "Mock accessible-entry metadata shows planning context, not current venue access.",
+        "is_synthetic": true,
+        "evidence_weight": 0
+      },
+      "source_reality": "official_source",
+      "demo_data_status": "mock_preview",
+      "access_status": "paid_key_required"
     }
   ]
 }

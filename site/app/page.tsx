@@ -1,5 +1,6 @@
 import MovementCanvas from "./MovementCanvas";
 import EvidenceCaseLedger from "./EvidenceCaseLedger";
+import SourceCapabilityPreview from "./SourceCapabilityPreview";
 import health from "../public/cop/v1/movement-health.json";
 
 const formattedDate = new Intl.DateTimeFormat("en-NZ", {
@@ -58,6 +59,8 @@ export default function Home() {
       <MovementCanvas />
 
       <EvidenceCaseLedger />
+
+      <SourceCapabilityPreview />
 
       <section className="handoff-section" aria-labelledby="handoff-heading">
         <div>

@@ -110,7 +110,7 @@ export default function EvidenceCaseLedger() {
         <article className="evidence-bucket context">
           <p className="bucket-label">Context / excluded</p>
           <div className="evidence-row">
-            <strong>{registryData.sources.length} sources registered</strong>
+            <strong>{`${registryData.sources.length} sources registered`}</strong>
             <span>Only time-aligned, resolved records may affect this case.</span>
             <small>NZTA TMS stays unresolved; static layers stay context-only.</small>
           </div>

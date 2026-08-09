@@ -39,6 +39,15 @@ test("server-renders the movement investigation surface with truthful batch stat
   assert.match(html, /None received in this replay/);
   assert.match(html, /Synthetic format fixture · no evidence weight/);
   assert.match(html, /Baseline strength/);
+  assert.match(html, /24 sources registered/);
+  assert.match(html, /Source capability preview/);
+  assert.match(html, /REAL REPLAY/);
+  assert.match(html, /MOCK · ZERO WEIGHT/);
+  assert.match(html, /NEEDS PERMISSION/);
+  assert.match(html, /PAID API/);
+  assert.match(html, /NEMA Emergency Mobile Alert/);
+  assert.match(html, /Google Routes API/);
+  assert.match(html, /Google Places API/);
   assert.ok(html.includes("/cop/v1/movement-signals.geojson"));
   assert.ok(html.includes("/cop/v1/movement-health.json"));
   assert.ok(html.includes("/cop/v2/observations.geojson"));
@@ -67,7 +76,19 @@ test("publishes a privacy-safe ontology replay without treating fixtures as evid
   assert.equal(hypothesis.evidence_state, "single_source_signal");
   assert.equal(graph.decision_state.status, "unreviewed");
   assert.deepEqual(graph.confirmed_facts, []);
-  assert.equal(registry.sources.length, 10);
+  assert.equal(registry.sources.length, 24);
+  assert.deepEqual(
+    [
+      "centreport-cruise-schedule",
+      "geonet-tilde-wlgt",
+      "nema-cap-alerts",
+      "wcc-event-calendar",
+      "wellington-airport-flights",
+      "google-routes-api",
+      "google-places-api",
+    ].filter((sourceId) => !registry.sources.some((source) => source.id === sourceId)),
+    [],
+  );
   assert.match(observationsText, /"fixture_mode": "synthetic"/);
 
   const publicPayload = `${observationsText}\n${graphText}\n${registryText}`;

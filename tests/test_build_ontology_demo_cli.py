@@ -74,6 +74,23 @@ def test_cli_builds_v2_ontology_artifacts_from_required_ticket_format(tmp_path):
     assert graph["entities"][0]["id"] == "corridor:centennial-highway"
     assert graph["hypotheses"][0]["epistemic_state"] == "inference"
     assert registry["schema"] == "wellington-source-registry/v1"
+    source_ids = {source["id"] for source in registry["sources"]}
+    assert len(source_ids) == 24
+    assert {
+        "geonet-tilde-wlgt",
+        "nema-cap-alerts",
+        "wcc-road-closures",
+        "wcc-event-calendar",
+        "wellington-airport-flights",
+        "centreport-cruise-schedule",
+        "google-routes-api",
+        "google-places-api",
+    } <= source_ids
+    restricted_nema = next(
+        source for source in registry["sources"] if source["id"] == "nema-cap-alerts"
+    )
+    assert restricted_nema["connection_status"] == "restricted_not_ingested"
+    assert "endpoint" not in restricted_nema
 
     public_payload = "\n".join(
         path.read_text(encoding="utf-8") for path in output_dir.iterdir()

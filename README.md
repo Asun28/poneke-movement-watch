@@ -176,23 +176,27 @@ split, benchmark and limitations. No classifier was trained.
 
 ## Data sources and exclusions
 
-Only sources already catalogued for the project are represented.
+The registry contains 24 real, official source products. That does **not** mean
+24 live feeds are connected. Every source declares both its demo-data status and
+its access status.
 
-| Source | Role in this build | Evidence status |
+| Demo status | Sources shown | Access / cost |
 |---|---|---|
-| WCC Transport Sensors | Hourly pedestrian and vehicle counts with countline coordinates | Implemented; weighted batch observation |
-| WCC `TICKET_DETAIL` | Privacy-safe public report adapter | Input required; unverified report |
-| NZTA TMS | Vehicle movement context | Unresolved; no geometry or verified crosswalk |
-| Greater Wellington Hilltop | Rainfall, river level and flow context | Registered; counted only when time-aligned |
-| NZTA road events | Official access-event context | Registered; current feed is not evidence for a past replay |
-| MetService CAP | Hazard warning context | Registered; validity must overlap the case window |
-| GeoNet | Earthquake observation context | Registered; event time must overlap the case window |
-| WREMO hubs and WCC emergency routes | Operational context | Static context only |
-| Metlink realtime | Public transport context | Requires a key; not connected |
+| **Real replay** | WCC Transport Sensors | Public source; real August 2026 batch records |
+| **Mock · zero weight** | WCC ticket adapter | Council input required; synthetic fixture |
+| **Mock · zero weight** | NEMA Emergency Mobile Alert | Restricted; explicit NEMA/WCC permission required; no endpoint or polygon is published |
+| **Mock · zero weight** | WCC road closures | Public source; adapter preview only |
+| **Mock · zero weight** | Wellington Water jobs, NEMA electricity outages, WCC events, Wellington Airport flights, CentrePort cruise schedule | Publisher terms or reuse clearance required |
+| **Mock · zero weight** | Google Routes and Places APIs | API key and billing account required; monthly free caps exist, then usage pricing applies |
+| **Registered only** | NZTA TMS/road events, GWRC Hilltop, MetService CAP, GeoNet quake/Tilde/Shaking, WREMO hubs, emergency routes/water tanks, Metlink realtime/static GTFS, NEMA CDEM boundaries | No records from these sources affect this replay |
+
+The capability cards on the demo use synthetic examples only to show possible
+ontology links. Mock cards always carry `evidence_weight: 0`. Timetables and
+event schedules are planned-demand context, not proof of attendance or disruption.
 
 Explicitly excluded:
 
-- private emergency, 111-call, social-media or commercial movement data;
+- private emergency, 111-call, social-media or unlicensed commercial records;
 - invented joins, coordinates or incident labels;
 - static hazard layers presented as active events;
 - personal identity, exact address, raw ticket text or internal assignment;

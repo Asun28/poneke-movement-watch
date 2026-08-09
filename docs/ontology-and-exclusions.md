@@ -27,17 +27,40 @@ confirmed or resolved.
 The deployed replay uses a real WCC countline observation and a clearly marked
 synthetic ticket-format fixture. The fixture has zero evidence weight.
 
-## Registered but not counted in this replay
+## Source truth labels
 
-- Greater Wellington Hilltop observations;
-- NZTA road events;
-- MetService CAP warnings;
-- GeoNet earthquakes;
-- WREMO emergency hubs and WCC emergency routes as static context;
-- Metlink realtime, which requires a key.
+All 24 registry entries describe real source products. Their demo records are
+separately labelled:
 
-These sources may affect a case only when time alignment and entity resolution
-are explicit. The source registry records their current availability and limits.
+| Label | Meaning in this build |
+|---|---|
+| `real_replay` | Official WCC Transport Sensor records are used in the replay |
+| `mock_preview` | Synthetic capability example, always zero evidence weight |
+| `registered_only` | Contract is documented but no record is used |
+
+Access is independently labelled `public_free`, `key_required`,
+`permission_required`, `publisher_clearance_required`,
+`council_input_required`, or `paid_key_required`.
+
+### Mock capability previews
+
+- **NEMA EMA** — mock polygon overlap only. The public build omits the restricted
+  endpoint and all alert data. Explicit NEMA/WCC permission is required.
+- **Road closures, water jobs and electricity outages** — mock operational links;
+  they do not confirm loss of access or service.
+- **City events, airport flights and cruise calls** — mock demand context;
+  a timetable is not evidence that an event or arrival occurred.
+- **Google Routes and Places APIs** — mock traffic-aware duration and place
+  accessibility only. The real services require an API key and billing. They
+  have monthly free-usage caps, then usage pricing. Google map, attribution and
+  caching rules apply; only `place_id` is treated as durable.
+
+### Registered only
+
+GWRC Hilltop, NZTA road events/TMS, MetService CAP, GeoNet quake/Tilde/Shaking,
+WREMO hubs, WCC emergency routes/water tanks, Metlink realtime/static GTFS and
+NEMA CDEM boundaries remain uncounted. They may affect a future case only when
+time alignment, entity resolution, licensing and quality gates all pass.
 
 ## Entity-resolution rules
 
@@ -57,7 +80,7 @@ workflow fields needed for review.
 ## Explicit exclusions
 
 - no 111-call or private emergency data;
-- no social-media or private traffic-provider inference;
+- no social-media or unlicensed private traffic-provider records;
 - no invented coordinates or joins;
 - no static hazard layer presented as an active incident;
 - no automated dispatch, route closure, public warning or confirmation;

@@ -1,4 +1,62 @@
-# Phase 2 — Multi-source evidence ontology
+# Pōneke Movement Watch — evidence ontology roadmap
+
+## Phase 3 — Additional open-source evidence
+
+### Goal
+
+Identify and verify the highest-value additional official open data sources that
+can strengthen Wellington ontology cases without inventing entity links or
+treating static context as live evidence.
+
+### Status
+
+- [completed] Research official mobility, lifeline, hazard, community and impact feeds.
+- [completed] Score candidates for openness, cadence, geometry, time alignment, entity resolution and ontology value.
+- [completed] Select the smallest high-confidence source set and document exclusions.
+- [completed] Verify official Wellington city-event, airport-flight and cruise-schedule sources added by the user.
+- [completed] Add selected sources to the registry and public documentation with tests, including explicit real/mock/auth/paid labels.
+- [completed] Rebuild, verify and publish the updated ontology demo.
+
+### Acceptance criteria
+
+- Every selected source has an official publisher URL, access method, cadence,
+  spatial/temporal fields, attribution and known limitations.
+- Sources are assigned an ontology role: direct observation, official event,
+  consequence/lifeline observation, or static impact context.
+- Only time-aligned and entity-resolved records may contribute evidence units.
+- Key-required, non-spatial, stale or static sources are registered honestly and
+  do not silently corroborate a case.
+- No personal, social-media or unlabelled commercial/invented record is introduced.
+
+### Assumptions and exclusions
+
+- This request authorises adding official open sources beyond the current ten.
+- Prefer keyless machine-readable feeds; key-required sources may be documented
+  but will not block the demo.
+- Research does not authorise operational dispatch, public warnings, causal
+  claims, or automated confirmed facts.
+- NEMA EMA is represented as restricted source metadata only; the public demo
+  never queries, caches or publishes its polygons without explicit permission;
+  its visible capability example is synthetic and carries zero evidence weight.
+- Google Routes is represented as a paid/key-required mock capability; no API
+  credential or Google response is used in this build.
+
+### File-level implementation plan
+
+- `site/public/cop/v2/source-registry.json`: add verified source contracts.
+- `src/movement_anomaly/ontology.py`: extend registry generation only where the
+  contract is deterministic and tested.
+- `tests/test_ontology.py` and rendered artifact tests: verify roles and limits.
+- `docs/ontology-and-exclusions.md` and `README.md`: explain selection and use.
+
+### Rejected major alternative
+
+- Do not ingest every available dataset into one score. A broad unweighted data
+  lake would obscure freshness, provenance and entity-resolution failures.
+
+---
+
+## Phase 2 — Multi-source evidence ontology
 
 ## Goal
 
@@ -39,3 +97,5 @@ Confirmed Fact.
 | Error | Attempt | Resolution |
 |---|---:|---|
 | Git Bash treated a `C:` archive path as a remote tar target | 1 | Re-ran the official packaging script with an MSYS `/c/...` path. |
+| Web search/open returned no extract for direct ArcGIS REST metadata URLs | 1 | Use the official JSON endpoints directly and verify fields/counts locally. |
+| NEMA EMA endpoint was publicly reachable but its item licence is restricted | 1 | Exclude its records from the public prototype; document permission requirement instead. |
