@@ -1,5 +1,32 @@
 # Findings — Phase 2 ontology and sources
 
+## Phase 5 history audit
+
+- The deployed interface hard-codes one target (`2026-08-06 12:00`) and fetches
+  one movement GeoJSON. The detector itself already accepts any target hour and
+  correctly excludes future rows, so the missing layer is a bounded replay
+  artifact plus coordinated client state.
+- The official WCC layer still identifies the source as public, hourly
+  Transport Sensors data and says it refreshes no less than monthly. Its public
+  S3 listing contains monthly CSVs from November 2023 through August 2026 and
+  eight Parquet shards; the objects were refreshed on 9 August 2026.
+- A compact static contract should keep geometry in the existing 414-countline
+  coverage feed and store each replay slot's signal metrics plus its 12 prior
+  matched weekday/hour observations. This supports replay and a truthful trend
+  without shipping raw citywide person/vehicle records to the browser.
+- The intended control is an operations-style time transport: date, hour,
+  previous/next, scrub and play. The evidence panel gains one observed-versus-
+  expected trend for the selected signal; map and chart always share one slot.
+- The real bounded artifact contains 144 hourly slots from 1 August 00:00 to
+  6 August 23:00, 929 investigation signals total, zero to 33 per slot (6.5
+  average), and is 2.12 MB as readable JSON. This is small enough for one cached
+  static browser request while retaining each candidate's audit history.
+- The first complete generation took 218.5 seconds. Most time is repeated
+  pandas filtering/grouping across 144 slots; this is an offline publishing cost,
+  not browser latency, but the builder should reuse pre-grouped dates/hours in a
+  later optimization if frequent refresh becomes necessary.
+
+
 ## Phase 4 map audit
 
 - `MovementCanvas.tsx` currently draws both coverage and anomalies into one

@@ -7,8 +7,8 @@ Picture (COP) feeds that other modules can consume.
 
 **Live demo:** [poneke-movement-watch.sun28long.chatgpt.site](https://poneke-movement-watch.sun28long.chatgpt.site/)
 
-The deployed view is a labelled replay of WCC Transport Sensors data for
-12:00, Thursday 6 August 2026. It is not a live emergency alerting system.
+The deployed view opens at 12:00, Thursday 6 August 2026 and can replay every
+published hour from 1–6 August 2026. It is not a live emergency alerting system.
 
 ## Problem 05
 
@@ -19,6 +19,14 @@ Pōneke Movement Watch gives WCC an additional early signal. It compares an
 hourly count with the same weekday and hour in recent history, maps only changes
 that pass conservative gates, and shows the evidence an operator would need to
 investigate. A signal never declares the cause or confirms an incident.
+
+## Historical replay
+
+The map's date, hour, previous/next, scrub and play controls move through 144
+real publisher time slots. The map, signal list, evidence values and timestamp
+change together. The selected signal's trend compares the current count with
+its 12 prior observations at the same weekday and hour; future rows are never
+used, and missing rows are never interpolated or converted to zero.
 
 ## Design principles
 
@@ -60,7 +68,7 @@ flowchart LR
 | Contracts | Stable public schemas and truth-state boundaries | `contract.py` |
 | I/O | Read source files and write reproducible artifacts | `io.py` |
 | Builders | Produce v1 movement and v2 ontology replay feeds | `scripts/build_demo.py`, `scripts/build_ontology_demo.py` |
-| Interface | Canvas map, filters, evidence panel and case ledger | `site/app/` |
+| Interface | Canvas map, historical replay, trend panel, filters and case ledger | `site/app/` |
 | COP artifacts | Integration-ready GeoJSON and JSON | `site/public/cop/v1/`, `site/public/cop/v2/` |
 
 ## Wellington City Ontology
@@ -221,6 +229,7 @@ The site publishes static, cacheable contracts that can slot into a shared map.
 | `/cop/v1/movement-signals.geojson` | Mapped investigation candidates and detector evidence |
 | `/cop/v1/movement-health.json` | Source cadence, coverage, gaps and limitations |
 | `/cop/v1/countline-coverage.geojson` | WCC sensor countline geometry |
+| `/cop/v1/movement-replay.json` | Bounded date/hour slots, signals and prior matched-hour trends |
 | `/cop/v2/observations.geojson` | Privacy-safe typed observations |
 | `/cop/v2/evidence-graph.json` | Entities, evidence roles, hypotheses and decision state |
 | `/cop/v2/source-registry.json` | Source role, access, cadence and resolution limits |
@@ -259,6 +268,8 @@ Build the v1 movement replay from the existing WCC Transport Sensors files:
   --data-dir data\transport_sensors `
   --metadata data\countline_meta_info.csv `
   --target-at 2026-08-06T12:00:00+12:00 `
+  --replay-start-at 2026-08-01T00:00:00+12:00 `
+  --replay-end-at 2026-08-06T23:00:00+12:00 `
   --output-dir site\public\cop\v1
 ```
 

@@ -130,15 +130,34 @@ test("identifies the real Wellington street basemap and its attribution", async 
   assert.match(html, /Sensor overlay remains available if map tiles cannot load/);
 });
 
+test("offers historical date-hour replay and a matched-hour trend view", async () => {
+  const response = await render();
+  assert.equal(response.status, 200);
+  const html = await response.text();
+
+  assert.match(html, /History replay/);
+  assert.match(html, /aria-label="Replay date"/);
+  assert.match(html, /aria-label="Replay hour"/);
+  assert.match(html, /aria-label="Previous replay hour"/);
+  assert.match(html, /aria-label="Next replay hour"/);
+  assert.match(html, /aria-label="Play replay"/);
+  assert.match(html, /Matched-hour trend/);
+  assert.match(html, /Observed count/);
+  assert.match(html, /Expected baseline/);
+  assert.match(html, /\/cop\/v1\/movement-replay\.json/);
+});
+
 test("ships internally consistent COP artifacts with WGS84 line geometry", async () => {
-  const [healthText, signalsText, coverageText] = await Promise.all([
+  const [healthText, signalsText, coverageText, replayText] = await Promise.all([
     readFile(new URL("../public/cop/v1/movement-health.json", import.meta.url), "utf8"),
     readFile(new URL("../public/cop/v1/movement-signals.geojson", import.meta.url), "utf8"),
     readFile(new URL("../public/cop/v1/countline-coverage.geojson", import.meta.url), "utf8"),
+    readFile(new URL("../public/cop/v1/movement-replay.json", import.meta.url), "utf8"),
   ]);
   const health = JSON.parse(healthText);
   const signals = JSON.parse(signalsText);
   const coverage = JSON.parse(coverageText);
+  const replay = JSON.parse(replayText);
 
   assert.equal(signals.type, "FeatureCollection");
   assert.equal(signals.features.length, health.candidate_count);
@@ -158,6 +177,16 @@ test("ships internally consistent COP artifacts with WGS84 line geometry", async
   assert.deepEqual(
     [...new Set(signals.features.map((feature) => feature.properties.attribution))],
     ["Wellington City Council Transport Sensors"],
+  );
+  assert.equal(replay.schema, "movement-replay/v1");
+  assert.ok(replay.slots.length > 1);
+  assert.ok(replay.available_from < replay.available_to);
+  assert.ok(
+    replay.slots.every((slot) =>
+      slot.signals.every((signal) =>
+        signal.matched_history.every((point) => point.observed_at < signal.observed_at),
+      ),
+    ),
   );
 });
 

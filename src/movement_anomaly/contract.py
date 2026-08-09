@@ -90,3 +90,46 @@ def to_feature_collection(
         "data_as_of": data_as_of,
         "features": features,
     }
+
+
+def to_replay_collection(
+    replay: dict, metadata: pd.DataFrame, data_as_of: str, default_target_at: str
+) -> dict:
+    meta = metadata.copy()
+    meta["COUNTLINE_ID"] = meta["COUNTLINE_ID"].astype(str)
+    metadata_by_countline = {
+        row["COUNTLINE_ID"]: row for row in meta.to_dict(orient="records")
+    }
+    slots = []
+    for slot in replay["slots"]:
+        signals = []
+        for signal in slot["signals"]:
+            row = metadata_by_countline.get(signal["countline_id"])
+            if row is None:
+                continue
+            signals.append(
+                {
+                    **signal,
+                    "viewpoint_id": str(row["VIEWPOINT_ID"]),
+                    "name": row["NAME"],
+                    "signal_confidence": _confidence(
+                        signal["history_samples"], signal["data_quality"]
+                    ),
+                }
+            )
+        slots.append({**slot, "candidate_count": len(signals), "signals": signals})
+
+    return {
+        "schema": "movement-replay/v1",
+        "available_from": replay["available_from"],
+        "available_to": replay["available_to"],
+        "default_target_at": pd.Timestamp(default_target_at).isoformat(),
+        "display_timezone": "Pacific/Auckland",
+        "data_as_of": data_as_of,
+        "publisher_mode": "batch replay",
+        "publisher_cadence": "at least monthly",
+        "source": "Wellington City Council Transport Sensors",
+        "trend_basis": "prior 12 matched weekday and hour observations",
+        "limitations": LIMITATIONS,
+        "slots": slots,
+    }

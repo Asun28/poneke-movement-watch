@@ -80,6 +80,10 @@ export default function Home() {
             <span>Coverage and health</span>
             <code>/cop/v1/movement-health.json</code>
           </a>
+          <a href="/cop/v1/movement-replay.json">
+            <span>Historical replay</span>
+            <code>/cop/v1/movement-replay.json</code>
+          </a>
           <a href="/cop/v2/observations.geojson">
             <span>Typed observations</span>
             <code>/cop/v2/observations.geojson</code>

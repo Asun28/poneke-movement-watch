@@ -1,5 +1,56 @@
 # Pōneke Movement Watch — evidence ontology roadmap
 
+## Phase 5 — Historical replay and trend view
+
+### Goal
+
+Let an operator move through the publisher's available historical date/hour
+slots, replay mapped increases and decreases, and inspect the selected signal's
+matched-weekday/hour history without presenting batch data as live telemetry.
+
+### Status
+
+- [completed] Audit the existing single-snapshot UI, detector and official history contract.
+- [completed] Define and test the compact replay artifact and no-future-data trend contract.
+- [completed] Build the real WCC replay window and add date, hour, step and play controls.
+- [completed] Add an accessible observed-versus-expected trend view for the selected signal.
+- [completed] Run detector, artifact, build, rendered-page and lint regressions.
+- [pending] Rebuild the source download and publish the existing site.
+
+### Acceptance criteria
+
+- Date/hour controls expose only slots present in the published WCC batch data.
+- Previous, next, scrub and play actions update the map, signal list and headline timestamp together.
+- Every replay signal is scored using only observations before its selected time.
+- The trend view shows real matched weekday/hour counts and the detector baseline; missing observations remain gaps.
+- The page states the replay range, batch cadence and that this is not live emergency information.
+- Existing filters, movement-direction arrows, map zoom and COP v1 snapshot remain compatible.
+
+### Assumptions and exclusions
+
+- Use only the existing WCC Transport Sensors product and its metadata; no new movement source.
+- Ship a bounded recent history window rather than raw citywide records to keep the static COP feed responsive.
+- Do not interpolate gaps, infer causes, label evacuation, or claim current/live movement.
+
+### File-level plan
+
+- `src/movement_anomaly/pipeline.py` and `contract.py`: deterministic replay/trend builder.
+- `scripts/build_demo.py`: publish the bounded history artifact beside the stable snapshot feeds.
+- `tests/` and `site/tests/`: test no-future scoring, artifact consistency and visible controls first.
+- `site/app/MovementCanvas.tsx` and `globals.css`: time controls, playback and trend canvas.
+- `README.md` and planning files: document the history endpoint and limitations.
+
+### Errors encountered
+
+| Error | Attempt | Resolution |
+|---|---:|---|
+| Parallel direct `node --test` could not spawn its isolated worker in the sandbox. | 1 | Use the existing `npm test` flow, which builds and runs the same real worker successfully. |
+| Pytest's default user temp directory is not readable in this sandbox. | 1 | Use a project-local `--basetemp` for subsequent focused and full runs, then remove it after verification. |
+| The second 144-slot regeneration exceeded a 180-second command bound before writing artifacts. | 1 | Preserve the already validated 2.12 MB replay, add the tested default target field, and keep the deterministic builder for scheduled/offline refreshes. |
+| Initial ESLint found an unstable trend-point effect dependency. | 1 | Memoized the derived series; the subsequent lint run is clean. |
+
+---
+
 ## Phase 4 — Real Wellington basemap
 
 ### Goal

@@ -6,10 +6,44 @@ type Coordinate = [number, number];
 type LineFeature = {
   id: string;
   geometry: { type: "LineString"; coordinates: Coordinate[] };
-  properties: Record<string, string | number | Record<string, string | number>>;
+  properties: Record<string, unknown>;
 };
 type FeatureCollection = { type: "FeatureCollection"; features: LineFeature[] };
 type Filter = "all" | "people" | "vehicles";
+type HistoryPoint = { observed_at: string; observed_count: number };
+type SignalConfidence = { level: string; history_samples: number; basis: string };
+type ReplaySignal = {
+  id: string;
+  countline_id: string;
+  viewpoint_id: string;
+  name: string;
+  transport_class: string;
+  direction: string;
+  change_direction: "increase" | "decrease";
+  observed_count: number;
+  expected_count: number;
+  robust_z: number;
+  observed_at: string;
+  matched_history: HistoryPoint[];
+  signal_confidence: SignalConfidence;
+};
+type ReplaySlot = {
+  target_at: string;
+  observed_groups: number;
+  expected_groups: number;
+  data_gap_groups: number;
+  candidate_count: number;
+  signals: ReplaySignal[];
+};
+type ReplayPayload = {
+  schema: "movement-replay/v1";
+  available_from: string;
+  available_to: string;
+  default_target_at: string;
+  data_as_of: string;
+  publisher_cadence: string;
+  slots: ReplaySlot[];
+};
 
 const PEOPLE = new Set(["Pedestrian", "Cyclist", "E-scooter"]);
 const DIRECTION_VECTORS: Record<string, Coordinate> = {
@@ -23,8 +57,44 @@ const DIRECTION_VECTORS: Record<string, Coordinate> = {
   NW: [-Math.SQRT1_2, -Math.SQRT1_2],
 };
 const TILE_SIZE = 256;
+const EMPTY_HISTORY: HistoryPoint[] = [];
 const tileCache = new Map<string, HTMLImageElement>();
 const failedTiles = new Set<string>();
+
+function signalKey(feature: LineFeature) {
+  return [
+    feature.properties.countline_id,
+    feature.properties.transport_class,
+    feature.properties.direction,
+  ].join(":");
+}
+
+function replaySignalFeature(
+  signal: ReplaySignal,
+  coverageByCountline: Map<string, LineFeature>,
+): LineFeature | null {
+  const coverageFeature = coverageByCountline.get(signal.countline_id);
+  if (!coverageFeature) return null;
+  return {
+    type: "Feature",
+    id: signal.id,
+    geometry: coverageFeature.geometry,
+    properties: signal,
+  } as LineFeature & { type: "Feature" };
+}
+
+function formatReplayTime(value: string) {
+  return new Intl.DateTimeFormat("en-NZ", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    timeZone: "Pacific/Auckland",
+  }).format(new Date(value)).replace(",", " ·");
+}
 
 function lonLatToWorld([longitude, latitude]: Coordinate): Coordinate {
   const limitedLatitude = Math.max(-85.05112878, Math.min(85.05112878, latitude));
@@ -243,15 +313,135 @@ function drawMovementMarker(
   context.stroke();
 }
 
+function TrendView({ signal }: { signal?: LineFeature }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const history = (signal?.properties.matched_history as HistoryPoint[] | undefined) ?? EMPTY_HISTORY;
+  const observed = signal ? Number(signal.properties.observed_count) : 0;
+  const expected = signal ? Number(signal.properties.expected_count) : 0;
+  const points = useMemo(() => signal
+    ? [...history, { observed_at: String(signal.properties.observed_at), observed_count: observed }]
+    : [], [history, observed, signal]);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas || points.length === 0) return;
+    const draw = () => {
+      const rect = canvas.getBoundingClientRect();
+      if (rect.width < 2 || rect.height < 2) return;
+      const ratio = window.devicePixelRatio || 1;
+      canvas.width = Math.floor(rect.width * ratio);
+      canvas.height = Math.floor(rect.height * ratio);
+      const context = canvas.getContext("2d");
+      if (!context) return;
+      context.scale(ratio, ratio);
+      const width = rect.width;
+      const height = rect.height;
+      const padding = { left: 32, right: 12, top: 12, bottom: 22 };
+      const maxValue = Math.max(expected, ...points.map((point) => point.observed_count), 1);
+      const chartWidth = width - padding.left - padding.right;
+      const chartHeight = height - padding.top - padding.bottom;
+      const x = (index: number) => padding.left + (index / Math.max(1, points.length - 1)) * chartWidth;
+      const y = (value: number) => padding.top + chartHeight - (value / maxValue) * chartHeight;
+
+      context.clearRect(0, 0, width, height);
+      context.strokeStyle = "rgba(16, 42, 51, 0.12)";
+      context.lineWidth = 1;
+      for (let step = 0; step <= 2; step += 1) {
+        const gridY = padding.top + (chartHeight / 2) * step;
+        context.beginPath();
+        context.moveTo(padding.left, gridY);
+        context.lineTo(width - padding.right, gridY);
+        context.stroke();
+      }
+      context.fillStyle = "#526b73";
+      context.font = "9px Consolas, monospace";
+      context.fillText(String(Math.round(maxValue)), 2, padding.top + 4);
+      context.fillText("0", 20, padding.top + chartHeight + 3);
+
+      context.setLineDash([5, 4]);
+      context.strokeStyle = "#1e6a8d";
+      context.lineWidth = 1.5;
+      context.beginPath();
+      context.moveTo(padding.left, y(expected));
+      context.lineTo(width - padding.right, y(expected));
+      context.stroke();
+      context.setLineDash([]);
+
+      const colour = signal?.properties.change_direction === "decrease" ? "#c75845" : "#d78916";
+      context.strokeStyle = colour;
+      context.lineWidth = 2.5;
+      context.beginPath();
+      points.forEach((point, index) => {
+        if (index === 0) context.moveTo(x(index), y(point.observed_count));
+        else context.lineTo(x(index), y(point.observed_count));
+      });
+      context.stroke();
+      points.forEach((point, index) => {
+        context.fillStyle = index === points.length - 1 ? "#102a33" : colour;
+        context.beginPath();
+        context.arc(x(index), y(point.observed_count), index === points.length - 1 ? 4 : 2.5, 0, Math.PI * 2);
+        context.fill();
+      });
+    };
+    draw();
+    window.addEventListener("resize", draw);
+    return () => window.removeEventListener("resize", draw);
+  }, [expected, points, signal]);
+
+  const firstDate = points[0]?.observed_at;
+  const lastDate = points.at(-1)?.observed_at;
+  const shortDate = (value: string) => new Intl.DateTimeFormat("en-NZ", {
+    day: "numeric",
+    month: "short",
+    timeZone: "Pacific/Auckland",
+  }).format(new Date(value));
+
+  return (
+    <section className="trend-panel" aria-labelledby="trend-heading">
+      <div className="trend-heading-row">
+        <div>
+          <p className="eyebrow">Matched-hour trend</p>
+          <h4 id="trend-heading">Prior 12 matching weeks</h4>
+        </div>
+        <div className="trend-legend" aria-label="Trend legend">
+          <span><i className="observed-line" />Observed count</span>
+          <span><i className="expected-line" />Expected baseline</span>
+        </div>
+      </div>
+      {signal ? (
+        <>
+          <canvas
+            ref={canvasRef}
+            role="img"
+            aria-label={`Observed count history for ${String(signal.properties.name)}. Current ${observed}; expected ${expected}.`}
+          />
+          <div className="trend-range">
+            <span>{firstDate ? shortDate(firstDate) : ""}</span>
+            <strong>Selected hour</strong>
+            <span>{lastDate ? shortDate(lastDate) : ""}</span>
+          </div>
+          <p>Real observations at the same weekday and hour. Gaps are not interpolated.</p>
+        </>
+      ) : (
+        <p className="trend-empty">Select a signal in a replay hour to view its real matched history.</p>
+      )}
+    </section>
+  );
+}
+
 export default function MovementCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [coverage, setCoverage] = useState<LineFeature[]>([]);
-  const [signals, setSignals] = useState<LineFeature[]>([]);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [snapshotSignals, setSnapshotSignals] = useState<LineFeature[]>([]);
+  const [replay, setReplay] = useState<ReplayPayload | null>(null);
+  const [slotIndex, setSlotIndex] = useState(0);
+  const [selectedSignalKey, setSelectedSignalKey] = useState<string | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
   const [filter, setFilter] = useState<Filter>("all");
   const [zoom, setZoom] = useState(1);
   const [tileRevision, setTileRevision] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [replayWarning, setReplayWarning] = useState<string | null>(null);
 
   useEffect(() => {
     Promise.all([
@@ -260,12 +450,36 @@ export default function MovementCanvas() {
     ])
       .then(([coverageData, signalData]: FeatureCollection[]) => {
         setCoverage(coverageData.features);
-        setSignals(signalData.features);
-        setSelectedId(signalData.features[0]?.id ?? null);
+        setSnapshotSignals(signalData.features);
+        setSelectedSignalKey(signalData.features[0] ? signalKey(signalData.features[0]) : null);
       })
       .catch(() => setError("The replay files could not be loaded. Check the COP feed."));
+
+    fetch("/cop/v1/movement-replay.json")
+      .then((response) => {
+        if (!response.ok) throw new Error("replay unavailable");
+        return response.json();
+      })
+      .then((payload: ReplayPayload) => {
+        setReplay(payload);
+        const defaultIndex = payload.slots.findIndex(
+          (slot) => slot.target_at === payload.default_target_at,
+        );
+        setSlotIndex(defaultIndex >= 0 ? defaultIndex : payload.slots.length - 1);
+      })
+      .catch(() => setReplayWarning("History replay is unavailable; showing the published snapshot."));
   }, []);
 
+  const coverageByCountline = useMemo(() => new Map(
+    coverage.map((feature) => [String(feature.properties.countline_id), feature]),
+  ), [coverage]);
+  const currentSlot = replay?.slots[slotIndex];
+  const signals = useMemo(() => {
+    if (!currentSlot) return snapshotSignals;
+    return currentSlot.signals
+      .map((signal) => replaySignalFeature(signal, coverageByCountline))
+      .filter((feature): feature is LineFeature => feature !== null);
+  }, [coverageByCountline, currentSlot, snapshotSignals]);
   const filteredSignals = useMemo(() => signals.filter((feature) => {
     const mode = String(feature.properties.transport_class);
     if (filter === "people") return PEOPLE.has(mode);
@@ -273,7 +487,46 @@ export default function MovementCanvas() {
     return true;
   }), [signals, filter]);
 
-  const selected = signals.find((feature) => feature.id === selectedId) ?? filteredSignals[0];
+  const selected = filteredSignals.find(
+    (feature) => signalKey(feature) === selectedSignalKey,
+  ) ?? filteredSignals[0];
+
+  useEffect(() => {
+    if (!isPlaying || !replay) return;
+    const timer = window.setInterval(() => {
+      setSlotIndex((current) => {
+        if (current >= replay.slots.length - 1) {
+          setIsPlaying(false);
+          return current;
+        }
+        return current + 1;
+      });
+    }, 900);
+    return () => window.clearInterval(timer);
+  }, [isPlaying, replay]);
+
+  const replayDates = useMemo(() => replay
+    ? [...new Set(replay.slots.map((slot) => slot.target_at.slice(0, 10)))]
+    : [], [replay]);
+  const selectedDate = currentSlot?.target_at.slice(0, 10) ?? "2026-08-06";
+  const selectedHour = currentSlot?.target_at.slice(11, 13) ?? "12";
+  const availableHours = replay?.slots
+    .filter((slot) => slot.target_at.startsWith(selectedDate))
+    .map((slot) => slot.target_at.slice(11, 13)) ?? [];
+  const selectDateAndHour = (date: string, hour: string) => {
+    if (!replay) return;
+    const exact = replay.slots.findIndex(
+      (slot) => slot.target_at.startsWith(`${date}T${hour}:`),
+    );
+    const firstOnDate = replay.slots.findIndex((slot) => slot.target_at.startsWith(`${date}T`));
+    if (exact >= 0) setSlotIndex(exact);
+    else if (firstOnDate >= 0) setSlotIndex(firstOnDate);
+    setIsPlaying(false);
+  };
+  const replayLabel = currentSlot
+    ? formatReplayTime(currentSlot.target_at)
+    : "12:00 · Thursday 6 August 2026";
+  const confidence = selected?.properties.signal_confidence as SignalConfidence | undefined;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -305,7 +558,7 @@ export default function MovementCanvas() {
       <div className="map-column">
         <div className="map-toolbar">
           <div>
-            <p className="eyebrow">12:00 · Thursday 6 August 2026</p>
+            <p className="eyebrow">{replayLabel}</p>
             <h2 id="map-heading">Countline change field</h2>
           </div>
           <div className="filter-group" aria-label="Filter signals">
@@ -322,6 +575,83 @@ export default function MovementCanvas() {
             ))}
           </div>
         </div>
+        <section className="replay-console" aria-labelledby="replay-heading">
+          <div className="replay-console-title">
+            <div>
+              <span id="replay-heading">History replay</span>
+              <small>
+                {replay
+                  ? `${formatReplayTime(replay.available_from)} — ${formatReplayTime(replay.available_to)}`
+                  : "Loading published history range…"}
+              </small>
+            </div>
+            <output aria-live="polite">
+              {currentSlot
+                ? `${currentSlot.candidate_count} signals · ${currentSlot.data_gap_groups} data gaps`
+                : "Published snapshot"}
+            </output>
+          </div>
+          <div className="replay-inputs">
+            <label>
+              <span>Date</span>
+              <input
+                type="date"
+                aria-label="Replay date"
+                value={selectedDate}
+                min={replayDates[0]}
+                max={replayDates.at(-1)}
+                disabled={!replay}
+                onChange={(event) => selectDateAndHour(event.currentTarget.value, selectedHour)}
+              />
+            </label>
+            <label>
+              <span>Hour</span>
+              <select
+                aria-label="Replay hour"
+                value={selectedHour}
+                disabled={!replay}
+                onChange={(event) => selectDateAndHour(selectedDate, event.currentTarget.value)}
+              >
+                {(availableHours.length > 0 ? availableHours : ["12"]).map((hour) => (
+                  <option key={hour} value={hour}>{hour}:00</option>
+                ))}
+              </select>
+            </label>
+            <div className="replay-buttons">
+              <button
+                type="button"
+                aria-label="Previous replay hour"
+                disabled={!replay || slotIndex === 0}
+                onClick={() => { setSlotIndex((value) => Math.max(0, value - 1)); setIsPlaying(false); }}
+              >←</button>
+              <button
+                type="button"
+                className="play-button"
+                aria-label={isPlaying ? "Pause replay" : "Play replay"}
+                aria-pressed={isPlaying}
+                disabled={!replay || replay.slots.length < 2}
+                onClick={() => setIsPlaying((value) => !value)}
+              >{isPlaying ? "Pause" : "Play"}</button>
+              <button
+                type="button"
+                aria-label="Next replay hour"
+                disabled={!replay || slotIndex >= replay.slots.length - 1}
+                onClick={() => { setSlotIndex((value) => Math.min((replay?.slots.length ?? 1) - 1, value + 1)); setIsPlaying(false); }}
+              >→</button>
+            </div>
+          </div>
+          <input
+            className="replay-scrubber"
+            type="range"
+            aria-label="Replay timeline"
+            min={0}
+            max={Math.max(0, (replay?.slots.length ?? 1) - 1)}
+            value={slotIndex}
+            disabled={!replay}
+            onChange={(event) => { setSlotIndex(Number(event.currentTarget.value)); setIsPlaying(false); }}
+          />
+          {replayWarning ? <p className="replay-warning" role="status">{replayWarning}</p> : null}
+        </section>
         <div className="map-stage">
           <canvas
             ref={canvasRef}
@@ -388,12 +718,14 @@ export default function MovementCanvas() {
             </div>
             <dl className="evidence-metrics">
               <div><dt>Robust score</dt><dd>{Number(selected.properties.robust_z).toFixed(1)} z</dd></div>
-              <div><dt>History</dt><dd>{Number((selected.properties.signal_confidence as Record<string, number>).history_samples)} matched hours</dd></div>
-              <div><dt>Baseline strength</dt><dd>{String((selected.properties.signal_confidence as Record<string, string>).level)}</dd></div>
+              <div><dt>History</dt><dd>{confidence?.history_samples ?? 0} matched hours</dd></div>
+              <div><dt>Baseline strength</dt><dd>{confidence?.level ?? "unknown"}</dd></div>
             </dl>
             <p className="evidence-note">No cause inferred. Check operational context before acting.</p>
           </div>
         ) : <p className="empty-evidence">Select a signal to inspect its evidence.</p>}
+
+        <TrendView signal={selected} />
 
         <div className="signal-list" aria-label={`${filteredSignals.length} filtered signals`}>
           {filteredSignals.map((feature) => (
@@ -401,7 +733,7 @@ export default function MovementCanvas() {
               type="button"
               key={feature.id}
               className={feature.id === selected?.id ? "selected" : ""}
-              onClick={() => setSelectedId(feature.id)}
+              onClick={() => setSelectedSignalKey(signalKey(feature))}
             >
               <span>
                 <strong>{String(feature.properties.name)}</strong>
@@ -412,6 +744,9 @@ export default function MovementCanvas() {
               </em>
             </button>
           ))}
+          {filteredSignals.length === 0 ? (
+            <p className="empty-slot">No investigation signals in this hour and filter.</p>
+          ) : null}
         </div>
       </aside>
     </section>

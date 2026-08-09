@@ -1,5 +1,26 @@
 # Progress — Phase 2 ontology and sources
 
+- 2026-08-10: Started Phase 5 for historical date/hour replay and a trend data
+  view. Restored the clean deployed state, loaded the Sites, TDD, test-quality,
+  planning, frontend and Agent Reach instructions, and audited the single-slot
+  map/data path.
+- 2026-08-10: Reverified the official WCC Transport Sensors contract and public
+  file listing. Chosen boundary: a bounded real replay artifact with matched
+  historical observations, not a mock timeline or a new mobility source.
+- 2026-08-10: TDD RED confirmed. The Python replay test fails because
+  `analyze_replay` does not exist; the rendered-site suite has six passes and
+  two expected failures for the absent history controls and replay artifact.
+- 2026-08-10: Python TDD GREEN confirmed for no-future matched history and CLI
+  artifact generation. Built the real 1–6 August WCC replay: 144 slots, 929
+  signals and a 2.12 MB cacheable JSON feed.
+- 2026-08-10: Implemented the shared time transport (date, hour, previous,
+  next, scrub and play), coordinated map/list/evidence state and an accessible
+  canvas trend with observed and expected series. All eight rendered-site tests
+  now pass with the production build.
+- 2026-08-10: Final local regression passes: 21 Python tests, eight rendered
+  site/artifact tests, the production build and a clean ESLint run. The existing
+  localhost:3013 tab is backed by the updated preview while publishing proceeds.
+
 - 2026-08-10: Started Phase 4 after the user requested a real map view. Selected
   an attributed OpenStreetMap basemap as the no-key default, with the existing
   grid retained only as a network-failure fallback. Evidence sources and weights

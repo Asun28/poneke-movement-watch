@@ -77,6 +77,7 @@ def test_cli_builds_cop_geojson_health_and_coverage_from_parquet(tmp_path):
     signals = json.loads((output_dir / "movement-signals.geojson").read_text())
     health = json.loads((output_dir / "movement-health.json").read_text())
     coverage = json.loads((output_dir / "countline-coverage.geojson").read_text())
+    replay = json.loads((output_dir / "movement-replay.json").read_text())
     assert len(signals["features"]) == 1
     assert health["candidate_count"] == 1
     assert health["data_gap_groups"] == 1
@@ -85,3 +86,9 @@ def test_cli_builds_cop_geojson_health_and_coverage_from_parquet(tmp_path):
         174.775421,
         -41.319916,
     ]
+    assert replay["schema"] == "movement-replay/v1"
+    assert replay["default_target_at"] == "2026-08-06T08:00:00"
+    assert replay["available_from"] == "2026-08-06T08:00:00"
+    assert replay["available_to"] == "2026-08-06T08:00:00"
+    assert replay["slots"][0]["signals"][0]["name"] == "Luxford St road upper"
+    assert len(replay["slots"][0]["signals"][0]["matched_history"]) == 12
