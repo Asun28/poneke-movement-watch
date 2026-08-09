@@ -12,6 +12,16 @@ type FeatureCollection = { type: "FeatureCollection"; features: LineFeature[] };
 type Filter = "all" | "people" | "vehicles";
 
 const PEOPLE = new Set(["Pedestrian", "Cyclist", "E-scooter"]);
+const DIRECTION_VECTORS: Record<string, Coordinate> = {
+  N: [0, -1],
+  NE: [Math.SQRT1_2, -Math.SQRT1_2],
+  E: [1, 0],
+  SE: [Math.SQRT1_2, Math.SQRT1_2],
+  S: [0, 1],
+  SW: [-Math.SQRT1_2, Math.SQRT1_2],
+  W: [-1, 0],
+  NW: [-Math.SQRT1_2, -Math.SQRT1_2],
+};
 
 function drawMap(
   canvas: HTMLCanvasElement,
@@ -85,6 +95,7 @@ function drawMap(
     drawMovementMarker(
       context,
       start,
+      String(feature.properties.direction),
       isSelected,
       decreasing ? "#C75845" : "#D78916",
     );
@@ -94,10 +105,11 @@ function drawMap(
 function drawMovementMarker(
   context: CanvasRenderingContext2D,
   [x, y]: Coordinate,
+  direction: string,
   isSelected: boolean,
   colour: string,
 ) {
-  const radius = isSelected ? 12 : 9;
+  const radius = isSelected ? 13 : 10;
   context.fillStyle = "#F8FBFB";
   context.strokeStyle = isSelected ? "#102A33" : colour;
   context.lineWidth = isSelected ? 3 : 2;
@@ -106,10 +118,34 @@ function drawMovementMarker(
   context.fill();
   context.stroke();
 
-  context.fillStyle = colour;
+  const normalisedDirection = direction.toUpperCase();
+  const [vectorX, vectorY] = DIRECTION_VECTORS[normalisedDirection] ?? [1, 0];
+  const arrowHalfLength = isSelected ? 7 : 5.5;
+  const headX = x + vectorX * arrowHalfLength;
+  const headY = y + vectorY * arrowHalfLength;
+  const perpendicularX = -vectorY;
+  const perpendicularY = vectorX;
+  const headLength = isSelected ? 4 : 3.3;
+  const headWidth = isSelected ? 3.3 : 2.7;
+
+  context.strokeStyle = "#102A33";
+  context.lineWidth = isSelected ? 2.4 : 2;
+  context.lineCap = "round";
+  context.lineJoin = "round";
   context.beginPath();
-  context.arc(x, y, isSelected ? 4 : 3, 0, Math.PI * 2);
-  context.fill();
+  context.moveTo(x - vectorX * arrowHalfLength, y - vectorY * arrowHalfLength);
+  context.lineTo(headX, headY);
+  context.moveTo(headX, headY);
+  context.lineTo(
+    headX - vectorX * headLength + perpendicularX * headWidth,
+    headY - vectorY * headLength + perpendicularY * headWidth,
+  );
+  context.moveTo(headX, headY);
+  context.lineTo(
+    headX - vectorX * headLength - perpendicularX * headWidth,
+    headY - vectorY * headLength - perpendicularY * headWidth,
+  );
+  context.stroke();
 }
 
 export default function MovementCanvas() {
@@ -187,7 +223,7 @@ export default function MovementCanvas() {
           <canvas
             ref={canvasRef}
             role="img"
-            aria-label={`${filteredSignals.length} unusual movement changes across 414 WCC countlines`}
+            aria-label={`${filteredSignals.length} unusual movement changes across 414 WCC countlines. Direction arrows show travel direction.`}
           />
           <div className="map-controls" aria-label="Map zoom controls">
             <button
@@ -213,6 +249,7 @@ export default function MovementCanvas() {
           <div className="map-key">
             <span><i className="increase" />Increase</span>
             <span><i className="decrease" />Decrease</span>
+            <span aria-label="Travel direction"><b className="direction-arrow-key" aria-hidden="true">↗</b>Arrow shows travel direction</span>
             <span><i className="coverage" />Sensor coverage</span>
           </div>
           {coverage.length === 0 && !error ? <p className="map-message">Loading countlines…</p> : null}

@@ -88,6 +88,16 @@ test("renders zoom controls with text-only people and vehicle filters", async ()
   assert.match(html, />100(?:<!-- -->)?% zoom</);
 });
 
+test("explains that map arrows show travel direction", async () => {
+  const response = await render();
+  assert.equal(response.status, 200);
+  const html = await response.text();
+
+  assert.match(html, /aria-label="Travel direction"/);
+  assert.match(html, /Arrow shows travel direction/);
+  assert.match(html, /Direction arrows show travel direction/);
+});
+
 test("ships internally consistent COP artifacts with WGS84 line geometry", async () => {
   const [healthText, signalsText, coverageText] = await Promise.all([
     readFile(new URL("../public/cop/v1/movement-health.json", import.meta.url), "utf8"),

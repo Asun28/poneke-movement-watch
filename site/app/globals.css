@@ -105,6 +105,7 @@ h2 { font-size: clamp(29px, 3.2vw, 47px); line-height: 1; }
 .map-key .increase { background: var(--signal-amber); }
 .map-key .decrease { background: var(--uncertainty-coral); }
 .map-key .coverage { background: rgba(70,111,124,.35); height: 1px; }
+.direction-arrow-key { display: inline-grid; place-items: center; width: 18px; height: 18px; border: 1px solid var(--civic-ink); border-radius: 50%; background: var(--white); color: var(--civic-ink); font-size: 14px; line-height: 1; }
 .map-message { position: absolute; inset: 0; display: grid; place-items: center; margin: 0; color: var(--muted-ink); }
 .map-message.error { color: var(--uncertainty-coral); }
 .map-caption { margin: 11px 0 0; color: var(--muted-ink); font-size: 12px; }
