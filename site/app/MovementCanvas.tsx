@@ -85,7 +85,6 @@ function drawMap(
     drawMovementMarker(
       context,
       start,
-      PEOPLE.has(String(feature.properties.transport_class)),
       isSelected,
       decreasing ? "#C75845" : "#D78916",
     );
@@ -95,7 +94,6 @@ function drawMap(
 function drawMovementMarker(
   context: CanvasRenderingContext2D,
   [x, y]: Coordinate,
-  isPerson: boolean,
   isSelected: boolean,
   colour: string,
 ) {
@@ -108,43 +106,10 @@ function drawMovementMarker(
   context.fill();
   context.stroke();
 
-  context.strokeStyle = "#102A33";
-  context.fillStyle = "#102A33";
-  context.lineWidth = 1.6;
-  context.lineCap = "round";
-  if (isPerson) {
-    context.beginPath();
-    context.arc(x, y - 4, 2, 0, Math.PI * 2);
-    context.fill();
-    context.beginPath();
-    context.moveTo(x, y - 1);
-    context.lineTo(x, y + 4);
-    context.moveTo(x - 4, y + 1);
-    context.lineTo(x + 4, y + 1);
-    context.moveTo(x, y + 4);
-    context.lineTo(x - 3, y + 7);
-    context.moveTo(x, y + 4);
-    context.lineTo(x + 3, y + 7);
-    context.stroke();
-  } else {
-    context.fillRect(x - 5, y - 3, 10, 6);
-    context.fillRect(x - 3, y - 5, 6, 2);
-    context.beginPath();
-    context.arc(x - 3, y + 4, 1.6, 0, Math.PI * 2);
-    context.arc(x + 3, y + 4, 1.6, 0, Math.PI * 2);
-    context.fill();
-  }
-}
-
-function SignalIcon({ person, hidden = false }: { person: boolean; hidden?: boolean }) {
-  return (
-    <i
-      className={`marker-icon ${person ? "person" : "vehicle"}`}
-      aria-label={hidden ? undefined : person ? "Person signal" : "Vehicle signal"}
-      aria-hidden={hidden || undefined}
-      role={hidden ? undefined : "img"}
-    />
-  );
+  context.fillStyle = colour;
+  context.beginPath();
+  context.arc(x, y, isSelected ? 4 : 3, 0, Math.PI * 2);
+  context.fill();
 }
 
 export default function MovementCanvas() {
@@ -213,7 +178,6 @@ export default function MovementCanvas() {
                 aria-pressed={filter === value}
                 onClick={() => setFilter(value)}
               >
-                {value !== "all" ? <SignalIcon person={value === "people"} hidden /> : null}
                 {value === "all" ? "All" : value === "people" ? "People" : "Vehicles"}
               </button>
             ))}
@@ -249,8 +213,6 @@ export default function MovementCanvas() {
           <div className="map-key">
             <span><i className="increase" />Increase</span>
             <span><i className="decrease" />Decrease</span>
-            <span><SignalIcon person={true} />People</span>
-            <span><SignalIcon person={false} />Vehicles</span>
             <span><i className="coverage" />Sensor coverage</span>
           </div>
           {coverage.length === 0 && !error ? <p className="map-message">Loading countlines…</p> : null}
@@ -295,7 +257,7 @@ export default function MovementCanvas() {
               onClick={() => setSelectedId(feature.id)}
             >
               <span>
-                <strong><SignalIcon person={PEOPLE.has(String(feature.properties.transport_class))} hidden />{String(feature.properties.name)}</strong>
+                <strong>{String(feature.properties.name)}</strong>
                 <small>{String(feature.properties.transport_class)} · {String(feature.properties.direction)}</small>
               </span>
               <em className={String(feature.properties.change_direction)}>

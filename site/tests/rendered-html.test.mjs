@@ -75,7 +75,7 @@ test("publishes a privacy-safe ontology replay without treating fixtures as evid
   assert.doesNotMatch(publicPayload, /probability/i);
 });
 
-test("renders zoom controls and distinct people and vehicle marker keys", async () => {
+test("renders zoom controls with text-only people and vehicle filters", async () => {
   const response = await render();
   assert.equal(response.status, 200);
   const html = await response.text();
@@ -83,8 +83,8 @@ test("renders zoom controls and distinct people and vehicle marker keys", async 
   assert.match(html, /aria-label="Zoom in"/);
   assert.match(html, /aria-label="Zoom out"/);
   assert.match(html, /aria-label="Reset map view"/);
-  assert.match(html, /aria-label="Person signal"/);
-  assert.match(html, /aria-label="Vehicle signal"/);
+  assert.doesNotMatch(html, /aria-label="Person signal"/);
+  assert.doesNotMatch(html, /aria-label="Vehicle signal"/);
   assert.match(html, />100(?:<!-- -->)?% zoom</);
 });
 
