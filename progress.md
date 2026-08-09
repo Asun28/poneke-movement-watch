@@ -20,6 +20,9 @@
 - 2026-08-10: Final local regression passes: 21 Python tests, eight rendered
   site/artifact tests, the production build and a clean ESLint run. The existing
   localhost:3013 tab is backed by the updated preview while publishing proceeds.
+- 2026-08-10: Pushed the validated source, saved Sites version 8 and completed
+  the owner-only production deployment at the existing live URL. Phase 5 is
+  complete.
 
 - 2026-08-10: Started Phase 4 after the user requested a real map view. Selected
   an attributed OpenStreetMap basemap as the no-key default, with the existing

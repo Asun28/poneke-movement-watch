@@ -15,7 +15,7 @@ matched-weekday/hour history without presenting batch data as live telemetry.
 - [completed] Build the real WCC replay window and add date, hour, step and play controls.
 - [completed] Add an accessible observed-versus-expected trend view for the selected signal.
 - [completed] Run detector, artifact, build, rendered-page and lint regressions.
-- [pending] Rebuild the source download and publish the existing site.
+- [completed] Rebuild the source download and publish the existing site.
 
 ### Acceptance criteria
 
