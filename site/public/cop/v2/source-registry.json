@@ -1,0 +1,86 @@
+{
+  "schema": "wellington-source-registry/v1",
+  "sources": [
+    {
+      "id": "wcc-transport-sensors",
+      "name": "WCC Transport Sensors",
+      "role": "movement_observation",
+      "availability": "batch_replay",
+      "temporal_alignment": "hourly source; publisher refresh at least monthly"
+    },
+    {
+      "id": "wcc-ticket-detail",
+      "name": "WCC TICKET_DETAIL extract",
+      "role": "public_report_observation",
+      "availability": "provided_input_required",
+      "input_contract": "TICKET_DETAIL",
+      "privacy": {
+        "requester_name": "drop_at_ingest",
+        "incident_address": "withhold_from_public_output",
+        "description": "withhold_from_public_output"
+      }
+    },
+    {
+      "id": "nzta-tms",
+      "name": "NZTA TMS Telemetry Sites",
+      "role": "movement_context",
+      "availability": "public_keyless",
+      "endpoint": "https://services.arcgis.com/CXBb7LAjgIIdcsPt/ArcGIS/rest/services/TMS_Telemetry_Sites/FeatureServer/0/query",
+      "entity_resolution": "unresolved_without_crosswalk",
+      "temporal_alignment": "insufficient count-window semantics"
+    },
+    {
+      "id": "gwrc-hilltop",
+      "name": "Greater Wellington Hilltop",
+      "role": "hazard_observation",
+      "availability": "public_keyless",
+      "endpoint": "https://hilltop.gw.govt.nz/Telemetry.hts",
+      "temporal_alignment": "must overlap the case window"
+    },
+    {
+      "id": "nzta-road-events",
+      "name": "NZTA road events",
+      "role": "official_event_observation",
+      "availability": "public_keyless",
+      "endpoint": "https://www.journeys.nzta.govt.nz/assets/map-data-cache/delays.json",
+      "temporal_alignment": "current feed; not evidence for a past replay"
+    },
+    {
+      "id": "metservice-cap",
+      "name": "MetService CAP warnings",
+      "role": "hazard_alert_observation",
+      "availability": "public_keyless",
+      "endpoint": "https://alerts.metservice.com/cap/rss",
+      "temporal_alignment": "warning validity must overlap the case window"
+    },
+    {
+      "id": "geonet-quakes",
+      "name": "GeoNet earthquakes",
+      "role": "hazard_observation",
+      "availability": "public_keyless",
+      "endpoint": "https://api.geonet.org.nz/quake?MMI=3",
+      "temporal_alignment": "event time must overlap the case window"
+    },
+    {
+      "id": "wremo-hubs",
+      "name": "WREMO Community Emergency Hubs",
+      "role": "impact_context",
+      "availability": "public_with_licence_restriction",
+      "temporal_alignment": "static context only"
+    },
+    {
+      "id": "wcc-emergency-routes",
+      "name": "WCC emergency routes",
+      "role": "impact_context",
+      "availability": "consult_wcc_before_use",
+      "temporal_alignment": "static context only"
+    },
+    {
+      "id": "metlink-realtime",
+      "name": "Metlink realtime",
+      "role": "public_transport_observation",
+      "availability": "requires_key",
+      "temporal_alignment": "not connected in this demo"
+    }
+  ]
+}

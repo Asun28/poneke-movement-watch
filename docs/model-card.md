@@ -42,7 +42,7 @@ The split is time ordered, not a random 7,000/1,000/2,000 split.
 - compare only like weekday/hour periods;
 - require robust, absolute and relative change together;
 - preserve explicit observed zeroes but distinguish missing rows;
-- expose sample size, confidence, publisher cadence and data age;
+- expose sample size, baseline strength, publisher cadence and data age;
 - never infer an incident cause or aggregate nearby sensors as unique people.
 
 ## LLM boundary
@@ -51,9 +51,16 @@ An LLM may turn the structured evidence into a short operator explanation. It
 must not change the numerical score, create labels, declare an emergency or
 override `normal`, `candidate`, `data_gap` and `insufficient_baseline` states.
 
+## Ontology boundary
+
+The detector produces an observation. A deterministic evidence layer may rank a
+hypothesis using visible review units, but it cannot create a human decision or
+confirmed fact. The supplied synthetic ticket-format fixture is visible and has
+zero weight. No additional classifier is trained because verified disruption
+labels are not available.
+
 ## Known limits
 
 This is a transparent signal detector, not a causal or predictive emergency
 classifier. Accuracy is constrained by fixed-sensor coverage, sensor errors,
 gaps, different commissioning dates and publisher batch cadence.
-

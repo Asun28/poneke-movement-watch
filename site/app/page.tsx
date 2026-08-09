@@ -1,4 +1,5 @@
 import MovementCanvas from "./MovementCanvas";
+import EvidenceCaseLedger from "./EvidenceCaseLedger";
 import health from "../public/cop/v1/movement-health.json";
 
 const formattedDate = new Intl.DateTimeFormat("en-NZ", {
@@ -27,12 +28,12 @@ export default function Home() {
 
       <section className="watch-intro" id="top">
         <div>
-          <p className="eyebrow">Problem 05 · anonymous fixed sensors</p>
+          <p className="eyebrow">Problem 05 · evidence-aware city movement</p>
           <h1>Movement changes worth investigating</h1>
           <p className="intro-copy">
             Hourly pedestrian and vehicle counts compared with the same weekday and
-            hour over the prior 12 weeks. Signals invite investigation; they do not
-            diagnose an incident, evacuation, or loss of access.
+            hour over the prior 12 weeks. A typed evidence graph can add reports and
+            official feeds without turning any source into a diagnosis.
           </p>
         </div>
         <dl className="snapshot-facts" aria-label="Snapshot summary">
@@ -56,13 +57,15 @@ export default function Home() {
 
       <MovementCanvas />
 
+      <EvidenceCaseLedger />
+
       <section className="handoff-section" aria-labelledby="handoff-heading">
         <div>
           <p className="eyebrow">Shared operating picture</p>
           <h2 id="handoff-heading">The map is a view. The feed is the product.</h2>
           <p>
-            Each signal is WGS84 GeoJSON with observed and expected counts, robust
-            score, sample size, data age, confidence, attribution, and limitations.
+            The v1 movement feed remains stable. The v2 feeds add typed observations,
+            evidence roles, hypotheses, decision state, provenance, and exclusions.
           </p>
         </div>
         <div className="endpoint-list">
@@ -73,6 +76,18 @@ export default function Home() {
           <a href="/cop/v1/movement-health.json">
             <span>Coverage and health</span>
             <code>/cop/v1/movement-health.json</code>
+          </a>
+          <a href="/cop/v2/observations.geojson">
+            <span>Typed observations</span>
+            <code>/cop/v2/observations.geojson</code>
+          </a>
+          <a href="/cop/v2/evidence-graph.json">
+            <span>Evidence graph</span>
+            <code>/cop/v2/evidence-graph.json</code>
+          </a>
+          <a href="/cop/v2/source-registry.json">
+            <span>Source registry</span>
+            <code>/cop/v2/source-registry.json</code>
           </a>
         </div>
       </section>
@@ -89,8 +104,8 @@ export default function Home() {
 
       <footer>
         <strong>Not live emergency information.</strong> In an emergency, call 111.
-        Data: Wellington City Council Transport Sensors. Prototype for investigation
-        only.
+        Data: Wellington City Council Transport Sensors; source contracts from WCC,
+        NZTA, GWRC, MetService and GeoNet. Prototype for investigation only.
       </footer>
     </main>
   );

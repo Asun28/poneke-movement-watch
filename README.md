@@ -6,8 +6,9 @@ Saturday 8 August 2026 · Waimanga Room, Wellington City Council
 ## Working prototype
 
 **Pōneke movement watch** maps unusual hourly pedestrian and vehicle counts at
-WCC Transport Sensor countlines. It publishes the same evidence as WGS84 GeoJSON
-for the shared common operating picture.
+WCC Transport Sensor countlines. Its v2 evidence graph can compose movement,
+Council reports and official feeds without collapsing observations, inference,
+human decisions and confirmed facts.
 
 - Detection: matched weekday/hour median + MAD over the prior 12 weeks.
 - Precision gates: robust score ≥ 4.5, absolute change ≥ 10 and relative change
@@ -16,6 +17,8 @@ for the shared common operating picture.
   evacuation or loss of access.
 - Cadence: the WCC source is updated at least monthly, so the current build is a
   labelled batch replay rather than a live feed.
+- Ontology replay: the live demo uses one real countline signal plus a clearly
+  marked synthetic ticket-format fixture with zero evidence weight.
 
 The included 6 August 2026 12:00 replay produces **12 signals** and exposes
 **207 expected-but-missing groups** as data gaps rather than zero counts.
@@ -49,6 +52,19 @@ Outputs:
 - `movement-signals.geojson` — investigation candidates and evidence;
 - `movement-health.json` — coverage, gaps, cadence and limitations;
 - `countline-coverage.geojson` — the 414 sensor line geometries.
+
+To build the privacy-safe v2 ontology replay:
+
+```powershell
+.\.venv\Scripts\python scripts\build_ontology_demo.py `
+  --tickets artifacts\ontology-replay-ticket.json `
+  --movement-signals site\public\cop\v1\movement-signals.geojson `
+  --output-dir site\public\cop\v2 `
+  --corridor-countline-id 48038
+```
+
+See [`docs/ontology-and-exclusions.md`](docs/ontology-and-exclusions.md) for the
+source selection, exact privacy boundary, entity-resolution rules and exclusions.
 
 See [`docs/model-card.md`](docs/model-card.md) for the model comparison and
 [`artifacts/model-benchmark.json`](artifacts/model-benchmark.json) for its

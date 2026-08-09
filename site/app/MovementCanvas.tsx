@@ -181,7 +181,7 @@ export default function MovementCanvas() {
             <dl className="evidence-metrics">
               <div><dt>Robust score</dt><dd>{Number(selected.properties.robust_z).toFixed(1)} z</dd></div>
               <div><dt>History</dt><dd>{Number((selected.properties.signal_confidence as Record<string, number>).history_samples)} matched hours</dd></div>
-              <div><dt>Baseline confidence</dt><dd>{String((selected.properties.signal_confidence as Record<string, string>).level)}</dd></div>
+              <div><dt>Baseline strength</dt><dd>{String((selected.properties.signal_confidence as Record<string, string>).level)}</dd></div>
             </dl>
             <p className="evidence-note">No cause inferred. Check operational context before acting.</p>
           </div>

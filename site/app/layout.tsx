@@ -3,7 +3,7 @@ import "./globals.css";
 
 const siteUrl = process.env.SITE_URL ?? "http://localhost:3000";
 const description =
-  "Transparent movement-change signals from WCC transport countlines.";
+  "Typed movement observations and multi-source evidence for human emergency review.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -14,13 +14,13 @@ export const metadata: Metadata = {
     title: "Pōneke movement watch",
     description,
     url: siteUrl,
-    images: [{ url: "/og-card.png", width: 1200, height: 630 }],
+    images: [{ url: "/og-ontology-v2.png", width: 1200, height: 630 }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Pōneke movement watch",
     description,
-    images: ["/og-card.png"],
+    images: ["/og-ontology-v2.png"],
   },
 };
 

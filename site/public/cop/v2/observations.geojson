@@ -1,0 +1,121 @@
+{
+  "type": "FeatureCollection",
+  "schema": "wellington-observations/v1",
+  "features": [
+    {
+      "type": "Feature",
+      "id": "obs:movement:48038:Car:N:2026-08-06T12:00:00",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            174.813293,
+            -41.247211
+          ],
+          [
+            174.813202,
+            -41.247189
+          ]
+        ]
+      },
+      "properties": {
+        "id": "obs:movement:48038:Car:N:2026-08-06T12:00:00",
+        "type": "Observation",
+        "epistemic_state": "observation",
+        "phenomenon": "movement_decrease",
+        "source": {
+          "id": "wcc-transport-sensors",
+          "record_id": "movement:48038:Car:N:2026-08-06T12:00:00",
+          "authority": "direct_measurement"
+        },
+        "observed_at": "2026-08-06T12:00:00+12:00",
+        "entity_refs": [
+          "corridor:centennial-highway"
+        ],
+        "measurement": {
+          "transport_class": "Car",
+          "direction": "N",
+          "observed_count": 502.0,
+          "expected_count": 873.5,
+          "robust_z": -5.331347173309683
+        },
+        "quality": {
+          "verification_status": "measured",
+          "baseline_strength": {
+            "level": "high",
+            "history_samples": 12,
+            "basis": "matched weekday and hour"
+          },
+          "publisher_cadence": "at least monthly"
+        },
+        "source_id": "wcc-transport-sensors"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "obs:wcc-ticket:SYNTHETIC-ONTOLOGY-001",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.81325,
+          -41.2472
+        ]
+      },
+      "properties": {
+        "id": "obs:wcc-ticket:SYNTHETIC-ONTOLOGY-001",
+        "type": "Observation",
+        "epistemic_state": "observation",
+        "phenomenon": "landslide_report",
+        "classification": {
+          "method": "taxonomy_exact/v1",
+          "basis": [
+            "SERVICE_ITEM:Slips",
+            "SERVICE_ITEM_L2:A landslip in a park",
+            "TICKET_TAGS:Slips"
+          ]
+        },
+        "source": {
+          "id": "wcc-ticket-detail",
+          "record_id": "SYNTHETIC-ONTOLOGY-001",
+          "channel": "FIXiT",
+          "authority": "community_report"
+        },
+        "reported_at": "2026-08-06T11:46:00+12:00",
+        "source_updated_at": "2026-08-06T11:51:00+12:00",
+        "entity_refs": [
+          "corridor:centennial-highway"
+        ],
+        "taxonomy": {
+          "service_item": "Slips",
+          "service_item_l2": "A landslip in a park",
+          "tags": [
+            "Slips",
+            "Weather Event"
+          ]
+        },
+        "workflow": {
+          "status": "OPEN",
+          "priority": 1,
+          "triaged_at": "2026-08-06T11:51:00+12:00",
+          "due_by": "2026-08-06T12:30:00+12:00",
+          "closed_at": null
+        },
+        "quality": {
+          "verification_status": "unverified_report",
+          "fixture_mode": "synthetic",
+          "temporal_precision": "report_arrival_time",
+          "validation_issues": [],
+          "withheld_fields": [
+            "personal_identity",
+            "street_address",
+            "free_text",
+            "internal_assignment"
+          ]
+        },
+        "source_id": "wcc-ticket-detail",
+        "location_label": "Centennial Highway northern access",
+        "location_resolution": "source_coordinates"
+      }
+    }
+  ]
+}

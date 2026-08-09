@@ -1,0 +1,100 @@
+{
+  "schema": "wellington-evidence-graph/v1",
+  "entities": [
+    {
+      "id": "corridor:centennial-highway",
+      "type": "TransportCorridor",
+      "label": "Centennial Highway northern access",
+      "impact_level": "critical",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            174.813293,
+            -41.247211
+          ],
+          [
+            174.813202,
+            -41.247189
+          ]
+        ]
+      },
+      "resolution": {
+        "method": "explicit_demo_crosswalk",
+        "source_ref": "wcc-countline:48038"
+      }
+    }
+  ],
+  "observation_refs": [
+    "obs:movement:48038:Car:N:2026-08-06T12:00:00",
+    "obs:wcc-ticket:SYNTHETIC-ONTOLOGY-001"
+  ],
+  "hypotheses": [
+    {
+      "id": "hyp:physical-access-disruption:centennial-highway",
+      "type": "HypothesisAssessment",
+      "epistemic_state": "inference",
+      "kind": "physical_access_disruption",
+      "entity_id": "corridor:centennial-highway",
+      "evidence": [
+        {
+          "observation_id": "obs:movement:48038:Car:N:2026-08-06T12:00:00",
+          "source_id": "wcc-transport-sensors",
+          "role": "supporting",
+          "units": 2,
+          "basis": "movement_decrease"
+        },
+        {
+          "observation_id": "obs:wcc-ticket:SYNTHETIC-ONTOLOGY-001",
+          "source_id": "wcc-ticket-detail",
+          "role": "supporting",
+          "units": 0,
+          "basis": "landslide_report"
+        },
+        {
+          "observation_id": null,
+          "source_id": "nzta-road-events",
+          "role": "missing",
+          "units": 0,
+          "basis": "no time-aligned observation received"
+        },
+        {
+          "observation_id": null,
+          "source_id": "gwrc-hilltop",
+          "role": "missing",
+          "units": 0,
+          "basis": "no time-aligned observation received"
+        },
+        {
+          "observation_id": null,
+          "source_id": "metservice-cap",
+          "role": "missing",
+          "units": 0,
+          "basis": "no time-aligned observation received"
+        }
+      ],
+      "support_units": 2,
+      "contradiction_units": 0,
+      "evidence_strength": "moderate",
+      "evidence_state": "single_source_signal",
+      "review_priority": "high",
+      "limitations": [
+        "Evidence units are a transparent review rank, not calibrated likelihood.",
+        "Missing expected evidence is uncertainty, not counter-evidence."
+      ]
+    }
+  ],
+  "decision_state": {
+    "epistemic_state": "decision",
+    "status": "unreviewed",
+    "authority": null
+  },
+  "confirmed_facts": [],
+  "mode": "ontology_replay",
+  "truth_boundary": {
+    "observation": "source fact or report",
+    "inference": "review-ranked hypothesis",
+    "decision": "authorised human action only",
+    "confirmed_fact": "none recorded in this replay"
+  }
+}

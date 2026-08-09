@@ -1,0 +1,22 @@
+[
+  {
+    "TICKET_ID": "SYNTHETIC-ONTOLOGY-001",
+    "INCIDENT_ADDRESS": null,
+    "LOCATION": "Centennial Highway northern access",
+    "LONGITUDE": 174.81325,
+    "LATITUDE": -41.2472,
+    "CREATED_AT": "2026-08-06T11:46:00+12:00",
+    "TRIAGED_AT": "2026-08-06T11:51:00+12:00",
+    "DUE_BY_TIME": "2026-08-06T12:30:00+12:00",
+    "CURRENT_STATUS": "OPEN",
+    "CLOSED_AT": null,
+    "SERVICE_ITEM": "Slips",
+    "SERVICE_ITEM_L2": "A landslip in a park",
+    "TICKET_DESCRIPTION": null,
+    "PRIORITY": 1,
+    "GROUP_NAME": null,
+    "REQUESTER_NAME": null,
+    "SOURCE_DERIVED": "FIXiT",
+    "TICKET_TAGS": ["Slips", "Weather Event"]
+  }
+]
