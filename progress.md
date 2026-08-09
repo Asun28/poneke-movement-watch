@@ -1,5 +1,21 @@
 # Progress — Phase 2 ontology and sources
 
+- 2026-08-10: Started Phase 8 for a paused map inspection overlay. Restored the
+  clean Phase 7 deployment and audited the canvas draw/replay/layer state.
+- 2026-08-10: TDD RED confirmed: the pure suite lacked paused-source eligibility
+  and nearest-marker hit testing, while the rendered suite lacked the overlay
+  and its pause/keyboard boundary copy.
+- 2026-08-10: TDD GREEN confirmed: 15 site/layer tests pass after adding retained
+  visible-marker coordinates, bounded nearest-marker inspection and a compact
+  truthful summary. Playback, time, filter, zoom and source changes clear it.
+- 2026-08-10: ESLint and whitespace checks pass; README now documents paused
+  pointer inspection and the signal-list keyboard alternative.
+- 2026-08-10: Final local regression passes: 22 Python tests, 15 site/layer
+  tests, production build, ESLint and whitespace checks. The verified pytest
+  temporary directory was removed.
+
+---
+
 - 2026-08-10: Started Phase 7 before publishing Phase 6 after the user added a
   collapsible left layer rail, per-source selection, selected-data-only replay
   and neutral symbol sizing. The existing registry remains the only source set.

@@ -2,7 +2,9 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  canInspectSelectedSources,
   canReplaySelectedSources,
+  findNearestMapMarker,
   playableSignalsForSources,
   sourceLayerState,
   sourceSelectionSummary,
@@ -62,4 +64,29 @@ test("mock permission and paid layers remain zero-record integration layers", ()
     playable: false,
     record_label: "0 playable records",
   });
+});
+
+test("paused inspection is limited to a paused selected real-replay source", () => {
+  assert.equal(
+    canInspectSelectedSources(false, new Set(["wcc-transport-sensors"]), sources),
+    true,
+  );
+  assert.equal(
+    canInspectSelectedSources(true, new Set(["wcc-transport-sensors"]), sources),
+    false,
+  );
+  assert.equal(
+    canInspectSelectedSources(false, new Set(["nema-cap-alerts"]), sources),
+    false,
+  );
+});
+
+test("nearest visible marker wins only inside the bounded inspection radius", () => {
+  const markers = [
+    { id: "farther", x: 110, y: 105, radius: 8 },
+    { id: "nearest", x: 103, y: 101, radius: 8 },
+  ];
+
+  assert.equal(findNearestMapMarker(markers, { x: 100, y: 100 }, 12)?.id, "nearest");
+  assert.equal(findNearestMapMarker(markers, { x: 140, y: 140 }, 12), null);
 });

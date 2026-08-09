@@ -4,7 +4,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import registryData from "../public/cop/v2/source-registry.json";
 import {
   MOVEMENT_REPLAY_SOURCE_ID,
+  canInspectSelectedSources,
   canReplaySelectedSources,
+  findNearestMapMarker,
   playableSignalsForSources,
   sourceLayerState,
   sourceSelectionSummary,
@@ -58,6 +60,18 @@ type SourceLayer = {
   role: string;
   demo_data_status: string;
   access_status: string;
+};
+type MapHitTarget = {
+  id: string;
+  x: number;
+  y: number;
+  radius: number;
+  feature: LineFeature;
+};
+type MapInspection = {
+  feature: LineFeature;
+  left: number;
+  top: number;
 };
 
 const PEOPLE = new Set(["Pedestrian", "Cyclist", "E-scooter"]);
@@ -227,14 +241,14 @@ function drawMap(
   showCoverage: boolean,
   symbolSize: number,
   onTileSettled: () => void,
-) {
+): MapHitTarget[] {
   const rect = canvas.getBoundingClientRect();
-  if (rect.width < 2 || rect.height < 2) return;
+  if (rect.width < 2 || rect.height < 2) return [];
   const ratio = window.devicePixelRatio || 1;
   canvas.width = Math.max(1, Math.floor(rect.width * ratio));
   canvas.height = Math.max(1, Math.floor(rect.height * ratio));
   const context = canvas.getContext("2d");
-  if (!context || coverage.length === 0) return;
+  if (!context || coverage.length === 0) return [];
   context.scale(ratio, ratio);
   const width = rect.width;
   const height = rect.height;
@@ -261,6 +275,7 @@ function drawMap(
     }
   }
 
+  const hitTargets: MapHitTarget[] = [];
   for (const feature of signals) {
     const [start, rawEnd] = feature.geometry.coordinates.map(project);
     const dx = rawEnd[0] - start[0];
@@ -286,7 +301,17 @@ function drawMap(
       decreasing ? "#C75845" : "#D78916",
       symbolSize,
     );
+    if (start[0] >= 0 && start[0] <= width && start[1] >= 0 && start[1] <= height) {
+      hitTargets.push({
+        id: feature.id,
+        x: start[0],
+        y: start[1],
+        radius: isSelected ? symbolSize + 3 : symbolSize,
+        feature,
+      });
+    }
   }
+  return hitTargets;
 }
 
 function drawMovementMarker(
@@ -613,6 +638,7 @@ function LayerWorkspace({
 
 export default function MovementCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const hitTargetsRef = useRef<MapHitTarget[]>([]);
   const [coverage, setCoverage] = useState<LineFeature[]>([]);
   const [snapshotSignals, setSnapshotSignals] = useState<LineFeature[]>([]);
   const [replay, setReplay] = useState<ReplayPayload | null>(null);
@@ -631,6 +657,7 @@ export default function MovementCanvas() {
   const [selectedSourceIds, setSelectedSourceIds] = useState(
     () => new Set([MOVEMENT_REPLAY_SOURCE_ID]),
   );
+  const [mapInspection, setMapInspection] = useState<MapInspection | null>(null);
 
   useEffect(() => {
     Promise.all([
@@ -670,6 +697,11 @@ export default function MovementCanvas() {
       .filter((feature): feature is LineFeature => feature !== null);
   }, [coverageByCountline, currentSlot, snapshotSignals]);
   const replaySourceSelected = canReplaySelectedSources(selectedSourceIds, sourceLayers);
+  const inspectionEnabled = canInspectSelectedSources(
+    isPlaying,
+    selectedSourceIds,
+    sourceLayers,
+  );
   const selectedLayerSignals = useMemo(
     () => playableSignalsForSources(signals, selectedSourceIds, sourceLayers) as LineFeature[],
     [selectedSourceIds, signals],
@@ -716,6 +748,7 @@ export default function MovementCanvas() {
     if (exact >= 0) setSlotIndex(exact);
     else if (firstOnDate >= 0) setSlotIndex(firstOnDate);
     setIsPlaying(false);
+    setMapInspection(null);
   };
   const replayLabel = currentSlot
     ? formatReplayTime(currentSlot.target_at)
@@ -726,6 +759,7 @@ export default function MovementCanvas() {
     if (sourceId === MOVEMENT_REPLAY_SOURCE_ID && selectedSourceIds.has(sourceId)) {
       setIsPlaying(false);
     }
+    setMapInspection(null);
     setSelectedSourceIds((current) => {
       const next = new Set(current);
       if (next.has(sourceId)) next.delete(sourceId);
@@ -741,7 +775,7 @@ export default function MovementCanvas() {
     const render = () => {
       cancelAnimationFrame(animationFrame);
       animationFrame = requestAnimationFrame(() => {
-        drawMap(
+        hitTargetsRef.current = drawMap(
           canvas,
           coverage,
           filteredSignals,
@@ -762,6 +796,28 @@ export default function MovementCanvas() {
     };
   }, [coverage, filteredSignals, selected, showBasemap, showCoverage, symbolSize, tileRevision, zoom]);
 
+  const inspectMap = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (!inspectionEnabled) {
+      setMapInspection(null);
+      return;
+    }
+    const rect = event.currentTarget.getBoundingClientRect();
+    const target = findNearestMapMarker(
+      hitTargetsRef.current,
+      { x: event.clientX - rect.left, y: event.clientY - rect.top },
+      symbolSize + 9,
+    ) as MapHitTarget | null;
+    if (!target) {
+      setMapInspection(null);
+      return;
+    }
+    setMapInspection({
+      feature: target.feature,
+      left: Math.min(Math.max(12, target.x + target.radius + 12), Math.max(12, rect.width - 272)),
+      top: Math.min(Math.max(12, target.y - 34), Math.max(12, rect.height - 190)),
+    });
+  };
+
   return (
     <section
       className={`investigation-frame ${isLayerRailOpen ? "has-layer-rail" : ""}`}
@@ -778,9 +834,9 @@ export default function MovementCanvas() {
           onSetCoverage={setShowCoverage}
           onSetSymbolSize={setSymbolSize}
           onToggleSource={toggleSource}
-          onSelectAllSources={() => setSelectedSourceIds(new Set(sourceLayers.map((source) => source.id)))}
-          onReplayOnly={() => setSelectedSourceIds(new Set([MOVEMENT_REPLAY_SOURCE_ID]))}
-          onClearSources={() => { setSelectedSourceIds(new Set()); setIsPlaying(false); }}
+          onSelectAllSources={() => { setSelectedSourceIds(new Set(sourceLayers.map((source) => source.id))); setMapInspection(null); }}
+          onReplayOnly={() => { setSelectedSourceIds(new Set([MOVEMENT_REPLAY_SOURCE_ID])); setMapInspection(null); }}
+          onClearSources={() => { setSelectedSourceIds(new Set()); setIsPlaying(false); setMapInspection(null); }}
         />
       ) : null}
       <div className="map-column">
@@ -805,7 +861,7 @@ export default function MovementCanvas() {
                 key={value}
                 className={filter === value ? "active" : ""}
                 aria-pressed={filter === value}
-                onClick={() => setFilter(value)}
+                onClick={() => { setFilter(value); setMapInspection(null); }}
               >
                 {value === "all" ? "All" : value === "people" ? "People" : "Vehicles"}
               </button>
@@ -861,7 +917,7 @@ export default function MovementCanvas() {
                 type="button"
                 aria-label="Previous replay hour"
                 disabled={!replayEnabled || slotIndex === 0}
-                onClick={() => { setSlotIndex((value) => Math.max(0, value - 1)); setIsPlaying(false); }}
+                onClick={() => { setSlotIndex((value) => Math.max(0, value - 1)); setIsPlaying(false); setMapInspection(null); }}
               >←</button>
               <button
                 type="button"
@@ -869,13 +925,16 @@ export default function MovementCanvas() {
                 aria-label={isPlaying ? "Pause replay" : "Play replay"}
                 aria-pressed={isPlaying}
                 disabled={!replayEnabled || (replay?.slots.length ?? 0) < 2}
-                onClick={() => setIsPlaying((value) => !value)}
+                onClick={() => {
+                  if (!isPlaying) setMapInspection(null);
+                  setIsPlaying(!isPlaying);
+                }}
               >{isPlaying ? "Pause" : "Play"}</button>
               <button
                 type="button"
                 aria-label="Next replay hour"
                 disabled={!replayEnabled || slotIndex >= (replay?.slots.length ?? 1) - 1}
-                onClick={() => { setSlotIndex((value) => Math.min((replay?.slots.length ?? 1) - 1, value + 1)); setIsPlaying(false); }}
+                onClick={() => { setSlotIndex((value) => Math.min((replay?.slots.length ?? 1) - 1, value + 1)); setIsPlaying(false); setMapInspection(null); }}
               >→</button>
             </div>
           </div>
@@ -887,7 +946,7 @@ export default function MovementCanvas() {
             max={Math.max(0, (replay?.slots.length ?? 1) - 1)}
             value={slotIndex}
             disabled={!replayEnabled}
-            onChange={(event) => { setSlotIndex(Number(event.currentTarget.value)); setIsPlaying(false); }}
+            onChange={(event) => { setSlotIndex(Number(event.currentTarget.value)); setIsPlaying(false); setMapInspection(null); }}
           />
           {replayWarning ? <p className="replay-warning" role="status">{replayWarning}</p> : null}
         </section>
@@ -897,25 +956,60 @@ export default function MovementCanvas() {
             role="img"
             aria-label={`${filteredSignals.length} unusual movement changes across 414 WCC countlines ${showBasemap ? "on a real Wellington street basemap" : "with the basemap hidden"}. Direction arrows show travel direction.`}
           />
+          <div
+            className="map-inspection-layer"
+            aria-label="Paused map inspection layer"
+            data-active={inspectionEnabled}
+            onMouseMove={inspectMap}
+            onMouseLeave={() => setMapInspection(null)}
+          />
+          <div className={`map-inspection-status ${inspectionEnabled ? "is-ready" : "is-off"}`}>
+            <strong>{inspectionEnabled ? "Paused · hover markers" : isPlaying ? "Playing · inspection off" : "Paused · select real replay layer"}</strong>
+            <span>Inspection is off during playback. The signal list remains available for keyboard inspection.</span>
+          </div>
+          {mapInspection ? (
+            <aside
+              className="map-hover-card"
+              role="status"
+              style={{ left: mapInspection.left, top: mapInspection.top }}
+            >
+              <div>
+                <span>Paused inspection</span>
+                <em className={String(mapInspection.feature.properties.change_direction)}>
+                  {String(mapInspection.feature.properties.change_direction)}
+                </em>
+              </div>
+              <strong>{String(mapInspection.feature.properties.name)}</strong>
+              <p>
+                {String(mapInspection.feature.properties.transport_class)} · {String(mapInspection.feature.properties.direction)} travel
+              </p>
+              <dl>
+                <div><dt>Observed</dt><dd>{Number(mapInspection.feature.properties.observed_count).toLocaleString("en-NZ")}</dd></div>
+                <div><dt>Expected</dt><dd>{Number(mapInspection.feature.properties.expected_count).toLocaleString("en-NZ", { maximumFractionDigits: 1 })}</dd></div>
+              </dl>
+              <time>{formatReplayTime(String(mapInspection.feature.properties.observed_at))}</time>
+              <small>WCC Transport Sensors · real replay · no cause inferred</small>
+            </aside>
+          ) : null}
           <div className="map-controls" aria-label="Map zoom controls">
             <button
               type="button"
               aria-label="Zoom in"
               disabled={zoom >= 4}
-              onClick={() => setZoom((value) => Math.min(4, value + 0.5))}
+              onClick={() => { setZoom((value) => Math.min(4, value + 0.5)); setMapInspection(null); }}
             >+</button>
             <output aria-live="polite">{Math.round(zoom * 100)}% zoom</output>
             <button
               type="button"
               aria-label="Zoom out"
               disabled={zoom <= 1}
-              onClick={() => setZoom((value) => Math.max(1, value - 0.5))}
+              onClick={() => { setZoom((value) => Math.max(1, value - 0.5)); setMapInspection(null); }}
             >−</button>
             <button
               type="button"
               aria-label="Reset map view"
               disabled={zoom === 1}
-              onClick={() => setZoom(1)}
+              onClick={() => { setZoom(1); setMapInspection(null); }}
             >Reset</button>
           </div>
           <div className="map-key">

@@ -1,5 +1,50 @@
 # Pōneke Movement Watch — evidence ontology roadmap
 
+## Phase 8 — Paused map inspection overlay
+
+### Goal
+
+Add a transparent inspection layer above the map so an operator can pause the
+replay, move the pointer near a visible movement marker and read a compact,
+truthful summary without losing the spatial context.
+
+### Status
+
+- [completed] Restore project state and audit the current canvas/replay/layer controls.
+- [completed] Define and test paused-only marker hit testing and replay eligibility.
+- [completed] Add the transparent inspection surface and compact marker summary.
+- [completed] Add responsive styling and document the keyboard-accessible alternative.
+- [completed] Run site, Python, lint and production-build regressions.
+- [in_progress] Publish the validated build to the existing private site.
+
+### Acceptance criteria
+
+- Pointer inspection is enabled only while replay is paused and a selected source
+  has real playable records.
+- The closest visible marker within a bounded hit radius receives the hover card;
+  empty map space shows no card.
+- The card shows place, transport class, travel direction, increase/decrease,
+  observed versus expected count, observation time and real source status.
+- Playing, changing time/filter/layers, or leaving the map clears the card.
+- Mock, restricted, paid and registered-only sources never create markers or cards.
+- The existing signal list remains the keyboard-accessible route to the same facts.
+
+### Assumptions and exclusions
+
+- Reuse the existing selected WCC replay layer; add no source or synthetic record.
+- Do not infer cause, incident, closure, evacuation or access state from a marker.
+- Do not inspect while the map is moving and do not restore person/car pictograms.
+
+### File-level plan
+
+- `site/app/layerModel.mjs`: deterministic paused-inspection eligibility and nearest-marker rule.
+- `site/tests/`: test pure behavior and server-rendered inspection boundaries first.
+- `site/app/MovementCanvas.tsx`: retain drawn marker positions and render the overlay/card.
+- `site/app/globals.css`: pointer layer, status instruction and compact civic tooltip.
+- `README.md` and planning files: explain paused inspection and its truth boundary.
+
+---
+
 ## Phase 7 — Selectable map-layer workspace
 
 ### Goal

@@ -148,6 +148,17 @@ test("renders a collapsible per-source layer workspace with selected-data replay
   assert.equal((html.match(/data-playable="true"/g) ?? []).length, 1);
 });
 
+test("renders a paused-only map inspection layer with a keyboard alternative", async () => {
+  const response = await render();
+  assert.equal(response.status, 200);
+  const html = await response.text();
+
+  assert.match(html, /aria-label="Paused map inspection layer"/);
+  assert.match(html, /Paused · hover markers/);
+  assert.match(html, /Inspection is off during playback/);
+  assert.match(html, /The signal list remains available for keyboard inspection/);
+});
+
 test("renders zoom controls with text-only people and vehicle filters", async () => {
   const response = await render();
   assert.equal(response.status, 200);

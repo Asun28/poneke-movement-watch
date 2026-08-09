@@ -28,6 +28,12 @@ change together. The selected signal's trend compares the current count with
 its 12 prior observations at the same weekday and hour; future rows are never
 used, and missing rows are never interpolated or converted to zero.
 
+Pause the replay and move the pointer near a visible marker to open a brief
+inspection card with its place, class, travel direction, increase/decrease,
+observed and expected counts, observation time and source status. Inspection is
+disabled during playback and never appears for a zero-record source layer. The
+signal list exposes the same evidence as the keyboard-accessible alternative.
+
 ## Design principles
 
 1. **Observation ≠ inference ≠ decision ≠ confirmed fact.** Each state has a

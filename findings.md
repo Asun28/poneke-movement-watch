@@ -1,5 +1,22 @@
 # Findings — Phase 2 ontology and sources
 
+## Phase 8 paused-inspection audit
+
+- The map is a canvas, so browser-native feature hover is unavailable. The
+  smallest honest interaction is to retain only the screen coordinates of
+  markers actually drawn for the selected real replay layer and hit-test them
+  in a transparent sibling surface.
+- Inspection eligibility must reuse the same playable-source rule as replay and
+  add `isPlaying=false`; otherwise contract-only layers could appear connected
+  or an animated map could expose stale positions.
+- The hover summary reuses fields already present on each rendered feature:
+  name, class, direction, change direction, observed/expected counts and time.
+  It requires no new feed, synthetic record or causal inference.
+- Pointer hover is a convenience, not the only inspection path. The existing
+  signal list remains the keyboard-accessible presentation of the same records.
+
+---
+
 ## Phase 7 layer-workspace audit
 
 - `MovementCanvas.tsx` currently has one canvas draw pipeline: OpenStreetMap

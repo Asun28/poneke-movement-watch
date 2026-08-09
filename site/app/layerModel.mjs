@@ -32,6 +32,23 @@ export function canReplaySelectedSources(selectedSourceIds, sources) {
   );
 }
 
+export function canInspectSelectedSources(isPlaying, selectedSourceIds, sources) {
+  return !isPlaying && canReplaySelectedSources(selectedSourceIds, sources);
+}
+
+export function findNearestMapMarker(markers, point, maxDistance) {
+  let nearest = null;
+  let nearestDistance = maxDistance;
+  for (const marker of markers) {
+    const distance = Math.hypot(marker.x - point.x, marker.y - point.y);
+    if (distance <= nearestDistance) {
+      nearest = marker;
+      nearestDistance = distance;
+    }
+  }
+  return nearest;
+}
+
 export function playableSignalsForSources(signals, selectedSourceIds, sources) {
   return canReplaySelectedSources(selectedSourceIds, sources) ? signals : [];
 }
