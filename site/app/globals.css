@@ -157,6 +157,7 @@ h2 { font-size: clamp(29px, 3.2vw, 47px); line-height: 1; }
   background-size: 28px 28px;
   border: 1px solid var(--hairline);
 }
+.map-stage:fullscreen { width: 100vw; height: 100vh; min-height: 100vh; border: 0; }
 .map-stage canvas { width: 100%; height: 100%; position: absolute; inset: 0; }
 .map-inspection-layer { position: absolute; inset: 0; z-index: 1; cursor: default; }
 .map-inspection-layer[data-active="true"] { cursor: crosshair; }
@@ -182,13 +183,21 @@ h2 { font-size: clamp(29px, 3.2vw, 47px); line-height: 1; }
 .map-hover-card time, .map-hover-card small { display: block; }
 .map-hover-card time { margin-top: 8px; font: 700 9px/1.3 Consolas, monospace; }
 .map-hover-card small { margin-top: 5px; color: var(--muted-ink); font-size: 9px; line-height: 1.3; }
-.map-controls { position: absolute; top: 14px; right: 14px; z-index: 3; display: grid; grid-template-columns: 36px auto 36px; align-items: stretch; background: rgba(248,251,251,.96); border: 1px solid var(--civic-ink); box-shadow: 3px 4px 0 rgba(16,42,51,.14); }
-.map-controls button { min-width: 36px; min-height: 36px; border: 0; border-right: 1px solid var(--hairline); background: var(--white); color: var(--civic-ink); font-weight: 800; cursor: pointer; }
-.map-controls button:nth-of-type(2) { border-left: 1px solid var(--hairline); border-right: 0; }
-.map-controls button:last-child { grid-column: 1 / -1; min-height: 29px; border-top: 1px solid var(--hairline); border-right: 0; font-size: 10px; text-transform: uppercase; letter-spacing: .08em; }
+.map-controls { position: absolute; top: 14px; right: 14px; z-index: 3; width: 218px; background: rgba(248,251,251,.96); border: 1px solid var(--civic-ink); box-shadow: 3px 4px 0 rgba(16,42,51,.14); }
+.map-controls button { min-height: 36px; border: 0; background: var(--white); color: var(--civic-ink); font-weight: 800; cursor: pointer; }
 .map-controls button:hover:not(:disabled) { background: var(--civic-ink); color: var(--white); }
 .map-controls button:disabled { color: #9aabad; cursor: default; }
-.map-controls output { display: grid; place-items: center; min-width: 78px; padding: 0 8px; color: var(--muted-ink); font: 700 10px/1 Consolas, monospace; }
+.map-zoom-buttons { display: grid; grid-template-columns: 40px 1fr 40px; }
+.map-zoom-buttons button:first-child { border-right: 1px solid var(--hairline); }
+.map-zoom-buttons button:last-child { border-left: 1px solid var(--hairline); }
+.map-controls output { display: grid; place-items: center; padding: 0 8px; color: var(--muted-ink); font: 700 10px/1 Consolas, monospace; }
+.map-zoom-range { display: grid; gap: 5px; padding: 8px 10px 9px; border-top: 1px solid var(--hairline); }
+.map-zoom-range span { color: var(--muted-ink); font: 700 9px/1 Consolas, monospace; letter-spacing: .04em; text-transform: uppercase; }
+.map-zoom-range input { width: 100%; margin: 0; accent-color: var(--movement-blue); cursor: ew-resize; }
+.map-view-actions { display: grid; grid-template-columns: 1fr 1.25fr; border-top: 1px solid var(--hairline); }
+.map-view-actions button { padding: 0 8px; font-size: 9px; letter-spacing: .06em; text-transform: uppercase; }
+.map-view-actions button + button { border-left: 1px solid var(--hairline); }
+.map-fullscreen-message { position: absolute; right: 14px; top: 152px; z-index: 4; width: 218px; margin: 0; padding: 8px 10px; border: 1px solid var(--uncertainty-coral); background: rgba(248,251,251,.98); color: var(--civic-ink); font-size: 10px; line-height: 1.35; }
 .map-key { position: absolute; left: 14px; bottom: 47px; z-index: 2; display: flex; flex-wrap: wrap; gap: 12px; padding: 8px 10px; background: rgba(248,251,251,.94); border: 1px solid var(--hairline); font-size: 11px; }
 .map-key span { display: flex; gap: 5px; align-items: center; }
 .map-key i { width: 14px; height: 3px; display: inline-block; }
@@ -421,6 +430,7 @@ footer strong { color: var(--white); }
   .replay-inputs { grid-template-columns: 1fr 88px; }
   .replay-buttons { grid-column: 1 / -1; }
   .map-stage { min-height: 400px; }
+  .map-inspection-status { top: 150px; width: calc(100% - 28px); }
   .map-key { right: 14px; gap: 8px; }
   .map-attribution { left: 14px; right: auto; max-width: calc(100% - 28px); }
   .investigation-frame { margin-inline: 8px; box-shadow: 6px 7px 0 var(--harbour-deep); }

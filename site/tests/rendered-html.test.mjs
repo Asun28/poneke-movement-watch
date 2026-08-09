@@ -172,6 +172,18 @@ test("renders zoom controls with text-only people and vehicle filters", async ()
   assert.match(html, />100(?:<!-- -->)?% zoom</);
 });
 
+test("offers continuous wheel-slider zoom and map-only fullscreen", async () => {
+  const response = await render();
+  assert.equal(response.status, 200);
+  const html = await response.text();
+
+  assert.match(html, /aria-label="Map zoom level"/);
+  assert.match(html, /min="0.5" max="8" step="0.1"/);
+  assert.match(html, /Scroll or use slider/);
+  assert.match(html, /aria-label="Show map fullscreen"/);
+  assert.match(html, />Full screen</);
+});
+
 test("explains that map arrows show travel direction", async () => {
   const response = await render();
   assert.equal(response.status, 200);

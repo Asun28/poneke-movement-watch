@@ -1,5 +1,48 @@
 # Pōneke Movement Watch — evidence ontology roadmap
 
+## Phase 9 — Continuous zoom and map fullscreen
+
+### Goal
+
+Replace the fixed-step-only map view with continuous operator-controlled zoom
+and a true map fullscreen mode while preserving replay, selected layers and
+paused marker inspection.
+
+### Status
+
+- [completed] Restore project state and audit the current fixed zoom controls.
+- [completed] Define and test zoom bounds, wheel behavior and visible controls.
+- [completed] Add wheel/trackpad zoom, a continuous slider and fullscreen toggle.
+- [completed] Preserve overlays, controls and redraw behavior in fullscreen.
+- [completed] Run site, Python, lint and production-build regressions.
+- [in_progress] Publish the validated build to the existing private site.
+
+### Acceptance criteria
+
+- Zoom is continuously adjustable from 50% to 800% with a labelled slider.
+- Mouse wheel or trackpad over the map zooms in and out without scrolling the page.
+- Existing plus, minus and reset controls remain available and respect the same bounds.
+- A visible control enters and exits browser fullscreen for the map only.
+- Fullscreen redraws the basemap, countlines, markers and paused inspection layer.
+- Replay state, source selection and truth boundaries are unchanged.
+- Controls remain keyboard and touch accessible.
+
+### Assumptions and exclusions
+
+- Use the browser Fullscreen API; do not add a mapping framework or data source.
+- Continuous zoom changes presentation only and does not pan or alter evidence geometry.
+- If fullscreen is blocked by browser policy, show a concise non-destructive status.
+
+### File-level plan
+
+- `site/app/mapViewport.mjs`: pure zoom bounds and wheel-step behavior.
+- `site/tests/`: test zoom behavior and server-rendered controls before implementation.
+- `site/app/MovementCanvas.tsx`: slider, wheel handling, fullscreen lifecycle and redraw.
+- `site/app/globals.css`: compact zoom instrument and fullscreen map layout.
+- `README.md` and planning files: document map navigation.
+
+---
+
 ## Phase 8 — Paused map inspection overlay
 
 ### Goal

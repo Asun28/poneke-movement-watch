@@ -1,5 +1,20 @@
 # Progress — Phase 2 ontology and sources
 
+- 2026-08-10: Started Phase 9 for continuous map zoom and map-only fullscreen.
+  Restored the clean deployed state and audited the existing projection,
+  transparent inspection layer and fixed-step controls.
+- 2026-08-10: TDD RED confirmed: two pure zoom tests fail because bounded
+  continuous/wheel behavior is absent, and one rendered test fails because the
+  slider, wheel guidance and fullscreen control are absent. All prior tests pass.
+- 2026-08-10: TDD GREEN confirmed: all 18 site/layer tests pass with bounded
+  50%–800% zoom, smooth wheel/trackpad changes, a continuous slider, retained
+  step/reset controls and a map-only fullscreen toggle. ESLint is clean.
+- 2026-08-10: Final local regression passes: 22 Python tests, 18 site/layer
+  tests, production build, ESLint and whitespace checks. The verified pytest
+  temporary directory was removed.
+
+---
+
 - 2026-08-10: Started Phase 8 for a paused map inspection overlay. Restored the
   clean Phase 7 deployment and audited the canvas draw/replay/layer state.
 - 2026-08-10: TDD RED confirmed: the pure suite lacked paused-source eligibility

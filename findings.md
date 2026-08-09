@@ -1,5 +1,19 @@
 # Findings — Phase 2 ontology and sources
 
+## Phase 9 zoom/fullscreen audit
+
+- The current viewport already accepts a numeric zoom factor, but UI state is
+  limited to `1–4` in fixed `0.5` button jumps. The projection itself can safely
+  accept a wider bounded value without changing any source geometry.
+- The transparent paused-inspection layer is the correct wheel target because it
+  covers the canvas but remains below the zoom controls. A slider supplies the
+  keyboard/touch path and removes dependence on discrete buttons.
+- Browser fullscreen should target `.map-stage`, not the whole application, so
+  replay and evidence state remain mounted. A `fullscreenchange` redraw keeps
+  canvas pixels and hit targets aligned with the new dimensions.
+
+---
+
 ## Phase 8 paused-inspection audit
 
 - The map is a canvas, so browser-native feature hover is unavailable. The

@@ -49,6 +49,17 @@ export function findNearestMapMarker(markers, point, maxDistance) {
   return nearest;
 }
 
+export function clampMapZoom(value) {
+  return Math.min(8, Math.max(0.5, value));
+}
+
+export function zoomFromWheel(currentZoom, deltaY) {
+  if (deltaY === 0) return currentZoom;
+  const direction = deltaY < 0 ? 1 : -1;
+  const adjustment = Math.max(0.05, Math.min(0.5, Math.abs(deltaY) / 480));
+  return clampMapZoom(Math.round((currentZoom + direction * adjustment) * 100) / 100);
+}
+
 export function playableSignalsForSources(signals, selectedSourceIds, sources) {
   return canReplaySelectedSources(selectedSourceIds, sources) ? signals : [];
 }

@@ -34,6 +34,11 @@ observed and expected counts, observation time and source status. Inspection is
 disabled during playback and never appears for a zero-record source layer. The
 signal list exposes the same evidence as the keyboard-accessible alternative.
 
+Map navigation is not limited to fixed button steps. Use the mouse wheel or
+trackpad over the map, drag the 50%–800% zoom slider, or use the plus/minus and
+reset buttons. **Full screen** expands the map stage while keeping basemap,
+countlines, movement markers, layer state and paused inspection aligned.
+
 ## Design principles
 
 1. **Observation ≠ inference ≠ decision ≠ confirmed fact.** Each state has a

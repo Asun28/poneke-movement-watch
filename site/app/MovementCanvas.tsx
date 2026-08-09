@@ -6,10 +6,12 @@ import {
   MOVEMENT_REPLAY_SOURCE_ID,
   canInspectSelectedSources,
   canReplaySelectedSources,
+  clampMapZoom,
   findNearestMapMarker,
   playableSignalsForSources,
   sourceLayerState,
   sourceSelectionSummary,
+  zoomFromWheel,
 } from "./layerModel.mjs";
 
 type Coordinate = [number, number];
@@ -638,6 +640,8 @@ function LayerWorkspace({
 
 export default function MovementCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const mapStageRef = useRef<HTMLDivElement>(null);
+  const mapInteractionRef = useRef<HTMLDivElement>(null);
   const hitTargetsRef = useRef<MapHitTarget[]>([]);
   const [coverage, setCoverage] = useState<LineFeature[]>([]);
   const [snapshotSignals, setSnapshotSignals] = useState<LineFeature[]>([]);
@@ -658,6 +662,8 @@ export default function MovementCanvas() {
     () => new Set([MOVEMENT_REPLAY_SOURCE_ID]),
   );
   const [mapInspection, setMapInspection] = useState<MapInspection | null>(null);
+  const [isMapFullscreen, setIsMapFullscreen] = useState(false);
+  const [fullscreenMessage, setFullscreenMessage] = useState<string | null>(null);
 
   useEffect(() => {
     Promise.all([
@@ -796,6 +802,29 @@ export default function MovementCanvas() {
     };
   }, [coverage, filteredSignals, selected, showBasemap, showCoverage, symbolSize, tileRevision, zoom]);
 
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsMapFullscreen(document.fullscreenElement === mapStageRef.current);
+      setMapInspection(null);
+      setFullscreenMessage(null);
+      setTileRevision((value) => value + 1);
+    };
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
+  }, []);
+
+  useEffect(() => {
+    const mapInteraction = mapInteractionRef.current;
+    if (!mapInteraction) return;
+    const handleWheel = (event: WheelEvent) => {
+      event.preventDefault();
+      setZoom((value) => zoomFromWheel(value, event.deltaY));
+      setMapInspection(null);
+    };
+    mapInteraction.addEventListener("wheel", handleWheel, { passive: false });
+    return () => mapInteraction.removeEventListener("wheel", handleWheel);
+  }, []);
+
   const inspectMap = (event: React.MouseEvent<HTMLDivElement>) => {
     if (!inspectionEnabled) {
       setMapInspection(null);
@@ -816,6 +845,25 @@ export default function MovementCanvas() {
       left: Math.min(Math.max(12, target.x + target.radius + 12), Math.max(12, rect.width - 272)),
       top: Math.min(Math.max(12, target.y - 34), Math.max(12, rect.height - 190)),
     });
+  };
+
+  const adjustZoom = (nextZoom: number) => {
+    setZoom(clampMapZoom(nextZoom));
+    setMapInspection(null);
+  };
+
+  const toggleMapFullscreen = async () => {
+    const mapStage = mapStageRef.current;
+    if (!mapStage || !document.fullscreenEnabled) {
+      setFullscreenMessage("Fullscreen is unavailable in this browser view.");
+      return;
+    }
+    try {
+      if (document.fullscreenElement === mapStage) await document.exitFullscreen();
+      else await mapStage.requestFullscreen();
+    } catch {
+      setFullscreenMessage("Fullscreen was blocked. Use the browser's fullscreen control instead.");
+    }
   };
 
   return (
@@ -950,13 +998,14 @@ export default function MovementCanvas() {
           />
           {replayWarning ? <p className="replay-warning" role="status">{replayWarning}</p> : null}
         </section>
-        <div className="map-stage">
+        <div className="map-stage" ref={mapStageRef}>
           <canvas
             ref={canvasRef}
             role="img"
             aria-label={`${filteredSignals.length} unusual movement changes across 414 WCC countlines ${showBasemap ? "on a real Wellington street basemap" : "with the basemap hidden"}. Direction arrows show travel direction.`}
           />
           <div
+            ref={mapInteractionRef}
             className="map-inspection-layer"
             aria-label="Paused map inspection layer"
             data-active={inspectionEnabled}
@@ -992,26 +1041,51 @@ export default function MovementCanvas() {
             </aside>
           ) : null}
           <div className="map-controls" aria-label="Map zoom controls">
-            <button
-              type="button"
-              aria-label="Zoom in"
-              disabled={zoom >= 4}
-              onClick={() => { setZoom((value) => Math.min(4, value + 0.5)); setMapInspection(null); }}
-            >+</button>
-            <output aria-live="polite">{Math.round(zoom * 100)}% zoom</output>
-            <button
-              type="button"
-              aria-label="Zoom out"
-              disabled={zoom <= 1}
-              onClick={() => { setZoom((value) => Math.max(1, value - 0.5)); setMapInspection(null); }}
-            >−</button>
-            <button
-              type="button"
-              aria-label="Reset map view"
-              disabled={zoom === 1}
-              onClick={() => { setZoom(1); setMapInspection(null); }}
-            >Reset</button>
+            <div className="map-zoom-buttons">
+              <button
+                type="button"
+                aria-label="Zoom out"
+                disabled={zoom <= 0.5}
+                onClick={() => adjustZoom(zoom - 0.25)}
+              >−</button>
+              <output aria-live="polite">{Math.round(zoom * 100)}% zoom</output>
+              <button
+                type="button"
+                aria-label="Zoom in"
+                disabled={zoom >= 8}
+                onClick={() => adjustZoom(zoom + 0.25)}
+              >+</button>
+            </div>
+            <label className="map-zoom-range">
+              <span>Scroll or use slider</span>
+              <input
+                type="range"
+                aria-label="Map zoom level"
+                min="0.5"
+                max="8"
+                step="0.1"
+                value={zoom}
+                onChange={(event) => adjustZoom(Number(event.currentTarget.value))}
+              />
+            </label>
+            <div className="map-view-actions">
+              <button
+                type="button"
+                aria-label="Reset map view"
+                disabled={zoom === 1}
+                onClick={() => adjustZoom(1)}
+              >Reset</button>
+              <button
+                type="button"
+                aria-label={isMapFullscreen ? "Exit map fullscreen" : "Show map fullscreen"}
+                aria-pressed={isMapFullscreen}
+                onClick={toggleMapFullscreen}
+              >{isMapFullscreen ? "Exit full screen" : "Full screen"}</button>
+            </div>
           </div>
+          {fullscreenMessage ? (
+            <p className="map-fullscreen-message" role="status">{fullscreenMessage}</p>
+          ) : null}
           <div className="map-key">
             <span><i className="increase" />Increase</span>
             <span><i className="decrease" />Decrease</span>
