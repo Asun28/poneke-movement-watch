@@ -1,5 +1,25 @@
 # Progress — Phase 2 ontology and sources
 
+- 2026-08-10: Started Phase 4 after the user requested a real map view. Selected
+  an attributed OpenStreetMap basemap as the no-key default, with the existing
+  grid retained only as a network-failure fallback. Evidence sources and weights
+  remain unchanged.
+- 2026-08-10: TDD RED confirmed: the rendered-site suite fails only because the
+  real Wellington basemap label, OpenStreetMap attribution and tile-fallback
+  explanation are not yet present (6 pass, 1 expected failure).
+- 2026-08-10: TDD GREEN confirmed: the dependency-free Web Mercator tile layer,
+  real-map label, attribution and fallback contract pass all seven rendered-site
+  tests. Desktop browser verification shows loaded Wellington tiles with aligned
+  WCC overlays and no runtime errors.
+- 2026-08-10: Browser interaction check confirms Zoom in changes the real map
+  view from 100% to 150% and correctly enables Zoom out and Reset.
+- 2026-08-10: Mobile browser verification at 390 × 844 confirms the street map,
+  anomaly overlay, legend and attribution remain legible. Reset restores 100%
+  zoom and disables itself at the default view.
+- 2026-08-10: Final local regression passes: 20 Python tests, seven rendered-site
+  tests, production build and ESLint. The temporary preview and QA artifacts were
+  removed after verification.
+
 - 2026-08-09: Started Phase 3 to verify additional official open-source evidence
   feeds for the Wellington ontology, prioritising keyless, spatial and
   time-aligned contracts.

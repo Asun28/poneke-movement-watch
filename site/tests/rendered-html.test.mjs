@@ -119,6 +119,17 @@ test("explains that map arrows show travel direction", async () => {
   assert.match(html, /Direction arrows show travel direction/);
 });
 
+test("identifies the real Wellington street basemap and its attribution", async () => {
+  const response = await render();
+  assert.equal(response.status, 200);
+  const html = await response.text();
+
+  assert.match(html, /Real Wellington street basemap/);
+  assert.match(html, /© OpenStreetMap contributors/);
+  assert.match(html, /href="https:\/\/www\.openstreetmap\.org\/copyright"/);
+  assert.match(html, /Sensor overlay remains available if map tiles cannot load/);
+});
+
 test("ships internally consistent COP artifacts with WGS84 line geometry", async () => {
   const [healthText, signalsText, coverageText] = await Promise.all([
     readFile(new URL("../public/cop/v1/movement-health.json", import.meta.url), "utf8"),

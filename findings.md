@@ -1,5 +1,35 @@
 # Findings — Phase 2 ontology and sources
 
+## Phase 4 map audit
+
+- `MovementCanvas.tsx` currently draws both coverage and anomalies into one
+  canvas over a CSS grid. Coordinates are linearly fitted to the full WCC sensor
+  extent and zoomed around the viewport centre.
+- Existing interaction includes zoom in/out/reset and signal filtering, but not
+  map panning. Phase 4 will preserve the implemented interaction contract rather
+  than silently expanding scope.
+- A dependency-free tile renderer inside the existing canvas is the smallest
+  compatible change: draw attributed OpenStreetMap tiles first, then reuse the
+  WCC coverage and anomaly overlay. The existing CSS grid remains visible while
+  tiles load or if the tile service fails.
+- OpenStreetMap's current tile policy permits normal human interactive viewing
+  that requests only the visible viewport. It requires the exact HTTPS tile URL,
+  visible on-map attribution, a valid browser referrer and respect for HTTP cache
+  headers; bulk prefetch and offline downloads are prohibited.
+- The implementation meets that prototype boundary: browser-direct visible
+  tiles only, `strict-origin-when-cross-origin` referrer behavior, in-memory image
+  reuse, no prefetch/offline mode, and linked `© OpenStreetMap contributors`
+  attribution. The service remains best-effort, so the sensor grid fallback is
+  intentionally retained.
+- Desktop browser verification shows a recognisable Wellington coastline,
+  harbour, roads, suburbs and labels beneath the WCC countlines. Movement markers
+  remain legible, and the map key and bottom-right attribution do not overlap.
+- Browser console inspection contains only the development-mode React DevTools
+  information message; there are no tile, rendering or runtime errors.
+- A 390 × 844 mobile browser check shows the real Wellington basemap, countline
+  overlay, map key and attribution without overlap. Zoom moves from 100% to 150%,
+  and Reset returns to 100% and becomes disabled at the default view.
+
 ## Phase 3 implementation decision
 
 - The public demo now distinguishes the reality of a source from the reality of

@@ -22,6 +22,114 @@ const DIRECTION_VECTORS: Record<string, Coordinate> = {
   W: [-1, 0],
   NW: [-Math.SQRT1_2, -Math.SQRT1_2],
 };
+const TILE_SIZE = 256;
+const tileCache = new Map<string, HTMLImageElement>();
+const failedTiles = new Set<string>();
+
+function lonLatToWorld([longitude, latitude]: Coordinate): Coordinate {
+  const limitedLatitude = Math.max(-85.05112878, Math.min(85.05112878, latitude));
+  const sine = Math.sin((limitedLatitude * Math.PI) / 180);
+  return [
+    (longitude + 180) / 360,
+    0.5 - Math.log((1 + sine) / (1 - sine)) / (4 * Math.PI),
+  ];
+}
+
+function createViewport(
+  coordinates: Coordinate[],
+  width: number,
+  height: number,
+  zoom: number,
+) {
+  const worldCoordinates = coordinates.map(lonLatToWorld);
+  const worldXs = worldCoordinates.map(([x]) => x);
+  const worldYs = worldCoordinates.map(([, y]) => y);
+  const bounds = {
+    west: Math.min(...worldXs),
+    east: Math.max(...worldXs),
+    north: Math.min(...worldYs),
+    south: Math.max(...worldYs),
+  };
+  const padding = 28;
+  const availableWidth = Math.max(1, width - padding * 2);
+  const availableHeight = Math.max(1, height - padding * 2);
+  const baseScale = Math.min(
+    availableWidth / Math.max(Number.EPSILON, bounds.east - bounds.west),
+    availableHeight / Math.max(Number.EPSILON, bounds.south - bounds.north),
+  );
+  const worldScale = baseScale * zoom;
+  const center: Coordinate = [
+    (bounds.west + bounds.east) / 2,
+    (bounds.north + bounds.south) / 2,
+  ];
+  const projectWorld = ([worldX, worldY]: Coordinate): Coordinate => [
+    width / 2 + (worldX - center[0]) * worldScale,
+    height / 2 + (worldY - center[1]) * worldScale,
+  ];
+
+  return {
+    center,
+    worldScale,
+    tileZoom: Math.max(0, Math.min(19, Math.round(Math.log2(worldScale / TILE_SIZE)))),
+    project: (coordinate: Coordinate) => projectWorld(lonLatToWorld(coordinate)),
+    projectWorld,
+  };
+}
+
+function drawStreetTiles(
+  context: CanvasRenderingContext2D,
+  width: number,
+  height: number,
+  viewport: ReturnType<typeof createViewport>,
+  onTileSettled: () => void,
+) {
+  const tileCount = 2 ** viewport.tileZoom;
+  const left = viewport.center[0] - width / (2 * viewport.worldScale);
+  const right = viewport.center[0] + width / (2 * viewport.worldScale);
+  const top = viewport.center[1] - height / (2 * viewport.worldScale);
+  const bottom = viewport.center[1] + height / (2 * viewport.worldScale);
+  const minTileX = Math.floor(left * tileCount);
+  const maxTileX = Math.floor(right * tileCount);
+  const minTileY = Math.max(0, Math.floor(top * tileCount));
+  const maxTileY = Math.min(tileCount - 1, Math.floor(bottom * tileCount));
+  const tilePixelSize = viewport.worldScale / tileCount;
+
+  context.save();
+  context.globalAlpha = 0.78;
+  for (let tileY = minTileY; tileY <= maxTileY; tileY += 1) {
+    for (let tileX = minTileX; tileX <= maxTileX; tileX += 1) {
+      const wrappedTileX = ((tileX % tileCount) + tileCount) % tileCount;
+      const key = `${viewport.tileZoom}/${wrappedTileX}/${tileY}`;
+      const [screenX, screenY] = viewport.projectWorld([
+        tileX / tileCount,
+        tileY / tileCount,
+      ]);
+      const image = tileCache.get(key);
+
+      if (image?.complete && image.naturalWidth > 0) {
+        context.drawImage(image, screenX, screenY, tilePixelSize + 1, tilePixelSize + 1);
+        continue;
+      }
+      if (image || failedTiles.has(key)) continue;
+
+      const pendingImage = new Image();
+      pendingImage.decoding = "async";
+      pendingImage.referrerPolicy = "strict-origin-when-cross-origin";
+      pendingImage.onload = onTileSettled;
+      pendingImage.onerror = () => {
+        tileCache.delete(key);
+        failedTiles.add(key);
+        onTileSettled();
+      };
+      tileCache.set(key, pendingImage);
+      pendingImage.src = `https://tile.openstreetmap.org/${key}.png`;
+    }
+  }
+  context.restore();
+
+  context.fillStyle = "rgba(232, 240, 241, 0.18)";
+  context.fillRect(0, 0, width, height);
+}
 
 function drawMap(
   canvas: HTMLCanvasElement,
@@ -29,6 +137,7 @@ function drawMap(
   signals: LineFeature[],
   selectedId: string | null,
   zoom: number,
+  onTileSettled: () => void,
 ) {
   const rect = canvas.getBoundingClientRect();
   if (rect.width < 2 || rect.height < 2) return;
@@ -43,27 +152,13 @@ function drawMap(
   context.clearRect(0, 0, width, height);
 
   const coordinates = coverage.flatMap((feature) => feature.geometry.coordinates);
-  const longitudes = coordinates.map(([longitude]) => longitude);
-  const latitudes = coordinates.map(([, latitude]) => latitude);
-  const bounds = {
-    west: Math.min(...longitudes),
-    east: Math.max(...longitudes),
-    south: Math.min(...latitudes),
-    north: Math.max(...latitudes),
-  };
-  const padding = 28;
-  const project = ([longitude, latitude]: Coordinate): Coordinate => {
-    const baseX = padding + ((longitude - bounds.west) / (bounds.east - bounds.west)) * (width - padding * 2);
-    const baseY = height - padding - ((latitude - bounds.south) / (bounds.north - bounds.south)) * (height - padding * 2);
-    return [
-      width / 2 + (baseX - width / 2) * zoom,
-      height / 2 + (baseY - height / 2) * zoom,
-    ];
-  };
+  const viewport = createViewport(coordinates, width, height, zoom);
+  const project = viewport.project;
+  drawStreetTiles(context, width, height, viewport, onTileSettled);
 
-  context.strokeStyle = "rgba(55, 92, 104, 0.48)";
-  context.fillStyle = "rgba(55, 92, 104, 0.62)";
-  context.lineWidth = 1.25;
+  context.strokeStyle = "rgba(35, 72, 83, 0.68)";
+  context.fillStyle = "rgba(35, 72, 83, 0.78)";
+  context.lineWidth = 1.4;
   for (const feature of coverage) {
     const [start, end] = feature.geometry.coordinates.map(project);
     context.beginPath();
@@ -155,6 +250,7 @@ export default function MovementCanvas() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [filter, setFilter] = useState<Filter>("all");
   const [zoom, setZoom] = useState(1);
+  const [tileRevision, setTileRevision] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -186,7 +282,14 @@ export default function MovementCanvas() {
     const render = () => {
       cancelAnimationFrame(animationFrame);
       animationFrame = requestAnimationFrame(() => {
-        drawMap(canvas, coverage, filteredSignals, selected?.id ?? null, zoom);
+        drawMap(
+          canvas,
+          coverage,
+          filteredSignals,
+          selected?.id ?? null,
+          zoom,
+          () => setTileRevision((value) => value + 1),
+        );
       });
     };
     window.addEventListener("resize", render);
@@ -195,7 +298,7 @@ export default function MovementCanvas() {
       cancelAnimationFrame(animationFrame);
       window.removeEventListener("resize", render);
     };
-  }, [coverage, filteredSignals, selected, zoom]);
+  }, [coverage, filteredSignals, selected, tileRevision, zoom]);
 
   return (
     <section className="investigation-frame" aria-labelledby="map-heading">
@@ -223,7 +326,7 @@ export default function MovementCanvas() {
           <canvas
             ref={canvasRef}
             role="img"
-            aria-label={`${filteredSignals.length} unusual movement changes across 414 WCC countlines. Direction arrows show travel direction.`}
+            aria-label={`${filteredSignals.length} unusual movement changes across 414 WCC countlines on a real Wellington street basemap. Direction arrows show travel direction.`}
           />
           <div className="map-controls" aria-label="Map zoom controls">
             <button
@@ -252,12 +355,19 @@ export default function MovementCanvas() {
             <span aria-label="Travel direction"><b className="direction-arrow-key" aria-hidden="true">↗</b>Arrow shows travel direction</span>
             <span><i className="coverage" />Sensor coverage</span>
           </div>
+          <div className="map-attribution">
+            <span>Real Wellington street basemap</span>
+            <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">
+              © OpenStreetMap contributors
+            </a>
+          </div>
           {coverage.length === 0 && !error ? <p className="map-message">Loading countlines…</p> : null}
           {error ? <p className="map-message error" role="alert">{error}</p> : null}
         </div>
         <p className="map-caption">
           Geometry is the WCC sensor countline itself. It does not imply the whole
-          surrounding street or suburb changed.
+          surrounding street or suburb changed. Sensor overlay remains available if
+          map tiles cannot load.
         </p>
       </div>
 

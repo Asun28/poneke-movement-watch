@@ -1,5 +1,38 @@
 # Pōneke Movement Watch — evidence ontology roadmap
 
+## Phase 4 — Real Wellington basemap
+
+### Goal
+
+Replace the abstract grid behind the movement layer with a recognisable,
+attributed Wellington street map while preserving the existing movement data,
+direction arrows and investigation interactions.
+
+### Status
+
+- [completed] Audit the current map projection, zoom and pointer interactions.
+- [completed] Add a failing rendered-contract test for the real basemap and attribution.
+- [completed] Implement a dependency-free OpenStreetMap tile layer with a safe grid fallback.
+- [completed] Verify build, regression, and desktop/mobile interaction.
+- [pending] Publish the update to the existing site and open the live result.
+
+### Acceptance criteria
+
+- Wellington roads, coastline and place labels are visibly present beneath the sensor layer.
+- Zoom, reset, filters, countline geometry and travel-direction arrows still work.
+- OpenStreetMap attribution is always visible and links to its copyright page.
+- Tile failure never hides the sensor layer or changes evidence semantics.
+- No Google key, paid API or additional incident dataset is introduced.
+
+### File-level plan
+
+- `site/app/MovementCanvas.tsx`: synchronise tiled Web Mercator basemap and overlays.
+- `site/app/globals.css`: style tiles, fallback and attribution without obscuring evidence.
+- `site/tests/rendered-html.test.mjs`: verify the user-visible basemap contract.
+- `README.md`: document the basemap source separately from evidence sources.
+
+---
+
 ## Phase 3 — Additional open-source evidence
 
 ### Goal

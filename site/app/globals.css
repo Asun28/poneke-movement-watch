@@ -99,13 +99,16 @@ h2 { font-size: clamp(29px, 3.2vw, 47px); line-height: 1; }
 .map-controls button:hover:not(:disabled) { background: var(--civic-ink); color: var(--white); }
 .map-controls button:disabled { color: #9aabad; cursor: default; }
 .map-controls output { display: grid; place-items: center; min-width: 78px; padding: 0 8px; color: var(--muted-ink); font: 700 10px/1 Consolas, monospace; }
-.map-key { position: absolute; left: 14px; bottom: 14px; display: flex; flex-wrap: wrap; gap: 12px; padding: 8px 10px; background: rgba(248,251,251,.94); border: 1px solid var(--hairline); font-size: 11px; }
+.map-key { position: absolute; left: 14px; bottom: 47px; display: flex; flex-wrap: wrap; gap: 12px; padding: 8px 10px; background: rgba(248,251,251,.94); border: 1px solid var(--hairline); font-size: 11px; }
 .map-key span { display: flex; gap: 5px; align-items: center; }
 .map-key i { width: 14px; height: 3px; display: inline-block; }
 .map-key .increase { background: var(--signal-amber); }
 .map-key .decrease { background: var(--uncertainty-coral); }
 .map-key .coverage { background: rgba(70,111,124,.35); height: 1px; }
 .direction-arrow-key { display: inline-grid; place-items: center; width: 18px; height: 18px; border: 1px solid var(--civic-ink); border-radius: 50%; background: var(--white); color: var(--civic-ink); font-size: 14px; line-height: 1; }
+.map-attribution { position: absolute; right: 14px; bottom: 14px; z-index: 2; display: flex; gap: 8px; align-items: center; padding: 7px 9px; background: rgba(248,251,251,.95); border: 1px solid var(--hairline); color: var(--muted-ink); font: 700 9px/1.2 Consolas, monospace; }
+.map-attribution span { color: var(--civic-ink); text-transform: uppercase; letter-spacing: .05em; }
+.map-attribution a { color: var(--movement-blue); }
 .map-message { position: absolute; inset: 0; display: grid; place-items: center; margin: 0; color: var(--muted-ink); }
 .map-message.error { color: var(--uncertainty-coral); }
 .map-caption { margin: 11px 0 0; color: var(--muted-ink); font-size: 12px; }
@@ -261,6 +264,8 @@ footer strong { color: var(--white); }
   .map-toolbar { align-items: stretch; flex-direction: column; }
   .filter-group button { flex: 1; min-height: 44px; }
   .map-stage { min-height: 400px; }
+  .map-key { right: 14px; gap: 8px; }
+  .map-attribution { left: 14px; right: auto; max-width: calc(100% - 28px); }
   .investigation-frame { margin-inline: 8px; box-shadow: 6px 7px 0 var(--harbour-deep); }
   .limit-grid { grid-template-columns: 1fr; }
   .source-card-grid { grid-template-columns: 1fr; }

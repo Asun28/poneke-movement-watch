@@ -176,6 +176,12 @@ split, benchmark and limitations. No classifier was trained.
 
 ## Data sources and exclusions
 
+The interactive map uses OpenStreetMap raster tiles as a visual basemap, with
+the required on-map attribution. It is not an evidence source and contributes
+no observations or evidence weight. WCC countlines and movement signals are
+projected independently over it; the sensor overlay remains visible if tiles
+cannot load.
+
 The registry contains 24 real, official source products. That does **not** mean
 24 live feeds are connected. Every source declares both its demo-data status and
 its access status.
