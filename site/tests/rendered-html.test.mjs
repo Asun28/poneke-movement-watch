@@ -126,6 +126,28 @@ test("renders a city ontology explorer with explicit semantic and truth boundari
   assert.equal(city.confirmed_facts.length, 0);
 });
 
+test("renders a collapsible per-source layer workspace with selected-data replay controls", async () => {
+  const response = await render();
+  assert.equal(response.status, 200);
+  const html = await response.text();
+
+  assert.match(html, /Layer workspace/);
+  assert.match(html, /aria-label="Hide layer panel"/);
+  assert.match(html, /Street basemap/);
+  assert.match(html, /Sensor coverage/);
+  assert.match(html, /Search source layers/);
+  assert.match(html, /Replay source only/);
+  assert.match(html, /Clear sources/);
+  assert.match(html, /Map symbol size/);
+  assert.match(html, /Only selected sources with real replay records are played/);
+  assert.match(html, /Real replay/);
+  assert.match(html, /0 playable records/);
+  assert.match(html, /Needs permission/);
+  assert.match(html, /Paid API/);
+  assert.equal((html.match(/data-source-layer=/g) ?? []).length, 24);
+  assert.equal((html.match(/data-playable="true"/g) ?? []).length, 1);
+});
+
 test("renders zoom controls with text-only people and vehicle filters", async () => {
   const response = await render();
   assert.equal(response.status, 200);

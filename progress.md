@@ -1,5 +1,25 @@
 # Progress — Phase 2 ontology and sources
 
+- 2026-08-10: Started Phase 7 before publishing Phase 6 after the user added a
+  collapsible left layer rail, per-source selection, selected-data-only replay
+  and neutral symbol sizing. The existing registry remains the only source set.
+- 2026-08-10: TDD RED confirmed. The new pure layer-policy test fails because
+  `layerModel.mjs` is absent; the rendered suite has one expected failure for
+  the missing left rail and per-source controls. Existing tests remain green.
+- 2026-08-10: Implemented the pure layer policy, collapsible rail, 24 source
+  layers, map/coverage toggles, selected-source replay gating and symbol sizing.
+  The first GREEN run passed all new tests and found one copy regression in the
+  existing tile-fallback contract; restored that sentence before rerunning.
+- 2026-08-10: All 12 site tests passed. The first lint run then identified four
+  accessibility/state-pattern errors; added explicit checkbox associations and
+  moved playback stopping into the user actions that remove the real layer.
+- 2026-08-10: ESLint is clean after adding explicit accessible names. Documented
+  the source-layer boundary: selection represents integration intent, while
+  only real adapter records can render or play.
+- 2026-08-10: Final Phase 7 regression passes: 22 Python tests, 12 site/layer
+  tests, production build and ESLint. The final pytest temporary directory was
+  removed after verification.
+
 - 2026-08-10: Started Phase 6 to add a Wellington city ontology explorer. The
   chosen boundary is a backward-compatible v3 semantic graph built only from
   the existing replay case: place, infrastructure, time, movement state,

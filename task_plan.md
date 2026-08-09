@@ -1,5 +1,60 @@
 # Pōneke Movement Watch — evidence ontology roadmap
 
+## Phase 7 — Selectable map-layer workspace
+
+### Goal
+
+Turn the map into a source-aware layer workspace with a collapsible left rail,
+explicit basemap/overlay controls, per-source integration selection and replay
+that uses only selected layers with real records.
+
+### Status
+
+- [completed] Audit the current canvas, replay state, filters and source registry.
+- [completed] Define and test selected-layer replay and no-record source behavior.
+- [completed] Add a collapsible, keyboard-accessible left layer rail.
+- [completed] Connect basemap, coverage, movement and source toggles to map/replay state.
+- [completed] Add neutral map-symbol size adjustment without person/car pictograms.
+- [completed] Run site, ontology, lint and production-build regressions.
+- [pending] Publish Phase 6 and 7 together to the existing private site.
+
+### Acceptance criteria
+
+- The left rail can be hidden and restored without losing layer selections.
+- Basemap, countline coverage and WCC movement replay can be selected independently.
+- All 24 source contracts appear as individual integration layers with truthful
+  real/mock/permission/paid/registered-only state.
+- Only selected sources with actual replay records can render or advance playback.
+- Selecting a source with zero records never invents markers, movement or evidence.
+- Symbol size is adjustable while neutral countline shapes and travel-direction
+  arrows remain legible.
+- Controls remain keyboard/touch accessible and usable on a narrow viewport.
+
+### Assumptions and exclusions
+
+- Reuse the existing source registry and WCC replay; add no new source product.
+- A registered, mock, restricted or paid layer is selectable for integration
+  planning but remains `0 playable records` until a real adapter supplies data.
+- Do not restore person/car pictograms, animate mock events, or imply that a
+  selected source is connected merely because its contract is visible.
+
+### File-level plan
+
+- `site/app/layerModel.mjs`: pure selected-layer and replay eligibility rules.
+- `site/tests/`: test behavior and rendered controls before implementation.
+- `site/app/MovementCanvas.tsx`: collapsible rail, layer/source selection and replay gating.
+- `site/app/globals.css`: compact civic control rail, responsive state and symbol sizing.
+- `README.md` and planning files: explain the layer/replay truth boundary.
+
+### Errors encountered
+
+| Error | Attempt | Resolution |
+|---|---:|---|
+| First GREEN run passed the new layer tests but removed the existing tile-fallback sentence. | 1 | Restore the truthful fallback copy and retain the new selected-layer boundary beside it. |
+| ESLint required explicit label/control IDs and rejected a synchronous state reset inside an effect. | 1 | Add stable IDs to layer checkboxes and stop playback directly in the source-toggle/clear actions. |
+
+---
+
 ## Phase 6 — Wellington city ontology explorer
 
 ### Goal

@@ -1,6 +1,14 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import registryData from "../public/cop/v2/source-registry.json";
+import {
+  MOVEMENT_REPLAY_SOURCE_ID,
+  canReplaySelectedSources,
+  playableSignalsForSources,
+  sourceLayerState,
+  sourceSelectionSummary,
+} from "./layerModel.mjs";
 
 type Coordinate = [number, number];
 type LineFeature = {
@@ -44,6 +52,13 @@ type ReplayPayload = {
   publisher_cadence: string;
   slots: ReplaySlot[];
 };
+type SourceLayer = {
+  id: string;
+  name: string;
+  role: string;
+  demo_data_status: string;
+  access_status: string;
+};
 
 const PEOPLE = new Set(["Pedestrian", "Cyclist", "E-scooter"]);
 const DIRECTION_VECTORS: Record<string, Coordinate> = {
@@ -60,6 +75,7 @@ const TILE_SIZE = 256;
 const EMPTY_HISTORY: HistoryPoint[] = [];
 const tileCache = new Map<string, HTMLImageElement>();
 const failedTiles = new Set<string>();
+const sourceLayers = registryData.sources as SourceLayer[];
 
 function signalKey(feature: LineFeature) {
   return [
@@ -207,6 +223,9 @@ function drawMap(
   signals: LineFeature[],
   selectedId: string | null,
   zoom: number,
+  showBasemap: boolean,
+  showCoverage: boolean,
+  symbolSize: number,
   onTileSettled: () => void,
 ) {
   const rect = canvas.getBoundingClientRect();
@@ -224,20 +243,22 @@ function drawMap(
   const coordinates = coverage.flatMap((feature) => feature.geometry.coordinates);
   const viewport = createViewport(coordinates, width, height, zoom);
   const project = viewport.project;
-  drawStreetTiles(context, width, height, viewport, onTileSettled);
+  if (showBasemap) drawStreetTiles(context, width, height, viewport, onTileSettled);
 
-  context.strokeStyle = "rgba(35, 72, 83, 0.68)";
-  context.fillStyle = "rgba(35, 72, 83, 0.78)";
-  context.lineWidth = 1.4;
-  for (const feature of coverage) {
-    const [start, end] = feature.geometry.coordinates.map(project);
-    context.beginPath();
-    context.moveTo(...start);
-    context.lineTo(...end);
-    context.stroke();
-    context.beginPath();
-    context.arc((start[0] + end[0]) / 2, (start[1] + end[1]) / 2, 1.6, 0, Math.PI * 2);
-    context.fill();
+  if (showCoverage) {
+    context.strokeStyle = "rgba(35, 72, 83, 0.68)";
+    context.fillStyle = "rgba(35, 72, 83, 0.78)";
+    context.lineWidth = 1.4;
+    for (const feature of coverage) {
+      const [start, end] = feature.geometry.coordinates.map(project);
+      context.beginPath();
+      context.moveTo(...start);
+      context.lineTo(...end);
+      context.stroke();
+      context.beginPath();
+      context.arc((start[0] + end[0]) / 2, (start[1] + end[1]) / 2, 1.6, 0, Math.PI * 2);
+      context.fill();
+    }
   }
 
   for (const feature of signals) {
@@ -251,7 +272,7 @@ function drawMap(
     const isSelected = feature.id === selectedId;
     const decreasing = feature.properties.change_direction === "decrease";
     context.strokeStyle = decreasing ? "#C75845" : "#D78916";
-    context.lineWidth = isSelected ? 6 : 3.5;
+    context.lineWidth = isSelected ? Math.max(5, symbolSize * 0.6) : Math.max(3, symbolSize * 0.35);
     context.lineCap = "round";
     context.beginPath();
     context.moveTo(...start);
@@ -263,6 +284,7 @@ function drawMap(
       String(feature.properties.direction),
       isSelected,
       decreasing ? "#C75845" : "#D78916",
+      symbolSize,
     );
   }
 }
@@ -273,8 +295,9 @@ function drawMovementMarker(
   direction: string,
   isSelected: boolean,
   colour: string,
+  symbolSize: number,
 ) {
-  const radius = isSelected ? 13 : 10;
+  const radius = isSelected ? symbolSize + 3 : symbolSize;
   context.fillStyle = "#F8FBFB";
   context.strokeStyle = isSelected ? "#102A33" : colour;
   context.lineWidth = isSelected ? 3 : 2;
@@ -285,13 +308,13 @@ function drawMovementMarker(
 
   const normalisedDirection = direction.toUpperCase();
   const [vectorX, vectorY] = DIRECTION_VECTORS[normalisedDirection] ?? [1, 0];
-  const arrowHalfLength = isSelected ? 7 : 5.5;
+  const arrowHalfLength = radius * 0.55;
   const headX = x + vectorX * arrowHalfLength;
   const headY = y + vectorY * arrowHalfLength;
   const perpendicularX = -vectorY;
   const perpendicularY = vectorX;
-  const headLength = isSelected ? 4 : 3.3;
-  const headWidth = isSelected ? 3.3 : 2.7;
+  const headLength = radius * 0.32;
+  const headWidth = radius * 0.26;
 
   context.strokeStyle = "#102A33";
   context.lineWidth = isSelected ? 2.4 : 2;
@@ -429,6 +452,165 @@ function TrendView({ signal }: { signal?: LineFeature }) {
   );
 }
 
+type LayerWorkspaceProps = {
+  showBasemap: boolean;
+  showCoverage: boolean;
+  symbolSize: number;
+  selectedSourceIds: Set<string>;
+  onClose: () => void;
+  onSetBasemap: (value: boolean) => void;
+  onSetCoverage: (value: boolean) => void;
+  onSetSymbolSize: (value: number) => void;
+  onToggleSource: (sourceId: string) => void;
+  onSelectAllSources: () => void;
+  onReplayOnly: () => void;
+  onClearSources: () => void;
+};
+
+function LayerWorkspace({
+  showBasemap,
+  showCoverage,
+  symbolSize,
+  selectedSourceIds,
+  onClose,
+  onSetBasemap,
+  onSetCoverage,
+  onSetSymbolSize,
+  onToggleSource,
+  onSelectAllSources,
+  onReplayOnly,
+  onClearSources,
+}: LayerWorkspaceProps) {
+  const [sourceQuery, setSourceQuery] = useState("");
+  const summary = sourceSelectionSummary(selectedSourceIds, sourceLayers);
+  const visibleSources = sourceLayers.filter((source) => (
+    `${source.name} ${source.role}`.toLowerCase().includes(sourceQuery.trim().toLowerCase())
+  ));
+
+  return (
+    <aside className="layer-workspace" aria-labelledby="layer-workspace-heading">
+      <header className="layer-workspace-header">
+        <div>
+          <p className="eyebrow">Map + integration</p>
+          <h3 id="layer-workspace-heading">Layer workspace</h3>
+        </div>
+        <button type="button" aria-label="Hide layer panel" onClick={onClose}>×</button>
+      </header>
+
+      <section className="layer-group" aria-labelledby="base-layers-heading">
+        <div className="layer-group-heading">
+          <h4 id="base-layers-heading">Map layers</h4>
+          <span>2 display layers</span>
+        </div>
+        <label className="core-layer-row" htmlFor="layer-basemap">
+          <input
+            id="layer-basemap"
+            aria-label="Street basemap"
+            type="checkbox"
+            checked={showBasemap}
+            onChange={(event) => onSetBasemap(event.currentTarget.checked)}
+          />
+          <span className="sr-only">Street basemap</span>
+          <span className="layer-mini-symbol basemap-symbol" aria-hidden="true" />
+          <span><strong>Street basemap</strong><small>OpenStreetMap · display only</small></span>
+        </label>
+        <label className="core-layer-row" htmlFor="layer-coverage">
+          <input
+            id="layer-coverage"
+            aria-label="Sensor coverage"
+            type="checkbox"
+            checked={showCoverage}
+            onChange={(event) => onSetCoverage(event.currentTarget.checked)}
+          />
+          <span className="sr-only">Sensor coverage</span>
+          <span className="layer-mini-symbol coverage-symbol" aria-hidden="true" />
+          <span><strong>Sensor coverage</strong><small>414 WCC countlines</small></span>
+        </label>
+        <label className="symbol-size-control">
+          <span><strong>Map symbol size</strong><output>{symbolSize}px</output></span>
+          <input
+            type="range"
+            aria-label="Map symbol size"
+            min="7"
+            max="16"
+            value={symbolSize}
+            onChange={(event) => onSetSymbolSize(Number(event.currentTarget.value))}
+          />
+        </label>
+      </section>
+
+      <section className="layer-group source-layer-group" aria-labelledby="source-layers-heading">
+        <div className="layer-group-heading">
+          <h4 id="source-layers-heading">Source layers</h4>
+          <span>{summary.selected_count}/{sourceLayers.length} selected</span>
+        </div>
+        <p className="layer-truth-note">
+          Only selected sources with real replay records are played.
+        </p>
+        <label className="source-layer-search">
+          <span>Search source layers</span>
+          <input
+            type="search"
+            aria-label="Search source layers"
+            value={sourceQuery}
+            placeholder="Name or role"
+            onChange={(event) => setSourceQuery(event.currentTarget.value)}
+          />
+        </label>
+        <div className="layer-actions" aria-label="Source layer selection actions">
+          <button type="button" onClick={onReplayOnly}>Replay source only</button>
+          <button type="button" onClick={onSelectAllSources}>Select all</button>
+          <button type="button" onClick={onClearSources}>Clear sources</button>
+        </div>
+        <div className="source-layer-list" aria-label={`${visibleSources.length} source layers`}>
+          {visibleSources.map((source) => {
+            const state = sourceLayerState(source);
+            return (
+              <label
+                className={`source-layer-row ${state.playable ? "is-playable" : "is-contract"}`}
+                htmlFor={`source-layer-${source.id}`}
+                data-source-layer={source.id}
+                data-playable={String(state.playable)}
+                key={source.id}
+              >
+                <input
+                  id={`source-layer-${source.id}`}
+                  aria-label={source.name}
+                  type="checkbox"
+                  checked={selectedSourceIds.has(source.id)}
+                  onChange={() => onToggleSource(source.id)}
+                />
+                <span className="sr-only">{source.name}</span>
+                <span
+                  className="layer-mini-symbol source-symbol"
+                  style={{ width: symbolSize, height: symbolSize }}
+                  aria-hidden="true"
+                />
+                <span className="source-layer-copy">
+                  <strong>{source.name}</strong>
+                  <small>{source.role.replaceAll("_", " ")}</small>
+                  <span className="source-layer-status">
+                    <em>{state.truth_label}</em>
+                    <em>{state.access_label}</em>
+                    <em>{state.record_label}</em>
+                  </span>
+                </span>
+              </label>
+            );
+          })}
+          {visibleSources.length === 0 ? (
+            <p className="no-source-match">No source layer matches this search.</p>
+          ) : null}
+        </div>
+        <div className="layer-selection-summary" aria-live="polite">
+          <strong>{summary.playable_source_count} playable</strong>
+          <span>{summary.selected_count} selected integration layers</span>
+        </div>
+      </section>
+    </aside>
+  );
+}
+
 export default function MovementCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [coverage, setCoverage] = useState<LineFeature[]>([]);
@@ -442,6 +624,13 @@ export default function MovementCanvas() {
   const [tileRevision, setTileRevision] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [replayWarning, setReplayWarning] = useState<string | null>(null);
+  const [isLayerRailOpen, setIsLayerRailOpen] = useState(true);
+  const [showBasemap, setShowBasemap] = useState(true);
+  const [showCoverage, setShowCoverage] = useState(true);
+  const [symbolSize, setSymbolSize] = useState(10);
+  const [selectedSourceIds, setSelectedSourceIds] = useState(
+    () => new Set([MOVEMENT_REPLAY_SOURCE_ID]),
+  );
 
   useEffect(() => {
     Promise.all([
@@ -480,19 +669,24 @@ export default function MovementCanvas() {
       .map((signal) => replaySignalFeature(signal, coverageByCountline))
       .filter((feature): feature is LineFeature => feature !== null);
   }, [coverageByCountline, currentSlot, snapshotSignals]);
-  const filteredSignals = useMemo(() => signals.filter((feature) => {
+  const replaySourceSelected = canReplaySelectedSources(selectedSourceIds, sourceLayers);
+  const selectedLayerSignals = useMemo(
+    () => playableSignalsForSources(signals, selectedSourceIds, sourceLayers) as LineFeature[],
+    [selectedSourceIds, signals],
+  );
+  const filteredSignals = useMemo(() => selectedLayerSignals.filter((feature) => {
     const mode = String(feature.properties.transport_class);
     if (filter === "people") return PEOPLE.has(mode);
     if (filter === "vehicles") return !PEOPLE.has(mode);
     return true;
-  }), [signals, filter]);
+  }), [selectedLayerSignals, filter]);
 
   const selected = filteredSignals.find(
     (feature) => signalKey(feature) === selectedSignalKey,
   ) ?? filteredSignals[0];
 
   useEffect(() => {
-    if (!isPlaying || !replay) return;
+    if (!isPlaying || !replay || !replaySourceSelected) return;
     const timer = window.setInterval(() => {
       setSlotIndex((current) => {
         if (current >= replay.slots.length - 1) {
@@ -503,7 +697,7 @@ export default function MovementCanvas() {
       });
     }, 900);
     return () => window.clearInterval(timer);
-  }, [isPlaying, replay]);
+  }, [isPlaying, replay, replaySourceSelected]);
 
   const replayDates = useMemo(() => replay
     ? [...new Set(replay.slots.map((slot) => slot.target_at.slice(0, 10)))]
@@ -514,7 +708,7 @@ export default function MovementCanvas() {
     .filter((slot) => slot.target_at.startsWith(selectedDate))
     .map((slot) => slot.target_at.slice(11, 13)) ?? [];
   const selectDateAndHour = (date: string, hour: string) => {
-    if (!replay) return;
+    if (!replay || !replaySourceSelected) return;
     const exact = replay.slots.findIndex(
       (slot) => slot.target_at.startsWith(`${date}T${hour}:`),
     );
@@ -527,6 +721,18 @@ export default function MovementCanvas() {
     ? formatReplayTime(currentSlot.target_at)
     : "12:00 · Thursday 6 August 2026";
   const confidence = selected?.properties.signal_confidence as SignalConfidence | undefined;
+  const replayEnabled = Boolean(replay && replaySourceSelected);
+  const toggleSource = (sourceId: string) => {
+    if (sourceId === MOVEMENT_REPLAY_SOURCE_ID && selectedSourceIds.has(sourceId)) {
+      setIsPlaying(false);
+    }
+    setSelectedSourceIds((current) => {
+      const next = new Set(current);
+      if (next.has(sourceId)) next.delete(sourceId);
+      else next.add(sourceId);
+      return next;
+    });
+  };
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -541,6 +747,9 @@ export default function MovementCanvas() {
           filteredSignals,
           selected?.id ?? null,
           zoom,
+          showBasemap,
+          showCoverage,
+          symbolSize,
           () => setTileRevision((value) => value + 1),
         );
       });
@@ -551,11 +760,39 @@ export default function MovementCanvas() {
       cancelAnimationFrame(animationFrame);
       window.removeEventListener("resize", render);
     };
-  }, [coverage, filteredSignals, selected, tileRevision, zoom]);
+  }, [coverage, filteredSignals, selected, showBasemap, showCoverage, symbolSize, tileRevision, zoom]);
 
   return (
-    <section className="investigation-frame" aria-labelledby="map-heading">
+    <section
+      className={`investigation-frame ${isLayerRailOpen ? "has-layer-rail" : ""}`}
+      aria-labelledby="map-heading"
+    >
+      {isLayerRailOpen ? (
+        <LayerWorkspace
+          showBasemap={showBasemap}
+          showCoverage={showCoverage}
+          symbolSize={symbolSize}
+          selectedSourceIds={selectedSourceIds}
+          onClose={() => setIsLayerRailOpen(false)}
+          onSetBasemap={setShowBasemap}
+          onSetCoverage={setShowCoverage}
+          onSetSymbolSize={setSymbolSize}
+          onToggleSource={toggleSource}
+          onSelectAllSources={() => setSelectedSourceIds(new Set(sourceLayers.map((source) => source.id)))}
+          onReplayOnly={() => setSelectedSourceIds(new Set([MOVEMENT_REPLAY_SOURCE_ID]))}
+          onClearSources={() => { setSelectedSourceIds(new Set()); setIsPlaying(false); }}
+        />
+      ) : null}
       <div className="map-column">
+        <button
+          type="button"
+          className="show-layer-panel"
+          aria-label="Show layer panel"
+          hidden={isLayerRailOpen}
+          onClick={() => setIsLayerRailOpen(true)}
+        >
+          Layers <span>{selectedSourceIds.size}/{sourceLayers.length}</span>
+        </button>
         <div className="map-toolbar">
           <div>
             <p className="eyebrow">{replayLabel}</p>
@@ -586,7 +823,9 @@ export default function MovementCanvas() {
               </small>
             </div>
             <output aria-live="polite">
-              {currentSlot
+              {!replaySourceSelected
+                ? "No playable data selected"
+                : currentSlot
                 ? `${currentSlot.candidate_count} signals · ${currentSlot.data_gap_groups} data gaps`
                 : "Published snapshot"}
             </output>
@@ -600,7 +839,7 @@ export default function MovementCanvas() {
                 value={selectedDate}
                 min={replayDates[0]}
                 max={replayDates.at(-1)}
-                disabled={!replay}
+                disabled={!replayEnabled}
                 onChange={(event) => selectDateAndHour(event.currentTarget.value, selectedHour)}
               />
             </label>
@@ -609,7 +848,7 @@ export default function MovementCanvas() {
               <select
                 aria-label="Replay hour"
                 value={selectedHour}
-                disabled={!replay}
+                disabled={!replayEnabled}
                 onChange={(event) => selectDateAndHour(selectedDate, event.currentTarget.value)}
               >
                 {(availableHours.length > 0 ? availableHours : ["12"]).map((hour) => (
@@ -621,7 +860,7 @@ export default function MovementCanvas() {
               <button
                 type="button"
                 aria-label="Previous replay hour"
-                disabled={!replay || slotIndex === 0}
+                disabled={!replayEnabled || slotIndex === 0}
                 onClick={() => { setSlotIndex((value) => Math.max(0, value - 1)); setIsPlaying(false); }}
               >←</button>
               <button
@@ -629,13 +868,13 @@ export default function MovementCanvas() {
                 className="play-button"
                 aria-label={isPlaying ? "Pause replay" : "Play replay"}
                 aria-pressed={isPlaying}
-                disabled={!replay || replay.slots.length < 2}
+                disabled={!replayEnabled || (replay?.slots.length ?? 0) < 2}
                 onClick={() => setIsPlaying((value) => !value)}
               >{isPlaying ? "Pause" : "Play"}</button>
               <button
                 type="button"
                 aria-label="Next replay hour"
-                disabled={!replay || slotIndex >= replay.slots.length - 1}
+                disabled={!replayEnabled || slotIndex >= (replay?.slots.length ?? 1) - 1}
                 onClick={() => { setSlotIndex((value) => Math.min((replay?.slots.length ?? 1) - 1, value + 1)); setIsPlaying(false); }}
               >→</button>
             </div>
@@ -647,7 +886,7 @@ export default function MovementCanvas() {
             min={0}
             max={Math.max(0, (replay?.slots.length ?? 1) - 1)}
             value={slotIndex}
-            disabled={!replay}
+            disabled={!replayEnabled}
             onChange={(event) => { setSlotIndex(Number(event.currentTarget.value)); setIsPlaying(false); }}
           />
           {replayWarning ? <p className="replay-warning" role="status">{replayWarning}</p> : null}
@@ -656,7 +895,7 @@ export default function MovementCanvas() {
           <canvas
             ref={canvasRef}
             role="img"
-            aria-label={`${filteredSignals.length} unusual movement changes across 414 WCC countlines on a real Wellington street basemap. Direction arrows show travel direction.`}
+            aria-label={`${filteredSignals.length} unusual movement changes across 414 WCC countlines ${showBasemap ? "on a real Wellington street basemap" : "with the basemap hidden"}. Direction arrows show travel direction.`}
           />
           <div className="map-controls" aria-label="Map zoom controls">
             <button
@@ -683,21 +922,24 @@ export default function MovementCanvas() {
             <span><i className="increase" />Increase</span>
             <span><i className="decrease" />Decrease</span>
             <span aria-label="Travel direction"><b className="direction-arrow-key" aria-hidden="true">↗</b>Arrow shows travel direction</span>
-            <span><i className="coverage" />Sensor coverage</span>
+            {showCoverage ? <span><i className="coverage" />Sensor coverage</span> : null}
           </div>
-          <div className="map-attribution">
-            <span>Real Wellington street basemap</span>
-            <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">
-              © OpenStreetMap contributors
-            </a>
-          </div>
+          {showBasemap ? (
+            <div className="map-attribution">
+              <span>Real Wellington street basemap</span>
+              <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">
+                © OpenStreetMap contributors
+              </a>
+            </div>
+          ) : <div className="map-attribution"><span>Basemap hidden</span></div>}
           {coverage.length === 0 && !error ? <p className="map-message">Loading countlines…</p> : null}
           {error ? <p className="map-message error" role="alert">{error}</p> : null}
         </div>
         <p className="map-caption">
           Geometry is the WCC sensor countline itself. It does not imply the whole
           surrounding street or suburb changed. Sensor overlay remains available if
-          map tiles cannot load.
+          map tiles cannot load. Only selected real-replay source layers animate;
+          contract-only layers never create markers.
         </p>
       </div>
 
@@ -723,7 +965,13 @@ export default function MovementCanvas() {
             </dl>
             <p className="evidence-note">No cause inferred. Check operational context before acting.</p>
           </div>
-        ) : <p className="empty-evidence">Select a signal to inspect its evidence.</p>}
+        ) : (
+          <p className="empty-evidence">
+            {replaySourceSelected
+              ? "Select a signal to inspect its evidence."
+              : "Select WCC Transport Sensors in the layer workspace to replay movement."}
+          </p>
+        )}
 
         <TrendView signal={selected} />
 
@@ -745,7 +993,11 @@ export default function MovementCanvas() {
             </button>
           ))}
           {filteredSignals.length === 0 ? (
-            <p className="empty-slot">No investigation signals in this hour and filter.</p>
+            <p className="empty-slot">
+              {replaySourceSelected
+                ? "No investigation signals in this hour and filter."
+                : "No playable movement source is selected."}
+            </p>
           ) : null}
         </div>
       </aside>

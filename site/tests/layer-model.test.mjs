@@ -1,0 +1,65 @@
+import assert from "node:assert/strict";
+import test from "node:test";
+
+import {
+  canReplaySelectedSources,
+  playableSignalsForSources,
+  sourceLayerState,
+  sourceSelectionSummary,
+} from "../app/layerModel.mjs";
+
+const sources = [
+  {
+    id: "wcc-transport-sensors",
+    demo_data_status: "real_replay",
+    access_status: "public_free",
+  },
+  {
+    id: "nema-cap-alerts",
+    demo_data_status: "mock_preview",
+    access_status: "permission_required",
+  },
+  {
+    id: "google-routes-api",
+    demo_data_status: "mock_preview",
+    access_status: "paid_key_required",
+  },
+];
+const signals = [{ id: "movement:1" }, { id: "movement:2" }];
+
+test("only a selected real-replay source can render and advance replay data", () => {
+  assert.equal(canReplaySelectedSources(new Set(["nema-cap-alerts"]), sources), false);
+  assert.deepEqual(
+    playableSignalsForSources(signals, new Set(["nema-cap-alerts"]), sources),
+    [],
+  );
+
+  const selected = new Set(["wcc-transport-sensors", "nema-cap-alerts"]);
+  assert.equal(canReplaySelectedSources(selected, sources), true);
+  assert.deepEqual(playableSignalsForSources(signals, selected, sources), signals);
+  assert.deepEqual(sourceSelectionSummary(selected, sources), {
+    selected_count: 2,
+    playable_source_count: 1,
+  });
+});
+
+test("mock permission and paid layers remain zero-record integration layers", () => {
+  assert.deepEqual(sourceLayerState(sources[0]), {
+    truth_label: "Real replay",
+    access_label: "Public / free",
+    playable: true,
+    record_label: "Playable history",
+  });
+  assert.deepEqual(sourceLayerState(sources[1]), {
+    truth_label: "Mock preview",
+    access_label: "Needs permission",
+    playable: false,
+    record_label: "0 playable records",
+  });
+  assert.deepEqual(sourceLayerState(sources[2]), {
+    truth_label: "Mock preview",
+    access_label: "Paid API",
+    playable: false,
+    record_label: "0 playable records",
+  });
+});

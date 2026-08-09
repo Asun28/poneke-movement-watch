@@ -68,7 +68,7 @@ flowchart LR
 | Contracts | Stable public schemas and truth-state boundaries | `contract.py` |
 | I/O | Read source files and write reproducible artifacts | `io.py` |
 | Builders | Produce v1 movement, v2 evidence and v3 city-semantic feeds | `scripts/build_demo.py`, `scripts/build_ontology_demo.py` |
-| Interface | Canvas map, historical replay, trend panel, filters and case ledger | `site/app/` |
+| Interface | Layer workspace, canvas map, historical replay, trends and case ledger | `site/app/` |
 | COP artifacts | Integration-ready GeoJSON and JSON | `site/public/cop/v1/`, `site/public/cop/v2/`, `site/public/cop/v3/` |
 
 ## Wellington City Ontology
@@ -202,6 +202,27 @@ linear SVM regression and Ridge. See the [model card](docs/model-card.md) for th
 split, benchmark and limitations. No classifier was trained.
 
 ## Data sources and exclusions
+
+### Selectable map and integration layers
+
+The map's collapsible left workspace separates three control types:
+
+- **Street basemap** — a display-only OpenStreetMap layer;
+- **Sensor coverage** — 414 WCC countline geometries;
+- **Source layers** — one selectable integration layer for each of the 24
+  source-registry contracts.
+
+Only `wcc-transport-sensors` currently has real replay records. Playback stops
+when that source layer is deselected. Selecting a mock, restricted, paid or
+registered-only source changes the intended integration set, but it cannot add
+markers, evidence or animation; its layer says `0 playable records`. Operators
+can search, select all, clear all, return to the replay-only source, hide the
+workspace and adjust neutral map-symbol size. Person/car pictograms are not used;
+the existing direction arrows remain the movement marker.
+
+Source layers are presentation/integration controls, not new ontology evidence.
+A layer becomes playable only when a real adapter supplies time-aligned records
+under the registry's access and provenance rules.
 
 The interactive map uses OpenStreetMap raster tiles as a visual basemap, with
 the required on-map attribution. It is not an evidence source and contributes

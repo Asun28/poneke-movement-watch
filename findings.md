@@ -1,5 +1,30 @@
 # Findings — Phase 2 ontology and sources
 
+## Phase 7 layer-workspace audit
+
+- `MovementCanvas.tsx` currently has one canvas draw pipeline: OpenStreetMap
+  tiles, all countline coverage, then current replay signals. The three layers
+  can be gated independently without changing coordinates or data contracts.
+- Playback currently advances whenever the replay artifact exists. It must also
+  require the WCC movement source layer to be selected and must stop immediately
+  when that layer is switched off.
+- The registry contains 24 source contracts but only `wcc-transport-sensors` has
+  `demo_data_status=real_replay`. The other 23 layers can be exposed for
+  integration selection and state review, but all must show zero playable
+  records and cannot add canvas features or evidence.
+- Existing people/vehicle filters are textual and the direction marker is a
+  neutral circle/arrow. Phase 7 should parameterise that marker size instead of
+  reintroducing person or vehicle pictograms.
+- The left rail should live inside the investigation frame so hiding it expands
+  the map while preserving the separate evidence column and existing replay UI.
+- The implemented policy keeps presentation separate from evidence: all 24
+  contracts are independently selectable, while `sourceLayerState()` identifies
+  only WCC Transport Sensors as playable. Mock/permission/paid/registry layers
+  remain visible integration choices with zero records.
+- Base tiles, countline coverage and movement signals are now independent draw
+  flags. The canvas still uses full coverage geometry to calculate a stable
+  Wellington viewport even when the coverage overlay itself is hidden.
+
 ## Phase 6 ontology-extension decision
 
 - Preserve the existing evidence lifecycle as the epistemic spine and add a
