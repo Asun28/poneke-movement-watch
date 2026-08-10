@@ -13,7 +13,7 @@ operator module with its own navigation icon and `/ontology` route.
 - [completed] Add failing route/navigation/separation tests.
 - [completed] Implement the dedicated page and remove the dashboard from Integration.
 - [completed] Verify regressions.
-- [in_progress] Deploy to the existing owner-only site.
+- [completed] Deploy to the existing owner-only site.
 
 ### Acceptance criteria
 
