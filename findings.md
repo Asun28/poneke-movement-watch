@@ -1610,3 +1610,24 @@ supports spatial event-footprint resolution, never direct building-damage claims
 - The apparent document overflow is a browser scrollbar measurement: `body` remains exactly bounded
   while `documentElement` excludes the 15px vertical scrollbar. Even so, removing the toolbar's own
   21px overflow yields a shorter, cleaner 46px surface with no horizontal scrollbar.
+# Phase 43 — Replay source icon toggles
+
+- The supplied Replay layer card has five readable source rows, but the leading coloured marks look
+  like passive legend swatches. The user wants those marks to become the direct add/remove control.
+- The source title, publisher and truth badge already communicate identity and status; the new icon
+  should change only selection, with `aria-pressed`, a non-colour selected mark and a muted off state.
+- The All/People/Vehicles segmented filter is a different dimension and must remain independent of
+  source-layer selection.
+- Existing Replay source selection is implemented in `MovementCanvas.tsx` with native checkboxes
+  inside `source-layer-row`; CSS already separates the source symbol, copy and status badges.
+- UI guidance requires icon-only controls to have accessible names, visible focus/pressed feedback,
+  non-colour selected state and at least a 44×44px hit target. No new icon package is justified.
+- The rendered suite already protects the layer workspace and source count, so the new regression
+  should exercise the real rendered icon-button contract plus the existing map state transition.
+- `selectedSourceIds` is already the single source of map visibility truth, persisted to local
+  storage. `toggleSource` also stops playback when the movement replay layer is removed and clears
+  inspection, so the icon must call that existing handler rather than creating parallel state.
+- The safest markup is a 44px `button` followed by the existing source copy and Edit action. The
+  visual glyph can stay about 18px, showing plus when off and check when on, so state is not colour-only.
+- The implementation can reuse the existing `toggleSource` path rather than introducing layer state:
+  this preserves replay stop-on-removal, inspection reset, immediate map filtering and local persistence.

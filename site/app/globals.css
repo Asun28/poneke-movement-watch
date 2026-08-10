@@ -934,9 +934,25 @@ footer strong { color: var(--white); }
 .source-onboarding-actions button:hover,
 .source-edit-button:hover { color: #ffffff; border-color: #172b4d; background: #172b4d; }
 .source-onboarding output { min-height: 14px; color: #974f0c; font-size: 10px; }
-.source-layer-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px; align-items: start; cursor: default; }
-.source-layer-row > label { min-width: 0; display: grid; grid-template-columns: 16px 17px minmax(0, 1fr); gap: 9px; align-items: center; padding-block: 3px; cursor: pointer; }
-.source-layer-row > label > input { width: 16px; height: 16px; margin: 0; accent-color: var(--corroboration-teal); }
+.source-layer-row { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; gap: 6px; align-items: center; cursor: default; }
+.source-layer-toggle {
+  position: relative; width: 44px; height: 44px; display: grid; place-items: center; padding: 0;
+  color: #5e6c84; border: 0; border-radius: 6px; background: transparent; cursor: pointer;
+}
+.source-layer-toggle:hover { color: var(--movement-blue); background: #e9f2ff; }
+.source-layer-toggle:focus-visible { outline: 3px solid #0c66e4; outline-offset: 1px; }
+.source-layer-toggle-icon {
+  box-sizing: content-box; min-width: 12px; min-height: 12px; max-width: 18px; max-height: 18px;
+  border: 2px solid currentColor; border-radius: 4px; background: #ffffff;
+}
+.source-layer-toggle-mark {
+  position: absolute; inset: 0; display: grid; place-items: center; color: currentColor;
+  font: 900 14px/1 "Segoe UI", sans-serif;
+}
+.source-layer-toggle.is-selected { color: #ffffff; }
+.source-layer-toggle.is-selected .source-layer-toggle-icon { border-color: var(--corroboration-teal); background: var(--corroboration-teal); }
+.source-layer-row.is-playable .source-layer-toggle.is-selected .source-layer-toggle-icon { border-color: var(--movement-blue); background: var(--movement-blue); }
+.source-layer-row[data-selected="false"] .source-layer-copy { opacity: .62; }
 .source-edit-button { min-height: 36px; align-self: start; padding-inline: 8px; }
 .source-layer-status .operations-alert_centre { color: #7a3e00; background: #fff0d5; }
 .source-layer-status em:first-child { color: #44546f; background: #e9ebee; }
@@ -955,8 +971,7 @@ footer strong { color: var(--white); }
 
 @media (max-width: 520px) {
   .source-onboarding-pair { grid-template-columns: 1fr; }
-  .source-layer-row { grid-template-columns: 1fr; }
-  .source-edit-button { width: 100%; }
+  .source-layer-row { grid-template-columns: 44px minmax(0, 1fr) auto; }
 }
 
 .integration-architecture { grid-template-columns: repeat(3, minmax(150px, 1fr) 34px) minmax(150px, 1fr); margin: 18px clamp(16px, 3vw, 40px); }

@@ -10,6 +10,7 @@ import {
   playableSignalsForSources,
   sourceLayerState,
   sourceSelectionSummary,
+  toggleSourceSelection,
 } from "../app/layerModel.mjs";
 
 const sources = [
@@ -45,6 +46,16 @@ const sources = [
   },
 ];
 const signals = [{ id: "movement:1" }, { id: "movement:2" }];
+
+test("toggles only the requested Replay source without mutating the current selection", () => {
+  const current = new Set(["wcc-transport-sensors", "nema-cap-alerts"]);
+  const removed = toggleSourceSelection(current, "wcc-transport-sensors");
+  const restored = toggleSourceSelection(removed, "wcc-transport-sensors");
+
+  assert.deepEqual([...current], ["wcc-transport-sensors", "nema-cap-alerts"]);
+  assert.deepEqual([...removed], ["nema-cap-alerts"]);
+  assert.deepEqual([...restored], ["nema-cap-alerts", "wcc-transport-sensors"]);
+});
 
 test("only a selected real-replay source can render and advance replay data", () => {
   assert.equal(canReplaySelectedSources(new Set(["nema-cap-alerts"]), sources), false);

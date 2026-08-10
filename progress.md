@@ -921,3 +921,20 @@
   and completed the owner-only deployment. Production desktop and 375px checks confirm one 47px
   status row, current source counts, 44px actions and clean browser logs. GitHub origin and remote
   `main` remain unchanged.
+# Phase 43 — Replay source icon toggles
+
+- 2026-08-11: Started the Replay layer-control refinement from the supplied screenshot. Scope is a
+  direct accessible icon toggle per existing source; no source or evidence behavior changes.
+- 2026-08-11: Located the existing checkbox-based source layer rows and supporting rendered/model
+  tests. The icon will replace only the checkbox affordance and reuse the current selection state.
+- 2026-08-11: File scope is fixed to MovementCanvas, layerModel, CSS and two focused tests. The
+  existing playback-stop and map-inspection safeguards remain in the component handler.
+## Phase 43 — Replay source icon toggles
+
+- Added failing contracts for immutable one-source selection and an accessible pressed icon control.
+- These tests specifically catch a toggle that changes the wrong layer, mutates the stored set, or regresses to a passive colour mark / hidden checkbox.
+- Replaced the passive source swatch and checkbox with one compact add/remove icon button; the existing selection, replay-stop, map-refresh and browser persistence paths remain authoritative.
+- First production build exposed and then closed one JSX self-closing-tag error in the new icon markup.
+- 2026-08-11: Final local verification passes: production build, 87/87 behavior tests, ESLint and
+  whitespace checks. The selected icon has a check, the unselected icon has a plus, both retain a
+  44px hit target and `aria-pressed`; owner-only deployment is next.

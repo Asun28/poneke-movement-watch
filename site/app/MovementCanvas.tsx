@@ -21,6 +21,7 @@ import {
   replayIntervalMs,
   sourceLayerState,
   sourceSelectionSummary,
+  toggleSourceSelection,
   zoomFromWheel,
   zoomPanOffsetAtPoint,
 } from "./layerModel.mjs";
@@ -843,41 +844,45 @@ function LayerWorkspace({
         <div className="source-layer-list" aria-label={`${visibleSources.length} investigation sources`}>
           {visibleSources.map((source) => {
             const state = sourceLayerState(source);
+            const isSelected = selectedSourceIds.has(source.id);
             return (
               <div
                 className={`source-layer-row ${state.playable ? "is-playable" : "is-contract"}`}
                 data-source-layer={source.id}
                 data-playable={String(state.playable)}
+                data-selected={String(isSelected)}
                 key={source.id}
               >
-                <label htmlFor={`source-layer-${source.id}`}>
-                  <input
-                    id={`source-layer-${source.id}`}
-                    aria-label={source.name}
-                    type="checkbox"
-                    checked={selectedSourceIds.has(source.id)}
-                    onChange={() => onToggleSource(source.id)}
-                  />
+                <button
+                  className={`source-layer-toggle ${isSelected ? "is-selected" : ""}`}
+                  type="button"
+                  aria-pressed={isSelected}
+                  aria-label={`${isSelected ? "Remove" : "Add"} ${source.name} source layer`}
+                  onClick={() => onToggleSource(source.id)}
+                >
                   <span
-                    className="layer-mini-symbol source-symbol"
+                    className="source-layer-toggle-icon"
                     style={{ width: symbolSize, height: symbolSize }}
                     aria-hidden="true"
                   />
-                  <span className="source-layer-copy">
-                    <strong>{source.name}</strong>
-                    <small>{source.role.replaceAll("_", " ")}</small>
-                    <span className="source-layer-status">
-                      <em>{source.record_origin === "canonical" ? "Registry" : "Local"}</em>
-                      {(source.assigned_modules ?? []).map((module) => (
-                        <em className={`operations-${module}`} key={module}>{MODULE_LABELS[module]}</em>
-                      ))}
-                      <em>{state.truth_label}</em>
-                      <em>{state.access_label}</em>
-                      <em>{state.record_label}</em>
-                      <em>{state.year_label}</em>
-                    </span>
+                  <span className="source-layer-toggle-mark" aria-hidden="true">
+                    {isSelected ? "✓" : "+"}
                   </span>
-                </label>
+                </button>
+                <span className="source-layer-copy">
+                  <strong>{source.name}</strong>
+                  <small>{source.role.replaceAll("_", " ")}</small>
+                  <span className="source-layer-status">
+                    <em>{source.record_origin === "canonical" ? "Registry" : "Local"}</em>
+                    {(source.assigned_modules ?? []).map((module) => (
+                      <em className={`operations-${module}`} key={module}>{MODULE_LABELS[module]}</em>
+                    ))}
+                    <em>{state.truth_label}</em>
+                    <em>{state.access_label}</em>
+                    <em>{state.record_label}</em>
+                    <em>{state.year_label}</em>
+                  </span>
+                </span>
                 <button
                   className="source-edit-button"
                   type="button"
@@ -1099,12 +1104,7 @@ export default function MovementCanvas({ investigation }: {
       setIsPlaying(false);
     }
     setMapInspection(null);
-    setSelectedSourceIds((current) => {
-      const next = new Set(current);
-      if (next.has(sourceId)) next.delete(sourceId);
-      else next.add(sourceId);
-      return next;
-    });
+    setSelectedSourceIds((current) => toggleSourceSelection(current, sourceId));
   };
   const saveInvestigationSource = (draft: InvestigationSourceDraft) => {
     const result = upsertInvestigationSource(sourceLayers, draft);

@@ -2339,3 +2339,54 @@ source-state meaning, refresh controls and accessible detail.
 - Do not hide the counters or refresh controls in a menu; they are high-frequency operational state.
 
 ---
+## Phase 43 — Replay source icon toggles
+
+### Goal
+
+Turn each Replay source-layer marker into a small, direct toggle so operators can add or remove
+that source from the map without opening another control.
+
+### Status
+
+- [completed] Audit the current Replay layer rows, selection state, symbols and rendered tests.
+- [completed] Add a failing behavior test for icon-driven source selection.
+- [completed] Implement accessible icon toggles with stable selected/unselected states.
+- [completed] Run production build, full regression, lint and whitespace verification.
+- [pending] Publish the validated owner-only build without changing GitHub origin or `main`.
+
+### Acceptance criteria
+
+- Every compatible Replay source row has one small visible icon control with a 44px hit target.
+- Clicking the icon adds or removes only that source layer and immediately updates the map.
+- Selected state is visible without relying on colour alone and exposed through `aria-pressed`.
+- Existing source labels, truth/status badges, All/People/Vehicles filters and Replay timing remain.
+- Keyboard, 375px and landscape layouts work without page-level horizontal overflow.
+
+### Assumptions and exclusions
+
+- “Default small icon” means the existing source colour/symbol becomes the direct toggle.
+- Initial source selection remains unchanged; this request changes control ergonomics, not defaults.
+- No new source, ontology rule, evidence weight, dataset or icon-library dependency is added.
+
+### File-level implementation plan
+
+- `site/app/MovementCanvas.tsx`: render the source marker as a semantic toggle bound to existing state.
+- `site/app/layerModel.mjs`: expose the existing immutable add/remove operation for direct testing.
+- `site/app/globals.css`: compact icon, pressed, focus and muted states without layout shift.
+- `site/tests/layer-model.test.mjs` and `site/tests/rendered-html.test.mjs`: prove one icon changes
+  exactly one source and retains accessible state.
+
+### Rejected major alternatives
+
+- Do not make the whole row an unlabeled click target; it obscures the action and harms keyboard use.
+- Do not add a full icon package for five controls.
+
+### Errors encountered
+
+| Error | Attempt | Resolution |
+|---|---:|---|
+| Looked for a non-existent `site/lib/investigationSources.mjs` | 1 | Use the imported `site/app/layerModel.mjs` and `site/lib/replaySourceWorkspace.mjs`. |
+| Sandboxed build could not spawn the compiler | 1 | Re-ran the same build with the existing scoped build approval. |
+| First build found an unclosed icon span | 1 | Corrected it to a self-closing decorative span, then rebuilt successfully. |
+
+---

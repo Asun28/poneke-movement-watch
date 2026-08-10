@@ -47,6 +47,13 @@ export function sourceLayerState(source) {
   };
 }
 
+export function toggleSourceSelection(selectedSourceIds, sourceId) {
+  const next = new Set(selectedSourceIds);
+  if (next.has(sourceId)) next.delete(sourceId);
+  else next.add(sourceId);
+  return next;
+}
+
 export function filterSourcesByOperationsTarget(sources, target, query) {
   const normalizedQuery = query.trim().toLowerCase();
   return sources.filter((source) => {

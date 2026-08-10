@@ -156,6 +156,11 @@ test("renders a collapsible per-source layer workspace with selected-data replay
   assert.doesNotMatch(html, /0 playable records/);
   assert.equal((html.match(/data-source-layer=/g) ?? []).length, 1);
   assert.equal((html.match(/data-playable="true"/g) ?? []).length, 1);
+  assert.match(html, /data-selected="true"/);
+  assert.match(html, /class="source-layer-toggle is-selected"/);
+  assert.match(html, /aria-pressed="true"/);
+  assert.match(html, /aria-label="Remove WCC Transport Sensors source layer"/);
+  assert.doesNotMatch(html, /id="source-layer-wcc-transport-sensors"/);
 });
 
 test("renders a paused-only map inspection layer with a keyboard alternative", async () => {
