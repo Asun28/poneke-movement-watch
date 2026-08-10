@@ -32,6 +32,7 @@ export default function IntegrationPage() {
             <a href="/api/integration/v1/contracts"><span>Provider contracts</span><code>/api/integration/v1/contracts</code></a>
             <a href="/api/integration/v1/snapshot"><span>Current snapshot</span><code>/api/integration/v1/snapshot</code></a>
             <a href="/api/alerts/v1/candidates"><span>Alert candidates</span><code>/api/alerts/v1/candidates</code></a>
+            <a href="/api/integration/v1/workflow-adapters"><span>Workflow mock adapters</span><code>/api/integration/v1/workflow-adapters</code></a>
             <a href="/cop/v2/observations.geojson"><span>Replay observations</span><code>/cop/v2/observations.geojson</code></a>
             <a href="/cop/v2/source-registry.json"><span>Source registry</span><code>/cop/v2/source-registry.json</code></a>
             <a href="/cop/v3/city-ontology.json"><span>City ontology</span><code>/cop/v3/city-ontology.json</code></a>

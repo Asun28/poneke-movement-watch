@@ -6,6 +6,7 @@ import { buildLiveSnapshot, buildSourceContracts, createAlertCandidates } from "
 import { makeLiveAdapters } from "../lib/liveAdapters.mjs";
 import { PROVIDER_FIXTURES } from "../lib/providerFixtures.mjs";
 import { SOURCE_MANIFEST } from "../lib/sourceManifest.mjs";
+import { prepareWorkflowMock, workflowAdapterCatalog } from "../lib/workflowAdapters.mjs";
 
 interface Env {
   ASSETS: Fetcher;
@@ -41,10 +42,25 @@ async function handleIntegrationApi(request: Request, pathname: string) {
       status: 204,
       headers: {
         "access-control-allow-origin": "*",
-        "access-control-allow-methods": "GET, OPTIONS",
+        "access-control-allow-methods": "GET, POST, OPTIONS",
         "access-control-allow-headers": "accept, content-type",
       },
     });
+  }
+  if (pathname === "/api/integration/v1/workflow-adapters") {
+    if (request.method === "GET") return jsonResponse(workflowAdapterCatalog());
+    if (request.method === "POST") {
+      try {
+        const body = await request.json() as { adapter_id?: string; case?: Record<string, unknown> };
+        return jsonResponse(prepareWorkflowMock(body.adapter_id, body.case));
+      } catch (error) {
+        const code = error instanceof Error && "code" in error
+          ? String(error.code)
+          : "invalid_workflow_request";
+        return jsonResponse({ error: code }, { status: 400 });
+      }
+    }
+    return jsonResponse({ error: "method_not_allowed" }, { status: 405, headers: { allow: "GET, POST, OPTIONS" } });
   }
   if (request.method !== "GET") {
     return jsonResponse({ error: "method_not_allowed" }, { status: 405, headers: { allow: "GET, OPTIONS" } });

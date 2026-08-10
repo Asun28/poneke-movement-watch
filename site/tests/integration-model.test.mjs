@@ -8,6 +8,7 @@ import {
   createAlertCandidates,
 } from "../lib/dataIntegration.mjs";
 import { isActiveProviderEvent, normaliseProviderTime, parseRssObservations } from "../lib/liveAdapters.mjs";
+import { PROVIDER_FIXTURES } from "../lib/providerFixtures.mjs";
 
 const registry = JSON.parse(
   await readFile(new URL("../public/cop/v2/source-registry.json", import.meta.url), "utf8"),
@@ -223,4 +224,17 @@ test("keeps only road events that overlap the current snapshot window", () => {
   assert.equal(isActiveProviderEvent({ StartDate: "2026-08-10T00:00:00Z", EndDate: "2026-08-10T02:00:00Z", Status: "Active" }, now), true);
   assert.equal(isActiveProviderEvent({ StartDate: "2026-08-11T00:00:00Z", Status: "Scheduled" }, now), false);
   assert.equal(isActiveProviderEvent({ StartDate: "2026-08-09T00:00:00Z", Status: "Resolved" }, now), false);
+});
+
+test("publishes the complete privacy-safe WCC TICKET_DETAIL mock envelope", () => {
+  const [ticket] = PROVIDER_FIXTURES["wcc-ticket-detail"];
+  assert.deepEqual(Object.keys(ticket).filter((key) => !key.startsWith("_")).sort(), [
+    "CLOSED_AT", "CREATED_AT", "CURRENT_STATUS", "DUE_BY_TIME", "GROUP_NAME",
+    "INCIDENT_ADDRESS", "LATITUDE", "LOCATION", "LONGITUDE", "PRIORITY",
+    "REQUESTER_NAME", "SERVICE_ITEM", "SERVICE_ITEM_L2", "SOURCE_DERIVED",
+    "TICKET_DESCRIPTION", "TICKET_ID", "TICKET_TAGS", "TRIAGED_AT",
+  ].sort());
+  assert.equal(ticket.REQUESTER_NAME, null);
+  assert.equal(ticket.INCIDENT_ADDRESS, null);
+  assert.equal(ticket.TICKET_DESCRIPTION, null);
 });

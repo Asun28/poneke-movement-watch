@@ -120,6 +120,7 @@ test("renders truth, access and runtime health as separate integration dimension
   assert.match(html, /Mock · zero evidence weight/);
   assert.match(html, /Google Routes API/);
   assert.match(html, /NEMA Emergency Mobile Alert/);
+  assert.match(html, /\/api\/integration\/v1\/workflow-adapters/);
   assert.match(html, /href="\/setup"/);
   assert.match(html, /Add source/);
 });
@@ -165,6 +166,90 @@ test("provides a focused editable review ticket without changing system truth", 
   assert.match(html, /System severity/);
   assert.match(html, /Observed/);
   assert.doesNotMatch(html, /name="severity"/);
+});
+
+test("provides the complete mock investigation workflow without sending externally", async () => {
+  const html = await (await request("/alerts")).text();
+  assert.match(html, /Workflow actions/);
+  assert.match(html, /Mock only · nothing is sent/);
+  assert.match(html, />WCC ticket</);
+  assert.match(html, />Replay Analyzer handoff</);
+  assert.match(html, />WCC field dispatch</);
+  assert.match(html, />Leadership notification</);
+  assert.match(html, />Civil Defence .* NEMA escalation</);
+  assert.match(html, />Public warning .* social media</);
+  assert.match(html, /Prepare mock/);
+});
+
+test("serves provider-shaped workflow mocks and never reports a dispatch", async () => {
+  const catalogueResponse = await request("/api/integration/v1/workflow-adapters");
+  assert.equal(catalogueResponse.status, 200);
+  const catalogue = await catalogueResponse.json();
+  assert.deepEqual(catalogue.adapters.map((adapter) => adapter.id), [
+    "wcc-ticket",
+    "replay-case-handoff",
+    "wcc-field-dispatch",
+    "wcc-leadership-notification",
+    "civil-defence-nema-escalation",
+    "public-warning-social",
+  ]);
+
+  let wccTicket;
+  for (const adapter of catalogue.adapters) {
+    const resultResponse = await request("/api/integration/v1/workflow-adapters", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        adapter_id: adapter.id,
+        case: {
+          case_id: "candidate:test:1",
+          title: "Movement change needs investigation",
+          severity: "high",
+          source_id: "wcc-transport-sensors",
+          observed_at: "2026-08-10T01:00:00.000Z",
+          affected_area: "Berhampore",
+        },
+      }),
+    });
+    assert.equal(resultResponse.status, 200, adapter.id);
+    const result = await resultResponse.json();
+    assert.equal(result.adapter_id, adapter.id);
+    assert.equal(result.mode, "mock");
+    assert.equal(result.is_synthetic, true);
+    assert.equal(result.dispatched, false);
+    assert.equal(result.evidence_weight, 0);
+    assert.equal(result.status, "prepared_not_sent");
+    if (adapter.id === "wcc-ticket") wccTicket = result;
+  }
+
+  assert.deepEqual(Object.keys(wccTicket.provider_payload).sort(), [
+    "CLOSED_AT", "CREATED_AT", "CURRENT_STATUS", "DUE_BY_TIME", "GROUP_NAME",
+    "INCIDENT_ADDRESS", "LATITUDE", "LOCATION", "LONGITUDE", "PRIORITY",
+    "REQUESTER_NAME", "SERVICE_ITEM", "SERVICE_ITEM_L2", "SOURCE_DERIVED",
+    "TICKET_DESCRIPTION", "TICKET_ID", "TICKET_TAGS", "TRIAGED_AT",
+  ].sort());
+  assert.equal(wccTicket.provider_payload.CURRENT_STATUS, "OPEN");
+  assert.equal(wccTicket.provider_payload.PRIORITY, 1);
+  assert.equal(wccTicket.provider_payload.SOURCE_DERIVED, "Website");
+  assert.deepEqual(wccTicket.provider_payload.TICKET_TAGS, ["Weather Event", "Berhampore", "escalation"]);
+  assert.equal(wccTicket.provider_payload.REQUESTER_NAME, null);
+  assert.equal(wccTicket.provider_payload.INCIDENT_ADDRESS, null);
+  assert.equal(wccTicket.provider_payload.TICKET_DESCRIPTION, null);
+  assert.equal(wccTicket.provider_payload.LOCATION, "Berhampore");
+  assert.equal(wccTicket.privacy.requester_name, "removed");
+
+  const invalidResponse = await request("/api/integration/v1/workflow-adapters", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      adapter_id: "send-everywhere",
+      case: {
+        case_id: "candidate:test:1",
+      },
+    }),
+  });
+  assert.equal(invalidResponse.status, 400);
+  assert.deepEqual(await invalidResponse.json(), { error: "unknown_workflow_adapter" });
 });
 
 test("keeps routine screens concise and moves guidance into closed help", async () => {

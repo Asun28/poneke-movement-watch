@@ -7,6 +7,7 @@ const fixtureMeta = {
 export const PROVIDER_FIXTURES = {
   "wcc-ticket-detail": [{
     TICKET_ID: "MOCK-WCC-001",
+    INCIDENT_ADDRESS: null,
     LOCATION: "Synthetic Wellington location",
     LONGITUDE: 174.7762,
     LATITUDE: -41.2865,
@@ -15,9 +16,12 @@ export const PROVIDER_FIXTURES = {
     DUE_BY_TIME: null,
     CURRENT_STATUS: "OPEN",
     CLOSED_AT: null,
-    SERVICE_ITEM: "Roads",
-    SERVICE_ITEM_L2: "Slips",
+    SERVICE_ITEM: "Weather Event",
+    SERVICE_ITEM_L2: "Flooding",
+    TICKET_DESCRIPTION: null,
     PRIORITY: 2,
+    GROUP_NAME: "Emergency Management (mock)",
+    REQUESTER_NAME: null,
     SOURCE_DERIVED: "Website",
     TICKET_TAGS: ["synthetic"],
     _privacy_transform: "Sensitive identity, address and free-text fields removed before publication.",

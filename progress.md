@@ -372,3 +372,26 @@
 
 - 2026-08-10: Started the source-verification and implementation audit. Locked the design to a Live Operations 回测 action that opens a separate retrospective workflow rather than changing live time.
 - 2026-08-10: Verified the official GW, WCC and NZTA April-event evidence, including the contradictory 20/24 April rainfall date and road closure/reopening chronology.
+## Phase 19 — workflow mock adapters
+
+- 2026-08-10: Started Phase 19 from the user-supplied WCC TICKET_DETAIL field
+  list and the previously agreed alert-to-case response workflow.
+- 2026-08-10: Audited current provider fixtures, Alert Centre and worker routing.
+  Selected six deterministic mock adapters with zero dispatch/evidence weight
+  and retained the existing PII removal boundary.
+- 2026-08-10: Recorded two audit path errors in the plan and corrected the
+  implementation target to the existing worker router.
+- 2026-08-10: Agent Reach/Jina verified the supplied NZTA TMS endpoint metadata
+  and confirmed it remains a non-spatial ArcGIS table with the documented ten
+  fields and pagination cap; no source activation or ontology role changed.
+- 2026-08-10: The first RED attempt errored before behavior because it imported
+  the not-yet-created module and used unescaped regex delimiters. Reframed the
+  tests around the real worker API boundary so the next RED can fail on the
+  absent catalogue, POST behavior and Alert Centre controls.
+- 2026-08-10: Behavioral RED confirmed three missing outcomes: incomplete WCC
+  provider fields, no workflow API, and no Alert Centre workflow controls.
+- 2026-08-10: GREEN passes all 44 site tests after adding six deterministic mock
+  adapter contracts, GET/POST preparation API, privacy-safe WCC TICKET_DETAIL
+  envelope, compact Alert Centre preparation UI and Replay case handoff link.
+
+---

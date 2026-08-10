@@ -1,5 +1,71 @@
 # Pōneke Movement Watch — evidence ontology roadmap
 
+## Phase 19 — investigation workflow mock adapters
+
+### Goal
+
+Provide a complete, clearly synthetic adapter chain from an alert candidate to
+WCC case/ticket handling, Replay Analyzer investigation, internal escalation,
+authorised-agency coordination and public-warning preparation.
+
+### Status
+
+- [completed] Audit the supplied TICKET_DETAIL fields and current alert/provider boundaries.
+- [completed] Define privacy-safe workflow adapter contracts and RED behavior tests.
+- [completed] Implement six deterministic zero-dispatch mock adapters and API surface.
+- [completed] Add a compact Alert Centre workflow action panel and Replay handoff.
+- [pending] Verify regressions, documentation and owner-only deployment.
+
+### Acceptance criteria
+
+- Six adapters are available: WCC ticket, Replay handoff, field dispatch,
+  leadership notification, Civil Defence/NEMA escalation, and public warning/social.
+- Every result declares `mode: mock`, `is_synthetic: true`, `dispatched: false`
+  and `evidence_weight: 0`; no network write or external message occurs.
+- The WCC ticket mock preserves all supplied TICKET_DETAIL attribute names and
+  allowed status/priority/source shapes while nulling requester identity, exact
+  address and unrestricted description in the public demo.
+- Alert Centre can prepare and inspect each adapter output and open Replay
+  Analyzer with a case reference; preparing a mock never confirms an incident.
+- Real, paid, permissioned and restricted provider states remain unchanged.
+
+### Assumptions and exclusions
+
+- “All mock adapters” means the complete response workflow described in the
+  immediately preceding request, not every registered data-source mock fixture.
+- Non-WCC outbound shapes are demo integration contracts until the owning
+  organisation supplies an authorised interface specification.
+- No real WCC ticket is created, no leader/NEMA/Civil Defence contact is made,
+  and no public or social message is published.
+- No personal data, credentials, new live source or model training is in scope.
+
+### File-level plan
+
+- `site/tests/integration-model.test.mjs`, `site/tests/operator-console.test.mjs`:
+  mock safety, field fidelity, API and operator-workflow behavior.
+- `site/lib/workflowAdapters.mjs`, `site/worker/index.ts`: deterministic adapter
+  catalogue, request/result contracts and read-only mock execution endpoint.
+- `site/app/components/AlertCentreClient.tsx`, `site/app/globals.css`: compact
+  action preparation, output status and Replay handoff.
+- `README.md`, `findings.md`, `progress.md`: schema, privacy and activation boundary.
+
+### Rejected major alternatives
+
+- Do not treat a prepared mock as a sent notification or confirmed incident.
+- Do not copy the full SERVICE_ITEM/SERVICE_ITEM_L2 dictionaries into UI controls.
+- Do not include requester name, exact incident address or unrestricted ticket text.
+
+### Errors encountered
+
+| Error | Attempt | Resolution |
+|---|---:|---|
+| Initial API audit assumed Next route files under `site/app/api`. | 1 | Located the existing API router in `site/worker/index.ts`; use that surface. |
+| A wildcard path was passed literally to `rg` on Windows. | 1 | Search explicit directories/files rather than retrying the invalid wildcard. |
+| Agent Reach Jina verification was blocked by the workspace network proxy. | 1 | Retry the same read-only official-service metadata request with network approval. |
+| First RED run had a missing-module import and two unescaped `/` regex delimiters, so tests errored before exercising behavior. | 1 | Move adapter assertions to the real worker boundary and use safe regex patterns; rerun until failures are behavioral. |
+
+---
+
 ## Phase 18 — clear source labels and operator-module separation
 
 ### Goal

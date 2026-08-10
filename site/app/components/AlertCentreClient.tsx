@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
+import { WORKFLOW_ADAPTERS } from "../../lib/workflowAdapters.mjs";
 
 type Candidate = {
   id: string;
@@ -26,6 +27,13 @@ type ReviewDraft = {
   assignee: string;
   note: string;
   updatedAt: string;
+};
+type WorkflowResult = {
+  adapter_id: string;
+  adapter_name: string;
+  status: string;
+  dispatched: boolean;
+  provider_payload: Record<string, unknown>;
 };
 
 const STORAGE_KEY = "poneke-alert-review-drafts-v1";
@@ -57,6 +65,9 @@ export default function AlertCentreClient() {
   const [statusFilter, setStatusFilter] = useState<"all" | ReviewStatus>("all");
   const [drafts, setDrafts] = useState<Record<string, ReviewDraft>>({});
   const [notice, setNotice] = useState("");
+  const [workflowAdapterId, setWorkflowAdapterId] = useState(WORKFLOW_ADAPTERS[0].id);
+  const [workflowState, setWorkflowState] = useState<"idle" | "preparing" | "ready" | "error">("idle");
+  const [workflowResult, setWorkflowResult] = useState<WorkflowResult | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -125,6 +136,33 @@ export default function AlertCentreClient() {
       setNotice("Saved locally");
     } catch {
       setNotice("Could not save on this browser");
+    }
+  }
+
+  async function prepareWorkflow() {
+    setWorkflowState("preparing");
+    setWorkflowResult(null);
+    try {
+      const response = await fetch("/api/integration/v1/workflow-adapters", {
+        method: "POST",
+        headers: { "content-type": "application/json", accept: "application/json" },
+        body: JSON.stringify({
+          adapter_id: workflowAdapterId,
+          case: {
+            case_id: selected?.id ?? "mock-preview",
+            title: selected?.title ?? preview.title,
+            severity: selected?.severity ?? "unassigned",
+            source_id: selected?.source_id ?? "synthetic-fixture",
+            observed_at: selected?.observed_at ?? null,
+            affected_area: selected ? "Wellington impact area" : "Synthetic Wellington area",
+          },
+        }),
+      });
+      if (!response.ok) throw new Error("Mock adapter unavailable");
+      setWorkflowResult(await response.json() as WorkflowResult);
+      setWorkflowState("ready");
+    } catch {
+      setWorkflowState("error");
     }
   }
 
@@ -231,6 +269,48 @@ export default function AlertCentreClient() {
             <span aria-live="polite">{notice || (activeDraft.updatedAt ? "Saved on this browser" : "This browser only")}</span>
           </div>
         </form>
+
+        <section className="alert-workflow-section" aria-labelledby="alert-workflow-title">
+          <header>
+            <h2 id="alert-workflow-title">Workflow actions</h2>
+            <span>Mock only · nothing is sent</span>
+          </header>
+          <div className="alert-workflow-controls">
+            <label>
+              <span>Adapter</span>
+              <select
+                aria-label="Choose workflow mock adapter"
+                value={workflowAdapterId}
+                onChange={(event) => { setWorkflowAdapterId(event.target.value); setWorkflowResult(null); setWorkflowState("idle"); }}
+              >
+                {WORKFLOW_ADAPTERS.map((adapter) => (
+                  <option key={adapter.id} value={adapter.id}>{adapter.name}</option>
+                ))}
+              </select>
+            </label>
+            <button type="button" onClick={() => void prepareWorkflow()} disabled={workflowState === "preparing"}>
+              {workflowState === "preparing" ? "Preparing…" : "Prepare mock"}
+            </button>
+          </div>
+          <div className="alert-workflow-result" aria-live="polite">
+            {workflowState === "error" ? <strong>Mock adapter unavailable</strong> : null}
+            {workflowResult ? (
+              <>
+                <div>
+                  <strong>{workflowResult.adapter_name} prepared</strong>
+                  <span>Not sent · zero evidence weight</span>
+                </div>
+                {workflowResult.adapter_id === "replay-case-handoff" && typeof workflowResult.provider_payload.replay_url === "string" ? (
+                  <a href={workflowResult.provider_payload.replay_url}>Open case in Replay</a>
+                ) : null}
+                <details>
+                  <summary>View mock payload</summary>
+                  <pre>{JSON.stringify(workflowResult.provider_payload, null, 2)}</pre>
+                </details>
+              </>
+            ) : null}
+          </div>
+        </section>
 
         <section className="alert-evidence-section" aria-labelledby="alert-evidence-title">
           <header><h2 id="alert-evidence-title">Evidence</h2><span>Read-only</span></header>

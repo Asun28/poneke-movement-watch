@@ -869,3 +869,38 @@ supports spatial event-footprint resolution, never direct building-damage claims
 - GW's monitoring article records the Hutt River at Taitā Gorge peaking near 475 m³/s at 22:30 on Monday 20 April; the same article confirms Pāuatahanui impacts beginning Saturday 18 April.
 - WCC's report index describes the 20 April 2026 severe weather event and later emergency-event/rates-relief action. This is retrospective ground truth, not an input available during the event.
 - NZTA bulletins provide event-time road labels: SH58 flooding/closure and partial reopening from 18–19 April, then SH2 Remutaka washout closure on 21 April and temporary repair/reopening by 06:20 on 22 April.
+## Phase 19 — workflow mock adapter findings
+
+- The supplied WCC `TICKET_DETAIL` contract contains: `TICKET_ID`,
+  `INCIDENT_ADDRESS`, `LOCATION`, `LONGITUDE`, `LATITUDE`, `CREATED_AT`,
+  `TRIAGED_AT`, `DUE_BY_TIME`, `CURRENT_STATUS`, `CLOSED_AT`, `SERVICE_ITEM`,
+  `SERVICE_ITEM_L2`, `TICKET_DESCRIPTION`, `PRIORITY`, `GROUP_NAME`,
+  `REQUESTER_NAME`, `SOURCE_DERIVED` and `TICKET_TAGS`.
+- Supplied status values are CLOSED, OPEN, PENDING, ENHANCEMENT, ACTIVE and
+  UNKNOWN; priorities are 1–4; source values are Phone, FIXiT, Website and Email.
+- The existing fixture omits `INCIDENT_ADDRESS`, `TICKET_DESCRIPTION`,
+  `GROUP_NAME` and `REQUESTER_NAME`, so it does not yet demonstrate the complete
+  provider field envelope requested by the user.
+- Existing privacy policy already requires requester identity to be dropped and
+  exact address/free text to be withheld from public output. The complete mock
+  can retain the keys with `null` values and an explicit privacy transform.
+- The existing worker owns `/api/integration/v1/*` and `/api/alerts/v1/*`; the
+  new mock workflow endpoint belongs there rather than in an App Router route.
+- The workflow described in the prior turn needs six distinct outcomes:
+  ticket/case sync, Replay handoff, field dispatch, leadership brief,
+  Civil Defence/NEMA escalation and public-warning/social preparation.
+- External attachment content is treated as untrusted schema evidence only; it
+  authorises no real API write and supplies no official outbound contract for
+  the non-WCC notification adapters.
+- Agent Reach/Jina independently confirmed the attached NZTA endpoint is the
+  official `TMS_traffic_counts` ArcGIS **Table**, not a spatial layer. Its live
+  field contract is `OBJECTID`, `startDate`, `siteID`, `regionName`, `SiteRef`,
+  `classWeight`, `siteDescription`, `laneNumber`, `flowDirection` and
+  `trafficCount`; the endpoint declares Query/Extract and a 2,000 record cap.
+  This verification does not change its existing non-spatial/context boundary.
+- The current integration APIs are GET-only and CORS-enabled. A safe demo can
+  expose a GET catalogue and accept POST only on a dedicated mock execution
+  endpoint whose result remains `dispatched: false`; existing live snapshot and
+  alert candidate paths need not change.
+
+---

@@ -82,7 +82,7 @@ flowchart LR
 | Route | Module | Purpose |
 |---|---|---|
 | `/live` | Live Operations | Map current permitted observations and distinguish live, empty, stale and unavailable sources. |
-| `/alerts` | Alert Centre | Search a compact ticket queue, assign local review drafts and inspect read-only evidence. |
+| `/alerts` | Alert Centre | Review candidates, prepare mock workflow actions and inspect read-only evidence. |
 | `/replay` | Replay Analyzer | Reconstruct the 2026 WCC sensor history with date/hour/speed and matched-hour trends. |
 | `/integration` | Data Integration | Inspect all 33 provider contracts, access/cost state, raw format and runtime policy. |
 | `/setup` | Easy setup | Prepare a data source, API/MCP/A2A connection or operator defaults as a safe local draft. |
@@ -96,6 +96,25 @@ assignee and notes, then save a draft on the current browser. Severity, source,
 observation time and evidence remain read-only. These drafts are not shared
 records; a production multi-user queue still requires authenticated server-side
 storage and audit history.
+
+### Investigation workflow mocks
+
+Alert Centre can prepare six deterministic mock actions: WCC ticket, Replay
+Analyzer handoff, WCC field dispatch, leadership notification, Civil
+Defence/NEMA escalation, and a public-warning/social draft. Every result is
+synthetic, remains `prepared_not_sent`, carries zero evidence weight and performs
+no external write.
+
+The WCC ticket mock preserves the supplied `TICKET_DETAIL` keys: `TICKET_ID`,
+`INCIDENT_ADDRESS`, `LOCATION`, `LONGITUDE`, `LATITUDE`, `CREATED_AT`,
+`TRIAGED_AT`, `DUE_BY_TIME`, `CURRENT_STATUS`, `CLOSED_AT`, `SERVICE_ITEM`,
+`SERVICE_ITEM_L2`, `TICKET_DESCRIPTION`, `PRIORITY`, `GROUP_NAME`,
+`REQUESTER_NAME`, `SOURCE_DERIVED` and `TICKET_TAGS`. Public mock output sets
+requester name, exact address and unrestricted description to `null`.
+
+Non-WCC notification shapes are demo contracts only. Real activation requires
+the owning organisation's authorised interface, credentials, role permissions,
+audit logging and approval workflow.
 
 ### Easy setup
 
@@ -118,6 +137,8 @@ unavailable or stale is never translated to “no incident”.
 GET /api/integration/v1/contracts   # all 33 provider contracts
 GET /api/integration/v1/snapshot    # normalized current records + per-source health
 GET /api/alerts/v1/candidates       # review-only deterministic candidates
+GET /api/integration/v1/workflow-adapters   # six safe mock action contracts
+POST /api/integration/v1/workflow-adapters  # prepare one mock; never dispatch
 ```
 
 Each source contract carries ontology role, access/cost, raw provider format,
