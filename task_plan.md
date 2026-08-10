@@ -1,5 +1,61 @@
 # Pōneke Movement Watch — evidence ontology roadmap
 
+## Phase 38 — unified map-first Live workspace
+
+### Goal
+
+Combine Evidence Inbox, Map and zero-weight city context into one map-first Live Operations
+workspace that remains readable under load and works like a familiar consumer map.
+
+### Status
+
+- [completed] Audit the current Live view, map interaction and rendered contracts.
+- [completed] Add failing unified-workspace, overlay and responsive behavior tests.
+- [completed] Implement the large map, compact inbox, layer picker and map detail card.
+- [completed] Verify build, accessibility, regressions and source-truth boundaries.
+- [pending] Deploy to the existing owner-only site.
+
+### Acceptance criteria
+
+- Live Operations opens directly on one large street map; Inbox and Context are map overlays,
+  not separate primary views.
+- A compact left panel groups promoted candidates and raw/source health without covering most
+  of the map; it can collapse to a single control.
+- A layer control can independently show/hide primary evidence, sensors, access impacts and
+  planned city context. Mock/context records remain visibly zero weight.
+- Nearby points are grouped at broad zoom and individual street-level markers remain selectable
+  after zooming; hover is optional and every detail is keyboard/click accessible.
+- Selecting an inbox item or map marker opens one concise detail card with source, freshness,
+  evidence state and review action.
+- Existing 50–1000% zoom, pan, fullscreen, attribution, source truth, candidate gating and
+  Signal Review handoff do not regress.
+- Desktop uses a map-first overlay layout; mobile uses a large map plus bottom-sheet style
+  inbox/detail surfaces without horizontal overflow.
+
+### Assumptions and exclusions
+
+- This is a presentation and interaction refactor over existing normalized Live data.
+- No Google Maps or paid Google API is added; the existing OpenStreetMap basemap stays.
+- No new data source, evidence score, model training, alert rule or external write is introduced.
+- Context layers never become incident evidence; Mock remains zero weight.
+- GitHub origin and remote `main` remain unchanged.
+
+### File-level plan
+
+- `site/tests/operator-console.test.mjs`, `site/tests/integration-model.test.mjs`: unified map,
+  overlay selection and truth-boundary contracts.
+- `site/app/components/LiveOperationsClient.tsx`, `site/app/components/LiveMap.tsx`: map-first
+  composition, collapsible inbox, layer picker and shared selection.
+- `site/app/globals.css`: large-map layout, overlay panels, responsive bottom sheets and focus.
+- `README.md`, `findings.md`, `progress.md`: operator workflow and verification evidence.
+
+### Rejected major alternatives
+
+- Do not keep three equal tabs; they fragment one operator task.
+- Do not copy Google Maps branding, tiles or commercial APIs.
+- Do not render every raw record as an alert marker or force staff to inspect 1,000 signals.
+- Do not make hover the only way to inspect evidence.
+
 ## Phase 37 — selectable Replay investigations
 
 ### Goal

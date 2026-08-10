@@ -7,8 +7,8 @@ multiple dashboards without collapsing observations into confirmed incidents.
 
 **Live demo:** [poneke-movement-watch.sun28long.chatgpt.site](https://poneke-movement-watch.sun28long.chatgpt.site/)
 
-The deployed view opens in **Live Operations → Evidence Inbox**. **Replay Analyzer** retains every
-published hour from 1–6 August 2026, including 12:00 Thursday 6 August. This is
+The deployed view opens on one map-first **Live Operations** workspace. **Replay Analyzer** retains
+every published hour from 1–6 August 2026, including 12:00 Thursday 6 August. This is
 a decision-support prototype, not an emergency dispatch or public warning system.
 
 ## Problem 05
@@ -21,12 +21,21 @@ hourly count with the same weekday and hour in recent history, maps only changes
 that pass conservative gates, and shows the evidence an operator would need to
 investigate. A signal never declares the cause or confirms an incident.
 
-## Historical replay
+## Live map workspace
 
-Live Operations groups raw observations before review. Official warnings and natural-hazard
+Live Operations places the street map, Evidence Inbox, layer controls, city context and selected
+record in one workspace. The Inbox collapses; domain chips and exact source switches filter the
+same normalized records. Nearby points group at broad zoom and separate at street zoom, so a high
+record count does not become a wall of overlapping symbols.
+
+Official warnings and natural-hazard
 signals, sensor anomalies, or a public report aligned with a nearby sensor change can be
 promoted to Signal Review. Standalone roads, planned events, flights, cruise calls, Mock and
 stale records stay held or in zero-weight context. Human staff decide whether to create a case.
+City context has no earned geometry, so it appears as a compact overlay and is never placed at a
+fabricated map location.
+
+## Historical replay
 
 Replay opens with an **Investigation** selector. **April Storm · 18–22 Apr 2026** is a
 read-only packaged case backed by 1,683 official historical GWRC Hilltop sensor records;
@@ -100,7 +109,7 @@ flowchart LR
 
 | Route | Module | Purpose |
 |---|---|---|
-| `/live` | Live Operations | Group current evidence first, then inspect the map and zero-weight city context. |
+| `/live` | Live Operations | Inspect grouped evidence, map layers and zero-weight city context in one map-first workspace. |
 | `/alerts` | Signal Review | Triage candidates, investigate cases, classify outcomes, prepare approval packs and inspect read-only evidence. |
 | `/replay` | Replay Analyzer | Select April Storm or August movement cases, create local investigation drafts and inspect bounded historical evidence. |
 | `/integration` | Data Integration | Review all 33 source contracts, access, runtime health, provider formats and integration endpoints. |

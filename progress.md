@@ -1,5 +1,25 @@
 # Progress — Phase 2 ontology and sources
 
+## Phase 38 — unified map-first Live workspace
+
+- 2026-08-11: Started the Live map-first redesign. Fixed the scope at one large OpenStreetMap
+  workspace with collapsible Inbox, layer picker and detail overlay; existing evidence gates,
+  zero-weight context, source truth and 1000% map controls remain unchanged.
+- 2026-08-11: Audited the existing React/vinext Live components. Confirmed the change can reuse
+  all current snapshot state and map behavior; only the three-tab composition, point grouping
+  and overlay controls need to change. Context has no earned geometry and will stay an overlay.
+- 2026-08-11: Defined the six spatial domain layers from existing source roles and observation
+  kinds, plus a separate non-spatial City context panel. Exact source switches remain nested
+  under Layers so operator grouping never overwrites integration truth.
+- 2026-08-11: TDD RED confirmed the missing map-layer classifier, combined source/layer filter
+  and broad-zoom clustering contract. TDD GREEN now passes for all three.
+- 2026-08-11: Replaced the three primary tabs with one large map. Evidence Inbox, six domain
+  chips, exact feed controls, city context and selected-record details are collapsible overlays;
+  promoted evidence receives a visible ring and broad-zoom records cluster before street zoom.
+- 2026-08-11: Production build, 76/76 behavior tests and ESLint pass. Keyboard alternatives,
+  44px controls, visible focus, reduced motion, 70–1000% zoom, fullscreen, source truth and
+  zero-weight context boundaries remain intact. Owner-only deployment is next.
+
 ## Phase 37 — selectable Replay investigations
 
 - 2026-08-11: Audited Replay query handoffs, April event-pack metadata, the August player,

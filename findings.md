@@ -1,5 +1,45 @@
 # Findings — Phase 2 ontology and sources
 
+## Phase 38 — unified map-first Live workspace
+
+- The supplied Google Maps reference is valuable for interaction hierarchy, not provider
+  branding: one dominant map, floating search/filter controls, independent layers, anchored
+  zoom controls and one selected-place card.
+- The emergency adaptation should replace consumer POI categories with evidence domains and
+  keep provenance, freshness, review state and zero-weight context visible.
+- The safest information hierarchy is Map first; promoted Inbox items in a collapsible left
+  overlay; layer/source controls in a compact top or right overlay; selected evidence in one
+  anchored detail card. Raw volume is summarized rather than plotted as alert markers.
+- Current Live already has the necessary state and data: selected source IDs, selected
+  observation, promoted candidates, monitoring groups, context cards and one canvas map.
+  The fragmentation comes from `activeView` plus three tab panels, not from missing data.
+- `LiveMap` already provides OpenStreetMap tiles, 70–1000% zoom, pan, fullscreen, hover and
+  click selection. It draws every visible record individually and has no grouping contract;
+  broad-zoom clustering belongs in the map projection, not the evidence model.
+- Context cards have no earned geometry. They may be toggled as a zero-weight map overlay
+  panel, but must not be fabricated into city markers. Exact source checkboxes remain useful
+  inside an expandable Layers control beneath four operator-facing domain groups.
+- The local UI search reinforced 44px targets, 8px gaps, logical keyboard order, visible focus,
+  reserved loading space, touch/click as the primary action and no hover-only details. Its
+  suggested dark exaggerated-minimal landing style is rejected as inappropriate for an
+  existing light, public-sector operations dashboard.
+- Live contracts expose reliable `role`, connector/runtime state and evidence weight per
+  source, while observations expose kind and geometry. Domain layers can therefore be
+  derived without changing ontology or API shape: promoted evidence, sensors/weather,
+  warnings/hazards, access impacts, reports and other live context.
+- Some live connectors are context-only or geometry-limited (traffic cameras, parks notices).
+  The source panel must remain the canonical per-feed switch, and a domain toggle must never
+  imply that every record in that domain has a mappable point.
+- The implemented map projection uses deterministic screen-cell clustering below 350% zoom and
+  returns to individual markers above that threshold. Clustering changes only display density;
+  it does not merge observations, evidence IDs or source provenance.
+- One observation may belong to both Review evidence and its evidence domain. It is rendered
+  once, with a review ring while that overlay is active. Turning off the review overlay removes
+  the emphasis without rewriting the underlying sensor, warning, access or report classification.
+- The unified surface preserves click/keyboard detail access, explicit loading and degraded
+  states, 44px targets and reduced-motion behavior. City context remains non-spatial because
+  no current contract earns coordinates for those cards.
+
 ## Phase 37 — selectable Replay investigations
 
 - Replay already accepts `case`, `source` and `as_of` query parameters from Signal Review,

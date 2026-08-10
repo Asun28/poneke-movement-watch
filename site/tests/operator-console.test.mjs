@@ -147,14 +147,27 @@ test("keeps replay controls out of the live module and preserves them in replay"
   assert.match(replay, /Batch replay/);
 });
 
-test("opens Live on a compact evidence inbox before map and zero-weight context", async () => {
+test("opens Live as one map-first workspace with readable evidence overlays", async () => {
   const live = await (await request("/live")).text();
   const review = await (await request("/alerts")).text();
 
-  assert.match(live, /aria-label="Live Operations views"/);
-  assert.ok(live.indexOf("Evidence Inbox") < live.indexOf("Map"));
-  assert.match(live, /aria-selected="true"[^>]*>Evidence Inbox</);
-  assert.match(live, /Grouped before review/);
+  assert.match(live, /aria-label="Unified Live map workspace"/);
+  assert.match(live, /data-live-map-first="true"/);
+  assert.doesNotMatch(live, /aria-label="Live Operations views"/);
+  assert.match(live, /aria-label="Evidence Inbox overlay"/);
+  assert.match(live, /aria-label="Hide Evidence Inbox"/);
+  assert.match(live, /aria-label="Live map overlays"/);
+  assert.match(live, /data-live-layer-toggle="review-evidence"/);
+  assert.match(live, /data-live-layer-toggle="sensors-weather"/);
+  assert.match(live, /data-live-layer-toggle="warnings-hazards"/);
+  assert.match(live, /data-live-layer-toggle="access-impacts"/);
+  assert.match(live, /data-live-layer-toggle="reports"/);
+  assert.match(live, /data-live-layer-toggle="other-live"/);
+  assert.match(live, /aria-label="Live map layers"/);
+  assert.match(live, /Current feeds/);
+  assert.match(live, /aria-label="City context overlay"/);
+  assert.match(live, /aria-label="Selected evidence details"/);
+  assert.match(live, /Search current evidence/);
   assert.match(live, /City events/);
   assert.match(live, /Flights in &amp; out/);
   assert.match(live, /Cruise calls/);

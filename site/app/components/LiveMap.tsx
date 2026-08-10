@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { clusterMapPoints } from "../../lib/liveMapWorkspace.mjs";
 
 type Coordinate = [number, number];
 type Observation = {
@@ -11,7 +12,8 @@ type Observation = {
   geometry: { type: string; coordinates: unknown } | null;
   properties: Record<string, unknown>;
 };
-type Hit = { observation: Observation; x: number; y: number; radius: number };
+type Hit = { observation: Observation; x: number; y: number; radius: number; count: number };
+const EMPTY_IDS = new Set<string>();
 
 const TILE_SIZE = 256;
 const tileCache = new Map<string, HTMLImageElement>();
@@ -116,11 +118,18 @@ function markerStyle(kind: string) {
   return { colour: "#2d7a68", shape: "diamond" };
 }
 
-function drawMarker(context: CanvasRenderingContext2D, point: Coordinate, kind: string, selected: boolean) {
+function drawMarker(context: CanvasRenderingContext2D, point: Coordinate, kind: string, selected: boolean, highlighted: boolean) {
   const { colour, shape } = markerStyle(kind);
   const radius = selected ? 11 : 8;
   context.save();
   context.translate(point[0], point[1]);
+  if (highlighted) {
+    context.strokeStyle = "rgba(199,88,69,.92)";
+    context.lineWidth = 3;
+    context.beginPath();
+    context.arc(0, 0, radius + 7, 0, Math.PI * 2);
+    context.stroke();
+  }
   context.fillStyle = "#f8fbfb";
   context.strokeStyle = selected ? "#102a33" : colour;
   context.lineWidth = selected ? 4 : 3;
@@ -150,6 +159,33 @@ function drawMarker(context: CanvasRenderingContext2D, point: Coordinate, kind: 
   return radius;
 }
 
+function drawCluster(context: CanvasRenderingContext2D, point: Coordinate, count: number, highlighted: boolean) {
+  const radius = Math.min(22, 13 + Math.log2(count) * 3);
+  context.save();
+  context.translate(point[0], point[1]);
+  context.fillStyle = "#173f4b";
+  context.strokeStyle = "rgba(255,255,255,.95)";
+  context.lineWidth = 3;
+  context.beginPath();
+  context.arc(0, 0, radius, 0, Math.PI * 2);
+  context.fill();
+  context.stroke();
+  if (highlighted) {
+    context.strokeStyle = "rgba(199,88,69,.92)";
+    context.lineWidth = 3;
+    context.beginPath();
+    context.arc(0, 0, radius + 5, 0, Math.PI * 2);
+    context.stroke();
+  }
+  context.fillStyle = "#fff";
+  context.font = "700 12px system-ui, sans-serif";
+  context.textAlign = "center";
+  context.textBaseline = "middle";
+  context.fillText(String(count), 0, 0);
+  context.restore();
+  return radius;
+}
+
 function observationLabel(observation: Observation) {
   return String(
     observation.properties.headline
@@ -163,10 +199,12 @@ function observationLabel(observation: Observation) {
 export default function LiveMap({
   observations,
   selectedId,
+  highlightedIds = EMPTY_IDS,
   onSelect,
 }: {
   observations: Observation[];
   selectedId: string | null;
+  highlightedIds?: Set<string>;
   onSelect: (id: string) => void;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -178,7 +216,14 @@ export default function LiveMap({
   const [revision, setRevision] = useState(0);
   const [hovered, setHovered] = useState<Hit | null>(null);
   const [fullscreenError, setFullscreenError] = useState("");
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const plottable = useMemo(() => observations.filter(observationAnchor), [observations]);
+
+  useEffect(() => {
+    const updateFullscreen = () => setIsFullscreen(Boolean(document.fullscreenElement));
+    document.addEventListener("fullscreenchange", updateFullscreen);
+    return () => document.removeEventListener("fullscreenchange", updateFullscreen);
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -195,19 +240,27 @@ export default function LiveMap({
       context.clearRect(0, 0, rect.width, rect.height);
       const viewport = createViewport(rect.width, rect.height, zoom, pan);
       drawTiles(context, rect.width, rect.height, viewport, () => setRevision((value) => value + 1));
-      hitsRef.current = plottable.flatMap((observation) => {
+      const mapPoints = plottable.flatMap((observation) => {
         const anchor = observationAnchor(observation);
         if (!anchor) return [];
         const point = viewport.project(anchor);
-        const radius = drawMarker(context, point, observation.kind, observation.id === selectedId);
-        return [{ observation, x: point[0], y: point[1], radius: radius + 7 }];
+        return [{ id: observation.id, x: point[0], y: point[1], observation }];
+      });
+      hitsRef.current = clusterMapPoints(mapPoints, zoom).map((cluster) => {
+        const observation = cluster.points[0].observation;
+        const selected = cluster.points.some((point) => point.observation.id === selectedId);
+        const highlighted = cluster.points.some((point) => highlightedIds.has(point.observation.id));
+        const radius = cluster.count > 1
+          ? drawCluster(context, [cluster.x, cluster.y], cluster.count, highlighted)
+          : drawMarker(context, [cluster.x, cluster.y], observation.kind, selected, highlighted);
+        return { observation, x: cluster.x, y: cluster.y, radius: radius + 7, count: cluster.count };
       });
     };
     draw();
     const observer = new ResizeObserver(draw);
     observer.observe(canvas);
     return () => observer.disconnect();
-  }, [pan, plottable, revision, selectedId, zoom]);
+  }, [highlightedIds, pan, plottable, revision, selectedId, zoom]);
 
   function localPoint(event: React.PointerEvent): Coordinate {
     const rect = event.currentTarget.getBoundingClientRect();
@@ -239,7 +292,10 @@ export default function LiveMap({
     try {
       setFullscreenError("");
       if (document.fullscreenElement) await document.exitFullscreen();
-      else await stageRef.current?.requestFullscreen();
+      else {
+        const target = stageRef.current?.closest(".live-map-workspace") ?? stageRef.current;
+        await target?.requestFullscreen();
+      }
     } catch {
       setFullscreenError("Fullscreen is unavailable in this browser context.");
     }
@@ -261,7 +317,8 @@ export default function LiveMap({
           dragRef.current = null;
           if (!drag?.moved) {
             const hit = nearest(localPoint(event));
-            if (hit) onSelect(hit.observation.id);
+            if (hit?.count > 1) setZoom((value) => Math.min(10, value * 1.8));
+            else if (hit) onSelect(hit.observation.id);
           }
         }}
         onPointerCancel={() => { dragRef.current = null; }}
@@ -277,7 +334,7 @@ export default function LiveMap({
         <button type="button" aria-label="Zoom in" disabled={zoom >= 10} onClick={() => setZoom((value) => Math.min(10, value + 0.5))}>+</button>
         <label><span className="sr-only">Map zoom level</span><input type="range" aria-label="Map zoom level" min="0.7" max="10" step="0.1" value={zoom} onChange={(event) => setZoom(Number(event.currentTarget.value))} /></label>
         <button type="button" aria-label="Reset map view" onClick={() => { setZoom(1); setPan([0, 0]); }}>Reset</button>
-        <button type="button" aria-label="Show map fullscreen" onClick={toggleFullscreen}>Full screen</button>
+        <button type="button" aria-label={isFullscreen ? "Exit map fullscreen" : "Show map fullscreen"} onClick={toggleFullscreen}>{isFullscreen ? "Exit full screen" : "Full screen"}</button>
       </div>
       <div className="ops-map-status">
         <strong>Wellington</strong>
@@ -285,8 +342,8 @@ export default function LiveMap({
       </div>
       {hovered && (
         <div className="ops-map-hover" style={{ left: Math.min(hovered.x + 14, 520), top: Math.max(16, hovered.y - 32) }}>
-          <strong>{observationLabel(hovered.observation)}</strong>
-          <span>{hovered.observation.source_id.replaceAll("-", " ")}</span>
+          <strong>{hovered.count > 1 ? `${hovered.count} nearby records` : observationLabel(hovered.observation)}</strong>
+          <span>{hovered.count > 1 ? "Select to zoom in" : hovered.observation.source_id.replaceAll("-", " ")}</span>
         </div>
       )}
       <div className="ops-map-legend" aria-label="Map symbol legend">

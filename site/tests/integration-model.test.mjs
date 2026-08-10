@@ -11,6 +11,13 @@ import {
 import { isActiveProviderEvent, normaliseProviderTime, parseRssObservations } from "../lib/liveAdapters.mjs";
 import { PROVIDER_FIXTURES } from "../lib/providerFixtures.mjs";
 
+let liveMapWorkspace = {};
+try {
+  liveMapWorkspace = await import("../lib/liveMapWorkspace.mjs");
+} catch {
+  // The contract tests stay readable during the initial RED step.
+}
+
 const registry = JSON.parse(
   await readFile(new URL("../public/cop/v2/source-registry.json", import.meta.url), "utf8"),
 );
@@ -53,6 +60,55 @@ const validWarningDraft = {
   creator_id: "operator:maya",
   approver_id: "operator:ana",
 };
+
+test("classifies live evidence into honest overlapping map layers", () => {
+  assert.equal(typeof liveMapWorkspace.classifyLiveObservationLayers, "function");
+  const classify = liveMapWorkspace.classifyLiveObservationLayers;
+  const source = (role) => ({ source_id: `source:${role}`, role });
+  const observation = (id, kind) => ({ id, source_id: "source:test", kind, properties: {} });
+
+  assert.deepEqual(
+    classify(observation("sensor:rain:1", "rainfall_observation"), source("natural_hazard_sensor"), new Set(["sensor:rain:1"])),
+    ["review-evidence", "sensors-weather"],
+  );
+  assert.deepEqual(classify(observation("quake:1", "earthquake"), source("official_hazard"), new Set()), ["warnings-hazards"]);
+  assert.deepEqual(classify(observation("road:1", "road_access_event"), source("access_context"), new Set()), ["access-impacts"]);
+  assert.deepEqual(classify(observation("report:1", "public_report"), source("community_report"), new Set()), ["reports"]);
+  assert.deepEqual(classify(observation("other:1", "unknown"), source("unknown"), new Set()), ["other-live"]);
+});
+
+test("filters the live map without changing source truth or evidence eligibility", () => {
+  assert.equal(typeof liveMapWorkspace.filterLiveMapObservations, "function");
+  const observations = [
+    { id: "rain:1", source_id: "rain", kind: "rainfall_observation", properties: { name: "Karori rain" } },
+    { id: "road:1", source_id: "road", kind: "road_access_event", properties: { headline: "Ngauranga closure" } },
+  ];
+  const sources = [
+    { source_id: "rain", name: "Hilltop", role: "natural_hazard_sensor" },
+    { source_id: "road", name: "Road events", role: "access_context" },
+  ];
+
+  assert.deepEqual(liveMapWorkspace.filterLiveMapObservations({
+    observations,
+    sources,
+    selectedSourceIds: new Set(["rain", "road"]),
+    activeLayerIds: new Set(["sensors-weather"]),
+    candidateEvidenceIds: new Set(),
+    query: "karori",
+  }).map(({ id }) => id), ["rain:1"]);
+});
+
+test("clusters overlapping evidence only at broad map zoom", () => {
+  assert.equal(typeof liveMapWorkspace.clusterMapPoints, "function");
+  const points = [
+    { id: "a", x: 100, y: 100 },
+    { id: "b", x: 112, y: 105 },
+    { id: "c", x: 420, y: 300 },
+  ];
+
+  assert.deepEqual(liveMapWorkspace.clusterMapPoints(points, 1).map(({ count }) => count), [2, 1]);
+  assert.deepEqual(liveMapWorkspace.clusterMapPoints(points, 4).map(({ count }) => count), [1, 1, 1]);
+});
 
 test("keeps Signal, Incident and Warning states independently human-controlled", async () => {
   const { createCaseWorkflow } = await import("../lib/caseWorkflow.mjs");
