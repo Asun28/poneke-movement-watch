@@ -1,5 +1,25 @@
 # Progress — Phase 2 ontology and sources
 
+## Phase 27 — dedicated Ontology module
+
+- 2026-08-10: Audited the current Integration route, shared navigation, mobile grid,
+  Ontology Dashboard and rendered contracts. Locked scope to moving the existing
+  ontology experience into one first-class `/ontology` module; data and authority
+  semantics remain unchanged.
+- 2026-08-10: Ran the required UI navigation/accessibility validation. The dedicated
+  route will preserve labelled navigation, current-page state, keyboard order, 44px
+  targets, the existing civic design and a no-overflow six-item mobile grid.
+- 2026-08-10: TDD RED confirmed five intended rendered failures: shared navigation has
+  no Ontology item, `/ontology` returns 404, and the chain/graph still live on
+  Integration. The production build succeeds and the other 52 tests remain green.
+- 2026-08-10: TDD GREEN passes all 57 site tests. `/ontology` now owns the operational
+  chain, focused graph, 33 source paths and raw ontology explorer; Integration retains
+  only source contracts, endpoints, architecture and capability preview. All six
+  operator pages expose the dedicated Ontology navigation item.
+- 2026-08-10: Full local verification passes: production build, 57/57 site tests,
+  ESLint, 22/22 Python tests and whitespace checks. The temporary pytest directory
+  was removed. Publishing to the existing owner-only site is next.
+
 ## Phase 24 — top-to-bottom ontology hierarchy
 
 - 2026-08-10: Started the requested hierarchy redesign. Audited the deployed

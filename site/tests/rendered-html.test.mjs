@@ -101,7 +101,7 @@ test("publishes a privacy-safe ontology replay without treating fixtures as evid
 });
 
 test("renders a city ontology explorer with explicit semantic and truth boundaries", async () => {
-  const response = await render("/integration");
+  const response = await render("/ontology");
   assert.equal(response.status, 200);
   const html = await response.text();
   const city = JSON.parse(

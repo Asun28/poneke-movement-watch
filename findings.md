@@ -1216,3 +1216,23 @@ supports spatial event-footprint resolution, never direct building-damage claims
   neighbourhood with labelled relations, and uses semantic buttons plus a text
   inspector. Concept switching recentres on that concept's first source; no pan,
   drag, hidden hover or spatial inference is required.
+
+# Phase 27 — dedicated Ontology module
+
+- The Ontology Dashboard is currently rendered before the source registry on
+  `/integration`; its data projection is built entirely at page load from the existing
+  registry, manifest and city ontology artifact, so it can move routes without changing
+  any source or graph contract.
+- Shared navigation currently has five top-level destinations and a collapsible desktop
+  glyph for every item. A sixth Ontology destination can use the same pattern; at the
+  smallest supported 320px width, six equal mobile cells remain wider than 44px.
+- The raw `CityOntologyExplorer` is also ontology-specific and belongs under an Advanced
+  section on the dedicated page. Integration should retain its source registry,
+  architecture, endpoints and capability preview.
+- UI guidance requires a labelled top-level destination, current-page state, keyboard
+  order matching visual order and at least 44px targets. The existing sidebar/mobile-nav
+  primitives already provide those behaviors; the smallest change is one new literal
+  destination plus a six-column mobile grid.
+- The generic UI design-system search proposed a red landing-page palette and oversized
+  marketing typography. Both conflict with the established civic operator console and
+  are rejected; existing color, type, density and reduced-motion rules remain authoritative.

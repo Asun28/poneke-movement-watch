@@ -1,5 +1,67 @@
 # Pōneke Movement Watch — evidence ontology roadmap
 
+## Phase 27 — dedicated Ontology module
+
+### Goal
+
+Move the Ontology Dashboard out of Data Integration into one dedicated top-level
+operator module with its own navigation icon and `/ontology` route.
+
+### Status
+
+- [completed] Audit the current route, navigation, responsive and rendered-test contracts.
+- [completed] Add failing route/navigation/separation tests.
+- [completed] Implement the dedicated page and remove the dashboard from Integration.
+- [completed] Verify regressions.
+- [in_progress] Deploy to the existing owner-only site.
+
+### Acceptance criteria
+
+- `Ontology` is a top-level navigation destination on every operator page.
+- `/ontology` renders the existing operational chain, focused knowledge graph and
+  33 source-path explorer with the Ontology item marked current.
+- `/integration` no longer renders the Ontology Dashboard or city ontology explorer.
+- Data Integration retains source contracts, source setup, integration architecture,
+  API links and capability preview.
+- Desktop collapsed navigation exposes one Ontology glyph; mobile retains a visible
+  text label, at least 44px targets and no horizontal page overflow.
+- No source, ontology relationship, evidence weight, model authority, access policy or
+  external action changes.
+
+### Assumptions and exclusions
+
+- “Single nav icon and single page” means one dedicated top-level module rather than a
+  modal, sub-tab or duplicate dashboard.
+- Preserve the established civic operations design; do not adopt the unrelated red
+  landing-page palette returned by the generic design-system search.
+- No new data, route API, graph database, package, model training or public-access change.
+- No GitHub push and no change to remote `main`.
+- Browser visual testing is not requested; rendered behavior, build and regression tests
+  are the verification boundary.
+
+### File-level plan
+
+- `site/tests/operator-console.test.mjs`: six-module navigation, dedicated-route and
+  Integration-separation behavior.
+- `site/app/ontology/page.tsx`: dedicated Ontology operator page.
+- `site/app/integration/page.tsx`: source integration only.
+- `site/app/components/OperatorNavigation.tsx`, `OperatorShell.tsx`: route, label and glyph.
+- `site/app/globals.css`: six-item responsive navigation without shrinking touch targets.
+- `README.md`, `findings.md`, `progress.md`: architecture and validation record.
+
+### Rejected major alternatives
+
+- Do not duplicate the dashboard on both `/integration` and `/ontology`.
+- Do not hide Ontology behind Advanced or Setup; it is a first-class operator module.
+- Do not replace the current graph/chain interactions while moving their route.
+
+### Errors encountered
+
+| Error | Attempt | Resolution |
+|---|---:|---|
+| A combined design audit command included a missing `design-system/` directory and returned exit 1, hiding parallel output. | 1 | Run the required UI searches independently and treat the absent directory as confirmation that no persisted design-system override exists. |
+| First GREEN run left one legacy rendered test pointing at `/integration` for the city ontology explorer. | 1 | Move that existing behavioral assertion to the new canonical `/ontology` route; do not restore duplicate Integration content. |
+
 ## Phase 26 — alternate ontology graph view
 
 ### Goal

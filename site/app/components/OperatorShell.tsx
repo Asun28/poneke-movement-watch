@@ -3,7 +3,7 @@ import NowClock from "./NowClock";
 import OperatorNavigation from "./OperatorNavigation";
 
 type Props = {
-  active: "/live" | "/alerts" | "/replay" | "/integration" | "/setup";
+  active: "/live" | "/alerts" | "/replay" | "/integration" | "/ontology" | "/setup";
   eyebrow: string;
   title: string;
   description: string;

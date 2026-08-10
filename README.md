@@ -84,12 +84,13 @@ flowchart LR
 | `/live` | Live Operations | Map current permitted observations and distinguish live, empty, stale and unavailable sources. |
 | `/alerts` | Alert Centre | Review signals, maintain a browser-local Case/COP, prepare approval packs and inspect read-only evidence. |
 | `/replay` | Replay Analyzer | Reconstruct the 2026 WCC sensor history with date/hour/speed and matched-hour trends. |
-| `/integration` | Data Integration | Trace all 33 sources through ontology roles to Live, Alerts, Replay or Integration-only use. |
+| `/integration` | Data Integration | Review all 33 source contracts, access, runtime health, provider formats and integration endpoints. |
+| `/ontology` | City Ontology | Trace source evidence through shared concepts, corroboration and operator decisions using the operational chain or focused graph. |
 | `/setup` | Easy setup | Prepare a data source, API/MCP/A2A connection or operator defaults as a safe local draft. |
 
 Routine screens are task-first: select a source, marker, candidate or setup
-section. Page guidance is closed under **Help**. The user-facing ontology map is
-visible in Data Integration; technical APIs, the full graph and replay evidence
+section. Page guidance is closed under **Help**. The user-facing ontology map has
+its own top-level **Ontology** module; technical APIs, the raw graph and replay evidence
 remain under **Advanced** or **Evidence review**.
 
 Alert Centre uses a compact queue-and-case workflow. It keeps three independent
@@ -226,7 +227,7 @@ records excluded by the freshness gate.
 
 ### Ontology Dashboard
 
-Data Integration joins every source contract to its matching `DataLayer` by
+The dedicated `/ontology` page joins every source contract to its matching `DataLayer` by
 `source_id` and presents a top-to-bottom hierarchy:
 
 ```text

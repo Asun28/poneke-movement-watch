@@ -35,12 +35,13 @@ test("publishes one integration contract for all registered providers", async ()
   );
 });
 
-test("exposes five distinct operator modules with shared navigation", async () => {
+test("exposes six distinct operator modules with shared navigation", async () => {
   const expectations = [
     ["/live", /Live Operations/, /Current feeds/],
     ["/alerts", /Alert Centre/, /Human review queue/],
     ["/replay", /Replay Analyzer/, /History replay/],
     ["/integration", /Data Integration/, /33 source contracts/],
+    ["/ontology", /City Ontology/, /Ontology Dashboard/],
     ["/setup", /Easy setup/, /Add data source/],
   ];
 
@@ -54,8 +55,26 @@ test("exposes five distinct operator modules with shared navigation", async () =
     assert.match(html, /Alert Centre/, path);
     assert.match(html, /Replay Analyzer/, path);
     assert.match(html, /Data Integration/, path);
+    assert.match(html, /Ontology/, path);
     assert.match(html, /Setup/, path);
   }
+});
+
+test("keeps the ontology dashboard on one dedicated top-level page", async () => {
+  const ontologyResponse = await request("/ontology");
+  const integrationResponse = await request("/integration");
+  assert.equal(ontologyResponse.status, 200);
+  assert.equal(integrationResponse.status, 200);
+
+  const ontology = await ontologyResponse.text();
+  const integration = await integrationResponse.text();
+  assert.match(ontology, /href="\/ontology" aria-current="page"/);
+  assert.match(ontology, /Ontology Dashboard/);
+  assert.match(ontology, /data-ontology-view="chain"/);
+  assert.match(ontology, /data-ontology-view="graph"/);
+  assert.doesNotMatch(integration, /Ontology Dashboard/);
+  assert.doesNotMatch(integration, /City ontology explorer/);
+  assert.match(integration, /33 source contracts/);
 });
 
 test("announces live and alert loading without presenting provisional zeroes", async () => {
@@ -148,7 +167,7 @@ test("renders truth, access and runtime health as separate integration dimension
 });
 
 test("shows the six-level operational evidence chain before advanced technical detail", async () => {
-  const html = await (await request("/integration")).text();
+  const html = await (await request("/ontology")).text();
   const dashboardAt = html.indexOf("Ontology Dashboard");
   const advancedAt = html.indexOf('<details class="operator-advanced">');
   const sourcesAt = html.indexOf('data-ontology-level="sources"');
@@ -196,7 +215,7 @@ test("shows the six-level operational evidence chain before advanced technical d
 });
 
 test("offers an accessible focused knowledge graph without replacing the operational chain", async () => {
-  const html = await (await request("/integration")).text();
+  const html = await (await request("/ontology")).text();
 
   assert.match(html, /aria-label="Choose ontology view"/);
   assert.match(html, /aria-pressed="true">Operational chain/);
@@ -385,7 +404,7 @@ test("serves provider-shaped workflow mocks and never reports a dispatch", async
 });
 
 test("keeps routine screens concise and moves guidance into closed help", async () => {
-  for (const path of ["/live", "/alerts", "/replay", "/integration", "/setup"]) {
+  for (const path of ["/live", "/alerts", "/replay", "/integration", "/ontology", "/setup"]) {
     const html = await (await request(path)).text();
     const heading = html.match(/<section class="operator-module-heading">([\s\S]*?)<\/section>/)?.[1] ?? "";
 
