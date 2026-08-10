@@ -129,10 +129,10 @@ test("nearest visible marker wins only inside the bounded inspection radius", ()
   assert.equal(findNearestMapMarker(markers, { x: 140, y: 140 }, 12), null);
 });
 
-test("continuous map zoom stays inside the 50 to 800 percent operating range", () => {
+test("continuous map zoom stays inside the 50 to 1000 percent operating range", () => {
   assert.equal(viewportModel.clampMapZoom?.(0.2), 0.5);
   assert.equal(viewportModel.clampMapZoom?.(3.37), 3.37);
-  assert.equal(viewportModel.clampMapZoom?.(9), 8);
+  assert.equal(viewportModel.clampMapZoom?.(12), 10);
 });
 
 test("map wheel input adjusts zoom in both directions without fixed button jumps", () => {

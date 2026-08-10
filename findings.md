@@ -1,5 +1,33 @@
 # Findings — Phase 2 ontology and sources
 
+## Phase 36 — evidence-first live triage and April sensor replay
+
+- The shared GIS catalogue confirms that Greater Wellington Hilltop is the strongest current
+  sensor source in scope: river level, flow and rainfall observations with WGS84 coordinates
+  and approximately five-minute cadence. GeoNet Tilde adds a 15-second harbour sea-level feed.
+- WCC Transport Sensors are real hourly pedestrian/vehicle counts, but the official product
+  refresh is at least monthly. They support retrospective movement analysis, not an honest
+  event-time live alert. The local official files contain 209,334 rows for 18–22 April 2026.
+- The current Live page maps every selected live observation and its source rail but has no
+  evidence aggregation layer. The candidate rule also promotes standalone unplanned road
+  events, which can flood Signal Review without a hazard, sensor anomaly or public report.
+- The safe operator pattern is raw records → source/domain grouping → conservative promotion
+  → Evidence Inbox → Signal Review → optional Case/COP. Planned events, flights and cruise
+  schedules stay on a separate zero-weight context lane.
+- The existing map already uses OpenStreetMap raster tiles, includes attribution, supports
+  drag panning and fullscreen, and therefore can truthfully expose street labels at higher
+  zoom. Live is capped at 600% and Replay at 800%; no basemap replacement is required.
+- The registered City Event, CentrePort and airport contracts already carry provider-shaped
+  mock envelopes and access/terms labels. They can be shown without inventing live access.
+- Direct Hilltop `GetData` queries with `%20`-encoded site names and `From`/`To` return real
+  historical rows. For 18–22 April: Berhampore and Newtown each expose 121 hourly running-
+  rainfall totals; Hutt River at Taita Gorge exposes 1,441 flow records and a 474.664 m³/s peak.
+- Hilltop timestamps do not include publication timestamps. The replay pack must label its
+  `available_at` as a conservative cadence-derived bound, not a provider-observed timestamp.
+- The retrieved hourly Berhampore virtual series peaks at 77.10347 mm while the later formal
+  report states 85.9 mm. Both must be retained as different claims/series, never silently forced
+  to agree or used as interchangeable training truth.
+
 ## Phase 34 — Signal Review queues and classification
 
 - `Signal Review` is the clearest operator name: it describes candidate triage and human

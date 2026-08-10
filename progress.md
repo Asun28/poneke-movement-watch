@@ -1,5 +1,31 @@
 # Progress — Phase 2 ontology and sources
 
+## Phase 36 — evidence-first live triage and April sensor replay
+
+- 2026-08-10: Audited Live Operations, Signal Review, both map implementations, source
+  contracts, provider fixtures, candidate rules and the April event pack.
+- 2026-08-10: Verified the shared GIS catalogue through its public GitHub source. Locked the
+  source hierarchy: hydro/weather/natural-hazard observations are primary monitoring;
+  access changes corroborate; events, cruise and flights are zero-weight context.
+- 2026-08-10: Confirmed the local official WCC files contain 209,334 movement rows for the
+  April event, but publisher cadence makes them retrospective outcome data rather than live
+  event-time inputs.
+- 2026-08-10: Queried the official Hilltop API for the April window. Three real sensor series
+  and 1,683 observations are available for a reproducible Replay pack. Next: TDD RED.
+- 2026-08-10: TDD RED confirmed the intended boundaries: the evidence-inbox projection and
+  Hilltop replay module do not exist, and map zoom remains capped below 1000%.
+- 2026-08-10: TDD GREEN completed. Live now opens on an Evidence Inbox, promotes only
+  authoritative hazard/natural-hazard/sensor or report-plus-nearby-sensor evidence, and
+  keeps standalone road, planned, stale and Mock records out of the review queue.
+- 2026-08-10: Added City events, airport arrivals/departures and cruise calls as visibly
+  Mock/access-gated zero-weight context. Signal Review now opens Evidence before Case & COP.
+- 2026-08-10: Generated the reproducible official Hilltop pack: 1,683 rows across two
+  rainfall series and Hutt River flow. The April UI keeps 209,334 WCC movement rows in the
+  retrospective-outcome lane and preserves the 85.9/77.10347 mm source conflict.
+- 2026-08-10: Final local verification passes: production build, 70/70 site behaviours,
+  ESLint, 24/24 Python tests, desktop and 390px visual checks, 1000% street-label zoom,
+  Evidence-first review order and whitespace checks. Owner-only deployment is next.
+
 ## Phase 31 — quiet daily-work interface
 
 - 2026-08-10: Started a full seven-route copy and density audit. Official Atlassian,

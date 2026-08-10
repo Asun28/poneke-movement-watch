@@ -1519,7 +1519,7 @@ export default function MovementCanvas() {
               <button
                 type="button"
                 aria-label="Zoom in"
-                disabled={zoom >= 8}
+                disabled={zoom >= 10}
                 onClick={() => adjustZoom(zoom + 0.25)}
               >+</button>
             </div>
@@ -1528,7 +1528,7 @@ export default function MovementCanvas() {
                 type="range"
                 aria-label="Map zoom level"
                 min="0.5"
-                max="8"
+                max="10"
                 step="0.1"
                 value={zoom}
                 onChange={(event) => adjustZoom(Number(event.currentTarget.value))}

@@ -88,7 +88,7 @@ export function findNearestMapMarker(markers, point, maxDistance) {
 }
 
 export function clampMapZoom(value) {
-  return Math.min(8, Math.max(0.5, value));
+  return Math.min(10, Math.max(0.5, value));
 }
 
 export function zoomFromWheel(currentZoom, deltaY) {

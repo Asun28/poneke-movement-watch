@@ -7,7 +7,7 @@ multiple dashboards without collapsing observations into confirmed incidents.
 
 **Live demo:** [poneke-movement-watch.sun28long.chatgpt.site](https://poneke-movement-watch.sun28long.chatgpt.site/)
 
-The deployed view opens in **Live Operations**. **Replay Analyzer** retains every
+The deployed view opens in **Live Operations → Evidence Inbox**. **Replay Analyzer** retains every
 published hour from 1–6 August 2026, including 12:00 Thursday 6 August. This is
 a decision-support prototype, not an emergency dispatch or public warning system.
 
@@ -22,6 +22,11 @@ that pass conservative gates, and shows the evidence an operator would need to
 investigate. A signal never declares the cause or confirms an incident.
 
 ## Historical replay
+
+Live Operations groups raw observations before review. Official warnings and natural-hazard
+signals, sensor anomalies, or a public report aligned with a nearby sensor change can be
+promoted to Signal Review. Standalone roads, planned events, flights, cruise calls, Mock and
+stale records stay held or in zero-weight context. Human staff decide whether to create a case.
 
 The map's date, hour, previous/next, scrub and play controls move through 144
 real publisher time slots. Replay speed is adjustable at `0.5×`, `1×`, `2×`
@@ -44,7 +49,7 @@ disabled during playback and never appears for a zero-record source layer. The
 signal list exposes the same evidence as the keyboard-accessible alternative.
 
 Map navigation is not limited to fixed button steps. Use the mouse wheel or
-trackpad over the map, drag the 50%–800% zoom slider, or use the plus/minus and
+trackpad over the map, drag the 50%–1000% zoom slider, or use the plus/minus and
 reset buttons. Wheel zoom keeps the pointed area in place. After zooming, drag
 the map to reach another countline and click a visible marker to select its
 evidence. Reset restores both zoom and map position. **Full screen** expands the
@@ -88,7 +93,7 @@ flowchart LR
 
 | Route | Module | Purpose |
 |---|---|---|
-| `/live` | Live Operations | Map current permitted observations and distinguish live, empty, stale and unavailable sources. |
+| `/live` | Live Operations | Group current evidence first, then inspect the map and zero-weight city context. |
 | `/alerts` | Signal Review | Triage candidates, investigate cases, classify outcomes, prepare approval packs and inspect read-only evidence. |
 | `/replay` | Replay Analyzer | Reconstruct the 2026 WCC sensor history with date/hour/speed and matched-hour trends. |
 | `/integration` | Data Integration | Review all 33 source contracts, access, runtime health, provider formats and integration endpoints. |
@@ -469,8 +474,14 @@ It is a retrospective case-study contract; it does not rewind or alter live feed
   A future stacker may use out-of-fold base predictions only.
 - Mock records are excluded from training, calibration and scoring. One event
   cannot establish general accuracy.
-- The current pack contains no April observations. It is an evaluation contract
-  until permitted transport, rainfall/river and road-impact rows are packaged.
+- The pack contains 1,683 official historical Hilltop observations: two hourly
+  rainfall series and five-minute Hutt River flow. Provider publication times are
+  absent, so `available_at` is a conservative cadence-derived bound.
+- The local official WCC files contain 209,334 movement rows for this window, but
+  their at-least-monthly publication cadence limits them to retrospective outcome
+  analysis. Timestamped NZTA impact records remain un-packaged.
+- The later formal report's Berhampore 85.9 mm/h value and the retrieved virtual
+  series peak of 77.10347 mm are preserved as distinct claims.
 
 The event labels reference the official
 [Greater Wellington committee paper](https://ltp.gw.govt.nz/assets/Documents/Documents/2026/06/Environment-and-Climate-Committee-18-June-2026-Order-Paper.pdf),
@@ -509,6 +520,7 @@ The site publishes static, cacheable contracts that can slot into a shared map.
 | `/cop/v2/source-registry.json` | Source role, access, cadence and resolution limits |
 | `/cop/v3/city-ontology.json` | Typed place, asset, time, state, impact and access relationships |
 | `/cop/v4/april-storm-event-pack.json` | Leakage-safe April storm backtest contract and withheld event labels |
+| `/cop/v4/april-storm-hilltop-observations.json` | 1,683 real GWRC rainfall and river-flow observations for the April replay |
 
 Example:
 

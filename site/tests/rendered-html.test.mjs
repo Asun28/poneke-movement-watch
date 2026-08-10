@@ -192,7 +192,7 @@ test("offers continuous wheel-slider zoom and map-only fullscreen", async () => 
   const html = await response.text();
 
   assert.match(html, /aria-label="Map zoom level"/);
-  assert.match(html, /min="0.5" max="8" step="0.1"/);
+  assert.match(html, /min="0.5" max="10" step="0.1"/);
   assert.doesNotMatch(html, /Scroll or use slider/);
   assert.match(html, /aria-label="Show map fullscreen"/);
   assert.match(html, />Full screen</);
@@ -262,7 +262,11 @@ test("renders the April storm as a leakage-safe retrospective case study", async
   assert.match(html, /id="april-storm-backtest"/);
   assert.match(html, /Replay Analyzer input/);
   assert.match(html, /April Storm · 18–22 Apr 2026/);
-  assert.match(html, /Inputs not yet packaged/);
+  assert.match(html, /3 sensor series loaded/);
+  assert.match(html, /1,683/);
+  assert.match(html, /Berhampore · Newtown/);
+  assert.match(html, /Hutt River at Taita Gorge/);
+  assert.match(html, /209,334(?:<!-- -->)? records · outcome only/);
   assert.match(html, /Train before 18 Apr/);
   assert.match(html, /5 or 15 min/);
   assert.match(html, /source_claimed_time/);
@@ -272,6 +276,7 @@ test("renders the April storm as a leakage-safe retrospective case study", async
   assert.match(html, /Mock excluded/);
   assert.match(html, /One event cannot establish general accuracy/);
   assert.match(html, /\/cop\/v4\/april-storm-event-pack\.json/);
+  assert.match(html, /\/cop\/v4\/april-storm-hilltop-observations\.json/);
 });
 
 test("ships a machine-readable April storm pack without invented replay observations", async () => {
@@ -293,14 +298,34 @@ test("ships a machine-readable April storm pack without invented replay observat
   assert.equal(eventPack.evaluation.general_accuracy_claim_allowed, false);
   assert.equal(eventPack.coverage.wcc_transport_countlines.reported_active, 411);
   assert.equal(eventPack.coverage.wcc_transport_countlines.total, 414);
-  assert.equal(eventPack.replay_inputs.status, "not_packaged");
-  assert.deepEqual(eventPack.replay_inputs.observations, []);
+  assert.equal(eventPack.replay_inputs.status, "partially_packaged");
+  assert.equal(eventPack.replay_inputs.observations[0].records, 1683);
+  assert.equal(eventPack.coverage.wcc_transport_countlines.window_record_count, 209334);
+  assert.equal(eventPack.coverage.wcc_transport_countlines.availability_role, "retrospective_outcome_only");
   assert.ok(eventPack.time_claims.some((claim) =>
     claim.source_claimed_time.includes("24 April")
       && claim.normalized_event_time === "2026-04-20"
       && claim.correction_note,
   ));
   assert.ok(eventPack.ground_truth.every((item) => Object.hasOwn(item, "available_at")));
+});
+
+test("ships official Hilltop observations for the April replay without mock or publication-time claims", async () => {
+  const pack = JSON.parse(await readFile(
+    new URL("../public/cop/v4/april-storm-hilltop-observations.json", import.meta.url),
+    "utf8",
+  ));
+
+  assert.equal(pack.schema, "wellington-hilltop-replay-observations/v1");
+  assert.equal(pack.source_id, "gwrc-hilltop");
+  assert.equal(pack.truth, "official_historical_observations");
+  assert.equal(pack.record_count, 1683);
+  assert.equal(pack.series_count, 3);
+  assert.equal(pack.availability_policy.provider_publication_time_observed, false);
+  assert.equal(pack.training_policy.mock_excluded, true);
+  assert.deepEqual(pack.series.map((series) => series.record_count), [121, 121, 1441]);
+  assert.equal(pack.series[0].peak.value, 77.10347);
+  assert.equal(pack.series[2].peak.value, 474.664);
 });
 
 test("ships internally consistent COP artifacts with WGS84 line geometry", async () => {

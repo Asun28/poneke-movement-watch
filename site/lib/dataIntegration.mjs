@@ -588,9 +588,14 @@ function unavailableSource(contract, message) {
   return {
     source_id: contract.source_id,
     name: contract.name,
+    role: contract.role,
     connector_mode: contract.connector_mode,
+    truth: contract.truth,
+    access: contract.access,
+    notes: contract.notes,
     runtime_state: "unavailable",
     record_count: 0,
+    raw_record_count: 0,
     evidence_weight: 0,
     alert_eligible: false,
     observed_at: null,
@@ -611,9 +616,14 @@ function dormantSource(contract, mockFixtures) {
   return {
     source_id: contract.source_id,
     name: contract.name,
+    role: contract.role,
     connector_mode: contract.connector_mode,
+    truth: contract.truth,
+    access: contract.access,
+    notes: contract.notes,
     runtime_state: state,
     record_count: 0,
+    raw_record_count: 0,
     evidence_weight: 0,
     alert_eligible: false,
     observed_at: null,
@@ -671,7 +681,11 @@ export async function buildLiveSnapshot({
         source: {
           source_id: contract.source_id,
           name: contract.name,
+          role: contract.role,
           connector_mode: contract.connector_mode,
+          truth: contract.truth,
+          access: contract.access,
+          notes: contract.notes,
           runtime_state: runtimeState,
           record_count: observations.length,
           raw_record_count: result.raw_record_count ?? observations.length,
@@ -699,7 +713,7 @@ export async function buildLiveSnapshot({
   const summary = Object.fromEntries(RUNTIME_STATES.map((state) => [state, 0]));
   for (const source of sources) summary[source.runtime_state] += 1;
 
-  return {
+  const snapshot = {
     schema: "wellington-live-snapshot/v1",
     generated_at: receivedAt,
     source_count: sources.length,
@@ -712,6 +726,7 @@ export async function buildLiveSnapshot({
       "Alert candidates require human review and are not confirmed incidents.",
     ],
   };
+  return { ...snapshot, evidence_inbox: buildEvidenceInbox(snapshot) };
 }
 
 function alertRule(observation) {
@@ -723,6 +738,8 @@ function alertRule(observation) {
       rule_id: "earthquake-investigation-v1",
       title: `Earthquake signal M${magnitude.toFixed(1)}`,
       severity: magnitude >= 6 || mmi >= 6 ? "high" : "moderate",
+      priority: magnitude >= 6 || mmi >= 6 ? "P1" : "P2",
+      promotion_reason: "natural_hazard_signal",
       missing: ["movement_sensor_change", "official_access_change"],
     };
   }
@@ -735,16 +752,9 @@ function alertRule(observation) {
       rule_id: "official-alert-active-v1",
       title: observation.properties?.headline ?? "Active official alert",
       severity: String(observation.properties?.severity ?? "moderate").toLowerCase(),
+      priority: String(observation.properties?.severity ?? "").toLowerCase() === "extreme" ? "P1" : "P2",
+      promotion_reason: "official_hazard_warning",
       missing: ["local_impact_observation"],
-    };
-  }
-  if (["official_access_event_observation", "road_event_observation"].includes(observation.kind)) {
-    if (observation.properties?.is_planned === true) return null;
-    return {
-      rule_id: "official-access-change-v1",
-      title: observation.properties?.name ?? "Official access change",
-      severity: observation.properties?.impact === "Road Closed" ? "high" : "moderate",
-      missing: ["movement_sensor_change"],
     };
   }
   if (observation.kind === "sensor_anomaly" && observation.properties?.candidate === true) {
@@ -752,69 +762,249 @@ function alertRule(observation) {
       rule_id: "pretrained-sensor-monitor-v1",
       title: observation.properties?.title ?? "Movement sensor change",
       severity: observation.properties?.severity ?? "moderate",
+      priority: "P2",
+      promotion_reason: "sensor_anomaly",
       missing: ["independent_current_source"],
     };
   }
   return null;
 }
 
+function observationAnchor(observation) {
+  const geometry = observation?.geometry;
+  if (!geometry) return null;
+  if (geometry.type === "Point") return geometry.coordinates;
+  if (geometry.type === "LineString") {
+    return geometry.coordinates[Math.floor(geometry.coordinates.length / 2)] ?? null;
+  }
+  if (geometry.type === "Polygon") {
+    const ring = geometry.coordinates?.[0] ?? [];
+    if (!ring.length) return null;
+    return [
+      ring.reduce((sum, coordinate) => sum + coordinate[0], 0) / ring.length,
+      ring.reduce((sum, coordinate) => sum + coordinate[1], 0) / ring.length,
+    ];
+  }
+  return null;
+}
+
+function distanceKm(first, second) {
+  const a = observationAnchor(first);
+  const b = observationAnchor(second);
+  if (!a || !b) return Number.POSITIVE_INFINITY;
+  const radians = (degrees) => degrees * Math.PI / 180;
+  const latitudeDelta = radians(b[1] - a[1]);
+  const longitudeDelta = radians(b[0] - a[0]);
+  const value = Math.sin(latitudeDelta / 2) ** 2
+    + Math.cos(radians(a[1])) * Math.cos(radians(b[1])) * Math.sin(longitudeDelta / 2) ** 2;
+  return 6371 * 2 * Math.atan2(Math.sqrt(value), Math.sqrt(1 - value));
+}
+
+function timeDistanceMinutes(first, second) {
+  const a = new Date(first?.observed_at).getTime();
+  const b = new Date(second?.observed_at).getTime();
+  return Number.isFinite(a) && Number.isFinite(b)
+    ? Math.abs(a - b) / 60_000
+    : Number.POSITIVE_INFINITY;
+}
+
+function eligibleObservation(observation, sourceState) {
+  const source = sourceState.get(observation.source_id);
+  return source?.runtime_state === "live"
+    && source.alert_eligible === true
+    && !observation.is_synthetic
+    && observation.evidence_weight > 0
+    && observation.freshness_state === "fresh";
+}
+
+function makeCandidate(snapshot, observation, rule, supporting, context = []) {
+  return {
+    id: `candidate:${supporting.join("+")}`,
+    alert_schema: "wellington-alert-candidate/v1",
+    created_at: snapshot.generated_at,
+    observed_at: observation.observed_at,
+    source_id: observation.source_id,
+    title: rule.title,
+    severity: rule.severity,
+    rule_id: rule.rule_id,
+    review_state: "unreviewed",
+    epistemic_state: "inference",
+    decision_authority: "human",
+    geometry: observation.geometry ?? null,
+    triage: {
+      priority: rule.priority ?? "P2",
+      promotion_reason: rule.promotion_reason,
+      grouped_before_review: true,
+    },
+    evidence: {
+      supporting,
+      contradicting: [],
+      missing: rule.missing,
+      context,
+    },
+    ontology: {
+      subject: observation.kind,
+      relation: "may_affect",
+      object: "city_access_or_movement",
+    },
+    sensor_monitor: {
+      state: supporting.some((id) => id.includes("sensor")) || observation.kind === "sensor_anomaly"
+        ? "candidate"
+        : "not_applicable",
+      authority: "candidate_only",
+    },
+    llm: {
+      state: "not_configured",
+      authority: "explanation_only",
+      can_publish: false,
+    },
+    confirmed_facts: [],
+  };
+}
+
 export function createAlertCandidates(snapshot) {
   const sourceState = new Map(snapshot.sources.map((source) => [source.source_id, source]));
   const candidates = [];
+  const eligible = snapshot.observations.filter((observation) => eligibleObservation(observation, sourceState));
+  const reports = eligible.filter((observation) => observation.kind === "public_report_observation");
+  const sensorAnomalies = eligible.filter((observation) => (
+    observation.kind === "sensor_anomaly" && observation.properties?.candidate === true
+  ));
+  const pairedSensors = new Set();
 
-  for (const observation of snapshot.observations) {
-    const source = sourceState.get(observation.source_id);
-    if (
-      source?.runtime_state !== "live"
-      || source.alert_eligible !== true
-      || observation.is_synthetic
-      || observation.evidence_weight <= 0
-      || observation.freshness_state !== "fresh"
-    ) continue;
+  for (const report of reports) {
+    const sensor = sensorAnomalies.find((observation) => (
+      !pairedSensors.has(observation.id)
+      && timeDistanceMinutes(report, observation) <= 90
+      && distanceKm(report, observation) <= 3
+    ));
+    if (!sensor) continue;
+    pairedSensors.add(sensor.id);
+    candidates.push(makeCandidate(snapshot, report, {
+      rule_id: "report-sensor-corroboration-v1",
+      title: report.properties?.title ?? report.properties?.category ?? "Reported impact with sensor change",
+      severity: report.properties?.severity ?? sensor.properties?.severity ?? "moderate",
+      priority: "P2",
+      promotion_reason: "report_and_sensor",
+      missing: ["official_status_confirmation"],
+    }, [report.id, sensor.id]));
+  }
 
+  for (const observation of eligible) {
+    if (observation.kind === "public_report_observation" || pairedSensors.has(observation.id)) continue;
     const rule = alertRule(observation);
     if (!rule) continue;
-    candidates.push({
-      id: `candidate:${observation.id}`,
-      alert_schema: "wellington-alert-candidate/v1",
-      created_at: snapshot.generated_at,
-      observed_at: observation.observed_at,
-      source_id: observation.source_id,
-      title: rule.title,
-      severity: rule.severity,
-      rule_id: rule.rule_id,
-      review_state: "unreviewed",
-      epistemic_state: "inference",
-      decision_authority: "human",
-      geometry: observation.geometry ?? null,
-      evidence: {
-        supporting: [observation.id],
-        contradicting: [],
-        missing: rule.missing,
-        context: [],
-      },
-      ontology: {
-        subject: observation.kind,
-        relation: "may_affect",
-        object: "city_access_or_movement",
-      },
-      sensor_monitor: {
-        state: observation.kind === "sensor_anomaly" ? "candidate" : "not_applicable",
-        authority: "candidate_only",
-      },
-      llm: {
-        state: "not_configured",
-        authority: "explanation_only",
-        can_publish: false,
-      },
-      confirmed_facts: [],
-    });
+    candidates.push(makeCandidate(snapshot, observation, rule, [observation.id]));
   }
+
+  const priorityOrder = { P1: 0, P2: 1, P3: 2 };
+  candidates.sort((first, second) => (
+    (priorityOrder[first.triage.priority] ?? 9) - (priorityOrder[second.triage.priority] ?? 9)
+    || String(second.observed_at).localeCompare(String(first.observed_at))
+  ));
 
   return {
     schema: "wellington-alert-candidates/v1",
     generated_at: snapshot.generated_at,
     count: candidates.length,
     candidates,
+  };
+}
+
+const LIVE_CONTEXT_SOURCES = [
+  ["wcc-event-calendar", "City events"],
+  ["wellington-airport-flights", "Flights in & out"],
+  ["centreport-cruise-schedule", "Cruise calls"],
+];
+
+function contextSummary(source) {
+  const envelope = source.provider_envelope ?? {};
+  if (source.source_id === "wcc-event-calendar") {
+    const item = envelope.items?.[0];
+    return item ? `${item.title} · ${item.date_range}` : "No permitted event records loaded";
+  }
+  if (source.source_id === "wellington-airport-flights") {
+    const arrivals = envelope.responses?.A?.flights?.length ?? (envelope.is_arrivals ? envelope.flights?.length : 0) ?? 0;
+    const departures = envelope.responses?.D?.flights?.length ?? (!envelope.is_arrivals ? envelope.flights?.length : 0) ?? 0;
+    return `${arrivals} arrival preview · ${departures} departure preview`;
+  }
+  if (source.source_id === "centreport-cruise-schedule") {
+    const row = envelope.rows?.[0];
+    return row ? `${row.Vessel} · ${row.PAX} passengers` : "No permitted cruise records loaded";
+  }
+  return source.message ?? "Context only";
+}
+
+export function buildEvidenceInbox(snapshot) {
+  const alerts = createAlertCandidates(snapshot);
+  const supporting = new Set(alerts.candidates.flatMap((candidate) => candidate.evidence.supporting));
+  const groupDefinitions = [
+    {
+      id: "sensors_weather",
+      label: "Weather & natural sensors",
+      matches: (observation) => ["sensor_anomaly", "hazard_measurement_observation", "sea_level_measurement"].includes(observation.kind),
+    },
+    {
+      id: "official_hazards",
+      label: "Warnings & natural hazards",
+      matches: (observation) => ["official_alert_observation", "hazard_alert_observation", "earthquake_observation"].includes(observation.kind),
+    },
+    {
+      id: "community_reports",
+      label: "Reports",
+      matches: (observation) => observation.kind === "public_report_observation",
+    },
+    {
+      id: "access_context",
+      label: "Access context",
+      matches: (observation) => ["official_access_event_observation", "road_event_observation"].includes(observation.kind),
+    },
+  ];
+  const monitoringGroups = groupDefinitions.map((definition) => {
+    const records = snapshot.observations.filter(definition.matches);
+    return {
+      id: definition.id,
+      label: definition.label,
+      record_count: records.length,
+      fresh_count: records.filter((observation) => observation.freshness_state === "fresh").length,
+      source_count: new Set(records.map((observation) => observation.source_id)).size,
+    };
+  });
+  const contextCards = LIVE_CONTEXT_SOURCES.flatMap(([sourceId, label]) => {
+    const source = snapshot.sources.find((candidate) => candidate.source_id === sourceId);
+    if (!source) return [];
+    return [{
+      source_id: sourceId,
+      label,
+      runtime_state: source.runtime_state,
+      truth_label: source.runtime_state === "mock" ? "Mock · zero evidence" : "Context only · zero evidence",
+      access_status: source.access?.status ?? "terms_review",
+      evidence_weight: 0,
+      summary: contextSummary(source),
+    }];
+  });
+
+  return {
+    schema: "wellington-evidence-inbox/v1",
+    generated_at: snapshot.generated_at,
+    raw_observation_count: snapshot.observations.length,
+    review_candidate_count: alerts.count,
+    suppressed_observation_count: snapshot.observations.filter((observation) => !supporting.has(observation.id)).length,
+    candidates: alerts.candidates,
+    monitoring_groups: monitoringGroups,
+    context_cards: contextCards,
+    promotion_policy: [
+      "official_hazard_or_warning",
+      "natural_hazard_signal",
+      "report_and_sensor_in_time_and_place",
+      "sensor_anomaly_requiring_independent_confirmation",
+    ],
+    exclusions: [
+      "standalone_road_event",
+      "planned_event_or_schedule",
+      "mock_or_zero_weight_record",
+      "stale_or_unknown_freshness",
+    ],
+    decision_authority: "human",
   };
 }

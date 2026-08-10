@@ -3,7 +3,7 @@
   "event_id": "wellington-april-storm-2026",
   "title": "April Storm 2026",
   "mode": "retrospective_case_study",
-  "status": "event_contract_ready_observations_not_packaged",
+  "status": "sensor_inputs_partially_packaged",
   "window": {
     "start_at": "2026-04-18T00:00:00+12:00",
     "end_at": "2026-04-22T23:59:59+12:00",
@@ -52,13 +52,31 @@
     "claim_limit": "One event cannot establish general accuracy."
   },
   "coverage": {
+    "gwrc_hilltop": {
+      "series": 3,
+      "records": 1683,
+      "window": "2026-04-18T00:00:00+12:00/2026-04-23T00:00:00+12:00",
+      "truth": "official_historical_observations",
+      "observation_pack": "/cop/v4/april-storm-hilltop-observations.json"
+    },
     "wcc_transport_countlines": {
       "reported_active": 411,
       "total": 414,
       "cutoff": "2026-04-20",
-      "verification_status": "project_note_not_recomputed_in_this_build"
+      "window_record_count": 209334,
+      "availability_role": "retrospective_outcome_only",
+      "publisher_cadence": "at_least_monthly",
+      "verification_status": "local_official_parquet_count"
     }
   },
+  "data_conflicts": [
+    {
+      "subject": "Berhampore one-hour rainfall",
+      "formal_report_value_mm": 85.9,
+      "retrieved_virtual_series_peak_mm": 77.10347,
+      "resolution": "Preserve both claims. Do not rewrite the official Hilltop series to match the later formal report."
+    }
+  ],
   "time_claims": [
     {
       "source": "Greater Wellington Environment and Climate Committee order paper",
@@ -120,11 +138,26 @@
     }
   ],
   "replay_inputs": {
-    "status": "not_packaged",
-    "observations": [],
+    "status": "partially_packaged",
+    "observations": [
+      {
+        "source_id": "gwrc-hilltop",
+        "path": "/cop/v4/april-storm-hilltop-observations.json",
+        "series": 3,
+        "records": 1683,
+        "truth": "official_historical_observations",
+        "available_at_quality": "derived_cadence_bound"
+      }
+    ],
+    "retrospective_outcomes": [
+      {
+        "source_id": "wcc-transport-sensors",
+        "records": 209334,
+        "role": "movement_outcome_analysis_only",
+        "reason": "The official publisher cadence is at least monthly, so these records cannot be treated as event-time evidence."
+      }
+    ],
     "missing_families": [
-      "wcc_transport_counts",
-      "gwrc_rainfall_and_river_telemetry",
       "nzta_timestamped_road_impacts"
     ]
   }

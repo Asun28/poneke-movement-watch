@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 import {
+  buildEvidenceInbox,
   buildLiveSnapshot,
   buildSourceContracts,
   createAlertCandidates,
@@ -646,6 +647,60 @@ test("creates review-only alert candidates from fresh real evidence, never mock 
   assert.equal(alerts.candidates[0].llm.authority, "explanation_only");
   assert.deepEqual(alerts.candidates[0].evidence.supporting, ["geonet:quake:1"]);
   assert.doesNotMatch(JSON.stringify(alerts), /google:route:mock/);
+});
+
+test("promotes report and sensor corroboration while suppressing standalone road noise", () => {
+  const snapshot = {
+    schema: "wellington-live-snapshot/v1",
+    generated_at: "2026-08-10T01:02:00.000Z",
+    sources: [
+      { source_id: "wcc-ticket-detail", name: "WCC reports", role: "public_report_observation", runtime_state: "live", alert_eligible: true },
+      { source_id: "gwrc-hilltop", name: "Greater Wellington Hilltop", role: "hazard_observation", runtime_state: "live", alert_eligible: true },
+      { source_id: "nzta-road-events", name: "NZTA road events", role: "official_event_observation", runtime_state: "live", alert_eligible: true },
+      { source_id: "wcc-event-calendar", name: "WCC event calendar", role: "planned_demand_context", runtime_state: "mock", alert_eligible: false, provider_envelope: PROVIDER_FIXTURES["wcc-event-calendar"] },
+      { source_id: "wellington-airport-flights", name: "Wellington Airport", role: "transport_status_observation", runtime_state: "mock", alert_eligible: false, provider_envelope: PROVIDER_FIXTURES["wellington-airport-flights"] },
+      { source_id: "centreport-cruise-schedule", name: "CentrePort cruise", role: "planned_demand_context", runtime_state: "mock", alert_eligible: false, provider_envelope: PROVIDER_FIXTURES["centreport-cruise-schedule"] },
+    ],
+    observations: [
+      {
+        id: "report:1", source_id: "wcc-ticket-detail", kind: "public_report_observation",
+        observed_at: "2026-08-10T01:00:00.000Z", received_at: "2026-08-10T01:02:00.000Z",
+        freshness_state: "fresh", evidence_weight: 1, is_synthetic: false,
+        geometry: { type: "Point", coordinates: [174.776, -41.286] }, properties: { category: "Flooding", title: "Flooding reported" },
+      },
+      {
+        id: "sensor:1", source_id: "gwrc-hilltop", kind: "sensor_anomaly",
+        observed_at: "2026-08-10T00:58:00.000Z", received_at: "2026-08-10T01:02:00.000Z",
+        freshness_state: "fresh", evidence_weight: 1, is_synthetic: false,
+        geometry: { type: "Point", coordinates: [174.777, -41.286] }, properties: { candidate: true, title: "Rainfall sensor change" },
+      },
+      {
+        id: "road:1", source_id: "nzta-road-events", kind: "road_event_observation",
+        observed_at: "2026-08-10T00:59:00.000Z", received_at: "2026-08-10T01:02:00.000Z",
+        freshness_state: "fresh", evidence_weight: 2, is_synthetic: false,
+        geometry: { type: "Point", coordinates: [174.9, -41.2] }, properties: { name: "Unplanned road delay", impact: "Delays", is_planned: false },
+      },
+    ],
+  };
+
+  const alerts = createAlertCandidates(snapshot);
+  assert.equal(alerts.candidates.length, 1);
+  assert.equal(alerts.candidates[0].triage.promotion_reason, "report_and_sensor");
+  assert.deepEqual(alerts.candidates[0].evidence.supporting, ["report:1", "sensor:1"]);
+  assert.doesNotMatch(JSON.stringify(alerts), /road:1/);
+
+  const inbox = buildEvidenceInbox(snapshot);
+  assert.equal(inbox.schema, "wellington-evidence-inbox/v1");
+  assert.equal(inbox.review_candidate_count, 1);
+  assert.equal(inbox.raw_observation_count, 3);
+  assert.equal(inbox.suppressed_observation_count, 1);
+  assert.deepEqual(inbox.context_cards.map((card) => card.source_id), [
+    "wcc-event-calendar",
+    "wellington-airport-flights",
+    "centreport-cruise-schedule",
+  ]);
+  assert.ok(inbox.context_cards.every((card) => card.evidence_weight === 0));
+  assert.equal(inbox.monitoring_groups.find((group) => group.id === "sensors_weather").record_count, 1);
 });
 
 test("normalizes provider epoch seconds and evaluates active CAP at snapshot time", () => {

@@ -77,9 +77,9 @@ const CASE_STORAGE_KEY = "poneke-case-cop-drafts-v1";
 const MOCK_ID = "mock-preview";
 const EMPTY_REVIEW: ReviewDraft = { status: "open", classification: "undetermined", assignee: "", note: "", updatedAt: "" };
 const TABS: { id: TabId; label: string }[] = [
+  { id: "evidence", label: "Evidence" },
   { id: "case", label: "Case & COP" },
   { id: "warning", label: "Warning preparation" },
-  { id: "evidence", label: "Evidence" },
   { id: "activity", label: "Activity" },
 ];
 const EMPTY_CHANNELS: ChannelPreparation[] = [
@@ -178,7 +178,7 @@ export default function AlertCentreClient() {
   const [activeQueue, setActiveQueue] = useState<ReviewQueue>("new");
   const [reviewDrafts, setReviewDrafts] = useState<Record<string, ReviewDraft>>({});
   const [caseDrafts, setCaseDrafts] = useState<Record<string, CaseDraft>>({});
-  const [activeTab, setActiveTab] = useState<TabId>("case");
+  const [activeTab, setActiveTab] = useState<TabId>("evidence");
   const [notice, setNotice] = useState("");
   const [warningResult, setWarningResult] = useState<WarningResult | null>(null);
   const [workflowAdapterId, setWorkflowAdapterId] = useState(WORKFLOW_ADAPTERS[1].id);
@@ -252,7 +252,7 @@ export default function AlertCentreClient() {
     setWarningResult(null);
     setWorkflowResult(null);
     setWorkflowState("idle");
-    setActiveTab("case");
+    setActiveTab("evidence");
   }
 
   function changeReview(change: Partial<ReviewDraft>) {
@@ -438,7 +438,7 @@ export default function AlertCentreClient() {
       <article className="alert-review-panel" aria-labelledby="alert-ticket-title">
         <header className="alert-ticket-header">
           <div className="alert-ticket-identity">
-            <span className={selected ? "truth-chip" : "mock-chip"}>{selected ? "Live signal · unreviewed" : "Mock · not a live alert"}</span>
+            <span className={selected ? "truth-chip" : "mock-chip"}>{selected ? "Evidence candidate · unreviewed" : "Mock · not a live alert"}</span>
             <code>{selectedKey}</code>
           </div>
           <h2 id="alert-ticket-title">{selected?.title ?? preview.title}</h2>

@@ -1,5 +1,69 @@
 # Pōneke Movement Watch — evidence ontology roadmap
 
+## Phase 36 — evidence-first live triage and April sensor replay
+
+### Goal
+
+Make Live Operations useful under high signal volume: aggregate raw telemetry, promote only
+review-worthy multi-source or authoritative hazard evidence, expose planned city demand as
+zero-weight context, and add real April 2026 hydro-weather observations to Replay Analyzer.
+
+### Status
+
+- [completed] Audit the Live, Signal Review, map, source and Replay contracts.
+- [completed] Verify the shared GIS catalogue and the exact Hilltop historical query contract.
+- [completed] Add failing evidence-triage, UI, zoom and replay-pack tests.
+- [completed] Implement the evidence inbox, context cards, candidate noise gates and 1000% map.
+- [completed] Build and bind the real April Hilltop observation pack.
+- [completed] Verify all behavior, data truth, build and regressions.
+- [in_progress] Deploy to the existing owner-only site.
+
+### Acceptance criteria
+
+- Live Operations opens on Evidence Inbox before the map and raw source views.
+- Operators review promoted candidates, not every source record; the UI shows how many raw
+  records were grouped or suppressed.
+- Official hazard/warning evidence, sensor anomalies and a report plus a time/space-aligned
+  sensor anomaly may be promoted. A standalone road event or planned activity may not.
+- Weather, river and coastal sensors are visibly primary monitoring sources. City events,
+  cruise calls and airport arrivals/departures are visible as context with mock/access truth.
+- Signal Review opens each selected signal on Evidence before Case & COP.
+- Live and Replay maps support 50/70% through 1000% zoom, panning, fullscreen and real
+  OpenStreetMap street labels with attribution.
+- Replay ships actual 18–22 April Hilltop rows for two rainfall series and Hutt River flow,
+  with explicit `observed_at`, conservative derived `available_at`, units and coordinates.
+- WCC April movement rows remain retrospective outcome data because the publisher cadence is
+  at least monthly; they are not represented as event-time live evidence.
+
+### Assumptions and exclusions
+
+- No new model is fitted. Current rules create review candidates only; humans confirm cases.
+- Mock, context-only, unknown-time and post-event records keep zero score weight.
+- No City Event, airport or cruise publisher data is republished without clearance; provider-
+  shaped mock envelopes remain visibly labelled.
+- No standalone road/access observation enters the review queue unless corroborated.
+- No GitHub-origin push or remote-main mutation.
+
+### File-level plan
+
+- `site/tests/integration-model.test.mjs`, `site/tests/operator-console.test.mjs`,
+  `site/tests/layer-model.test.mjs`: triage, rendering and zoom contracts.
+- `tests/test_build_april_hilltop_pack.py`: historical Hilltop pack parser and time policy.
+- `site/lib/dataIntegration.mjs`, `site/lib/providerFixtures.mjs`, `site/worker/index.ts`:
+  evidence inbox, candidate promotion and context envelopes.
+- `site/app/components/LiveOperationsClient.tsx`, `LiveMap.tsx`, `AlertCentreClient.tsx`,
+  `site/app/globals.css`: evidence-first operator flow and map controls.
+- `scripts/build_april_hilltop_pack.py`, `site/public/cop/v4/*`, `site/app/replay/page.tsx`:
+  reproducible real sensor replay pack and visible data status.
+- `README.md`, `findings.md`, `progress.md`: source truth and delivery evidence.
+
+### Rejected major alternatives
+
+- Do not send every gauge, closure, event and schedule item to human review.
+- Do not use road events as the default primary evidence domain.
+- Do not claim WCC hourly transport counts are live when the source refresh is monthly.
+- Do not infer incident truth from event, cruise or flight schedules.
+
 ## Phase 35 — ontology-aware fusion architecture
 
 ### Goal

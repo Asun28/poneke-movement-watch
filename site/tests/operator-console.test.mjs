@@ -147,6 +147,25 @@ test("keeps replay controls out of the live module and preserves them in replay"
   assert.match(replay, /Batch replay/);
 });
 
+test("opens Live on a compact evidence inbox before map and zero-weight context", async () => {
+  const live = await (await request("/live")).text();
+  const review = await (await request("/alerts")).text();
+
+  assert.match(live, /aria-label="Live Operations views"/);
+  assert.ok(live.indexOf("Evidence Inbox") < live.indexOf("Map"));
+  assert.match(live, /aria-selected="true"[^>]*>Evidence Inbox</);
+  assert.match(live, /Grouped before review/);
+  assert.match(live, /City events/);
+  assert.match(live, /Flights in &amp; out/);
+  assert.match(live, /Cruise calls/);
+  assert.match(live, /Mock · zero evidence/);
+  assert.match(live, /data-max-zoom="1000%"/);
+  assert.match(live, /Street labels · OpenStreetMap/);
+
+  assert.ok(review.indexOf(">Evidence<") < review.indexOf("Case &amp; COP"));
+  assert.doesNotMatch(review, /Live signal · unreviewed/);
+});
+
 test("routes backtest events to Replay Analyzer instead of Live Operations", async () => {
   const live = await (await request("/live")).text();
   const replay = await (await request("/replay")).text();

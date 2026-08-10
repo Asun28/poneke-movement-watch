@@ -1,5 +1,6 @@
 import health from "../../public/cop/v1/movement-health.json";
 import aprilStorm from "../../public/cop/v4/april-storm-event-pack.json";
+import hilltopPack from "../../public/cop/v4/april-storm-hilltop-observations.json";
 import EvidenceCaseLedger from "../EvidenceCaseLedger";
 import ReplayCaseContext from "../components/ReplayCaseContext";
 import MovementCanvas from "../MovementCanvas";
@@ -26,7 +27,7 @@ export default function ReplayPage() {
           </div>
           <div className="backtest-header-status">
             <span>Replay Analyzer input</span>
-            <span className="backtest-readiness">Inputs not yet packaged</span>
+            <span className="backtest-readiness">3 sensor series loaded</span>
             <span className="backtest-toggle">Event details</span>
           </div>
         </summary>
@@ -35,7 +36,7 @@ export default function ReplayPage() {
           <div><span>Window</span><strong>18–22 Apr</strong></div>
           <div><span>Training cutoff</span><strong>Train before 18 Apr</strong></div>
           <div><span>Replay step</span><strong>5 or 15 min</strong></div>
-          <div><span>Coverage note</span><strong>{aprilStorm.coverage.wcc_transport_countlines.reported_active}/{aprilStorm.coverage.wcc_transport_countlines.total} countlines</strong></div>
+          <div><span>Sensor records</span><strong>{hilltopPack.record_count.toLocaleString("en-NZ")}</strong></div>
         </div>
 
         <div className="backtest-grid">
@@ -56,11 +57,20 @@ export default function ReplayPage() {
               <div><dt>Score</dt><dd>Lead time · precision/recall · false alerts · Brier</dd></div>
             </dl>
           </article>
+          <article>
+            <h3>Replay inputs</h3>
+            <dl className="backtest-rules">
+              <div><dt>Rainfall</dt><dd>Berhampore · Newtown</dd></div>
+              <div><dt>River flow</dt><dd>Hutt River at Taita Gorge</dd></div>
+              <div><dt>Movement</dt><dd>{aprilStorm.coverage.wcc_transport_countlines.window_record_count.toLocaleString("en-NZ")} records · outcome only</dd></div>
+              <div><dt>Availability</dt><dd>Derived cadence bound</dd></div>
+            </dl>
+          </article>
         </div>
 
         <div className="backtest-conflict" role="note">
-          <strong>Time conflict preserved</strong>
-          <span><code>source_claimed_time</code> → <code>normalized_event_time</code> · <code>correction_note</code></span>
+          <strong>Source conflicts preserved</strong>
+          <span><code>source_claimed_time</code> → <code>normalized_event_time</code> · <code>correction_note</code> · 85.9 mm report / 77.10347 mm series</span>
         </div>
 
         <footer className="backtest-footer">
@@ -68,7 +78,10 @@ export default function ReplayPage() {
             <strong>Mock excluded</strong>
             <span>One event cannot establish general accuracy.</span>
           </div>
-          <a href="/cop/v4/april-storm-event-pack.json">Open event pack</a>
+          <div className="backtest-links">
+            <a href="/cop/v4/april-storm-event-pack.json">Event pack</a>
+            <a href="/cop/v4/april-storm-hilltop-observations.json">Sensor data</a>
+          </div>
         </footer>
       </details>
       <div className="replay-available-heading">
@@ -86,6 +99,7 @@ export default function ReplayPage() {
             <a href="/cop/v1/movement-health.json"><span>Coverage and health</span><code>/cop/v1/movement-health.json</code></a>
             <a href="/cop/v2/evidence-graph.json"><span>Evidence graph</span><code>/cop/v2/evidence-graph.json</code></a>
             <a href="/cop/v4/april-storm-event-pack.json"><span>April storm event pack</span><code>/cop/v4/april-storm-event-pack.json</code></a>
+            <a href="/cop/v4/april-storm-hilltop-observations.json"><span>April storm sensor data</span><code>/cop/v4/april-storm-hilltop-observations.json</code></a>
           </div>
         </section>
       </details>

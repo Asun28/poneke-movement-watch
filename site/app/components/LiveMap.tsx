@@ -268,19 +268,20 @@ export default function LiveMap({
         onPointerLeave={() => setHovered(null)}
         onWheel={(event) => {
           event.preventDefault();
-          setZoom((value) => Math.max(0.7, Math.min(6, value + (event.deltaY < 0 ? 0.25 : -0.25))));
+          setZoom((value) => Math.max(0.7, Math.min(10, value + (event.deltaY < 0 ? 0.25 : -0.25))));
         }}
       />
-      <div className="ops-map-controls" aria-label="Map controls">
-        <button type="button" aria-label="Zoom in" onClick={() => setZoom((value) => Math.min(6, value + 0.5))}>+</button>
+      <div className="ops-map-controls" aria-label="Map controls" data-max-zoom="1000%">
+        <button type="button" aria-label="Zoom out" disabled={zoom <= 0.7} onClick={() => setZoom((value) => Math.max(0.7, value - 0.5))}>−</button>
         <output>{Math.round(zoom * 100)}%</output>
-        <button type="button" aria-label="Zoom out" onClick={() => setZoom((value) => Math.max(0.7, value - 0.5))}>−</button>
+        <button type="button" aria-label="Zoom in" disabled={zoom >= 10} onClick={() => setZoom((value) => Math.min(10, value + 0.5))}>+</button>
+        <label><span className="sr-only">Map zoom level</span><input type="range" aria-label="Map zoom level" min="0.7" max="10" step="0.1" value={zoom} onChange={(event) => setZoom(Number(event.currentTarget.value))} /></label>
         <button type="button" aria-label="Reset map view" onClick={() => { setZoom(1); setPan([0, 0]); }}>Reset</button>
         <button type="button" aria-label="Show map fullscreen" onClick={toggleFullscreen}>Full screen</button>
       </div>
       <div className="ops-map-status">
         <strong>Wellington</strong>
-        <span>{plottable.length} records</span>
+        <span>{plottable.length} records · Street labels · OpenStreetMap</span>
       </div>
       {hovered && (
         <div className="ops-map-hover" style={{ left: Math.min(hovered.x + 14, 520), top: Math.max(16, hovered.y - 32) }}>

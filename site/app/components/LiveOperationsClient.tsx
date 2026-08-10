@@ -1,11 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { KeyboardEvent as ReactKeyboardEvent, useCallback, useEffect, useMemo, useState } from "react";
 import LiveMap from "./LiveMap";
 
 type SourceState = {
   source_id: string;
   name: string;
+  role: string;
   connector_mode: string;
   runtime_state: string;
   record_count: number;
@@ -13,6 +14,9 @@ type SourceState = {
   received_at: string | null;
   message: string;
   alert_eligible: boolean;
+  access?: { status?: string };
+  truth?: { demo_data_status?: string };
+  provider_envelope?: Record<string, unknown>;
 };
 type Observation = {
   id: string;
@@ -31,7 +35,48 @@ type Snapshot = {
   summary: Record<string, number>;
   sources: SourceState[];
   observations: Observation[];
+  evidence_inbox?: EvidenceInbox;
 };
+
+type EvidenceCandidate = {
+  id: string;
+  title: string;
+  severity: string;
+  source_id: string;
+  observed_at: string | null;
+  triage: { priority: string; promotion_reason: string; grouped_before_review: boolean };
+  evidence: { supporting: string[]; contradicting: string[]; missing: string[]; context: string[] };
+};
+type MonitoringGroup = { id: string; label: string; record_count: number; fresh_count: number; source_count: number };
+type ContextCard = {
+  source_id: string;
+  label: string;
+  runtime_state: string;
+  truth_label: string;
+  access_status: string;
+  evidence_weight: number;
+  summary: string;
+};
+type EvidenceInbox = {
+  raw_observation_count: number;
+  review_candidate_count: number;
+  suppressed_observation_count: number;
+  candidates: EvidenceCandidate[];
+  monitoring_groups: MonitoringGroup[];
+  context_cards: ContextCard[];
+};
+type LiveView = "evidence" | "map" | "context";
+
+const LIVE_VIEWS: { id: LiveView; label: string }[] = [
+  { id: "evidence", label: "Evidence Inbox" },
+  { id: "map", label: "Map" },
+  { id: "context", label: "Context" },
+];
+const CONTEXT_PLACEHOLDERS: ContextCard[] = [
+  { source_id: "wcc-event-calendar", label: "City events", runtime_state: "mock", truth_label: "Mock · zero evidence", access_status: "terms review", evidence_weight: 0, summary: "Loading provider-shaped preview…" },
+  { source_id: "wellington-airport-flights", label: "Flights in & out", runtime_state: "mock", truth_label: "Mock · zero evidence", access_status: "publisher clearance", evidence_weight: 0, summary: "Loading arrival and departure previews…" },
+  { source_id: "centreport-cruise-schedule", label: "Cruise calls", runtime_state: "mock", truth_label: "Mock · zero evidence", access_status: "publisher clearance", evidence_weight: 0, summary: "Loading schedule preview…" },
+];
 
 function timeLabel(value: string | null) {
   if (!value) return "unknown";
@@ -62,6 +107,7 @@ export default function LiveOperationsClient() {
   const [paused, setPaused] = useState(false);
   const [selectedSources, setSelectedSources] = useState<Set<string>>(new Set());
   const [selectedObservation, setSelectedObservation] = useState<string | null>(null);
+  const [activeView, setActiveView] = useState<LiveView>("evidence");
 
   const refresh = useCallback(async () => {
     if (paused) return;
@@ -97,7 +143,13 @@ export default function LiveOperationsClient() {
     };
   }, [refresh]);
 
-  const liveSources = snapshot?.sources.filter((source) => source.connector_mode === "live") ?? [];
+  const liveSources = useMemo(() => {
+    const sourcePriority = new Map([
+      ["gwrc-hilltop", 0], ["geonet-tilde-wlgt", 1], ["metservice-cap", 2], ["geonet-quakes", 3],
+    ]);
+    return (snapshot?.sources.filter((source) => source.connector_mode === "live") ?? [])
+      .toSorted((first, second) => (sourcePriority.get(first.source_id) ?? 20) - (sourcePriority.get(second.source_id) ?? 20));
+  }, [snapshot]);
   const liveCount = liveSources.filter((source) => source.runtime_state === "live").length;
   const emptyCount = liveSources.filter((source) => source.runtime_state === "empty").length;
   const issueCount = liveSources.filter((source) => ["unavailable", "stale"].includes(source.runtime_state)).length;
@@ -109,6 +161,30 @@ export default function LiveOperationsClient() {
   const selectedSource = selected
     ? snapshot?.sources.find((source) => source.source_id === selected.source_id)
     : null;
+  const inbox = snapshot?.evidence_inbox;
+  const contextCards = inbox?.context_cards?.length ? inbox.context_cards : CONTEXT_PLACEHOLDERS;
+
+  function showCandidate(candidate: EvidenceCandidate) {
+    const observationId = candidate.evidence.supporting[0];
+    const observation = snapshot?.observations.find((item) => item.id === observationId);
+    if (observation) {
+      setSelectedSources((current) => new Set(current).add(observation.source_id));
+      setSelectedObservation(observation.id);
+    }
+    setActiveView("map");
+  }
+
+  function handleViewKey(event: ReactKeyboardEvent<HTMLButtonElement>, index: number) {
+    const move = event.key === "ArrowRight" ? 1 : event.key === "ArrowLeft" ? -1 : 0;
+    let nextIndex = move ? (index + move + LIVE_VIEWS.length) % LIVE_VIEWS.length : index;
+    if (event.key === "Home") nextIndex = 0;
+    if (event.key === "End") nextIndex = LIVE_VIEWS.length - 1;
+    if (!move && event.key !== "Home" && event.key !== "End") return;
+    event.preventDefault();
+    const next = LIVE_VIEWS[nextIndex];
+    setActiveView(next.id);
+    document.getElementById(`live-view-${next.id}`)?.focus();
+  }
 
   return (
     <section
@@ -142,7 +218,83 @@ export default function LiveOperationsClient() {
         </div>
       </div>
 
-      <div className="live-grid">
+      <div className="live-view-tabs" role="tablist" aria-label="Live Operations views">
+        {LIVE_VIEWS.map((view, index) => (
+          <button
+            key={view.id}
+            id={`live-view-${view.id}`}
+            type="button"
+            role="tab"
+            aria-selected={activeView === view.id}
+            aria-controls={`live-panel-${view.id}`}
+            tabIndex={activeView === view.id ? 0 : -1}
+            onClick={() => setActiveView(view.id)}
+            onKeyDown={(event) => handleViewKey(event, index)}
+          >{view.label}</button>
+        ))}
+      </div>
+
+      <section
+        id="live-panel-evidence"
+        className="live-inbox"
+        role="tabpanel"
+        aria-labelledby="live-view-evidence"
+        hidden={activeView !== "evidence"}
+      >
+        <header className="live-inbox-header">
+          <div><h2>Evidence Inbox</h2><span>Grouped before review</span></div>
+          <dl>
+            <div><dt>Raw</dt><dd>{inbox?.raw_observation_count ?? "—"}</dd></div>
+            <div><dt>Needs review</dt><dd>{inbox?.review_candidate_count ?? "—"}</dd></div>
+            <div><dt>Grouped / held</dt><dd>{inbox?.suppressed_observation_count ?? "—"}</dd></div>
+          </dl>
+        </header>
+        <div className="live-inbox-grid">
+          <section className="live-review-candidates" aria-labelledby="live-review-heading">
+            <header><h3 id="live-review-heading">Review candidates</h3><a href="/alerts">Open Signal Review</a></header>
+            {loading && <p className="ops-state is-loading" role="status">Grouping current evidence…</p>}
+            {error && <p className="ops-state is-error" role="alert">Evidence snapshot unavailable. Showing last data.</p>}
+            {!loading && inbox?.candidates.length === 0 && (
+              <div className="live-no-candidates"><strong>No promoted candidates</strong><span>Not an all-clear</span></div>
+            )}
+            <div className="live-candidate-list">
+              {inbox?.candidates.map((candidate) => (
+                <button key={candidate.id} type="button" onClick={() => showCandidate(candidate)}>
+                  <span><b>{candidate.triage.priority}</b><i>{candidate.severity}</i></span>
+                  <strong>{candidate.title}</strong>
+                  <small>{candidate.triage.promotion_reason.replaceAll("_", " ")} · {candidate.evidence.supporting.length} supporting</small>
+                </button>
+              ))}
+            </div>
+          </section>
+          <aside className="live-monitoring" aria-labelledby="live-monitoring-heading">
+            <header><h3 id="live-monitoring-heading">Monitoring</h3><span>Source groups</span></header>
+            <div className="live-monitoring-list">
+              {(inbox?.monitoring_groups ?? [
+                { id: "sensors_weather", label: "Weather & natural sensors", record_count: 0, fresh_count: 0, source_count: 0 },
+                { id: "official_hazards", label: "Warnings & natural hazards", record_count: 0, fresh_count: 0, source_count: 0 },
+                { id: "community_reports", label: "Reports", record_count: 0, fresh_count: 0, source_count: 0 },
+                { id: "access_context", label: "Access context", record_count: 0, fresh_count: 0, source_count: 0 },
+              ]).map((group) => (
+                <div key={group.id} data-monitoring-group={group.id}>
+                  <span><strong>{group.label}</strong><small>{group.source_count} sources</small></span>
+                  <output>{loading ? "—" : group.fresh_count}<small> fresh</small></output>
+                </div>
+              ))}
+            </div>
+            <div className="live-promotion-rule"><strong>Promote</strong><span>Official hazard · natural hazard signal · report + nearby sensor · sensor anomaly</span></div>
+            <div className="live-hold-rule"><strong>Hold</strong><span>Road-only · planned activity · mock · stale</span></div>
+          </aside>
+        </div>
+      </section>
+
+      <div
+        id="live-panel-map"
+        className="live-grid"
+        role="tabpanel"
+        aria-labelledby="live-view-map"
+        hidden={activeView !== "map"}
+      >
         <aside className="live-source-rail" aria-label="Live source layers">
           <header>
             <h2>Current feeds</h2>
@@ -227,6 +379,25 @@ export default function LiveOperationsClient() {
           )}
         </aside>
       </div>
+
+      <section
+        id="live-panel-context"
+        className="live-context-view"
+        role="tabpanel"
+        aria-labelledby="live-view-context"
+        hidden={activeView !== "context"}
+      >
+        <header><h2>City context</h2><span>Never incident evidence by itself</span></header>
+        <div className="live-context-grid">
+          {contextCards.map((card) => (
+            <article key={card.source_id}>
+              <header><h3>{card.label}</h3><span>{card.runtime_state.replaceAll("_", " ")}</span></header>
+              <p>{card.summary}</p>
+              <footer><strong>{card.truth_label}</strong><span>{card.access_status.replaceAll("_", " ")}</span></footer>
+            </article>
+          ))}
+        </div>
+      </section>
     </section>
   );
 }
