@@ -1,5 +1,56 @@
 # Pōneke Movement Watch — evidence ontology roadmap
 
+## Phase 37 — selectable Replay investigations
+
+### Goal
+
+Let an operator select a packaged historical case or create a browser-local investigation
+draft, then open Replay with an explicit case, time window, source and availability cutoff.
+
+### Status
+
+- [completed] Audit Replay, case handoff, April event pack and existing source workspace.
+- [completed] Add and verify failing investigation-catalogue and rendered-workflow tests.
+- [completed] Implement the compact investigation selector and local draft flow.
+- [completed] Verify behavior, accessibility, build and regressions.
+- [in_progress] Deploy to the existing owner-only site.
+
+### Acceptance criteria
+
+- Replay opens with an Investigation selector before dataset summary and playback surfaces.
+- April Storm is a selectable packaged case with its 18–22 April window, GWRC Hilltop as
+  primary source, 1,683 sensor rows and an `available_at` cutoff.
+- August movement review remains a separate selectable packaged investigation.
+- New investigation creates a browser-local draft with title, start, cutoff and primary
+  source, then opens a Replay URL carrying those values.
+- A local investigation is labelled as a draft and never creates an Incident, COP, evidence
+  fact, external ticket or dispatch.
+- The selector has visible labels, keyboard operation, 44px controls, submit feedback and a
+  responsive single-column layout.
+
+### Assumptions and exclusions
+
+- Packaged and local investigations are Replay contexts, not authoritative case records.
+- April hydro-weather data and August movement data keep separate playback contracts; no
+  cross-unit chart or invented combined score is added.
+- Drafts use the existing device-local prototype boundary; no D1 schema or account storage.
+- No model training, new feed, external write, GitHub-origin push or remote-main mutation.
+
+### File-level plan
+
+- `site/tests/integration-model.test.mjs`: catalogue, validation, URL and canonical-ID guards.
+- `site/tests/operator-console.test.mjs`: selector order, April option and draft form contract.
+- `site/lib/replayInvestigations.mjs`: pure packaged/draft investigation model.
+- `site/app/components/ReplayInvestigationSelector.tsx`: selection and local draft workflow.
+- `site/app/components/ReplayCaseContext.tsx`, `site/app/replay/page.tsx`: query context and case binding.
+- `site/app/globals.css`, `README.md`, `findings.md`, `progress.md`: compact UI and handoff.
+
+### Rejected major alternatives
+
+- Do not treat investigation selection as Incident/COP creation.
+- Do not overwrite packaged April metadata with editable local values.
+- Do not feed April rainfall/flow into the August movement chart without a typed adapter.
+
 ## Phase 36 — evidence-first live triage and April sensor replay
 
 ### Goal

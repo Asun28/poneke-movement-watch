@@ -1,18 +1,24 @@
 import health from "../../public/cop/v1/movement-health.json";
+import movementReplay from "../../public/cop/v1/movement-replay.json";
 import aprilStorm from "../../public/cop/v4/april-storm-event-pack.json";
 import hilltopPack from "../../public/cop/v4/april-storm-hilltop-observations.json";
+import { buildReplayInvestigationCatalog } from "../../lib/replayInvestigations.mjs";
 import EvidenceCaseLedger from "../EvidenceCaseLedger";
 import ReplayCaseContext from "../components/ReplayCaseContext";
+import ReplayInvestigationSelector from "../components/ReplayInvestigationSelector";
 import MovementCanvas from "../MovementCanvas";
 import OperatorShell from "../components/OperatorShell";
 
 export default function ReplayPage() {
+  const investigations = buildReplayInvestigationCatalog({ movementReplay, aprilStorm, hilltopPack });
+
   return (
     <OperatorShell
       active="/replay"
       title="Replay Analyzer"
       modeLabel="Batch replay"
     >
+      <ReplayInvestigationSelector catalog={investigations} />
       <ReplayCaseContext />
       <section className="replay-summary" aria-label="Replay dataset summary">
         <div><span>Investigation signals</span><strong>{health.candidate_count}</strong></div>

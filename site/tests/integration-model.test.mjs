@@ -177,6 +177,119 @@ test("cuts Replay evidence at available_at rather than observed_at", async () =>
   assert.match(handoff.replay_url, /as_of=2026-04-20T12%3A00%3A00.000Z/);
 });
 
+test("builds selectable packaged Replay investigations with an auditable April cutoff", async () => {
+  let investigationModel = {};
+  try {
+    investigationModel = await import("../lib/replayInvestigations.mjs");
+  } catch {
+    // RED until the production investigation model exists.
+  }
+  assert.equal(typeof investigationModel.buildReplayInvestigationCatalog, "function");
+  assert.equal(typeof investigationModel.buildReplayInvestigationUrl, "function");
+
+  const catalog = investigationModel.buildReplayInvestigationCatalog({
+    movementReplay: {
+      available_from: "2026-08-01T00:00:00+12:00",
+      available_to: "2026-08-06T23:00:00+12:00",
+      data_as_of: "2026-08-06T23:00:00+12:00",
+      slots: Array.from({ length: 144 }),
+    },
+    aprilStorm: {
+      event_id: "wellington-april-storm-2026",
+      title: "April Storm 2026",
+      mode: "retrospective_case_study",
+      window: {
+        start_at: "2026-04-18T00:00:00+12:00",
+        end_at: "2026-04-22T23:59:59+12:00",
+      },
+    },
+    hilltopPack: {
+      source_id: "gwrc-hilltop",
+      record_count: 1683,
+      truth: "official_historical_observations",
+    },
+  });
+
+  assert.deepEqual(catalog.map((item) => item.id), [
+    "wellington-april-storm-2026",
+    "august-movement-review-2026",
+  ]);
+  const april = catalog[0];
+  assert.equal(april.title, "April Storm · 18–22 Apr 2026");
+  assert.equal(april.source_id, "gwrc-hilltop");
+  assert.equal(april.record_count, 1683);
+  assert.equal(april.scope, "packaged");
+  assert.equal(april.editable, false);
+  assert.equal(april.as_of, "2026-04-22T23:59:59+12:00");
+  assert.equal(
+    investigationModel.buildReplayInvestigationUrl(april),
+    "/replay?investigation=wellington-april-storm-2026&case=wellington-april-storm-2026&source=gwrc-hilltop&from=2026-04-18T00%3A00%3A00%2B12%3A00&as_of=2026-04-22T23%3A59%3A59%2B12%3A00#april-storm-backtest",
+  );
+});
+
+test("creates bounded local Replay drafts without creating an Incident or overriding a packaged case", async () => {
+  let investigationModel = {};
+  try {
+    investigationModel = await import("../lib/replayInvestigations.mjs");
+  } catch {
+    // RED until the production investigation model exists.
+  }
+  assert.equal(typeof investigationModel.prepareReplayInvestigationDraft, "function");
+  assert.equal(typeof investigationModel.mergeReplayInvestigations, "function");
+
+  const sourceWindows = [{
+    source_id: "gwrc-hilltop",
+    starts_at: "2026-04-18T00:00:00+12:00",
+    as_of: "2026-04-22T23:59:59+12:00",
+    target_hash: "april-storm-backtest",
+  }];
+  const result = investigationModel.prepareReplayInvestigationDraft({
+    title: "Berhampore rainfall review",
+    source_id: "gwrc-hilltop",
+    starts_at: "2026-04-19T00:00:00+12:00",
+    as_of: "2026-04-21T12:00:00+12:00",
+  }, sourceWindows, ["wellington-april-storm-2026"]);
+
+  assert.equal(result.ready, true);
+  assert.equal(result.investigation.scope, "local_draft");
+  assert.equal(result.investigation.incident_created, false);
+  assert.equal(result.investigation.external_effect, "none");
+  assert.match(result.investigation.id, /^local:berhampore-rainfall-review:/);
+  assert.match(result.replay_url, /scope=local_draft/);
+  assert.match(result.replay_url, /as_of=2026-04-21T12%3A00%3A00%2B12%3A00/);
+
+  const outsideWindow = investigationModel.prepareReplayInvestigationDraft({
+    title: "Unsupported time",
+    source_id: "gwrc-hilltop",
+    starts_at: "2026-04-17T23:00:00+12:00",
+    as_of: "2026-04-21T12:00:00+12:00",
+  }, sourceWindows, []);
+  assert.equal(outsideWindow.ready, false);
+  assert.deepEqual(outsideWindow.errors, ["outside_source_window"]);
+
+  const collision = investigationModel.prepareReplayInvestigationDraft({
+    id: "wellington-april-storm-2026",
+    title: "Attempted overwrite",
+    source_id: "gwrc-hilltop",
+    starts_at: "2026-04-19T00:00:00+12:00",
+    as_of: "2026-04-21T12:00:00+12:00",
+  }, sourceWindows, ["wellington-april-storm-2026"]);
+  assert.equal(collision.ready, false);
+  assert.deepEqual(collision.errors, ["canonical_id_reserved"]);
+
+  const canonical = [{ id: "wellington-april-storm-2026", title: "Canonical", scope: "packaged" }];
+  const merged = investigationModel.mergeReplayInvestigations(canonical, [
+    result.investigation,
+    { ...result.investigation, id: "wellington-april-storm-2026", title: "Overwrite" },
+    { id: "broken" },
+  ]);
+  assert.deepEqual(merged.map((item) => item.id), [
+    "wellington-april-storm-2026",
+    result.investigation.id,
+  ]);
+  assert.equal(merged[0].title, "Canonical");
+});
+
 test("builds one versioned integration contract for every registered source", () => {
   const contracts = buildSourceContracts(registry, manifest);
 

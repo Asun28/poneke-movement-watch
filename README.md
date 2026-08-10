@@ -28,6 +28,13 @@ signals, sensor anomalies, or a public report aligned with a nearby sensor chang
 promoted to Signal Review. Standalone roads, planned events, flights, cruise calls, Mock and
 stale records stay held or in zero-weight context. Human staff decide whether to create a case.
 
+Replay opens with an **Investigation** selector. **April Storm · 18–22 Apr 2026** is a
+read-only packaged case backed by 1,683 official historical GWRC Hilltop sensor records;
+**August movement review · 1–6 Aug 2026** remains a separate WCC movement case. Staff may
+also create a title, start, cutoff and primary-source draft in their browser and open it in
+Replay. A local draft is not an Incident/COP, does not change evidence and performs no
+external write.
+
 The map's date, hour, previous/next, scrub and play controls move through 144
 real publisher time slots. Replay speed is adjustable at `0.5×`, `1×`, `2×`
 or `4×` and defaults to `1×`; it changes only the interval between time slots.
@@ -95,7 +102,7 @@ flowchart LR
 |---|---|---|
 | `/live` | Live Operations | Group current evidence first, then inspect the map and zero-weight city context. |
 | `/alerts` | Signal Review | Triage candidates, investigate cases, classify outcomes, prepare approval packs and inspect read-only evidence. |
-| `/replay` | Replay Analyzer | Reconstruct the 2026 WCC sensor history with date/hour/speed and matched-hour trends. |
+| `/replay` | Replay Analyzer | Select April Storm or August movement cases, create local investigation drafts and inspect bounded historical evidence. |
 | `/integration` | Data Integration | Review all 33 source contracts, access, runtime health, provider formats and integration endpoints. |
 | `/ontology` | City Ontology | Trace source evidence through shared concepts, corroboration and operator decisions using the operational chain or focused graph. |
 | `/setup` | Easy setup | Prepare a data source, API/MCP/A2A connection or operator defaults as a safe local draft. |

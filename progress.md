@@ -1,5 +1,25 @@
 # Progress — Phase 2 ontology and sources
 
+## Phase 37 — selectable Replay investigations
+
+- 2026-08-11: Audited Replay query handoffs, April event-pack metadata, the August player,
+  local source workspace and test contracts. Locked the boundary to packaged/local Replay
+  contexts, not Incident/COP creation or mixed-unit playback.
+- 2026-08-11: Selected a compact labelled selector plus progressively disclosed draft form;
+  next step is TDD RED for catalogue validation, April selection and rendered controls.
+- 2026-08-11: TDD RED confirmed three intended failures: no packaged-investigation catalogue,
+  no bounded local-draft preparation contract, and no Replay investigation selector before
+  the dataset summary. Existing unrelated tests remain green.
+- 2026-08-11: TDD GREEN completed. Replay now lists April Storm first and August movement
+  separately, preserves source/start/cutoff in the handoff URL, expands the selected packaged
+  case, and creates bounded browser-local drafts without creating an Incident/COP.
+- 2026-08-11: Site build, 73/73 behavior tests and ESLint pass. Browser verification passes
+  for selection, navigation and draft creation at desktop and 390px mobile widths with no
+  console warnings. Final regression and owner-only deployment remain.
+- 2026-08-11: Final local regression passes: 73/73 site behaviors, 24/24 Python tests,
+  production build, ESLint and whitespace checks. The restricted test-run temp-directory
+  error was rerun with the verified project-local path and cleaned afterward.
+
 ## Phase 36 — evidence-first live triage and April sensor replay
 
 - 2026-08-10: Audited Live Operations, Signal Review, both map implementations, source

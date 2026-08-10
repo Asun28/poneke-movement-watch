@@ -1,5 +1,25 @@
 # Findings — Phase 2 ontology and sources
 
+## Phase 37 — selectable Replay investigations
+
+- Replay already accepts `case`, `source` and `as_of` query parameters from Signal Review,
+  but it has no operator control for choosing a packaged case or creating one locally.
+- April Storm is currently a collapsed event-pack detail above the August player. Its exact
+  event ID, window, real Hilltop source and record count make it safe to expose as a read-only
+  packaged investigation without inventing an Incident or combining unlike sensor units.
+- The existing Replay source workspace already owns per-investigation source selection. The
+  new control should select the investigation context; it should not duplicate that full rail.
+- A small pure catalogue/URL layer can prevent local drafts from overriding canonical cases,
+  enforce start-before-cutoff, and keep `as_of` in every handoff for leakage auditing.
+- Local UI guidance prioritises visible form labels, immediate submit feedback and progressive
+  disclosure. Existing project styles already provide compact panels, 44px controls and a
+  one-column mobile breakpoint, so no dependency or visual redesign is required.
+- The implemented catalogue keeps April Hilltop and August movement as distinct typed cases.
+  Opening April preserves its exact `from` and `as_of` parameters and expands the packaged
+  event detail; it does not imply that the August movement player contains April hydro data.
+- Browser-local investigation drafts are bounded to a packaged source window, cannot replace
+  canonical IDs, and carry `incident_created: false` plus `external_effect: none`.
+
 ## Phase 36 — evidence-first live triage and April sensor replay
 
 - The shared GIS catalogue confirms that Greater Wellington Hilltop is the strongest current

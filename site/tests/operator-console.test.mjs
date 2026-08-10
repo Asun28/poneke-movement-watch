@@ -188,6 +188,29 @@ test("keeps the April backtest detail collapsed before the playable replay", asy
   assert.ok(replay.indexOf("April Storm · 18–22 Apr 2026") < replay.indexOf("August replay"));
 });
 
+test("lets an operator select April Storm or create a local Replay investigation", async () => {
+  const replay = await (await request("/replay")).text();
+  const selectorAt = replay.indexOf('aria-label="Replay investigations"');
+  const summaryAt = replay.indexOf('aria-label="Replay dataset summary"');
+
+  assert.ok(selectorAt > -1);
+  assert.ok(selectorAt < summaryAt);
+  assert.match(replay, /<label[^>]*>.*Investigation/s);
+  assert.match(replay, /name="investigation"/);
+  assert.match(replay, /April Storm · 18–22 Apr 2026/);
+  assert.match(replay, /1,683 sensor records/);
+  assert.match(replay, /August movement review · 1–6 Aug 2026/);
+  assert.match(replay, />Open investigation</);
+  assert.match(replay, />New investigation</);
+  assert.match(replay, /aria-label="New Replay investigation"/);
+  assert.match(replay, />Title</);
+  assert.match(replay, />Start</);
+  assert.match(replay, />Replay cutoff</);
+  assert.match(replay, />Primary source</);
+  assert.match(replay, />Create &amp; open</);
+  assert.match(replay, /Local draft · not Incident\/COP/);
+});
+
 test("renders truth, access and runtime health as separate integration dimensions", async () => {
   const response = await request("/integration");
   const html = await response.text();
