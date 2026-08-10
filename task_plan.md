@@ -14,7 +14,7 @@ mixing hindsight, mock records or post-event reports into model inputs.
 - [completed] Define the event-pack time/provenance/leakage contract and supported UI states.
 - [completed] Add failing behavior and artifact tests for the 回测 entry point and April pack.
 - [completed] Implement the Live Operations 回测 icon and event-pack view in Replay Analyzer.
-- [in_progress] Verify source truth, responsive accessibility and full regressions.
+- [completed] Verify source truth, responsive accessibility and full regressions.
 
 ### Acceptance criteria
 

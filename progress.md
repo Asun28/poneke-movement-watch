@@ -10,6 +10,9 @@
 - 2026-08-10: GREEN passes 39/39 site tests. Live now exposes a labelled 回测
   action; Replay renders the April case contract; the v4 artifact has zero invented
   observations and enforces time availability, OOF stacking and Mock exclusion.
+- 2026-08-10: Final verification passes: production build, 39/39 site tests,
+  ESLint, 22/22 Python tests and whitespace checks. Published to the existing
+  owner-only demo; access settings remain unchanged.
 
 ---
 
