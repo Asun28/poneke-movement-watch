@@ -151,12 +151,27 @@ test("shows a user-friendly ontology dashboard before advanced technical detail"
   const html = await (await request("/integration")).text();
   const dashboardAt = html.indexOf("Ontology Dashboard");
   const advancedAt = html.indexOf('<details class="operator-advanced">');
+  const sourcesAt = html.indexOf('data-ontology-level="sources"');
+  const conceptsAt = html.indexOf('data-ontology-level="concepts"');
+  const relationsAt = html.indexOf('data-ontology-level="relations"');
+  const destinationsAt = html.indexOf('data-ontology-level="destinations"');
+  const pathwaysAt = html.indexOf('<details class="ontology-pathways">');
 
   assert.ok(dashboardAt > -1);
   assert.ok(advancedAt > dashboardAt);
+  assert.ok(sourcesAt > dashboardAt);
+  assert.ok(sourcesAt < conceptsAt);
+  assert.ok(conceptsAt < relationsAt);
+  assert.ok(relationsAt < destinationsAt);
+  assert.ok(destinationsAt < pathwaysAt);
+  assert.ok(pathwaysAt < advancedAt);
+  assert.equal((html.match(/data-hierarchy-connector=/g) ?? []).length, 3);
+  assert.doesNotMatch(html, /<details class="ontology-pathways" open/);
   assert.match(html, /Data sources/);
   assert.match(html, /Ontology concepts/);
+  assert.match(html, /Relations &amp; rules/);
   assert.match(html, /Operator modules/);
+  assert.match(html, /Explore 33 source pathways/);
   assert.match(html, /aria-label="Filter ontology pathways by concept"/);
   assert.match(html, /aria-label="Filter ontology pathways by operator module"/);
   assert.equal((html.match(/data-ontology-path=/g) ?? []).length, 33);

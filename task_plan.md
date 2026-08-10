@@ -1,5 +1,56 @@
 # Pōneke Movement Watch — evidence ontology roadmap
 
+## Phase 24 — top-to-bottom ontology hierarchy
+
+### Goal
+
+Reshape the Ontology Dashboard into a calm top-to-bottom hierarchy that moves
+from source truth through concepts and relations to operator destinations, with
+the 33 per-source pathways available only when the operator asks for detail.
+
+### Status
+
+- [completed] Audit the current horizontal flow, dense path list and responsive contract.
+- [completed] Add a failing rendered hierarchy and progressive-disclosure test.
+- [completed] Implement the vertical hierarchy and focused detail expansion.
+- [in_progress] Verify regressions and deploy to the existing owner-only site.
+
+### Acceptance criteria
+
+- The rendered reading order is Sources → Concepts → Relations & rules → Operator destinations.
+- Each hierarchy level has a visible numbered heading, short summary and vertical connector.
+- Concept and destination cards remain keyboard-operable filters and open the relevant source pathways.
+- The complete 33-path detail is collapsed initially, expandable with a native labelled control,
+  and retains search, concept and destination filters.
+- Real/Mock/access/cost/ontology-weight labels and all source/role mappings remain unchanged.
+- The layout is one vertical reading flow on desktop and mobile with no horizontal graph or scroll.
+
+### Assumptions and exclusions
+
+- “Top to bottom” applies to the ontology dashboard hierarchy, not the five-module app navigation.
+- The five presentation groups remain navigation over the existing 28 exact roles, not new ontology nodes.
+- No data, model, API, route, source activation, authority or external action changes.
+- Browser visual inspection is not requested; verification uses rendered behavior, build and regression gates.
+
+### File-level plan
+
+- `site/tests/operator-console.test.mjs`: rendered hierarchy order and collapsed-detail behavior.
+- `site/app/components/OntologyDashboard.tsx`: vertical levels, connectors and interactive disclosure.
+- `site/app/globals.css`: single-column hierarchy, semantic branches and responsive detail rows.
+- `README.md`, `findings.md`, `progress.md`: updated operator behavior and validation.
+
+### Rejected major alternatives
+
+- Do not add a force-directed tree, Sankey/chart library or horizontal desktop-only pipeline.
+- Do not remove the 33 source mappings; move them behind progressive disclosure.
+- Do not infer that Integration-only contracts are operational evidence.
+
+### Errors encountered
+
+| Error | Attempt | Resolution |
+|---|---:|---|
+| Initial multi-skill read was truncated. | 1 | Re-read the test and UI instructions separately before implementation. |
+
 ## Phase 23 — user-friendly ontology dashboard
 
 ### Goal

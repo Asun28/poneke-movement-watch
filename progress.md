@@ -1,5 +1,23 @@
 # Progress — Phase 2 ontology and sources
 
+## Phase 24 — top-to-bottom ontology hierarchy
+
+- 2026-08-10: Started the requested hierarchy redesign. Audited the deployed
+  Phase 23 component and fixed scope at layout/progressive disclosure only: Sources
+  → Concepts → Relations & rules → Destinations, with source paths initially collapsed.
+- 2026-08-10: TDD RED is verified. The new rendered contract fails only because
+  the current page has no ordered vertical levels or collapsed pathway detail;
+  the other 53 site tests remain green.
+- 2026-08-10: TDD GREEN passes all 54 site tests. The dashboard now reads through
+  four numbered vertical levels, keeps two typed relation branches and truth rules
+  visible, and moves all source-level paths into a collapsed native drill-down.
+  Concept and destination selections open and filter that detail.
+- 2026-08-10: Validation passes the production build, 54/54 site tests, ESLint,
+  22/22 Python regressions and whitespace checks. The hierarchy uses labelled
+  native buttons/details, 44px+ targets, existing focus/reduced-motion rules and
+  one-column breakpoints without changing data contracts.
+
+
 ## Phase 23 — ontology dashboard
 
 - 2026-08-10: Started a focused Ontology Dashboard inside Data Integration. Locked

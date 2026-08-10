@@ -1,5 +1,23 @@
 # Findings — Phase 2 ontology and sources
 
+## Phase 24 — vertical hierarchy findings
+
+- The current dashboard is logically correct but still reads left-to-right twice:
+  the three-stage summary is horizontal on desktop and every one of the 33 source
+  pathways repeats Source → Role → Destination across a wide row. That weakens the
+  user's requested top-to-bottom mental model and exposes too much detail at once.
+- The safer hierarchy is four semantic levels: source truth, concept grouping,
+  ontology relations/rules, then operator destination. The per-source paths are
+  an audit drill-down, not the primary explanation, so native progressive disclosure
+  should keep them available without dominating the first viewport.
+- Concept and destination cards can remain filters. Selecting either should open
+  the drill-down and show the matching pathways, preserving current interaction
+  value while making the default state much calmer.
+- UI guidance supports a low-motion funnel/progressive-disclosure pattern with
+  sequential headings, native controls, visible focus and one-column mobile flow.
+  Oversized marketing type, scroll-reveal animation and a chart library remain rejected.
+
+
 ## Phase 23 — ontology dashboard findings
 
 - The user needs an operational explanation of the existing ontology, not a new

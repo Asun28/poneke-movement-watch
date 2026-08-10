@@ -227,10 +227,16 @@ records excluded by the freshness gate.
 ### Ontology Dashboard
 
 Data Integration joins every source contract to its matching `DataLayer` by
-`source_id` and presents one readable path:
+`source_id` and presents a top-to-bottom hierarchy:
 
 ```text
-data source → ontology concept + exact role → operator destination
+data sources
+  ↓
+ontology concepts
+  ↓
+relations and truth rules
+  ↓
+Live Operations / Alert Centre / Replay Analyzer / Integration only
 ```
 
 The five display groups are Movement & transport, Hazards & warnings, Access &
@@ -239,7 +245,8 @@ over the existing 28 exact ontology roles; they do not create new evidence or
 change the v3 graph. Operators can filter by source, concept or destination and
 see source truth, access/cost and ontology weight on every path. Alert Centre is
 shown only for live contracts already marked `alert_eligible`; every candidate
-still requires human review.
+still requires human review. The 33 source-level paths are collapsed by default;
+selecting a concept or destination opens the matching audit detail.
 
 Eventfinda is a first-class planned-demand contract, not observed attendance.
 Its API uses application-specific HTTP Basic credentials, so the public build
