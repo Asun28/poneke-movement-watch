@@ -1,5 +1,33 @@
 # Progress — Phase 2 ontology and sources
 
+## Phase 21 — case/COP and warning operations workflow
+
+- 2026-08-10: Audited the Alert Centre, mock adapters, Replay handoff, tests and
+  current civic design tokens. Locked the phase to a browser-local, demo-safe
+  case/COP and warning-preparation workflow; no database, authentication, model
+  training or real external command is in scope.
+- 2026-08-10: Selected a dense master-detail design with independent
+  Signal/Incident/Warning states and Case, Warning, Evidence and Activity tabs.
+  Rejected generic landing-page styling and any UI that implies mock channel
+  preparation equals authorised publication or resident delivery.
+- 2026-08-10: TDD RED produced six intended failures: the case workflow module,
+  three-axis workspace, warning channel receipts and `available_at` replay cutoff
+  did not exist. A focused follow-up RED also caught `severe` provider severity
+  being reduced to a P4 WCC ticket mock.
+- 2026-08-10: GREEN passes 49/49 site tests. Alert Centre now has a validated
+  browser-local Case/COP, staff-controlled Incident state, required warning pack,
+  distinct creator/approver, typed non-delivery channel states, versioned local
+  activity and safe six-adapter handoffs. `severe` and `extreme` now map to P1.
+- 2026-08-10: Replay handoff now carries and displays `case`, `source` and `as_of`.
+  The UI explicitly states that v1 movement rows lack individual `available_at`,
+  so the cutoff policy is required but not yet verifiable rather than claiming a
+  leakage-safe case replay.
+- 2026-08-10: Final local gate passes: production build, 49/49 site tests,
+  ESLint, 22/22 Python tests, diff checks and independent read-only safety/UX
+  verification. Deployment to the existing owner-only site is the remaining step.
+
+---
+
 ## Phase 18 — source labels and module separation
 
 - 2026-08-10: Audited contracts and all source-facing screens. Confirmed Live is
@@ -396,5 +424,27 @@
 - 2026-08-10: Final verification passes the production build, 44/44 site tests,
   ESLint, 22/22 Python tests and whitespace checks. The exact source was deployed
   to the existing owner-only Sites project with no access change.
+
+## Phase 20 — international emergency-response benchmark
+
+- 2026-08-10: Started a research-only phase after the user requested comparable
+  overseas cases and explicitly authorised bounded multi-agent research. Locked
+  the scope to primary-source benchmarking and a WCC operating roadmap; no site
+  change, source activation, outbound notification or model training is authorised.
+- 2026-08-10: Parallel official-source reviews completed for Netherlands LCMS/UK
+  ResilienceDirect, Australia HazardPublisher/AWS/US IPAWS and Japan SIP4D/J-Alert.
+  Main review independently verified the key platform boundaries and inspected the
+  relevant warning-process/failure pages in the full 2022 NSW Flood Inquiry.
+- 2026-08-10: Selected a composite design: LCMS case/COP discipline, SIP4D
+  semantic/release contracts, NSW operator approval UX and CAP/IPAWS distribution
+  controls. Defined the Wellington flash-flood operating flow and a three-stage
+  feature roadmap. No deployment or model fit was performed.
+
+## Phase 21 — case/COP and warning operations workflow
+
+- 2026-08-10: Started the authorised implementation phase. Chosen boundary is a
+  production-shaped, browser-local Case/COP and warning-preparation workflow
+  inside Alert Centre, retaining zero dispatch and zero evidence for every mock.
+  Database/authentication schema, real commands and model training remain excluded.
 
 ---

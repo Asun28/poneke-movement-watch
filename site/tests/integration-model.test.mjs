@@ -34,6 +34,118 @@ const manifest = {
   },
 };
 
+const validWarningDraft = {
+  case_id: "candidate:test:1",
+  hazard: "Surface flooding",
+  affected_area: "Berhampore",
+  warning_level: "protective_action",
+  community_impact: "Road access may become unsafe.",
+  public_action: "Avoid floodwater and use another route.",
+  effective_at: "2026-08-10T01:00:00.000Z",
+  expires_at: "2026-08-10T04:00:00.000Z",
+  next_update_at: "2026-08-10T02:00:00.000Z",
+  evidence_ids: ["nzta:event:1", "gwrc:rain:1"],
+  creator_id: "operator:maya",
+  approver_id: "operator:ana",
+};
+
+test("keeps Signal, Incident and Warning states independently human-controlled", async () => {
+  const { createCaseWorkflow } = await import("../lib/caseWorkflow.mjs");
+  const workflow = createCaseWorkflow({
+    case_id: "candidate:critical:1",
+    severity: "critical",
+    incident_state: "confirmed",
+    warning_state: "issued",
+  }, new Date("2026-08-10T01:05:00.000Z"));
+
+  assert.deepEqual(workflow.state, {
+    signal: "candidate",
+    incident: "unconfirmed",
+    warning: "none",
+  });
+  assert.equal(workflow.authority.incident_confirmation, "human_only");
+  assert.equal(workflow.authority.warning_issue, "human_only");
+  assert.equal(workflow.storage, "browser_local_demo");
+});
+
+test("requires complete warning fields and a distinct approver", async () => {
+  const { prepareWarningApproval } = await import("../lib/caseWorkflow.mjs");
+  const required = [
+    "hazard",
+    "affected_area",
+    "warning_level",
+    "public_action",
+    "effective_at",
+    "expires_at",
+    "next_update_at",
+    "evidence_ids",
+  ];
+
+  for (const field of required) {
+    const draft = structuredClone(validWarningDraft);
+    delete draft[field];
+    const result = prepareWarningApproval(draft, new Date("2026-08-10T01:05:00.000Z"));
+    assert.equal(result.ready, false, field);
+    assert.ok(result.errors.includes(`required:${field}`), field);
+    assert.equal(result.warning.state, "draft", field);
+    assert.ok(result.channels.every((channel) => channel.status === "not_prepared"), field);
+  }
+
+  const samePerson = prepareWarningApproval({
+    ...validWarningDraft,
+    creator_id: " Operator:MAYA ",
+    approver_id: "operator:maya",
+  });
+  assert.equal(samePerson.ready, false);
+  assert.ok(samePerson.errors.includes("distinct_approver_required"));
+
+  const unrelatedEvidence = prepareWarningApproval({
+    ...validWarningDraft,
+    evidence_ids: ["unrelated:claim"],
+    allowed_evidence_ids: validWarningDraft.evidence_ids,
+  });
+  assert.equal(unrelatedEvidence.ready, false);
+  assert.ok(unrelatedEvidence.errors.includes("invalid:evidence_ids"));
+});
+
+test("prepares a local approval package without issuing or fabricating delivery", async () => {
+  const { prepareWarningApproval } = await import("../lib/caseWorkflow.mjs");
+  const result = prepareWarningApproval(validWarningDraft, new Date("2026-08-10T01:05:00.000Z"));
+
+  assert.equal(result.ready, true);
+  assert.equal(result.warning.state, "awaiting_approval");
+  assert.equal(result.mode, "mock");
+  assert.equal(result.is_synthetic, true);
+  assert.equal(result.dispatched, false);
+  assert.equal(result.authority.external_action, "not_authorised");
+  assert.deepEqual(result.delivery_receipts, []);
+  assert.ok(result.channels.every((channel) => channel.status === "prepared_not_sent"));
+  assert.ok(result.channels.every((channel) => !["accepted", "failed", "published"].includes(channel.status)));
+  assert.notEqual(result.approval.creator_id, result.approval.approver_id);
+  assert.equal(result.timeline.at(-1).action, "approval_pack_prepared");
+  assert.equal(result.timeline.at(-1).case_version, 2);
+});
+
+test("cuts Replay evidence at available_at rather than observed_at", async () => {
+  const { buildReplayHandoff } = await import("../lib/caseWorkflow.mjs");
+  const handoff = buildReplayHandoff({
+    case_id: "storm:1",
+    source_id: "nzta-road-events",
+    as_of: "2026-04-20T12:00:00.000Z",
+    evidence: [
+      { id: "in-time", observed_at: "2026-04-20T09:00:00.000Z", available_at: "2026-04-20T11:59:00.000Z" },
+      { id: "future", observed_at: "2026-04-20T09:00:00.000Z", available_at: "2026-04-20T12:01:00.000Z" },
+      { id: "unknown-time", observed_at: "2026-04-20T08:00:00.000Z", available_at: null },
+    ],
+  });
+
+  assert.equal(handoff.evidence_policy, "available_at_only");
+  assert.equal(handoff.as_of, "2026-04-20T12:00:00.000Z");
+  assert.deepEqual(handoff.selected_evidence_ids, ["in-time"]);
+  assert.equal(handoff.window.ends_at, handoff.as_of);
+  assert.match(handoff.replay_url, /as_of=2026-04-20T12%3A00%3A00.000Z/);
+});
+
 test("builds one versioned integration contract for every registered source", () => {
   const contracts = buildSourceContracts(registry, manifest);
 

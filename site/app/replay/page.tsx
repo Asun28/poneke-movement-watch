@@ -1,6 +1,7 @@
 import health from "../../public/cop/v1/movement-health.json";
 import aprilStorm from "../../public/cop/v4/april-storm-event-pack.json";
 import EvidenceCaseLedger from "../EvidenceCaseLedger";
+import ReplayCaseContext from "../components/ReplayCaseContext";
 import MovementCanvas from "../MovementCanvas";
 import OperatorShell from "../components/OperatorShell";
 
@@ -13,6 +14,7 @@ export default function ReplayPage() {
       description="Choose a date, hour and source. Select a signal to inspect its history."
       modeLabel="Batch replay"
     >
+      <ReplayCaseContext />
       <section className="replay-summary" aria-label="Replay dataset summary">
         <div><span>Investigation signals</span><strong>{health.candidate_count}</strong></div>
         <div><span>Data gaps</span><strong>{health.data_gap_groups}</strong></div>

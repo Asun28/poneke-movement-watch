@@ -1,5 +1,138 @@
 # Pōneke Movement Watch — evidence ontology roadmap
 
+## Phase 21 — case/COP and warning operations workflow
+
+### Goal
+
+Turn the international benchmark into a focused Alert Centre workflow that lets
+an operator move from a reviewed candidate to a structured case/COP, prepare an
+authorised-warning package, inspect channel states and hand the exact case to
+Replay Analyzer without implying that any external action occurred.
+
+### Status
+
+- [completed] Audit current Alert Centre, workflow adapters, replay handoff and design tokens.
+- [completed] Define the case/COP, three-axis state, approval and channel contracts.
+- [completed] Add failing behavior tests for the operator workflow and safety boundaries.
+- [completed] Implement the compact case workspace and warning preparation UI.
+- [in_progress] Verify accessibility, responsive layout, regressions and owner-only deployment.
+
+### Acceptance criteria
+
+- The selected candidate shows three independent states: Signal, Incident and Warning.
+- An operator can prepare a browser-local case/COP with owner, next review,
+  affected area, situation, confirmed/unknown items and current actions.
+- Warning preparation requires hazard, affected area, level, public action,
+  effective/expiry/next-update times and linked evidence before it can become
+  `awaiting_approval`.
+- Creator and approver are distinct recorded roles; a prepared package remains
+  mock/local and cannot become an issued public warning.
+- Channel rows distinguish `not_prepared`, `prepared_not_sent`, `accepted`,
+  `failed` and `published`, but this demo can produce only the first two states.
+- Every workflow version and action is shown in a case timeline and the Replay
+  handoff retains `available_at_only` evidence policy.
+- Existing model authority, zero-evidence mocks, PII removal, source truth,
+  Live/Replay separation and five-route navigation do not regress.
+
+### Assumptions and exclusions
+
+- This is a production-shaped demo workflow, not durable production case storage.
+  User edits remain explicitly browser-local because the deployed site has no D1
+  binding; adding a database or authentication schema requires a separate approval.
+- No real WCC ticket, field dispatch, leadership contact, CDEM/NEMA escalation,
+  public warning, SMS, email or social post is sent.
+- No Australian warning names/colors become WCC policy; the demo uses neutral
+  `Advice`, `Watch and act` and `Emergency` labels as mock workflow vocabulary.
+- No new data source or model is trained. Existing detectors and evidence remain read-only.
+
+### File-level plan
+
+- `site/tests/operator-console.test.mjs`, `site/tests/integration-model.test.mjs`:
+  RED behavior and safety assertions at the rendered/API boundaries.
+- `site/lib/caseWorkflow.mjs`, `site/lib/workflowAdapters.mjs`, `site/worker/index.ts`:
+  deterministic state, validation, channel and handoff contracts.
+- `site/app/components/AlertCentreClient.tsx`, `site/app/globals.css`:
+  compact case/COP tabs, warning composer, approval state and timeline.
+- `site/app/replay/page.tsx`: case handoff label only if needed by the verified contract.
+- `README.md`, `findings.md`, `progress.md`: operating boundary and evidence.
+
+### Parallel goal graph
+
+- A: read-only workflow/contract audit.
+- B: read-only public-sector dashboard UX blueprint.
+- C: read-only acceptance and safety-test review.
+- D: serialized main-agent RED/GREEN implementation after A/B/C feed exact findings.
+- E: independent read-only verification after D; deployment only after tests release the gate.
+
+### Rejected major alternatives
+
+- Do not add D1, authentication or a real command API in this phase.
+- Do not make one overall score drive incident confirmation or warning issuance.
+- Do not add a sixth primary route; the workflow belongs inside Alert Centre and Replay.
+- Do not install a large visual design system into the existing dependency-light prototype.
+
+### Errors encountered
+
+| Error | Attempt | Resolution |
+|---|---:|---|
+| Direct `npm run build` hit a Windows sandbox `spawn EPERM` after prior successful builds. | 1 | Re-ran through the approved full `npm test` gate; production build and all tests passed. |
+
+---
+
+## Phase 20 — international emergency-response benchmark
+
+### Goal
+
+Benchmark real flood/disruption response systems and operating cases in other
+countries, then define the smallest evidence-backed feature and workflow upgrade
+for WCC Live Operations, Alert Centre and Replay Analyzer.
+
+### Status
+
+- [completed] Audit the current prototype boundary and select comparable international systems.
+- [completed] Run parallel primary-source research for shared COP, interoperability and public warning.
+- [completed] Compare real event workflows, design patterns, governance and failure lessons.
+- [completed] Define a WCC target operating flow and prioritised borrowing roadmap.
+- [completed] Independently verify claims, source links and model-training recommendation.
+
+### Acceptance criteria
+
+- At least four official systems are compared using primary or authoritative sources.
+- At least one real flood or severe-weather case is traced from detection through
+  investigation, escalation, public warning and post-event review.
+- Recommendations distinguish useful patterns from unsafe or inapplicable copies.
+- Every proposed WCC feature maps to the existing Live, Alerts, Replay or
+  Integration module and has an explicit implementation priority.
+- Model training is recommended only where labels, event independence and a
+  leak-free validation path exist.
+
+### Assumptions and exclusions
+
+- This phase is research and operating-model design only; it does not change the
+  deployed site, activate a source, send a notification or train a production model.
+- Publicly documented overseas practice is comparative evidence, not authority to
+  bypass WCC, CDEM, NEMA, privacy, procurement or warning-approval rules.
+- Vendor marketing claims do not count as operational evidence unless corroborated
+  by an official agency, inquiry or technical standard.
+
+### Parallel research graph
+
+- Netherlands LCMS and UK ResilienceDirect: multi-agency COP and case coordination.
+- Australia Hazards Near Me/Australian Warning System and US IPAWS: public-warning
+  preparation, approval and multi-channel delivery.
+- Japan SIP4D/J-Alert and regional alternatives: ontology/interoperability and
+  cross-agency data exchange.
+- Main synthesis: current-product gap map, real Wellington-style case walkthrough,
+  priorities and independent source verification.
+
+### Errors encountered
+
+| Error | Attempt | Resolution |
+|---|---:|---|
+| `agent-reach` executable is not installed on the active PATH. | 1 | Use the skill's documented Exa/mcporter and Jina Reader routes, plus official primary-source verification; do not retry the missing executable. |
+
+---
+
 ## Phase 19 — investigation workflow mock adapters
 
 ### Goal

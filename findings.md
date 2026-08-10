@@ -903,4 +903,133 @@ supports spatial event-footprint resolution, never direct building-damage claims
   endpoint whose result remains `dispatched: false`; existing live snapshot and
   alert candidate paths need not change.
 
+## Phase 20 — international response benchmark findings
+
+- The current prototype already has the right four-module skeleton: Integration
+  normalizes provider records and health; Live presents permitted current
+  observations; Alerts supports human review plus six zero-dispatch workflow
+  preparations; Replay freezes evidence by `available_at` and preserves source
+  time corrections.
+- The main operational gaps are not another map or another classifier. They are
+  a durable incident/case object, a server-owned state transition log, role and
+  approval policy, task/receipt tracking, an authoritative affected-area object,
+  and warning publication receipts. Current review edits are device-local and all
+  workflow adapters deliberately remain `prepared_not_sent`.
+- The Agent Reach executable is unavailable on PATH. Continue through the skill's
+  documented Exa/mcporter or Jina Reader routes and independently verify claims
+  against official primary sources.
+- NIPV's official evaluation of the July 2021 Limburg flood shows LCMS was used
+  to connect text, geo-information and the national water picture across RWS,
+  water authorities and safety regions. The limiting factor was operational
+  discipline: fast-changing information became stale, teams wrote in different
+  places/styles, interpretation capacity became a bottleneck, and uncaptured
+  phone/WhatsApp traffic weakened the shared record.
+- The same case shows why a named information manager and role-aware access are
+  features, not administrative overhead. A rescue fleet initially lacking LCMS
+  access relied on information managers and a dedicated LCMS tab to see field
+  deployment and relief planning; unclear field liaison and communications led
+  to avoidable coordination problems.
+- UK official flood planning uses Local Resilience Forums and ResilienceDirect
+  incident pages/COPs for multi-agency information. The 2018 government review
+  praised local sharing but found poor usability, weak cross-region aggregation,
+  inconsistent naming/templates, limited mapping/task/logging, insufficient
+  training and a need for ResilienceDirect to become the audit-trail key holder.
+- Borrowing implication: WCC needs one named information-manager role per active
+  incident, standard situation-report fields, a case-specific COP page, a
+  captured action/decision log and cross-area summary. Avoid a document dump or
+  assuming a shared map remains current by itself.
+- The Australian Warning System separates operational evidence from public
+  warning language through three consistent levels—Advice, Watch and Act, and
+  Emergency Warning—and approved calls to action. A warning is explicitly a
+  point-in-time statement of expected/actual community impact plus what people
+  should do, not a raw model score.
+- FEMA IPAWS demonstrates the distribution contract WCC should emulate at the
+  adapter boundary: one CAP message, an authorised alerting authority, validation
+  of certificate/format/event/channel permissions, explicit geographic targeting
+  and distinct delivery pathways. Polygon delivery can still bleed outside the
+  intended area, so public copy must name the intended area and delivery receipts
+  must not be presented as proof every recipient saw the warning.
+- The 2022 NSW flood inquiry is the appropriate Australian severe-weather case
+  source. It examines preparation, response, recovery and intergovernmental
+  coordination; detailed warning failures must be taken only from the report,
+  not inferred from the existence of the inquiry.
+- The full NSW inquiry documents a sound nominal warning chain: Bureau flood
+  forecast → intelligence/public-information team compares predicted heights with
+  consequence cards → action statement/evacuation product → Incident Controller
+  approval → additional State Duty Commander approval for evacuation → website,
+  COP, media, doorknocking, call trees and Emergency Alert distribution.
+- Lismore shows how that chain can fail. The inquiry found centralised intelligence
+  did not synthesize all available factors, local information was weak, IMT scale
+  became overwhelming, some orders allowed only about 30 minutes, return/all-clear
+  decisions did not adequately test road/river conditions on the ground, gauges
+  failed, and loss of warning data should itself have triggered more conservative
+  decisions rather than silence.
+- This produces three non-negotiable WCC design rules: `missing expected telemetry`
+  is an alertable operational condition; a warning/return decision must cite local
+  impact and safe-access evidence; and every publication decision needs named
+  approvers plus the evidence snapshot they saw.
+- Japan provides a useful separation of concerns. SIP4D/ISUT integrates and
+  transforms heterogeneous disaster data into shared geospatial products for
+  decision support, with public information separated from restricted
+  agency-only views. J-Alert is a distinct authorised rapid-distribution system
+  for time-critical messages through multiple channels.
+- Japan's 2024 SOBO-WEB operationalisation expands the shared geospatial system
+  across central government, local authorities and designated public bodies and
+  explicitly addresses redundancy. The WCC equivalent should keep ontology/data
+  fusion separate from warning authority, preserve a public/restricted view
+  boundary and support reduced-capacity operation when cloud feeds fail.
+- Official Japanese practice runs recurring end-to-end J-Alert tests (generally
+  four times per year since FY2018) and requires correction after failures. WCC's
+  mock adapter fixtures should evolve into a clearly isolated exercise environment
+  with measured delivery receipts before any real publication interface is enabled.
+- Digital NSW independently confirms HazardPublisher's highly relevant operator
+  pattern: mobile-first structured templates, verbal or online approval, live
+  in-progress/active dashboards, creator/approver/viewer views and one canonical
+  update published through multiple channels.
+- The UK Cabinet Office independently confirms ResilienceDirect is a secure,
+  multi-agency, role-bounded service for planning, exercising, response and
+  recovery; access and shared pages/maps differ for statutory and sponsored
+  partners. This supports a private partner view instead of exposing one universal
+  map to every user.
+- The strongest international design is a composition, not a clone: LCMS for
+  shared case/COP ownership and audit; SIP4D for semantic packages and internal vs
+  public views; HazardPublisher/Australian Warning System for operator workflow and
+  action language; IPAWS/CAP for authorised versioned distribution and receipts.
+- International examples agree that software alone does not solve response:
+  trained information managers, local intelligence, resilient communications,
+  exercises and human authority are part of the product contract.
+- Model decision: retain per-source robust anomaly detection and LLM evidence
+  summarisation/draft assistance. Do not train a learned fusion/severity model
+  until several independent events and normal controls generate leak-free,
+  human-reviewed case labels; one April storm remains a backtest, not accuracy.
+- Phase 21 code audit confirms Alert Centre already has the correct queue/detail
+  shell, read-only evidence buckets, browser-local review drafts and six safe mock
+  workflow adapters. The missing layer is a typed case/COP record, independent
+  Signal/Incident/Warning states, warning completeness validation, distinct
+  creator/approver roles, channel receipts and a visible version/action timeline.
+- The deployed Sites project currently has no durable database or authentication
+  binding. The production-shaped demo must therefore label all case edits and
+  approvals as browser-local, and it must never expose an `issue` command or
+  manufacture `accepted`/`published` channel receipts.
+- The UI design search supports a dense, low-motion master-detail workspace with
+  keyboard-complete controls, visible focus and inline validation. Its generic
+  red palette, oversized type and landing-page motion were rejected because they
+  conflict with the existing civic operations design and routine operator use.
+- The smallest usable hierarchy is: compact three-axis state strip; four focused
+  tabs for Case, Warning, Evidence and Activity; an action-first warning form; a
+  channel matrix that separates preparation from delivery; and one Replay handoff
+  whose evidence policy remains `available_at_only`.
+- Implementation preserves the legacy six-field adapter projection and exact WCC
+  ticket field set. Full Case/COP notes and people fields remain in browser-local
+  storage and are not forwarded to mock provider payloads.
+- Warning preparation now rejects missing required fields, same-person approval,
+  invalid time ordering and evidence IDs outside the current case. A valid local
+  pack reaches only `awaiting_approval`; channel states remain
+  `prepared_not_sent`, `dispatched:false` with an empty receipt list.
+- Replay URLs now carry the concrete `as_of` cutoff and the Replay banner displays
+  it. Because the packaged v1 movement observations do not contain per-row
+  `available_at`, the UI correctly labels enforcement as required but not yet
+  verifiable; future-dated or unknown-availability evidence is excluded by the
+  pure handoff builder when those fields are supplied.
+
 ---

@@ -82,7 +82,7 @@ flowchart LR
 | Route | Module | Purpose |
 |---|---|---|
 | `/live` | Live Operations | Map current permitted observations and distinguish live, empty, stale and unavailable sources. |
-| `/alerts` | Alert Centre | Review candidates, prepare mock workflow actions and inspect read-only evidence. |
+| `/alerts` | Alert Centre | Review signals, maintain a browser-local Case/COP, prepare approval packs and inspect read-only evidence. |
 | `/replay` | Replay Analyzer | Reconstruct the 2026 WCC sensor history with date/hour/speed and matched-hour trends. |
 | `/integration` | Data Integration | Inspect all 33 provider contracts, access/cost state, raw format and runtime policy. |
 | `/setup` | Easy setup | Prepare a data source, API/MCP/A2A connection or operator defaults as a safe local draft. |
@@ -91,11 +91,23 @@ Routine screens are task-first: select a source, marker, candidate or setup
 section. Page guidance is closed under **Help**. Technical APIs, ontology and
 full replay evidence are closed under **Advanced** or **Evidence review**.
 
-Alert Centre uses a queue-and-ticket workflow. Operators can edit review status,
-assignee and notes, then save a draft on the current browser. Severity, source,
-observation time and evidence remain read-only. These drafts are not shared
-records; a production multi-user queue still requires authenticated server-side
-storage and audit history.
+Alert Centre uses a compact queue-and-case workflow. It keeps three independent
+states: **Signal**, **Incident** and **Warning**. A severe signal never confirms
+an incident or issues a warning. Operators can maintain a browser-local Case/COP
+with an information manager, next review, affected area, situation, confirmed and
+unknown items, and current actions. Severity, source, observation time and system
+evidence remain read-only.
+
+The Warning tab validates hazard, area, level, public action, effective/expiry/
+next-update times, linked evidence, and distinct creator/approver roles before it
+can prepare an `awaiting_approval` package. This demo cannot reach `issued`.
+Channel rows distinguish `not_prepared` and `prepared_not_sent`; future real
+adapters may add `accepted`, `failed` and `published` receipts, but a provider
+receipt would still not prove that every resident saw a warning.
+
+Case activity is a browser-local timeline, not a shared or statutory audit log.
+A production multi-user COP requires authenticated server-side storage, role
+permissions, immutable version history and authorised publishing interfaces.
 
 ### Investigation workflow mocks
 
@@ -104,6 +116,11 @@ Analyzer handoff, WCC field dispatch, leadership notification, Civil
 Defence/NEMA escalation, and a public-warning/social draft. Every result is
 synthetic, remains `prepared_not_sent`, carries zero evidence weight and performs
 no external write.
+
+Replay handoffs use `available_at_only`: evidence is eligible only if it was
+available by the replay cutoff. The current v1 movement rows do not carry an
+individual `available_at`, so the Replay banner labels this policy as required
+but not yet verifiable instead of claiming a leakage-safe case replay.
 
 The WCC ticket mock preserves the supplied `TICKET_DETAIL` keys: `TICKET_ID`,
 `INCIDENT_ADDRESS`, `LOCATION`, `LONGITUDE`, `LATITUDE`, `CREATED_AT`,

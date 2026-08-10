@@ -1,3 +1,5 @@
+import { buildReplayHandoff } from "./caseWorkflow.mjs";
+
 export const WORKFLOW_ADAPTERS = [
   { id: "wcc-ticket", name: "WCC ticket", target: "WCC ticket system", contract_status: "supplied_field_contract" },
   { id: "replay-case-handoff", name: "Replay Analyzer handoff", target: "Replay Analyzer", contract_status: "internal_demo_contract" },
@@ -19,11 +21,12 @@ function normaliseCase(input = {}) {
     source_id: cleanText(input.source_id, "unknown-source"),
     observed_at: cleanText(input.observed_at, null),
     affected_area: cleanText(input.affected_area, "Wellington impact area"),
+    as_of: cleanText(input.as_of, null),
   };
 }
 
 function wccPriority(severity) {
-  if (severity === "high" || severity === "critical") return 1;
+  if (["high", "critical", "severe", "extreme"].includes(severity)) return 1;
   if (severity === "moderate") return 2;
   if (severity === "low") return 3;
   return 4;
@@ -57,14 +60,13 @@ function buildProviderPayload(adapterId, caseRecord, now) {
     };
   }
   if (adapterId === "replay-case-handoff") {
-    return {
+    return buildReplayHandoff({
       case_id: caseRecord.case_id,
-      mode: "case_investigation",
-      replay_url: `/replay?case=${encodeURIComponent(caseRecord.case_id)}&source=${encodeURIComponent(caseRecord.source_id)}#history-replay`,
-      window: { starts_at: caseRecord.observed_at, ends_at: now.toISOString() },
-      selected_sources: [caseRecord.source_id],
-      evidence_policy: "available_at_only",
-    };
+      source_id: caseRecord.source_id,
+      starts_at: caseRecord.observed_at,
+      as_of: caseRecord.as_of ?? now.toISOString(),
+      evidence: [],
+    });
   }
   if (adapterId === "wcc-field-dispatch") {
     return {
@@ -104,6 +106,13 @@ function buildProviderPayload(adapterId, caseRecord, now) {
       instruction: "Draft only. Await authorised incident and communications approval.",
     },
     channels: ["WCC website", "WCC social media"],
+    channel_preparations: ["WCC website", "WCC social media"].map((label) => ({
+      label,
+      status: "prepared_not_sent",
+      dispatched: false,
+      receipt_at: null,
+      external_reference: null,
+    })),
     approval_required: ["Incident Controller", "Communications lead"],
     publication_state: "DRAFT_NOT_SENT",
   };
@@ -146,6 +155,7 @@ export function prepareWorkflowMock(adapterId, input, now = new Date()) {
     dispatched: false,
     evidence_weight: 0,
     status: "prepared_not_sent",
+    delivery_receipts: [],
     prepared_at: preparedAt.toISOString(),
     case: caseRecord,
     provider_payload: buildProviderPayload(adapter.id, caseRecord, preparedAt),

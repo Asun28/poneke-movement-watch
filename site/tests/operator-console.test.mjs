@@ -102,6 +102,8 @@ test("routes backtest events to Replay Analyzer instead of Live Operations", asy
   assert.match(replay, /Replay Analyzer input/);
   assert.match(replay, /id="april-storm-backtest"/);
   assert.doesNotMatch(replay, /回测/);
+  assert.match(replay, /Case handoff/);
+  assert.match(replay, /available_at-only policy required in v1/);
 });
 
 test("renders truth, access and runtime health as separate integration dimensions", async () => {
@@ -168,6 +170,24 @@ test("provides a focused editable review ticket without changing system truth", 
   assert.doesNotMatch(html, /name="severity"/);
 });
 
+test("renders a local case COP and warning-preparation workspace", async () => {
+  const html = await (await request("/alerts")).text();
+
+  for (const label of [
+    "Signal", "Incident", "Warning", "Case &amp; COP", "Information manager",
+    "Next review", "Affected area", "Situation", "Confirmed", "Unknown",
+    "Current actions", "Warning preparation", "Hazard", "Warning level",
+    "Public action", "Effective", "Expires", "Next update", "Evidence links",
+    "Creator", "Approver", "Channel status", "Activity",
+  ]) assert.match(html, new RegExp(label), label);
+
+  assert.match(html, /Unconfirmed/);
+  assert.match(html, /This browser only|Browser-local demo/);
+  assert.match(html, /No external delivery/);
+  assert.match(html, /prepared_not_sent/);
+  assert.match(html, /available_at[_-]only/);
+});
+
 test("provides the complete mock investigation workflow without sending externally", async () => {
   const html = await (await request("/alerts")).text();
   assert.match(html, /Workflow actions/);
@@ -195,6 +215,7 @@ test("serves provider-shaped workflow mocks and never reports a dispatch", async
   ]);
 
   let wccTicket;
+  let publicWarning;
   for (const adapter of catalogue.adapters) {
     const resultResponse = await request("/api/integration/v1/workflow-adapters", {
       method: "POST",
@@ -220,6 +241,7 @@ test("serves provider-shaped workflow mocks and never reports a dispatch", async
     assert.equal(result.evidence_weight, 0);
     assert.equal(result.status, "prepared_not_sent");
     if (adapter.id === "wcc-ticket") wccTicket = result;
+    if (adapter.id === "public-warning-social") publicWarning = result;
   }
 
   assert.deepEqual(Object.keys(wccTicket.provider_payload).sort(), [
@@ -237,6 +259,19 @@ test("serves provider-shaped workflow mocks and never reports a dispatch", async
   assert.equal(wccTicket.provider_payload.TICKET_DESCRIPTION, null);
   assert.equal(wccTicket.provider_payload.LOCATION, "Berhampore");
   assert.equal(wccTicket.privacy.requester_name, "removed");
+
+  const severeTicketResponse = await request("/api/integration/v1/workflow-adapters", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      adapter_id: "wcc-ticket",
+      case: { case_id: "candidate:severe:1", severity: "severe", affected_area: "Wellington" },
+    }),
+  });
+  assert.equal((await severeTicketResponse.json()).provider_payload.PRIORITY, 1);
+  assert.deepEqual(publicWarning.delivery_receipts, []);
+  assert.ok(publicWarning.provider_payload.channel_preparations.every((channel) => channel.status === "prepared_not_sent"));
+  assert.doesNotMatch(JSON.stringify(publicWarning), /"status":"(accepted|failed|published)"/);
 
   const invalidResponse = await request("/api/integration/v1/workflow-adapters", {
     method: "POST",
