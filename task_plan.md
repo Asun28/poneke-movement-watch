@@ -15,7 +15,7 @@ produce a human-reviewed alert candidate.
 - [completed] Implement the interactive domain-to-decision architecture and remove timeline semantics.
 - [completed] Add the durable model/ontology rules to project `AGENTS.md` and update project docs.
 - [completed] Verify build, behavior, accessibility and regressions.
-- [pending] Deploy to the existing owner-only site.
+- [completed] Deploy to the existing owner-only site.
 
 ### Acceptance criteria
 
@@ -64,6 +64,7 @@ produce a human-reviewed alert candidate.
 | First sandboxed W3C fetch returned no content. | 1 | Re-ran the same read-only Jina fetch with bounded network approval. |
 | Sandboxed Node test runner could not start its per-file workers (`EPERM`). | 1 | Re-ran the same focused RED tests outside the restricted sandbox. |
 | Sandbox denied removal of the verified pytest temp directory. | 1 | Removed only the resolved repository-local `.pytest_tmp_phase35` path with bounded approval. |
+| First Sites archive placed the build contents at archive root instead of under `dist/`. | 1 | Repackaged the same verified build with `dist/server/index.js` and `dist/.openai/hosting.json`; version save then succeeded. |
 
 ## Phase 34 — Signal Review queues and classification
 
