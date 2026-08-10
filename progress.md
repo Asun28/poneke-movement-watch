@@ -19,6 +19,9 @@
 - 2026-08-11: Production build, 76/76 behavior tests and ESLint pass. Keyboard alternatives,
   44px controls, visible focus, reduced motion, 70–1000% zoom, fullscreen, source truth and
   zero-weight context boundaries remain intact. Owner-only deployment is next.
+- 2026-08-11: The first source-only Sites build did not publish because the deployable app is
+  intentionally nested under `site/`. Repackaged the same validated build as an explicit Sites
+  archive; no application code, access policy or source truth changed.
 
 ## Phase 37 — selectable Replay investigations
 
