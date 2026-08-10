@@ -539,19 +539,17 @@ footer strong { color: var(--white); }
 .operator-advanced[open] > summary { color: var(--white); background: var(--civic-ink); }
 
 .live-workspace { padding: 12px clamp(10px, 1.5vw, 22px) 0; }
-.live-situation-strip { display: grid; grid-template-columns: repeat(3, minmax(104px, .65fr)) minmax(320px, 1.45fr); border: 1px solid var(--civic-ink); background: var(--white); }
-.live-situation-strip > div { min-height: 64px; padding: 9px 11px; }
+.live-situation-strip { min-height: 46px; display: flex; align-items: stretch; overflow-x: auto; overflow-y: hidden; border: 1px solid var(--civic-ink); background: var(--white); scrollbar-width: thin; }
+.live-situation-strip > div { min-height: 46px; display: flex; align-items: center; gap: 5px; padding: 0 9px; white-space: nowrap; }
 .live-situation-strip > div + div { border-left: 1px solid var(--hairline); }
-.live-situation-strip span, .live-situation-strip strong, .live-situation-strip small { display: block; }
-.live-situation-strip span { color: var(--muted-ink); font: 700 9px/1.2 Consolas, monospace; text-transform: uppercase; }
-.live-situation-strip strong { margin-top: 4px; font: 750 20px/1 "Arial Narrow", sans-serif; }
-.live-situation-strip small { margin-top: 3px; color: var(--muted-ink); font-size: 9px; }
-.live-strip-actions { display: grid; grid-template-columns: minmax(120px, 1fr) auto; grid-template-rows: auto auto; column-gap: 12px; align-items: center; background: #edf4f2; }
-.live-strip-actions > span { grid-column: 1; grid-row: 1; }
-.live-strip-actions > strong { grid-column: 1; grid-row: 2; font-size: 15px; }
-.live-strip-actions > div { grid-column: 2; grid-row: 1 / 3; display: flex; gap: 7px; margin: 0; }
+.live-situation-strip [data-live-metric] { flex: 0 0 auto; }
+.live-situation-strip [data-live-metric] > span { color: var(--muted-ink); font: 700 9px/1.2 Consolas, monospace; text-transform: uppercase; }
+.live-situation-strip [data-live-metric] > strong { font: 750 16px/1 "Arial Narrow", sans-serif; }
+.live-strip-actions { flex: 1 0 auto; justify-content: flex-end; gap: 6px !important; padding: 0 5px !important; background: #edf4f2; }
+.live-status-time { color: var(--civic-ink); font: 750 10px/1 Consolas, monospace; }
+.live-strip-actions > div { display: flex; gap: 4px; margin: 0; }
 .live-strip-actions button, .live-layer-actions button {
-  min-height: 44px; padding: 0 10px; border: 1px solid var(--civic-ink); background: var(--white); color: var(--civic-ink); cursor: pointer; font-size: 10px; font-weight: 700;
+  min-height: 44px; padding: 0 8px; border: 1px solid var(--civic-ink); background: var(--white); color: var(--civic-ink); cursor: pointer; font-size: 10px; font-weight: 700;
 }
 .live-strip-actions button:hover, .live-layer-actions button:hover { color: var(--white); background: var(--civic-ink); }
 .live-strip-actions button:disabled { opacity: .45; cursor: default; }
@@ -1149,9 +1147,6 @@ footer strong { color: var(--white); }
   .operator-sidebar nav a { font-size: 0; justify-content: center; padding: 0; }
   .operator-sidebar nav a > span { font-size: 15px; }
   .operator-boundary { display: none; }
-  .live-situation-strip { grid-template-columns: repeat(2, 1fr); }
-  .live-situation-strip > div:nth-child(3) { border-left: 0; border-top: 1px solid var(--hairline); }
-  .live-situation-strip > div:nth-child(4) { border-top: 1px solid var(--hairline); }
   .live-grid { grid-template-columns: 1fr; }
   .live-inbox-grid { grid-template-columns: 1fr; }
   .live-review-candidates { border-right: 0; border-bottom: 1px solid var(--hairline); }
@@ -1188,12 +1183,6 @@ footer strong { color: var(--white); }
   .operator-title-bar { position: static; min-height: 60px; flex-wrap: wrap; padding: 8px 16px; }
   .operator-title-bar h1 { font-size: clamp(24px, 7vw, 30px); }
   .operator-title-bar time { margin-left: auto; font-size: 9px; }
-  .live-situation-strip { grid-template-columns: 1fr 1fr; }
-  .live-situation-strip > div { min-height: 64px; }
-  .live-situation-strip > div + div { border-left: 1px solid var(--hairline); }
-  .live-situation-strip > div:nth-child(odd) { border-left: 0; }
-  .live-situation-strip > div:nth-child(3), .live-situation-strip > .live-strip-actions { grid-column: 1 / -1; border-left: 0; border-top: 1px solid var(--hairline); }
-  .live-strip-actions > div { flex-wrap: wrap; }
   .live-view-tabs { display: grid; grid-template-columns: repeat(3, 1fr); }
   .live-view-tabs button { min-width: 0; padding-inline: 6px; }
   .live-inbox-header { align-items: stretch; flex-direction: column; gap: 0; }
@@ -1385,7 +1374,6 @@ footer strong { color: var(--white); }
   .operator-content { padding-bottom: 40px; }
   .operator-mobile-nav a { font-size: 10px; }
 
-  .live-situation-strip > div { padding: 9px 10px; }
   .live-source-rail > header { padding: 14px 16px; }
   .live-source-rail h2 { font-size: 24px; }
 
@@ -1905,7 +1893,7 @@ h1, h2, h3, h4, h5 { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-seri
   box-shadow: none;
 }
 
-.live-situation-strip { overflow: hidden; }
+.live-situation-strip { overflow-x: auto; overflow-y: hidden; }
 .live-situation-strip > div + div { border-left-color: var(--hairline); }
 .live-grid { overflow: hidden; }
 .live-source-rail { border-right-color: var(--hairline); background: #f7f8f9; }
@@ -2581,10 +2569,9 @@ h1, h2, h3, h4, h5 { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-seri
 
 @media (max-width: 520px) {
   .live-map-first { padding-inline: 6px; }
-  .live-map-first .live-situation-strip { grid-template-columns: repeat(3, 1fr); }
-  .live-map-first .live-situation-strip > div { min-height: 54px; padding: 8px; border-left: 1px solid var(--hairline); border-top: 0; }
-  .live-map-first .live-situation-strip > div:first-child { border-left: 0; }
-  .live-map-first .live-situation-strip > .live-strip-actions { grid-column: 1 / -1; border-top: 1px solid var(--hairline); border-left: 0; }
+  .live-map-first .live-situation-strip > div { padding-inline: 4px; }
+  .live-map-first .live-strip-actions { padding-inline: 3px !important; }
+  .live-map-first .live-strip-actions button { min-width: 44px; padding-inline: 4px; }
   .live-map-workspace { height: 760px; min-height: 760px; border-radius: 9px; }
   .live-map-overlay-bar button { min-height: 40px; padding-inline: 11px; }
   .live-map-inbox-overlay { right: 8px; width: auto; max-height: 390px; }

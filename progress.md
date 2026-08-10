@@ -880,3 +880,40 @@
   Live renders the new event families with Inbox collapsed, Replay loads 1,677 records, and
   disabling Hutt River changes visible readings from 3 to 2 without errors. GitHub origin and
   remote `main` remain unchanged.
+# Phase 42 — compact Live source status
+
+- 2026-08-11: Audited the mobile screenshot, rendered Live component and responsive rules. Scope is
+  fixed to one concise status toolbar; operational counts, state semantics and actions remain.
+- 2026-08-11: File-level plan and behavior acceptance recorded. TDD RED is next.
+- 2026-08-11: UI guidance confirms the selected direction: data-dense real-time monitoring with
+  explicit loading feedback and locally contained narrow-screen overflow.
+- 2026-08-11: TDD RED confirmed the old verbose contract still renders `No current records`,
+  `Not all-clear`, `Auto refresh · 60 s` and `Pause display` as stacked visible content.
+- 2026-08-11: Compact JSX and responsive CSS are implemented. The first GREEN attempt correctly
+  revealed that rendered tests use the built Worker artifact; rebuild is required before retesting.
+- 2026-08-11: Production build and focused rendered GREEN test pass. The status strip now has
+  compact visible metrics/actions and accessible full empty-state and refresh-policy meaning.
+- 2026-08-11: Confirmed browser QA will exercise the production `vinext start` artifact, matching
+  the Worker bundle already covered by the rendered test.
+- 2026-08-11: Local production preview is ready on port 3018 and the authenticated in-app browser
+  session is available for desktop and 375px layout checks.
+- 2026-08-11: Local `/live` is open in a fresh in-app browser tab; semantic and geometry checks are
+  ready against the real rendered component.
+- 2026-08-11: Browser capability documentation confirms an explicit viewport override is available;
+  mobile QA will use a real 375×812 rendered viewport and reset it before handoff.
+- 2026-08-11: Desktop and 375px rendering confirm one 47–57px row and 44px Pause/Refresh targets.
+  The toolbar itself is contained; investigation continues for an unrelated 11px page overflow.
+- 2026-08-11: Narrow-screen padding was reduced without shrinking action targets. The rebuilt toolbar
+  should now fit its 347px content box without its own scrollbar; browser recheck is next.
+- 2026-08-11: 375×812 browser recheck passes: all four groups share one row, toolbar client and
+  scroll widths both equal 347px, body overflow is zero, and both actions are at least 44×44px.
+- 2026-08-11: The browser backend does not support element-only screenshots; acceptance therefore
+  uses the authoritative rendered geometry, visible labels and control-state checks.
+- 2026-08-11: Interaction QA passes: Pause becomes Resume, Refresh disables while paused, and resume
+  restores the default state. Desktop remains one 47px row with no overflow; browser logs are clean.
+- 2026-08-11: Full regression found one expected wording contract that requires the phrase
+  `Not all-clear`. The hidden accessible note was shortened to preserve that safety language.
+- 2026-08-11: Final local verification passes: production build, 86/86 behavior tests, ESLint,
+  whitespace checks, desktop browser checks and 375×812 responsive interaction checks.
+- 2026-08-11: Validated source is committed locally on the feature branch. Owner-only Sites access,
+  source credentials and the exact pushed commit will be verified before saving version 51.

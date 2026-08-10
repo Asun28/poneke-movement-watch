@@ -641,11 +641,18 @@ test("uses one compact title and status bar on every operator page", async () =>
 
 test("keeps the compact Live status bar operationally complete", async () => {
   const html = await (await request("/live")).text();
-  const status = html.match(/<div class="live-situation-strip" aria-label="Live source status">([\s\S]*?)<\/div><\/div>/)?.[1] ?? "";
+  const status = html.match(/<div class="live-situation-strip" aria-label="Live source status">([\s\S]*?)<\/div>\s*<section class="live-map-workspace"/)?.[1] ?? "";
 
-  for (const label of ["Connected", "No current records", "Not all-clear", "Issues", "Auto refresh · 60 s", "Pause display", "Refresh"]) {
-    assert.match(status, new RegExp(label), label);
-  }
+  assert.match(status, /data-live-metric="connected"[^>]*><span>Connected<\/span><strong>/);
+  assert.match(status, /data-live-metric="empty"[^>]*><span>Empty<\/span><strong>/);
+  assert.match(status, /data-live-metric="issues"[^>]*><span>Issues<\/span><strong>/);
+  assert.match(status, /class="live-status-time"/);
+  assert.match(status, /class="sr-only">No current records\. Not all-clear\.<\/span>/);
+  assert.match(status, /class="sr-only">Auto refresh every 60 seconds\.<\/span>/);
+  assert.match(status, /type="button">Pause<\/button>/);
+  assert.match(status, /type="button" disabled="">Refreshing…<\/button>/);
+  assert.doesNotMatch(status, />Pause display</);
+  assert.doesNotMatch(status, /<small>Not all-clear<\/small>/);
 });
 
 test("hides advanced architecture and replay evidence until requested", async () => {

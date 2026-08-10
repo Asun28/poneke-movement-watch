@@ -224,14 +224,17 @@ export default function LiveOperationsClient() {
   return (
     <section className="live-workspace live-map-first" aria-label="Live emergency information workspace" aria-busy={loading}>
       <div className="live-situation-strip" aria-label="Live source status">
-        <div><span>Connected</span><strong>{loading ? "—" : liveCount}</strong></div>
-        <div><span>No current records</span><strong>{loading ? "—" : emptyCount}</strong><small>Not all-clear</small></div>
-        <div><span>Issues</span><strong>{loading ? "—" : issueCount}</strong></div>
+        <div data-live-metric="connected"><span>Connected</span><strong>{loading ? "—" : liveCount}</strong></div>
+        <div data-live-metric="empty">
+          <span>Empty</span><strong>{loading ? "—" : emptyCount}</strong>
+          <span className="sr-only">No current records. Not all-clear.</span>
+        </div>
+        <div data-live-metric="issues"><span>Issues</span><strong>{loading ? "—" : issueCount}</strong></div>
         <div className="live-strip-actions">
-          <span>{paused ? "Display paused" : "Auto refresh · 60 s"}</span>
-          <strong>{snapshot ? timeLabel(snapshot.generated_at) : "—"}</strong>
+          <span className="sr-only">{paused ? "Display paused." : "Auto refresh every 60 seconds."}</span>
+          <time className="live-status-time" dateTime={snapshot?.generated_at}>{snapshot ? timeLabel(snapshot.generated_at) : "—"}</time>
           <div>
-            <button type="button" onClick={() => setPaused((value) => !value)}>{paused ? "Resume display" : "Pause display"}</button>
+            <button type="button" onClick={() => setPaused((value) => !value)}>{paused ? "Resume" : "Pause"}</button>
             <button type="button" onClick={() => void refresh()} disabled={paused || loading}>{loading ? "Refreshing…" : "Refresh"}</button>
           </div>
         </div>

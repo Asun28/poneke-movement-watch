@@ -1588,3 +1588,25 @@ supports spatial event-footprint resolution, never direct building-damage claims
 - A bottom-anchored map layout is unsafe beside the fixed 65px mobile operator navigation because
   the map can extend below the current viewport. On narrow screens the stable arrangement is a
   top stack: toolbar, attribution/zoom, legend, then horizontally scrollable sensor readings.
+# Phase 42 — Compact Live source status
+
+- The screenshot is a responsive-layout defect, not excess data: the `<=520px` rules force three
+  metrics into a first grid row and the action block into a second full-width row, while its own
+  date and buttons create additional visual rows.
+- Operators still need all three counts, freshness time and both actions. The safe simplification is
+  short visible labels (`Connected`, `Empty`, `Issues`, `Pause`, `Refresh`) with the full empty-state
+  and refresh-policy meaning retained in accessible text.
+- A single non-wrapping toolbar can fit at 375px with compact metrics and 44px action targets; if a
+  smaller viewport cannot fit, overflow must remain inside the toolbar rather than the page.
+- Dashboard guidance supports a data-dense, minimal real-time monitoring treatment. Loading feedback
+  must remain explicit, and narrow overflow should be contained inside the toolbar.
+- The rendered RED test captures the exact regression boundary: reintroducing the verbose visible
+  labels or removing their accessible replacements will fail before layout QA.
+- Operator-console tests import `site/dist/server/index.js`, so a source-only rerun exercises the
+  previous build. Production build is part of the focused GREEN loop, not only final verification.
+- Real browser QA shows the new toolbar stays on one row at 375×812. Its content is 368px inside a
+  347px scrollport, and both controls remain 44px high. A separate 11px page-level overflow remains
+  elsewhere in the Live map overlays and must be isolated before acceptance.
+- The apparent document overflow is a browser scrollbar measurement: `body` remains exactly bounded
+  while `documentElement` excludes the 15px vertical scrollbar. Even so, removing the toolbar's own
+  21px overflow yields a shorter, cleaner 46px surface with no horizontal scrollbar.

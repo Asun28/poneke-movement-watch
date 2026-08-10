@@ -2297,3 +2297,45 @@ Confirmed Fact.
 | Git Bash treated a `C:` archive path as a remote tar target | 1 | Re-ran the official packaging script with an MSYS `/c/...` path. |
 | Web search/open returned no extract for direct ArcGIS REST metadata URLs | 1 | Use the official JSON endpoints directly and verify fields/counts locally. |
 | NEMA EMA endpoint was publicly reachable but its item licence is restricted | 1 | Exclude its records from the public prototype; document permission requirement instead. |
+## Phase 42 — Compact Live source status
+
+### Goal
+
+Replace the stacked Live source summary with one short operational toolbar while preserving
+source-state meaning, refresh controls and accessible detail.
+
+### Status
+
+- [completed] Audit the deployed mobile layout, component, breakpoints and rendered contract.
+- [completed] Add a failing rendered behavior test for the compact toolbar.
+- [completed] Implement the compact labels and single-row responsive layout.
+- [completed] Run focused, full and browser verification at desktop and 375px.
+- [in_progress] Publish the validated owner-only build without changing GitHub origin or `main`.
+
+### Acceptance criteria
+
+- Desktop and mobile show one compact row: Connected, Empty, Issues, time, Pause/Resume and Refresh.
+- “No current records”, “not all-clear” and the 60-second refresh policy remain available to
+  assistive technology without occupying separate visible blocks.
+- Pause/resume, loading and refresh behavior remain unchanged; action targets remain at least 44px.
+- The toolbar does not create page-level horizontal overflow at 375px.
+
+### Assumptions and exclusions
+
+- “Short and tidy” means reducing visible labels and stacking, not removing operational state.
+- No source, adapter, ontology, alert or model behavior changes in this phase.
+- No new icon or component dependency is required.
+
+### File-level implementation plan
+
+- `site/tests/operator-console.test.mjs`: replace the verbose-status contract with compact visible
+  labels plus accessible-detail assertions.
+- `site/app/components/LiveOperationsClient.tsx`: project the same state into concise metrics/actions.
+- `site/app/globals.css`: keep the strip on one row across breakpoints with compact responsive sizing.
+- `findings.md`, `progress.md`: record the cause and verification evidence.
+
+### Rejected major alternative
+
+- Do not hide the counters or refresh controls in a menu; they are high-frequency operational state.
+
+---
