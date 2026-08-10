@@ -1358,3 +1358,16 @@ supports spatial event-footprint resolution, never direct building-damage claims
 - Local drafts cannot claim `real_replay`; that status is reserved for the canonical
   packaged WCC history. Even a locally declared endpoint remains zero-weight and
   non-playable until a verified historical pack is added through integration.
+# Phase 33 — compact alert signal details
+
+- The current Alert Centre already has the required ticket queue and editable case state,
+  but spreads signal truth across a full-width state strip, a five-column fact strip and
+  a broad case form. The hierarchy reads like multiple dashboards instead of one issue.
+- The safe boundary is presentational: preserve all state handlers and truth labels while
+  moving system facts into a persistent right-side field rail and keeping investigation
+  content in the main column.
+- Local UI guidance prioritises visible labels, visible focus, 44px touch targets and a
+  responsive single-column fallback. The initial issue-tracker-specific query returned no
+  match; these broader database results are the applicable defaults.
+- System severity, source, observed time, evidence state and authority must remain read-only.
+  Review status, incident status, assignee and next review remain the staff-editable fields.

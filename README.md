@@ -102,12 +102,13 @@ remain compact and visible. Every module uses the same title bar, spacing and pa
 hierarchy; technical APIs, the raw graph and replay evidence stay under **Advanced**
 or **Evidence review**.
 
-Alert Centre uses a compact queue-and-case workflow. It keeps three independent
-states: **Signal**, **Incident** and **Warning**. A severe signal never confirms
-an incident or issues a warning. Operators can maintain a browser-local Case/COP
-with an information manager, next review, affected area, situation, confirmed and
-unknown items, and current actions. Severity, source, observation time and system
-evidence remain read-only.
+Alert Centre uses a compact issue-details workflow: investigation content stays in
+the main column while status, assignment, timing and read-only signal facts stay in
+a tidy detail rail. It keeps three independent states: **Signal**, **Incident** and
+**Warning**. A severe signal never confirms an incident or issues a warning.
+Operators can maintain a browser-local Case/COP with an information manager, next
+review, affected area, situation, confirmed and unknown items, and current actions.
+Severity, source, observation time and system evidence remain read-only.
 
 The Warning tab validates hazard, area, level, public action, effective/expiry/
 next-update times, linked evidence, and distinct creator/approver roles before it

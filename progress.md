@@ -698,3 +698,14 @@
   saved version 34 and completed the owner-only production deployment at the
   existing live URL. Access remains owner-only with no groups or external visitors;
   GitHub origin and remote `main` remain unchanged.
+# Phase 33 — compact alert signal details
+
+- 2026-08-10: Audited the Alert Centre and fixed the scope at a Jira-like issue
+  hierarchy: one investigation column plus one compact signal-details rail. Existing
+  queue, case state, evidence, warning, workflow and human-authority behavior stay intact.
+- 2026-08-10: TDD RED confirmed the old page had no named investigation/details
+  regions. TDD GREEN confirmed the new rail, editable staff fields and read-only
+  system facts while preserving the existing case and warning contracts.
+- 2026-08-10: Full local verification passes: production build, 64/64 site
+  behaviors, ESLint, 22/22 Python tests and whitespace checks. Temporary test
+  files were removed; owner-only deployment is next.

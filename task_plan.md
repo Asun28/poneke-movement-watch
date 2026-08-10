@@ -1,5 +1,57 @@
 # Pōneke Movement Watch — evidence ontology roadmap
 
+## Phase 33 — compact alert signal details
+
+### Goal
+
+Reshape each Alert Centre signal into a compact issue-details workspace: investigation
+content on the left and a tidy, persistent field rail on the right.
+
+### Status
+
+- [completed] Audit current alert fields, forms, responsive rules and rendered contracts.
+- [completed] Add a failing behavior test for the issue-details workspace.
+- [completed] Implement the compact field rail and investigation layout.
+- [completed] Verify behavior, accessibility, build and regressions.
+- [pending] Deploy to the existing owner-only site.
+
+### Acceptance criteria
+
+- The ticket queue, search and status filter remain unchanged.
+- The selected signal has named Investigation content and Signal details regions.
+- System severity, source, observed time, evidence state and authority stay read-only.
+- Review status, incident status, assignee and next review remain clearly labelled and editable.
+- Case notes, evidence, warning preparation, activity and Replay handoff keep their behavior.
+- Controls retain visible labels, 44px targets and a single-column mobile fallback.
+
+### Assumptions and exclusions
+
+- “Like Jira” means a dense issue layout and label/value field rail, not a visual clone.
+- This is a presentation-only refactor: no API, schema, local-storage, workflow, evidence,
+  alert authority, model or data-source behavior changes.
+- No new dependency, tutorial copy, external write or GitHub push is added.
+
+### File-level plan
+
+- `site/tests/operator-console.test.mjs`: rendered structure and editability contract.
+- `site/app/components/AlertCentreClient.tsx`: investigation region and detail field rail.
+- `site/app/globals.css`: compact desktop rail, labelled fields and mobile stacking.
+- `README.md`, `findings.md`, `progress.md`: record the UI boundary and verification.
+
+### Rejected major alternatives
+
+- Do not duplicate Jira branding or add a third-party component library.
+- Do not make system severity, evidence state or decision authority editable.
+- Do not hide safety-critical truth labels behind a disclosure control.
+
+### Errors encountered
+
+| Error | Attempt | Resolution |
+|---|---:|---|
+| The first narrow UI guidance search returned no database match. | 1 | Retried with broader accessibility, form-label and touch-target terms; used the returned high-priority guidance. |
+| Sandboxed Node test runner could not start its test worker (`EPERM`). | 1 | Re-ran the same focused behavior test outside the restricted sandbox and confirmed the intended RED failure. |
+| Sandboxed vinext build could not spawn its Windows dependency resolver (`EPERM`). | 1 | Re-ran the same bounded production build outside the restricted sandbox. |
+
 ## Phase 32 — Replay investigation source workspace
 
 ### Goal

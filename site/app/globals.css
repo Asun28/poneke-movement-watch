@@ -1859,3 +1859,167 @@ h1, h2, h3, h4, h5 { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-seri
   .ontology-dashboard-header { justify-content: stretch; }
   .ontology-dashboard-header dl { width: 100%; }
 }
+
+/* Phase 33 — compact alert signal details */
+.alert-ticket-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 270px;
+  align-items: start;
+  gap: 18px;
+}
+.alert-ticket-main { min-width: 0; }
+.alert-ticket-main .alert-tabs { margin-top: 16px; }
+.alert-ticket-main .alert-review-form {
+  margin-top: 12px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  overflow: visible;
+}
+.alert-ticket-main .alert-review-form fieldset {
+  grid-template-columns: repeat(2, minmax(180px, 1fr));
+  gap: 12px;
+  padding: 0;
+}
+.alert-ticket-main .alert-review-form legend {
+  margin-bottom: 12px;
+  padding: 0;
+  color: var(--civic-ink);
+  font: 650 14px/1.2 "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  text-transform: none;
+}
+.alert-ticket-main .alert-review-form input,
+.alert-ticket-main .alert-review-form textarea {
+  border-color: #a5adba;
+  border-radius: 5px;
+}
+.alert-ticket-main .alert-review-actions {
+  margin-top: 12px;
+  padding: 12px 0 0;
+  border-top: 1px solid var(--hairline);
+}
+.alert-ticket-main .alert-review-actions button { border-radius: 5px; background: #0c66e4; }
+
+.alert-signal-details {
+  position: sticky;
+  top: 72px;
+  min-width: 0;
+  padding-left: 18px;
+  border-left: 1px solid var(--hairline);
+}
+.alert-signal-details-header {
+  min-height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border-bottom: 1px solid var(--hairline);
+}
+.alert-signal-details-header h3 { margin: 0; font-size: 14px; }
+.alert-signal-details-header span {
+  color: var(--muted-ink);
+  font-size: 9px;
+  font-weight: 650;
+}
+.alert-detail-fields { margin: 0; }
+.alert-detail-fields > div {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1fr);
+  align-items: start;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid #f1f2f4;
+}
+.alert-detail-fields dt { color: var(--muted-ink); font-size: 10px; line-height: 1.35; }
+.alert-detail-fields dd {
+  min-width: 0;
+  margin: 0;
+  font-size: 11px;
+  font-weight: 650;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+  text-transform: none;
+}
+.alert-detail-form { margin-top: 16px; }
+.alert-detail-form fieldset { display: grid; gap: 10px; margin: 0; padding: 0; border: 0; }
+.alert-detail-form legend {
+  width: 100%;
+  margin-bottom: 10px;
+  padding-bottom: 9px;
+  border-bottom: 1px solid var(--hairline);
+  color: var(--civic-ink);
+  font-size: 12px;
+  font-weight: 700;
+}
+.alert-detail-form label > span {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 5px;
+  color: var(--muted-ink);
+  font-size: 10px;
+  font-weight: 650;
+}
+.alert-detail-form label small { color: #7a869a; font-size: 8px; font-weight: 600; }
+.alert-detail-form input,
+.alert-detail-form select {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 9px;
+  border: 1px solid #a5adba;
+  border-radius: 5px;
+  color: var(--civic-ink);
+  background: #ffffff;
+  font: inherit;
+}
+.alert-detail-form input:focus-visible,
+.alert-detail-form select:focus-visible,
+.alert-ticket-main .alert-review-form input:focus-visible,
+.alert-ticket-main .alert-review-form textarea:focus-visible {
+  outline: 2px solid #0c66e4;
+  outline-offset: 1px;
+}
+.alert-detail-actions { display: grid; gap: 7px; margin-top: 12px; }
+.alert-detail-actions button {
+  min-height: 44px;
+  border: 1px solid #0c66e4;
+  border-radius: 5px;
+  color: #ffffff;
+  background: #0c66e4;
+  cursor: pointer;
+  font-weight: 700;
+}
+.alert-detail-actions button:hover { background: #0055cc; }
+.alert-detail-actions span { min-height: 14px; color: var(--muted-ink); font-size: 9px; }
+.alert-signal-details .alert-authority-note {
+  display: grid;
+  gap: 4px;
+  margin-top: 16px;
+  padding: 9px 10px;
+  border-left-width: 3px;
+  border-radius: 4px;
+}
+
+@media (max-width: 1280px) {
+  .alert-ticket-workspace { grid-template-columns: 1fr; }
+  .alert-signal-details {
+    position: static;
+    padding: 16px 0 0;
+    border-top: 1px solid var(--hairline);
+    border-left: 0;
+  }
+  .alert-detail-fields { display: grid; grid-template-columns: 1fr 1fr; column-gap: 18px; }
+  .alert-detail-form fieldset { grid-template-columns: repeat(2, minmax(180px, 1fr)); }
+  .alert-detail-actions { grid-template-columns: minmax(140px, 220px) 1fr; align-items: center; }
+}
+
+@media (max-width: 700px) {
+  .alert-ticket-main .alert-review-form fieldset,
+  .alert-detail-form fieldset,
+  .alert-detail-fields { grid-template-columns: 1fr; }
+  .alert-detail-actions { grid-template-columns: 1fr; }
+  .alert-detail-form input,
+  .alert-detail-form select { font-size: 16px; }
+}

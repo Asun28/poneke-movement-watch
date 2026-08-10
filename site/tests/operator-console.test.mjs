@@ -342,6 +342,21 @@ test("provides a focused editable review ticket without changing system truth", 
   assert.doesNotMatch(html, /name="severity"/);
 });
 
+test("lays out each signal as a compact investigation with a dedicated details rail", async () => {
+  const response = await request("/alerts");
+  assert.equal(response.status, 200);
+  const html = await response.text();
+
+  assert.match(html, /aria-label="Investigation content"/);
+  assert.match(html, /aria-label="Signal details"/);
+  assert.match(html, /aria-label="Signal details fields"/);
+  assert.match(html, /Affected area/);
+  assert.match(html, /Update details/);
+  assert.match(html, /name="review-status"/);
+  assert.match(html, /name="assignee"/);
+  assert.doesNotMatch(html, /name="system-severity"/);
+});
+
 test("renders a local case COP and warning-preparation workspace", async () => {
   const html = await (await request("/alerts")).text();
 

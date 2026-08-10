@@ -416,45 +416,29 @@ export default function AlertCentreClient() {
           <span className="case-rule">{selected?.rule_id ?? "synthetic-preview"}</span>
         </header>
 
-        <section className="alert-state-strip" aria-label="Independent case states">
-          <div><span>Signal</span><strong>{signalState}</strong></div>
-          <div><span>Incident</span><strong>{activeCase.incidentState}</strong></div>
-          <div><span>Warning</span><strong>{activeCase.warningState.replaceAll("_", " ")}</strong></div>
-        </section>
-
-        <dl className="alert-ticket-facts" aria-label="System fields">
-          <div><dt>System severity</dt><dd>{selected?.severity ?? "Not computed"}</dd></div>
-          <div><dt>Source</dt><dd>{selected?.source_id ?? "Synthetic fixture"}</dd></div>
-          <div><dt>Observed</dt><dd>{observedLabel}</dd></div>
-          <div><dt>Evidence state</dt><dd>{selected?.epistemic_state ?? "Zero weight"}</dd></div>
-          <div><dt>Decision authority</dt><dd>Human</dd></div>
-        </dl>
-
-        <div className="alert-tabs" role="tablist" aria-label="Case workspace">
+        <div className="alert-ticket-workspace">
+          <section className="alert-ticket-main" aria-label="Investigation content">
+            <div className="alert-tabs" role="tablist" aria-label="Case workspace">
           {TABS.map((tab, index) => (
             <button key={tab.id} id={`alert-tab-${tab.id}`} type="button" role="tab" aria-selected={activeTab === tab.id} aria-controls={`alert-panel-${tab.id}`} tabIndex={activeTab === tab.id ? 0 : -1} onClick={() => setActiveTab(tab.id)} onKeyDown={(event) => handleTabKey(event, index)}>{tab.label}</button>
           ))}
-        </div>
+            </div>
 
-        <section id="alert-panel-case" className="alert-tab-panel" role="tabpanel" aria-labelledby="alert-tab-case" hidden={activeTab !== "case"}>
-          <form className="alert-review-form" onSubmit={saveCase}>
-            <fieldset className="alert-case-fields">
-              <legend>Case &amp; COP · browser-local demo</legend>
-              <label><span>Review status</span><select name="review-status" value={activeReview.status} onChange={(event) => changeReview({ status: event.target.value as ReviewStatus })}><option value="open">Open</option><option value="investigating">Investigating</option><option value="needs_action">Needs action</option><option value="closed">Closed</option></select></label>
-              <label><span>Incident status · local</span><select value={activeCase.incidentState} onChange={(event) => changeCase({ incidentState: event.target.value as CaseDraft["incidentState"] })}><option value="unconfirmed">Unconfirmed</option><option value="investigating">Investigating</option><option value="confirmed">Confirmed by staff</option><option value="controlled">Controlled</option><option value="recovery">Recovery</option><option value="closed">Closed</option></select></label>
-              <label><span>Information manager / Assigned to</span><input name="assignee" value={activeReview.assignee} onChange={(event) => changeReview({ assignee: event.target.value })} placeholder="Name or team" /></label>
-              <label><span>Next review</span><input type="datetime-local" value={activeCase.nextReview} onChange={(event) => changeCase({ nextReview: event.target.value })} /></label>
+            <section id="alert-panel-case" className="alert-tab-panel" role="tabpanel" aria-labelledby="alert-tab-case" hidden={activeTab !== "case"}>
+              <form className="alert-review-form" onSubmit={saveCase}>
+                <fieldset className="alert-case-fields">
+                  <legend>Investigation</legend>
               <label className="alert-field-wide"><span>Affected area</span><input value={activeCase.affectedArea} onChange={(event) => changeCase({ affectedArea: event.target.value, warningState: "draft" })} placeholder="Working area; no validated polygon" /></label>
               <label className="alert-field-wide"><span>Situation / Review note</span><textarea name="review-note" value={activeCase.situation || activeReview.note} onChange={(event) => { changeCase({ situation: event.target.value }); changeReview({ note: event.target.value }); }} rows={3} placeholder="What is happening now?" /></label>
               <label><span>Confirmed</span><textarea value={activeCase.confirmed} onChange={(event) => changeCase({ confirmed: event.target.value })} rows={3} placeholder="One item per line" /></label>
               <label><span>Unknown / verify</span><textarea value={activeCase.unknown} onChange={(event) => changeCase({ unknown: event.target.value })} rows={3} placeholder="Missing telemetry or checks" /></label>
-              <label><span>Current actions</span><textarea value={activeCase.currentActions} onChange={(event) => changeCase({ currentActions: event.target.value })} rows={3} placeholder="Owner and next action" /></label>
-            </fieldset>
-            <div className="alert-review-actions"><button type="submit">Save local draft</button><span aria-live="polite">{notice || (activeCase.updatedAt ? "Saved in this browser. Not shared." : "This browser only")}</span></div>
-          </form>
-        </section>
+                  <label className="alert-field-wide"><span>Current actions</span><textarea value={activeCase.currentActions} onChange={(event) => changeCase({ currentActions: event.target.value })} rows={3} placeholder="Owner and next action" /></label>
+                </fieldset>
+                <div className="alert-review-actions"><button type="submit">Save local draft</button><span>{activeCase.updatedAt ? "Saved in this browser. Not shared." : "This browser only"}</span></div>
+              </form>
+            </section>
 
-        <section id="alert-panel-warning" className="alert-tab-panel" role="tabpanel" aria-labelledby="alert-tab-warning" hidden={activeTab !== "warning"}>
+            <section id="alert-panel-warning" className="alert-tab-panel" role="tabpanel" aria-labelledby="alert-tab-warning" hidden={activeTab !== "warning"}>
           <form className="alert-warning-form" onSubmit={prepareApproval}>
             <header><h2>Warning preparation</h2><span>Never auto-issued</span></header>
             <div className="alert-warning-fields">
@@ -479,9 +463,9 @@ export default function AlertCentreClient() {
               {channelRows.map((channel) => <div role="row" key={channel.channel_id}><strong role="cell">{channel.label}</strong><code role="cell">{channel.status}</code><span role="cell">{channel.boundary}</span></div>)}
             </div>
           </section>
-        </section>
+            </section>
 
-        <section id="alert-panel-evidence" className="alert-tab-panel" role="tabpanel" aria-labelledby="alert-tab-evidence" hidden={activeTab !== "evidence"}>
+            <section id="alert-panel-evidence" className="alert-tab-panel" role="tabpanel" aria-labelledby="alert-tab-evidence" hidden={activeTab !== "evidence"}>
           <section className="alert-evidence-section" aria-labelledby="alert-evidence-title">
             <header><h2 id="alert-evidence-title">Evidence</h2><span>Read-only</span></header>
             <div className="alert-evidence-grid">
@@ -492,9 +476,9 @@ export default function AlertCentreClient() {
             </div>
             <a className="alert-replay-link" href={`/replay?case=${encodeURIComponent(selectedKey)}&source=${encodeURIComponent(selected?.source_id ?? "synthetic-fixture")}${selected?.observed_at ? `&as_of=${encodeURIComponent(selected.observed_at)}` : ""}#history-replay`}><strong>Open in Replay</strong><span>available_at-only policy required in v1</span></a>
           </section>
-        </section>
+            </section>
 
-        <section id="alert-panel-activity" className="alert-tab-panel" role="tabpanel" aria-labelledby="alert-tab-activity" hidden={activeTab !== "activity"}>
+            <section id="alert-panel-activity" className="alert-tab-panel" role="tabpanel" aria-labelledby="alert-tab-activity" hidden={activeTab !== "activity"}>
           <section className="alert-activity-section">
             <header><h2>Activity</h2><span>Browser only</span></header>
             <ol className="alert-timeline">
@@ -516,9 +500,37 @@ export default function AlertCentreClient() {
               </div>
             </section>
           </details>
-        </section>
+            </section>
+          </section>
 
-        <div className="alert-authority-note"><strong>Human approval required</strong><span>{selected ? "Not issued" : "Mock · no alert"}</span></div>
+          <aside className="alert-signal-details" aria-label="Signal details">
+            <header className="alert-signal-details-header"><h3>Details</h3><span>Browser draft</span></header>
+            <dl className="alert-detail-fields" aria-label="Signal details fields">
+              <div><dt>Signal</dt><dd>{signalState}</dd></div>
+              <div><dt>Incident</dt><dd>{activeCase.incidentState}</dd></div>
+              <div><dt>Warning</dt><dd>{activeCase.warningState.replaceAll("_", " ")}</dd></div>
+              <div><dt>System severity</dt><dd>{selected?.severity ?? "Not computed"}</dd></div>
+              <div><dt>Source</dt><dd>{selected?.source_id ?? "Synthetic fixture"}</dd></div>
+              <div><dt>Observed</dt><dd>{observedLabel}</dd></div>
+              <div><dt>Evidence state</dt><dd>{selected?.epistemic_state ?? "Zero weight"}</dd></div>
+              <div><dt>Decision authority</dt><dd>Human</dd></div>
+              <div><dt>Affected area</dt><dd>{activeCase.affectedArea || "Not set"}</dd></div>
+            </dl>
+
+            <form className="alert-detail-form" onSubmit={saveCase}>
+              <fieldset>
+                <legend>Staff fields</legend>
+                <label><span>Review status</span><select name="review-status" value={activeReview.status} onChange={(event) => changeReview({ status: event.target.value as ReviewStatus })}><option value="open">Open</option><option value="investigating">Investigating</option><option value="needs_action">Needs action</option><option value="closed">Closed</option></select></label>
+                <label><span>Incident status</span><select name="incident-status" value={activeCase.incidentState} onChange={(event) => changeCase({ incidentState: event.target.value as CaseDraft["incidentState"] })}><option value="unconfirmed">Unconfirmed</option><option value="investigating">Investigating</option><option value="confirmed">Confirmed by staff</option><option value="controlled">Controlled</option><option value="recovery">Recovery</option><option value="closed">Closed</option></select></label>
+                <label><span>Assigned to <small>Information manager</small></span><input name="assignee" value={activeReview.assignee} onChange={(event) => changeReview({ assignee: event.target.value })} placeholder="Name or team" /></label>
+                <label><span>Next review</span><input type="datetime-local" value={activeCase.nextReview} onChange={(event) => changeCase({ nextReview: event.target.value })} /></label>
+              </fieldset>
+              <div className="alert-detail-actions"><button type="submit">Update details</button><span aria-live="polite">{notice || (activeCase.updatedAt ? "Saved locally" : "This browser only")}</span></div>
+            </form>
+
+            <div className="alert-authority-note"><strong>Human approval required</strong><span>{selected ? "Not issued" : "Mock · no alert"}</span></div>
+          </aside>
+        </div>
       </article>
     </section>
   );
