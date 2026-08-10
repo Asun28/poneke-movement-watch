@@ -15,7 +15,7 @@ Replay Analyzer without implying that any external action occurred.
 - [completed] Define the case/COP, three-axis state, approval and channel contracts.
 - [completed] Add failing behavior tests for the operator workflow and safety boundaries.
 - [completed] Implement the compact case workspace and warning preparation UI.
-- [in_progress] Verify accessibility, responsive layout, regressions and owner-only deployment.
+- [completed] Verify accessibility, responsive layout, regressions and owner-only deployment.
 
 ### Acceptance criteria
 

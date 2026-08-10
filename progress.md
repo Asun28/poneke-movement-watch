@@ -24,7 +24,10 @@
   leakage-safe case replay.
 - 2026-08-10: Final local gate passes: production build, 49/49 site tests,
   ESLint, 22/22 Python tests, diff checks and independent read-only safety/UX
-  verification. Deployment to the existing owner-only site is the remaining step.
+  verification.
+- 2026-08-10: Published version 23 to the existing owner-only Sites project.
+  The production URL is unchanged and the access policy remains one owner, no
+  groups and no external visitors. Phase 21 is complete.
 
 ---
 
