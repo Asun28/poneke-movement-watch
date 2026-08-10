@@ -348,10 +348,10 @@ The capability cards on the demo use synthetic examples only to show possible
 ontology links. Mock cards always carry `evidence_weight: 0`. Timetables and
 event schedules are planned-demand context, not proof of attendance or disruption.
 
-### April storm 回测
+### April storm backtest
 
-Live Operations includes a `回测` action for the 18–22 April 2026 storm. It opens
-a retrospective case-study contract; it does not rewind or alter live feeds.
+The 18–22 April 2026 storm event pack is routed directly into Replay Analyzer as a backtest event.
+It is a retrospective case-study contract; it does not rewind or alter live feeds.
 
 - Training data must end before `2026-04-18T00:00:00+12:00`.
 - Every replay step may use only records whose `available_at` is not later than

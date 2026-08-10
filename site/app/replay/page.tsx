@@ -22,10 +22,13 @@ export default function ReplayPage() {
       <section id="april-storm-backtest" className="backtest-pack" aria-labelledby="april-storm-heading">
         <header className="backtest-header">
           <div>
-            <p className="eyebrow">Retrospective case study</p>
+            <p className="eyebrow">Backtest events</p>
             <h2 id="april-storm-heading">April Storm · 18–22 Apr 2026</h2>
           </div>
-          <span className="backtest-readiness">Inputs not yet packaged</span>
+          <div className="backtest-header-status">
+            <span>Replay Analyzer input</span>
+            <span className="backtest-readiness">Inputs not yet packaged</span>
+          </div>
         </header>
 
         <div className="backtest-summary" aria-label="April storm backtest contract">

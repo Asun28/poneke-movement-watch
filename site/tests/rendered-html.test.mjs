@@ -260,8 +260,9 @@ test("renders the April storm as a leakage-safe retrospective case study", async
   const html = await response.text();
 
   assert.match(html, /id="april-storm-backtest"/);
+  assert.match(html, /Backtest events/);
+  assert.match(html, /Replay Analyzer input/);
   assert.match(html, /April Storm · 18–22 Apr 2026/);
-  assert.match(html, /Retrospective case study/);
   assert.match(html, /Inputs not yet packaged/);
   assert.match(html, /Train before 18 Apr/);
   assert.match(html, /5 or 15 min/);
