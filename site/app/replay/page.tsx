@@ -9,9 +9,7 @@ export default function ReplayPage() {
   return (
     <OperatorShell
       active="/replay"
-      eyebrow="Known-event analysis module"
       title="Replay Analyzer"
-      description="Choose a date, hour and source. Select a signal to inspect its history."
       modeLabel="Batch replay"
     >
       <ReplayCaseContext />

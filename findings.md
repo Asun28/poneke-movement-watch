@@ -1236,3 +1236,21 @@ supports spatial event-footprint resolution, never direct building-damage claims
 - The generic UI design-system search proposed a red landing-page palette and oversized
   marketing typography. Both conflict with the established civic operator console and
   are rejected; existing color, type, density and reduced-motion rules remain authoritative.
+
+# Phase 28 — compact operator title bars
+
+- The supplied 1364×420 screenshot shows two stacked header layers before Live content:
+  a 58px global row with `LIVE`, `WCC demo`, date and Help, followed by a roughly 148px
+  module band with an eyebrow and oversized `Live Operations` heading. This duplicates
+  identity and consumes the first useful viewport.
+- The marked Live status strip uses four tall cards with a 25px value type and generous
+  empty vertical space. Its labels, values, `Not all-clear` boundary, timestamp and two
+  actions are relevant; the density, not the information model, is the problem.
+- The smallest shared fix is one semantic header inside `main`: page `h1`, one compact
+  mode label and Wellington time. Remove the separate global header, eyebrow, `WCC demo`,
+  Help and all six instructional description props.
+- Keep the shared header readable at 320–375px by allowing metadata to wrap beneath the
+  title. Preserve the existing 44px button minimum and visible focus/press states.
+- UI validation reinforces the current boundary: loading feedback remains visible,
+  decorative animation is unnecessary and the sticky title bar must keep its existing
+  controlled z-index rather than creating new overlays.

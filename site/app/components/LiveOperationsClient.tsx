@@ -116,7 +116,7 @@ export default function LiveOperationsClient() {
       aria-label="Live emergency information workspace"
       aria-busy={loading}
     >
-      <div className="live-situation-strip">
+      <div className="live-situation-strip" aria-label="Live source status">
         <div>
           <span>Connected</span>
           <strong>{loading ? "—" : liveCount}</strong>

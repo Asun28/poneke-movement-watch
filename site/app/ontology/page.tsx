@@ -13,9 +13,7 @@ export default function OntologyPage() {
   return (
     <OperatorShell
       active="/ontology"
-      eyebrow="Shared city meaning"
       title="City Ontology"
-      description="Explore how source evidence becomes shared city concepts and reaches operator workflows."
       modeLabel="33 ontology paths"
     >
       <OntologyDashboard model={ontologyDashboard} />

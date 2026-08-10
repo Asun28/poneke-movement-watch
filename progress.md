@@ -1,5 +1,24 @@
 # Progress — Phase 2 ontology and sources
 
+## Phase 28 — compact operator title bars
+
+- 2026-08-10: Audited the supplied Live screenshot and all six shared shell call sites.
+  Locked the redesign to one compact title/mode/time bar, removal of Help/demo/eyebrow
+  copy and a shorter Live status strip; operational labels and safety boundaries stay.
+- 2026-08-10: Ran the required UI density/accessibility validation. The implementation
+  will keep semantic headings, Wellington time, 44px actions, loading feedback, visible
+  focus and responsive wrapping without adding animation or a replacement tutorial.
+- 2026-08-10: TDD RED confirmed two intended failures: the six routes do not yet render
+  one shared title/status bar, and the Live status strip has no named status region.
+  The production build succeeds and the other 56 tests remain green.
+- 2026-08-10: TDD GREEN passes all 58 site tests. All six pages now share one compact
+  page-name/mode/time bar; the old demo row, large eyebrow band, Help menu and six
+  instruction props are gone. Live retains all status and refresh semantics in a
+  shorter named status region with 44px controls.
+- 2026-08-10: Full local verification passes: production build, 58/58 site tests,
+  ESLint, 22/22 Python tests and whitespace checks. The temporary pytest directory
+  was removed. Publishing to the existing owner-only site is next.
+
 ## Phase 27 — dedicated Ontology module
 
 - 2026-08-10: Audited the current Integration route, shared navigation, mobile grid,

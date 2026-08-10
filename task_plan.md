@@ -1,5 +1,65 @@
 # Pōneke Movement Watch — evidence ontology roadmap
 
+## Phase 28 — compact operator title bars
+
+### Goal
+
+Replace the two stacked page headers with one tidy shared title bar on all six
+operator pages, and reduce the Live status strip so routine work starts higher.
+
+### Status
+
+- [completed] Audit the supplied screenshot, shared shell, Live strip and route props.
+- [completed] Add failing rendered behavior tests for the compact shared header.
+- [completed] Implement the title bar and Live status-density changes.
+- [completed] Verify regressions.
+- [in_progress] Deploy to the existing owner-only site.
+
+### Acceptance criteria
+
+- Every operator page has one compact title bar containing its `h1`, relevant mode
+  state and Wellington time.
+- The old global status row, large eyebrow title band, `WCC demo` and Help menu are absent.
+- Per-page instructional descriptions are removed from routine display and component props.
+- Live still shows Connected, No current records, Issues, data timestamp, pause and refresh;
+  `Not all-clear`, loading and error states remain intact.
+- Live status cells are materially shorter on desktop while buttons remain at least 44px.
+- Mobile can wrap title metadata without horizontal overflow or hiding the page name.
+
+### Assumptions and exclusions
+
+- “How to use later” means remove the current Help surface rather than replace it now.
+- Status, safety and action labels are relevant operational content and remain; decorative
+  eyebrow copy and demo/instructional prose do not.
+- This is a shared presentation refactor only. No data, route, model, ontology, evidence,
+  access, alert or workflow behavior changes.
+- Preserve the existing civic palette, navigation and content modules. No new package,
+  image, theme or animation is required.
+- No GitHub push and no change to remote `main`.
+- The supplied screenshot is the visual evidence; browser interaction testing is not
+  requested, so rendered behavior, build and regressions are the verification boundary.
+
+### File-level plan
+
+- `site/tests/operator-console.test.mjs`: one compact title/status contract across six routes.
+- `site/app/components/OperatorShell.tsx`: merge title, mode and time; remove Help/eyebrow.
+- `site/app/{live,alerts,replay,integration,ontology,setup}/page.tsx`: remove obsolete copy props.
+- `site/app/globals.css`: compact shared title bar and Live status strip, responsive wrapping.
+- `README.md`, `findings.md`, `progress.md`: record the operator-density boundary and checks.
+
+### Rejected major alternatives
+
+- Do not hide the page title or replace it with an icon-only header.
+- Do not remove operational state, timestamps, `Not all-clear` or refresh controls.
+- Do not add a new tutorial, drawer or settings menu in this phase.
+
+### Errors encountered
+
+| Error | Attempt | Resolution |
+|---|---:|---|
+| The first combined planning patch did not match the current file anchor. | 1 | Re-read the exact file heads and apply smaller file-specific patches. |
+| First GREEN run exposed one legacy safety test coupled to instructional Help copy removed by the request. | 1 | Keep the safety contract on the operational `Decision authority` and `Staff decision required` fields instead of restoring Help prose. |
+
 ## Phase 27 — dedicated Ontology module
 
 ### Goal

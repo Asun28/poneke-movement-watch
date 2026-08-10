@@ -11,9 +11,7 @@ export default function IntegrationPage() {
   return (
     <OperatorShell
       active="/integration"
-      eyebrow="Shared platform boundary"
       title="Data Integration"
-      description="Review source contracts, access, runtime health and integration endpoints."
       modeLabel="33 registered sources"
     >
       <IntegrationRegistry contracts={contracts.sources} />

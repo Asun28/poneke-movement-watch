@@ -259,9 +259,9 @@ test("makes model authority and mock alert exclusion explicit", async () => {
   const response = await request("/alerts");
   const html = await response.text();
 
-  assert.match(html, /Models can propose and explain/);
+  assert.match(html, /Decision authority/);
+  assert.match(html, /Staff decision required/);
   assert.match(html, /Mock · zero evidence/);
-  assert.match(html, /Human review required/);
   assert.match(html, /Supporting/);
   assert.match(html, /Contradicting/);
   assert.match(html, /Missing/);
@@ -403,17 +403,37 @@ test("serves provider-shaped workflow mocks and never reports a dispatch", async
   assert.deepEqual(await invalidResponse.json(), { error: "unknown_workflow_adapter" });
 });
 
-test("keeps routine screens concise and moves guidance into closed help", async () => {
-  for (const path of ["/live", "/alerts", "/replay", "/integration", "/ontology", "/setup"]) {
-    const html = await (await request(path)).text();
-    const heading = html.match(/<section class="operator-module-heading">([\s\S]*?)<\/section>/)?.[1] ?? "";
+test("uses one compact title and status bar on every operator page", async () => {
+  const pages = [
+    ["/live", "Live Operations", "Live"],
+    ["/alerts", "Alert Centre", "Review queue"],
+    ["/replay", "Replay Analyzer", "Batch replay"],
+    ["/integration", "Data Integration", "33 registered sources"],
+    ["/ontology", "City Ontology", "33 ontology paths"],
+    ["/setup", "Easy setup", "Draft"],
+  ];
 
-    assert.match(html, /<details class="operator-help"><summary>Help<\/summary>/, path);
-    assert.doesNotMatch(html, /<details class="operator-help" open/, path);
-    assert.match(heading, /<h1>/, path);
-    assert.equal((heading.match(/<p/g) ?? []).length, 1, path);
+  for (const [path, title, mode] of pages) {
+    const html = await (await request(path)).text();
+    const titleBar = html.match(/<header class="operator-title-bar" aria-label="Page title and status">([\s\S]*?)<\/header>/)?.[1] ?? "";
+
+    assert.match(titleBar, new RegExp(`<h1>${title}<\\/h1>`), path);
+    assert.match(titleBar, new RegExp(`<span class="operator-mode-label">${mode}<\\/span>`), path);
+    assert.match(titleBar, /<time>Wellington time(?:<!-- -->)? NZST<\/time>/, path);
+    assert.equal((html.match(/<h1>/g) ?? []).length, 1, path);
+    assert.doesNotMatch(html, /operator-global-header|operator-module-heading|operator-help/, path);
+    assert.doesNotMatch(html, /WCC demo/, path);
     assert.doesNotMatch(html, /Emergency information prototype/, path);
     assert.doesNotMatch(html, /Every candidate remains an inference/, path);
+  }
+});
+
+test("keeps the compact Live status bar operationally complete", async () => {
+  const html = await (await request("/live")).text();
+  const status = html.match(/<div class="live-situation-strip" aria-label="Live source status">([\s\S]*?)<\/div><\/div>/)?.[1] ?? "";
+
+  for (const label of ["Connected", "No current records", "Not all-clear", "Issues", "Auto refresh · 60 s", "Pause display", "Refresh"]) {
+    assert.match(status, new RegExp(label), label);
   }
 });
 

@@ -89,9 +89,10 @@ flowchart LR
 | `/setup` | Easy setup | Prepare a data source, API/MCP/A2A connection or operator defaults as a safe local draft. |
 
 Routine screens are task-first: select a source, marker, candidate or setup
-section. Page guidance is closed under **Help**. The user-facing ontology map has
-its own top-level **Ontology** module; technical APIs, the raw graph and replay evidence
-remain under **Advanced** or **Evidence review**.
+section. Every module uses one compact title bar with only its page name, current
+mode and Wellington time; usage guidance will be added separately. The user-facing
+ontology map has its own top-level **Ontology** module; technical APIs, the raw graph
+and replay evidence remain under **Advanced** or **Evidence review**.
 
 Alert Centre uses a compact queue-and-case workflow. It keeps three independent
 states: **Signal**, **Incident** and **Warning**. A severe signal never confirms
