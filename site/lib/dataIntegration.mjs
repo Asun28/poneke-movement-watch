@@ -229,7 +229,7 @@ const ONTOLOGY_GRAPH_DESTINATIONS = {
     description: "Current permitted records",
   },
   alert_centre: {
-    label: "Alert Centre",
+    label: "Signal Review",
     description: "Review-eligible candidates",
   },
   replay_analyzer: {

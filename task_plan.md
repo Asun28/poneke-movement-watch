@@ -1,5 +1,65 @@
 # Pōneke Movement Watch — evidence ontology roadmap
 
+## Phase 34 — Signal Review queues and classification
+
+### Goal
+
+Rename the operator-facing Alert Centre to Signal Review and give staff a clear
+triage lifecycle with queue views and human outcome classification.
+
+### Status
+
+- [completed] Audit current queue state, draft persistence, navigation and model boundaries.
+- [completed] Add failing model and rendered behavior tests.
+- [completed] Implement queue grouping, workflow cues and classification guidance.
+- [completed] Rename the operator-facing module without changing technical identifiers.
+- [completed] Verify behavior, accessibility, build and regressions.
+- [pending] Deploy to the existing owner-only site.
+
+### Acceptance criteria
+
+- The user-facing module name is Signal Review across navigation and operator surfaces.
+- Queue views are New, Active, Closed and History with visible counts.
+- New maps to open; Active maps to investigating/needs-action; Closed maps to closed;
+  History is an all-records view, never a mutable workflow status.
+- The detail view shows the lifecycle Signal → Candidate → Investigate → Outcome.
+- Human classification supports True Positive, Benign Positive, False Positive and
+  Undetermined with a short meaning and next step.
+- Classification persists in the existing browser-local review draft and is never
+  presented as automatic model retraining or production ground truth.
+- Mock records and Undetermined outcomes are explicitly excluded from training feedback.
+
+### Assumptions and exclusions
+
+- “Historical” means a searchable view over prior tickets, not a fifth case status.
+- Existing internal route, API and ontology identifier `alert_centre` remain stable;
+  only user-facing labels become Signal Review.
+- This prototype keeps localStorage persistence. No D1 migration, shared queue, external
+  WCC ticket write, model fit, weight update or automated learning job is added.
+- Classification is staff feedback for later governed review; it does not override
+  evidence, confirm an incident or issue a warning.
+
+### File-level plan
+
+- `site/lib/signalReview.mjs`: queue mapping, classification catalogue and training boundary.
+- `site/tests/integration-model.test.mjs`: pure queue/classification contracts.
+- `site/tests/operator-console.test.mjs`: rendered workflow, queue tabs and editable field.
+- `site/app/components/AlertCentreClient.tsx`: queue tabs, workflow and classification UI.
+- `site/app/components/OperatorNavigation.tsx`, route/integration/ontology labels: rename visible module.
+- `site/app/globals.css`: compact queue tabs, workflow steps and guidance panel.
+- `README.md`, `findings.md`, `progress.md`: document workflow and safety boundary.
+
+### Rejected major alternatives
+
+- Do not use “History” as an editable status or duplicate Closed records into a new state.
+- Do not call the module “Incident Centre”; candidates are not confirmed incidents.
+- Do not feed a local reviewer selection directly into training, calibration or weights.
+
+### Errors encountered
+
+| Error | Attempt | Resolution |
+|---|---:|---|
+
 ## Phase 33 — compact alert signal details
 
 ### Goal

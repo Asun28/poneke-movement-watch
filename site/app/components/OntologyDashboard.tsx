@@ -165,7 +165,7 @@ export default function OntologyDashboard({ model }: { model: OntologyDashboardM
     },
     {
       id: "alert_centre",
-      label: "Alert Centre",
+      label: "Signal Review",
       description: "Review-eligible candidates",
       count: model.paths.filter((path) => path.alert_eligible).length,
     },
@@ -357,7 +357,7 @@ export default function OntologyDashboard({ model }: { model: OntologyDashboardM
         <section className="ontology-level" data-ontology-level="destinations" aria-labelledby="ontology-level-destinations">
           <header className="ontology-level-heading">
             <span>05</span>
-            <h3 id="ontology-level-destinations">Live · Alert Centre · Replay</h3>
+            <h3 id="ontology-level-destinations">Live · Signal Review · Replay</h3>
           </header>
           <div className="ontology-destinations" aria-label="Ontology operator destinations">
             {destinations.map((item) => (
@@ -606,7 +606,7 @@ export default function OntologyDashboard({ model }: { model: OntologyDashboardM
             >
               <option value="all">All destinations</option>
               <option value="live_operations">Live Operations</option>
-              <option value="alert_centre">Alert Centre</option>
+              <option value="alert_centre">Signal Review</option>
               <option value="replay_analyzer">Replay Analyzer</option>
               <option value="integration_only">Integration only</option>
             </select>
@@ -631,7 +631,7 @@ export default function OntologyDashboard({ model }: { model: OntologyDashboardM
               <div className="ontology-path-target">
                 <span>Destination</span>
                 <strong>{operationsTargetLabel(path.operations_target)}</strong>
-                {path.alert_eligible && <small>Also eligible for Alert Centre review</small>}
+                {path.alert_eligible && <small>Also eligible for Signal Review</small>}
               </div>
               <footer>
                 <span className={`ontology-tag truth-${path.demo_data_status}`}>{truthLabel(path)}</span>

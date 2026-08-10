@@ -2,6 +2,13 @@
 
 import { FormEvent, KeyboardEvent as ReactKeyboardEvent, useEffect, useState } from "react";
 import { prepareWarningApproval } from "../../lib/caseWorkflow.mjs";
+import {
+  classificationFeedback,
+  queueForReviewStatus,
+  REVIEW_CLASSIFICATIONS,
+  REVIEW_QUEUES,
+  reviewQueueIncludesStatus,
+} from "../../lib/signalReview.mjs";
 import { WORKFLOW_ADAPTERS } from "../../lib/workflowAdapters.mjs";
 
 type Candidate = {
@@ -23,7 +30,9 @@ type Candidate = {
 };
 
 type ReviewStatus = "open" | "investigating" | "needs_action" | "closed";
-type ReviewDraft = { status: ReviewStatus; assignee: string; note: string; updatedAt: string };
+type ReviewQueue = "new" | "active" | "closed" | "history";
+type ReviewClassification = "true_positive" | "benign_positive" | "false_positive" | "undetermined";
+type ReviewDraft = { status: ReviewStatus; classification: ReviewClassification; assignee: string; note: string; updatedAt: string };
 type TabId = "case" | "warning" | "evidence" | "activity";
 type TimelineItem = { version: number; occurredAt: string; action: string; summary: string };
 type CaseDraft = {
@@ -66,7 +75,7 @@ type WarningResult = {
 const REVIEW_STORAGE_KEY = "poneke-alert-review-drafts-v1";
 const CASE_STORAGE_KEY = "poneke-case-cop-drafts-v1";
 const MOCK_ID = "mock-preview";
-const EMPTY_REVIEW: ReviewDraft = { status: "open", assignee: "", note: "", updatedAt: "" };
+const EMPTY_REVIEW: ReviewDraft = { status: "open", classification: "undetermined", assignee: "", note: "", updatedAt: "" };
 const TABS: { id: TabId; label: string }[] = [
   { id: "case", label: "Case & COP" },
   { id: "warning", label: "Warning preparation" },
@@ -99,12 +108,14 @@ function emptyCaseDraft(): CaseDraft {
 function safeReviewDrafts(value: unknown): Record<string, ReviewDraft> {
   if (!value || typeof value !== "object" || Array.isArray(value)) return {};
   const allowed = new Set<ReviewStatus>(["open", "investigating", "needs_action", "closed"]);
+  const allowedClassifications = new Set<ReviewClassification>(["true_positive", "benign_positive", "false_positive", "undetermined"]);
   return Object.fromEntries(Object.entries(value).flatMap(([key, draft]) => {
     if (!draft || typeof draft !== "object" || Array.isArray(draft)) return [];
     const item = draft as Partial<ReviewDraft>;
     if (!item.status || !allowed.has(item.status)) return [];
     return [[key.slice(0, 180), {
       status: item.status,
+      classification: item.classification && allowedClassifications.has(item.classification) ? item.classification : "undetermined",
       assignee: typeof item.assignee === "string" ? item.assignee.slice(0, 240) : "",
       note: typeof item.note === "string" ? item.note.slice(0, 4000) : "",
       updatedAt: typeof item.updatedAt === "string" ? item.updatedAt : "",
@@ -164,7 +175,7 @@ export default function AlertCentreClient() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [state, setState] = useState<"loading" | "ready" | "error">("loading");
   const [query, setQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<"all" | ReviewStatus>("all");
+  const [activeQueue, setActiveQueue] = useState<ReviewQueue>("new");
   const [reviewDrafts, setReviewDrafts] = useState<Record<string, ReviewDraft>>({});
   const [caseDrafts, setCaseDrafts] = useState<Record<string, CaseDraft>>({});
   const [activeTab, setActiveTab] = useState<TabId>("case");
@@ -209,9 +220,16 @@ export default function AlertCentreClient() {
   const activeReview = reviewDrafts[selectedKey] ?? EMPTY_REVIEW;
   const activeCase = caseDrafts[selectedKey] ?? emptyCaseDraft();
   const normalizedQuery = query.trim().toLowerCase();
+  const queueCounts = Object.fromEntries(REVIEW_QUEUES.map((queue) => [
+    queue.id,
+    candidates.filter((candidate) => reviewQueueIncludesStatus(
+      queue.id,
+      reviewDrafts[candidate.id]?.status ?? "open",
+    )).length,
+  ])) as Record<ReviewQueue, number>;
   const filteredCandidates = candidates.filter((candidate) => {
     const reviewStatus = reviewDrafts[candidate.id]?.status ?? "open";
-    const matchesStatus = statusFilter === "all" || reviewStatus === statusFilter;
+    const matchesStatus = reviewQueueIncludesStatus(activeQueue, reviewStatus);
     const matchesQuery = !normalizedQuery || [candidate.id, candidate.title, candidate.source_id]
       .some((value) => value.toLowerCase().includes(normalizedQuery));
     return matchesStatus && matchesQuery;
@@ -220,6 +238,10 @@ export default function AlertCentreClient() {
     ? new Intl.DateTimeFormat("en-NZ", { dateStyle: "medium", timeStyle: "short", timeZone: "Pacific/Auckland" }).format(new Date(selected.observed_at))
     : "No observation";
   const signalState = activeReview.status === "closed" ? "Dismissed" : activeReview.status === "needs_action" ? "Promoted" : activeReview.status === "open" ? "Candidate" : "Under review";
+  const workflowStep = activeReview.status === "closed" ? 3 : activeReview.status === "open" ? 1 : 2;
+  const classification = classificationFeedback(activeReview.classification, { is_mock: !selected });
+  const mockStatus = reviewDrafts[MOCK_ID]?.status ?? "open";
+  const showMock = reviewQueueIncludesStatus(activeQueue, mockStatus);
   const channelRows = warningResult?.channels ?? (activeCase.warningState === "awaiting_approval"
     ? EMPTY_CHANNELS.map((channel) => ({ ...channel, status: "prepared_not_sent" }))
     : EMPTY_CHANNELS);
@@ -254,7 +276,12 @@ export default function AlertCentreClient() {
     const nextCase = {
       ...activeCase,
       updatedAt: now,
-      timeline: [...activeCase.timeline, { version: activeCase.timeline.length + 1, occurredAt: now, action: "cop_updated", summary: "Case & COP draft saved locally" }],
+      timeline: [...activeCase.timeline, {
+        version: activeCase.timeline.length + 1,
+        occurredAt: now,
+        action: activeReview.status === "closed" ? "outcome_classified" : "review_updated",
+        summary: `${queueForReviewStatus(activeReview.status)} · ${classification.label} · local draft`,
+      }],
     };
     const nextReviews = { ...reviewDrafts, [selectedKey]: nextReview };
     const nextCases = { ...caseDrafts, [selectedKey]: nextCase };
@@ -373,36 +400,38 @@ export default function AlertCentreClient() {
 
   return (
     <section className="alert-centre-grid">
-      <aside className="alert-queue" aria-label="Alert ticket queue" aria-busy={state === "loading"}>
+      <aside className="alert-queue" aria-label="Signal review queue" aria-busy={state === "loading"}>
         <header className="alert-queue-header">
-          <h2>Signals</h2>
-          <output>{filteredCandidates.length}</output>
+          <h2>Review queue</h2>
+          <output>{queueCounts[activeQueue]}</output>
         </header>
+        <nav className="alert-queue-tabs" aria-label="Signal review queues">
+          {REVIEW_QUEUES.map((queue) => (
+            <button key={queue.id} type="button" aria-pressed={activeQueue === queue.id} onClick={() => setActiveQueue(queue.id as ReviewQueue)}>
+              <span>{queue.label}</span><b>{queueCounts[queue.id as ReviewQueue]}</b>
+            </button>
+          ))}
+        </nav>
         <div className="alert-queue-tools">
-          <label><span>Search tickets</span><input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="ID, source, title" /></label>
-          <label>
-            <span>Filter by review status</span>
-            <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value as "all" | ReviewStatus)}>
-              <option value="all">All statuses</option><option value="open">Open</option><option value="investigating">Investigating</option>
-              <option value="needs_action">Needs action</option><option value="closed">Closed</option>
-            </select>
-          </label>
+          <label><span>Search signals</span><input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="ID, source, title" /></label>
         </div>
         <div className="alert-ticket-list">
-          {state === "loading" && <p className="ops-state is-loading" role="status">Loading alert queue…</p>}
-          {state === "error" && <p className="ops-state is-error" role="alert">Alert service unavailable.</p>}
+          {state === "loading" && <p className="ops-state is-loading" role="status">Loading review queue…</p>}
+          {state === "error" && <p className="ops-state is-error" role="alert">Signal service unavailable.</p>}
           {state === "ready" && candidates.length === 0 && <div className="alert-empty-state"><strong>No current candidates</strong><p>Not an all-clear</p></div>}
-          {state === "ready" && candidates.length > 0 && filteredCandidates.length === 0 && <div className="alert-empty-state"><strong>No matching tickets</strong><p>Clear search or choose another status.</p></div>}
+          {state === "ready" && candidates.length > 0 && filteredCandidates.length === 0 && <div className="alert-empty-state"><strong>No matching signals</strong><p>Clear search or choose another queue.</p></div>}
           {filteredCandidates.map((candidate) => (
             <button key={candidate.id} type="button" className={`alert-ticket-row ${candidate.id === selectedId ? "is-selected" : ""}`} aria-pressed={candidate.id === selectedId} onClick={() => selectCandidate(candidate.id)}>
-              <span className="alert-ticket-row-meta"><b>{candidate.severity}</b><i>{reviewDrafts[candidate.id]?.status ?? "open"}</i></span>
+              <span className="alert-ticket-row-meta"><b>{candidate.severity}</b><i>{queueForReviewStatus(reviewDrafts[candidate.id]?.status ?? "open")}</i></span>
               <strong>{candidate.title}</strong><small>{candidate.id} · {candidate.source_id}</small>
             </button>
           ))}
-          <button type="button" className={`alert-ticket-row is-mock ${selected ? "" : "is-selected"}`} aria-pressed={!selected} onClick={() => selectCandidate(null)}>
-            <span className="alert-ticket-row-meta"><b>Mock · zero evidence</b><i>{reviewDrafts[MOCK_ID]?.status ?? "open"}</i></span>
-            <strong>{preview.title}</strong><small>mock-preview · synthetic fixture</small>
-          </button>
+          {showMock && (
+            <button type="button" className={`alert-ticket-row is-mock ${selected ? "" : "is-selected"}`} aria-pressed={!selected} onClick={() => selectCandidate(null)}>
+              <span className="alert-ticket-row-meta"><b>Mock · zero evidence</b><i>{queueForReviewStatus(mockStatus)}</i></span>
+              <strong>{preview.title}</strong><small>mock-preview · synthetic fixture</small>
+            </button>
+          )}
         </div>
       </aside>
 
@@ -415,6 +444,14 @@ export default function AlertCentreClient() {
           <h2 id="alert-ticket-title">{selected?.title ?? preview.title}</h2>
           <span className="case-rule">{selected?.rule_id ?? "synthetic-preview"}</span>
         </header>
+
+        <ol className="alert-review-lifecycle" aria-label="Signal review workflow">
+          {["Signal", "Candidate", "Investigate", "Outcome"].map((step, index) => (
+            <li key={step} className={index < workflowStep ? "is-complete" : undefined} aria-current={index === workflowStep ? "step" : undefined}>
+              <span>{index + 1}</span><strong>{step}</strong>
+            </li>
+          ))}
+        </ol>
 
         <div className="alert-ticket-workspace">
           <section className="alert-ticket-main" aria-label="Investigation content">
@@ -520,11 +557,20 @@ export default function AlertCentreClient() {
             <form className="alert-detail-form" onSubmit={saveCase}>
               <fieldset>
                 <legend>Staff fields</legend>
-                <label><span>Review status</span><select name="review-status" value={activeReview.status} onChange={(event) => changeReview({ status: event.target.value as ReviewStatus })}><option value="open">Open</option><option value="investigating">Investigating</option><option value="needs_action">Needs action</option><option value="closed">Closed</option></select></label>
+                <label><span>Review status</span><select name="review-status" value={activeReview.status} onChange={(event) => changeReview({ status: event.target.value as ReviewStatus })}><option value="open">New</option><option value="investigating">Active · investigating</option><option value="needs_action">Active · needs action</option><option value="closed">Closed</option></select></label>
                 <label><span>Incident status</span><select name="incident-status" value={activeCase.incidentState} onChange={(event) => changeCase({ incidentState: event.target.value as CaseDraft["incidentState"] })}><option value="unconfirmed">Unconfirmed</option><option value="investigating">Investigating</option><option value="confirmed">Confirmed by staff</option><option value="controlled">Controlled</option><option value="recovery">Recovery</option><option value="closed">Closed</option></select></label>
                 <label><span>Assigned to <small>Information manager</small></span><input name="assignee" value={activeReview.assignee} onChange={(event) => changeReview({ assignee: event.target.value })} placeholder="Name or team" /></label>
                 <label><span>Next review</span><input type="datetime-local" value={activeCase.nextReview} onChange={(event) => changeCase({ nextReview: event.target.value })} /></label>
+                <label><span>Classification <small>Human outcome</small></span><select name="classification" value={activeReview.classification} onChange={(event) => changeReview({ classification: event.target.value as ReviewClassification })}>{REVIEW_CLASSIFICATIONS.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}</select></label>
               </fieldset>
+              <section className="alert-classification-guidance" aria-label="Classification guidance" aria-live="polite">
+                <strong>{classification.label}</strong>
+                <dl>
+                  <div><dt>Meaning</dt><dd>{classification.meaning}</dd></div>
+                  <div><dt>Next step</dt><dd>{classification.next_step}</dd></div>
+                </dl>
+                <span>{classification.training_use === "review_candidate" ? "Governed review candidate" : "Excluded from model feedback"} · Not trained automatically</span>
+              </section>
               <div className="alert-detail-actions"><button type="submit">Update details</button><span aria-live="polite">{notice || (activeCase.updatedAt ? "Saved locally" : "This browser only")}</span></div>
             </form>
 

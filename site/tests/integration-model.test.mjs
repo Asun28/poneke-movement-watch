@@ -72,6 +72,32 @@ test("keeps Signal, Incident and Warning states independently human-controlled",
   assert.equal(workflow.storage, "browser_local_demo");
 });
 
+test("groups review statuses into New, Active, Closed and all-record History views", async () => {
+  const { queueForReviewStatus, reviewQueueIncludesStatus } = await import("../lib/signalReview.mjs");
+
+  assert.equal(queueForReviewStatus("open"), "new");
+  assert.equal(queueForReviewStatus("investigating"), "active");
+  assert.equal(queueForReviewStatus("needs_action"), "active");
+  assert.equal(queueForReviewStatus("closed"), "closed");
+  assert.equal(reviewQueueIncludesStatus("history", "open"), true);
+  assert.equal(reviewQueueIncludesStatus("history", "closed"), true);
+  assert.equal(reviewQueueIncludesStatus("closed", "investigating"), false);
+});
+
+test("keeps human classifications governed and excludes mock or undetermined feedback", async () => {
+  const { classificationFeedback } = await import("../lib/signalReview.mjs");
+
+  assert.deepEqual(classificationFeedback("true_positive", { is_mock: false }), {
+    id: "true_positive",
+    label: "True Positive",
+    meaning: "A real disruption occurred as detected.",
+    next_step: "Escalate the response and preserve verified evidence.",
+    training_use: "review_candidate",
+  });
+  assert.equal(classificationFeedback("undetermined", { is_mock: false }).training_use, "excluded");
+  assert.equal(classificationFeedback("false_positive", { is_mock: true }).training_use, "excluded");
+});
+
 test("requires complete warning fields and a distinct approver", async () => {
   const { prepareWarningApproval } = await import("../lib/caseWorkflow.mjs");
   const required = [

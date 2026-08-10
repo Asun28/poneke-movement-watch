@@ -132,7 +132,7 @@ const SOURCE_WORKSPACE_STORAGE_KEY = "poneke-replay-source-workspace-v1";
 const MODULE_LABELS: Record<string, string> = {
   replay_analyzer: "Replay Analyzer",
   live_operations: "Live Operations",
-  alert_centre: "Alert Centre",
+  alert_centre: "Signal Review",
 };
 const STATUS_OPTIONS = [
   { value: "registered_only", label: "Registered only" },
@@ -821,7 +821,7 @@ function LayerWorkspace({
           >
             <option value="replay_analyzer">Replay Analyzer</option>
             <option value="live_operations">Live Operations</option>
-            <option value="alert_centre">Alert Centre</option>
+            <option value="alert_centre">Signal Review</option>
             <option value="all">All sources</option>
           </select>
         </label>

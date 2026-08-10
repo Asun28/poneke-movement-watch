@@ -4,7 +4,7 @@ import { useState } from "react";
 
 const destinations = [
   { href: "/live", label: "Live Operations", short: "Live", glyph: "●" },
-  { href: "/alerts", label: "Alert Centre", short: "Alerts", glyph: "!" },
+  { href: "/alerts", label: "Signal Review", short: "Review", glyph: "!" },
   { href: "/replay", label: "Replay Analyzer", short: "Replay", glyph: "↺" },
   { href: "/integration", label: "Data Integration", short: "Integrate", glyph: "⇄" },
   { href: "/ontology", label: "Ontology", short: "Ontology", glyph: "◇" },

@@ -712,3 +712,14 @@
 - 2026-08-10: Pushed commit `8fa9a51` only to the private Sites source, saved
   version 35 and completed the owner-only production deployment. GitHub origin
   and remote `main` remain unchanged.
+# Phase 34 — Signal Review queues and classification
+
+- 2026-08-10: Started the queue and outcome-feedback update. Selected Signal Review
+  as the operator name and fixed History as an all-records view, not a workflow state.
+  Automatic model training, shared persistence and external ticket writes stay out of scope.
+- 2026-08-10: TDD RED confirmed the queue/classification model and rendered workflow
+  were absent. TDD GREEN confirmed New/Active/Closed/History grouping, four human
+  outcomes, mock/undetermined exclusion and the renamed operator module.
+- 2026-08-10: Full local verification passes: production build, 67/67 site
+  behaviors, ESLint, 22/22 Python tests and whitespace checks. Temporary test
+  files were removed; owner-only deployment is next.

@@ -33,7 +33,7 @@ used, and missing rows are never interpolated or converted to zero.
 The Replay layer rail is also the investigation source workspace. Staff can
 include or exclude sources, filter by operator module, add a source draft, edit
 its local display/routing settings and assign it to Replay Analyzer, Live
-Operations or Alert Centre. Drafts remain in that browser. Registry truth,
+Operations or Signal Review. Drafts remain in that browser. Registry truth,
 access state and the packaged replay stay locked; adding a source does not make
 it connected, playable or eligible evidence.
 
@@ -79,7 +79,7 @@ flowchart LR
     C --> F["Alert policy<br/>freshness · ontology · rules"]
     C --> G["Future WCC modules"]
     F --> H["LLM explanation<br/>no decision authority"]
-    F --> I["Alert Centre<br/>human review queue"]
+    F --> I["Signal Review<br/>human review queue"]
     H --> I
     I --> J["Authorised human decision"]
 ```
@@ -89,7 +89,7 @@ flowchart LR
 | Route | Module | Purpose |
 |---|---|---|
 | `/live` | Live Operations | Map current permitted observations and distinguish live, empty, stale and unavailable sources. |
-| `/alerts` | Alert Centre | Review signals, maintain a browser-local Case/COP, prepare approval packs and inspect read-only evidence. |
+| `/alerts` | Signal Review | Triage candidates, investigate cases, classify outcomes, prepare approval packs and inspect read-only evidence. |
 | `/replay` | Replay Analyzer | Reconstruct the 2026 WCC sensor history with date/hour/speed and matched-hour trends. |
 | `/integration` | Data Integration | Review all 33 source contracts, access, runtime health, provider formats and integration endpoints. |
 | `/ontology` | City Ontology | Trace source evidence through shared concepts, corroboration and operator decisions using the operational chain or focused graph. |
@@ -102,13 +102,19 @@ remain compact and visible. Every module uses the same title bar, spacing and pa
 hierarchy; technical APIs, the raw graph and replay evidence stay under **Advanced**
 or **Evidence review**.
 
-Alert Centre uses a compact issue-details workflow: investigation content stays in
+Signal Review uses a compact issue-details workflow: investigation content stays in
 the main column while status, assignment, timing and read-only signal facts stay in
 a tidy detail rail. It keeps three independent states: **Signal**, **Incident** and
 **Warning**. A severe signal never confirms an incident or issues a warning.
 Operators can maintain a browser-local Case/COP with an information manager, next
 review, affected area, situation, confirmed and unknown items, and current actions.
 Severity, source, observation time and system evidence remain read-only.
+
+The queue has four views: **New** (`open`), **Active** (`investigating` or
+`needs_action`), **Closed**, and **History** (all records). History is not a
+mutable status. Staff can classify an outcome as True Positive, Benign Positive,
+False Positive or Undetermined. These are browser-local human feedback labels,
+not automatic training data; mock and Undetermined records are always excluded.
 
 The Warning tab validates hazard, area, level, public action, effective/expiry/
 next-update times, linked evidence, and distinct creator/approver roles before it
@@ -118,12 +124,14 @@ adapters may add `accepted`, `failed` and `published` receipts, but a provider
 receipt would still not prove that every resident saw a warning.
 
 Case activity is a browser-local timeline, not a shared or statutory audit log.
-A production multi-user COP requires authenticated server-side storage, role
-permissions, immutable version history and authorised publishing interfaces.
+The History queue covers records retained by the current feed and browser; it is
+not a durable Council archive. A production multi-user COP requires authenticated
+server-side storage, role permissions, immutable version history and authorised
+publishing interfaces.
 
 ### Investigation workflow mocks
 
-Alert Centre can prepare six deterministic mock actions: WCC ticket, Replay
+Signal Review can prepare six deterministic mock actions: WCC ticket, Replay
 Analyzer handoff, WCC field dispatch, leadership notification, Civil
 Defence/NEMA escalation, and a public-warning/social draft. Every result is
 synthetic, remains `prepared_not_sent`, carries zero evidence weight and performs
@@ -253,7 +261,7 @@ ontology entities + relations + evidence rules
   ↓
 anomaly candidates + multi-source corroboration
   ↓
-Live Operations / Alert Centre / Replay Analyzer
+Live Operations / Signal Review / Replay Analyzer
   ↓
 human confirmation + authorised response
 ```
@@ -262,7 +270,7 @@ The five display groups are Movement & transport, Hazards & warnings, Access &
 incidents, Lifelines & response, and People & demand. These are navigation groups
 over the existing 28 exact ontology roles; they do not create new evidence or
 change the v3 graph. Operators can filter by source, concept or destination and
-see source truth, access/cost and ontology weight on every path. Alert Centre is
+see source truth, access/cost and ontology weight on every path. Signal Review is
 shown only for live contracts already marked `alert_eligible`; every candidate
 remains separate from an Incident and requires human review. Models and ontology
 cannot issue a public warning. The 33 source-level paths are collapsed by default;

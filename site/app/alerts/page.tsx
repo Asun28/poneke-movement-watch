@@ -5,8 +5,8 @@ export default function AlertCentrePage() {
   return (
     <OperatorShell
       active="/alerts"
-      title="Alert Centre"
-      modeLabel="Review queue"
+      title="Signal Review"
+      modeLabel="Triage queue"
     >
       <AlertCentreClient />
     </OperatorShell>

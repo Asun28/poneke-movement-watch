@@ -38,7 +38,7 @@ test("publishes one integration contract for all registered providers", async ()
 test("exposes six distinct operator modules with shared navigation", async () => {
   const expectations = [
     ["/live", /Live Operations/, /Current feeds/],
-    ["/alerts", /Alert Centre/, /Signals/],
+    ["/alerts", /Signal Review/, /Review queue/],
     ["/replay", /Replay Analyzer/, /History replay/],
     ["/integration", /Data Integration/, /33 source contracts/],
     ["/ontology", /City Ontology/, /data-ontology-view="chain"/],
@@ -52,7 +52,7 @@ test("exposes six distinct operator modules with shared navigation", async () =>
     assert.match(html, heading, path);
     assert.match(html, content, path);
     assert.match(html, /Live Operations/, path);
-    assert.match(html, /Alert Centre/, path);
+    assert.match(html, /Signal Review/, path);
     assert.match(html, /Replay Analyzer/, path);
     assert.match(html, /Data Integration/, path);
     assert.match(html, /Ontology/, path);
@@ -109,8 +109,8 @@ test("announces live and alert loading without presenting provisional zeroes", a
   assert.match(live, /aria-busy="true"/);
   assert.match(live, /Loading current feeds/);
   assert.doesNotMatch(live, /<span>Connected<\/span><strong>0<\/strong>/);
-  assert.match(alerts, /aria-label="Alert ticket queue"[^>]*aria-busy="true"/);
-  assert.match(alerts, /Loading alert queue/);
+  assert.match(alerts, /aria-label="Signal review queue"[^>]*aria-busy="true"/);
+  assert.match(alerts, /Loading review queue/);
 });
 
 test("offers short safe setup paths for sources, API, MCP and A2A", async () => {
@@ -218,7 +218,7 @@ test("shows the six-level operational evidence chain before advanced technical d
   assert.match(html, /Normalize, align time &amp; place/);
   assert.match(html, /Ontology entities, relations &amp; evidence rules/);
   assert.match(html, /Anomaly candidates &amp; corroboration/);
-  assert.match(html, /Live · Alert Centre · Replay/);
+  assert.match(html, /Live · Signal Review · Replay/);
   assert.match(html, /Human confirmation &amp; response/);
   assert.match(html, /Candidate · not incident/);
   assert.match(html, /Human approval required/);
@@ -298,7 +298,7 @@ test("provides a friendly Replay investigation source workspace", async () => {
   assert.match(html, /value="replay_analyzer" selected=""/);
   assert.match(html, /Replay Analyzer/);
   assert.match(html, /Live Operations/);
-  assert.match(html, /Alert Centre/);
+  assert.match(html, /Signal Review/);
   assert.match(html, /Add source/);
   assert.match(html, /Source name/);
   assert.match(html, /Source ID/);
@@ -329,9 +329,9 @@ test("provides a focused editable review ticket without changing system truth", 
   assert.equal(response.status, 200);
   const html = await response.text();
 
-  assert.match(html, /aria-label="Alert ticket queue"/);
-  assert.match(html, /Search tickets/);
-  assert.match(html, /Filter by review status/);
+  assert.match(html, /aria-label="Signal review queue"/);
+  assert.match(html, /Search signals/);
+  assert.match(html, /aria-label="Signal review queues"/);
   assert.match(html, /Review status/);
   assert.match(html, /Assigned to/);
   assert.match(html, /Review note/);
@@ -355,6 +355,27 @@ test("lays out each signal as a compact investigation with a dedicated details r
   assert.match(html, /name="review-status"/);
   assert.match(html, /name="assignee"/);
   assert.doesNotMatch(html, /name="system-severity"/);
+});
+
+test("offers Signal Review queues and governed human outcome feedback", async () => {
+  const response = await request("/alerts");
+  assert.equal(response.status, 200);
+  const html = await response.text();
+
+  assert.match(html, /Signal Review/);
+  assert.match(html, /aria-label="Signal review queues"/);
+  for (const queue of ["New", "Active", "Closed", "History"]) {
+    assert.match(html, new RegExp(`>${queue}<`), queue);
+  }
+  assert.match(html, /aria-label="Signal review workflow"/);
+  assert.match(html, /Signal[\s\S]*Candidate[\s\S]*Investigate[\s\S]*Outcome/);
+  assert.match(html, /name="classification"/);
+  for (const outcome of ["True Positive", "Benign Positive", "False Positive", "Undetermined"]) {
+    assert.match(html, new RegExp(outcome), outcome);
+  }
+  assert.match(html, /Meaning/);
+  assert.match(html, /Next step/);
+  assert.match(html, /Not trained automatically/);
 });
 
 test("renders a local case COP and warning-preparation workspace", async () => {
@@ -478,7 +499,7 @@ test("serves provider-shaped workflow mocks and never reports a dispatch", async
 test("uses one compact title and status bar on every operator page", async () => {
   const pages = [
     ["/live", "Live Operations", "Live"],
-    ["/alerts", "Alert Centre", "Review queue"],
+    ["/alerts", "Signal Review", "Triage queue"],
     ["/replay", "Replay Analyzer", "Batch replay"],
     ["/integration", "Data Integration", "33 registered sources"],
     ["/ontology", "City Ontology", "33 ontology paths"],

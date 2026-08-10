@@ -2023,3 +2023,112 @@ h1, h2, h3, h4, h5 { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-seri
   .alert-detail-form input,
   .alert-detail-form select { font-size: 16px; }
 }
+
+/* Phase 34 — Signal Review queues and classification */
+.alert-queue-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--hairline);
+  background: #ffffff;
+}
+.alert-queue-tabs button {
+  min-width: 0;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 9px;
+  border: 1px solid var(--hairline);
+  border-radius: 5px;
+  color: var(--civic-ink);
+  background: #f7f8f9;
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: 650;
+}
+.alert-queue-tabs button:hover { background: #e9f2ff; }
+.alert-queue-tabs button[aria-pressed="true"] { color: #ffffff; border-color: #0c66e4; background: #0c66e4; }
+.alert-queue-tabs b {
+  min-width: 21px;
+  padding: 4px;
+  border-radius: 999px;
+  color: #42526e;
+  background: #dfe1e6;
+  font-size: 9px;
+  text-align: center;
+}
+.alert-queue-tabs button[aria-pressed="true"] b { color: #0747a6; background: #deebff; }
+.alert-queue-tools { grid-template-columns: 1fr; }
+
+.alert-review-lifecycle {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.alert-review-lifecycle li {
+  min-width: 0;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border: 1px solid var(--hairline);
+  border-left: 0;
+  color: #5e6c84;
+  background: #f7f8f9;
+}
+.alert-review-lifecycle li:first-child { border-left: 1px solid var(--hairline); border-radius: 6px 0 0 6px; }
+.alert-review-lifecycle li:last-child { border-radius: 0 6px 6px 0; }
+.alert-review-lifecycle li > span {
+  flex: 0 0 22px;
+  min-height: 22px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #a5adba;
+  border-radius: 50%;
+  background: #ffffff;
+  font-size: 9px;
+  font-weight: 700;
+}
+.alert-review-lifecycle strong { min-width: 0; font-size: 10px; }
+.alert-review-lifecycle li.is-complete { color: #216e4e; background: #dcfff1; }
+.alert-review-lifecycle li[aria-current="step"] { color: #0747a6; border-color: #0c66e4; background: #e9f2ff; }
+.alert-review-lifecycle li[aria-current="step"] > span { color: #ffffff; border-color: #0c66e4; background: #0c66e4; }
+
+.alert-classification-guidance {
+  margin-top: 12px;
+  padding: 10px;
+  border: 1px solid var(--hairline);
+  border-radius: 6px;
+  background: #f7f8f9;
+}
+.alert-classification-guidance > strong { display: block; font-size: 11px; }
+.alert-classification-guidance dl { margin: 6px 0 0; }
+.alert-classification-guidance dl > div {
+  display: grid;
+  grid-template-columns: 66px minmax(0, 1fr);
+  gap: 8px;
+  padding: 6px 0;
+  border-top: 1px solid #dfe1e6;
+}
+.alert-classification-guidance dt { color: var(--muted-ink); font-size: 9px; }
+.alert-classification-guidance dd { margin: 0; font-size: 9px; line-height: 1.4; }
+.alert-classification-guidance > span {
+  display: block;
+  margin-top: 6px;
+  color: #7c4c00;
+  font-size: 9px;
+  font-weight: 650;
+}
+
+@media (max-width: 700px) {
+  .alert-review-lifecycle { grid-template-columns: 1fr 1fr; gap: 4px; }
+  .alert-review-lifecycle li,
+  .alert-review-lifecycle li:first-child,
+  .alert-review-lifecycle li:last-child { border: 1px solid var(--hairline); border-radius: 5px; }
+}

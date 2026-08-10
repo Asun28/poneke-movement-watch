@@ -1,5 +1,24 @@
 # Findings — Phase 2 ontology and sources
 
+## Phase 34 — Signal Review queues and classification
+
+- `Signal Review` is the clearest operator name: it describes candidate triage and human
+  confirmation without implying that every machine signal is an issued public alert.
+- Current review states already support the required lifecycle: `open` becomes New;
+  `investigating` and `needs_action` become Active; `closed` becomes Closed. History
+  should query all records rather than introduce another mutable status.
+- The operator workflow is Signal → Candidate → Investigate → Outcome. Incident and
+  Warning remain independent human-controlled states and are not collapsed into this queue.
+- Outcome classification belongs to the browser-local review draft. True Positive,
+  Benign Positive, False Positive and Undetermined need short operational guidance, but
+  none is automatic training truth. Mock and Undetermined records must remain ineligible.
+- Internal `alert_centre` identifiers are integration contracts. Renaming those would add
+  needless schema risk, so only visible labels should change to Signal Review.
+- Local UX guidance reinforces visible labels and immediate save feedback. Queue tabs
+  should remain native buttons with selected state and counts; classification remains a
+  labelled select with concise contextual guidance, not colour-only cards or hidden help.
+
+
 ## Phase 31 — quiet daily-work interface findings
 
 - Atlassian's current navigation guidance prioritises predictable repeated patterns,
