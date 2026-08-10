@@ -172,7 +172,11 @@ test("opens Live as one map-first workspace with readable evidence overlays", as
   assert.match(live, /Flights in &amp; out/);
   assert.match(live, /Cruise calls/);
   assert.match(live, /Mock · zero evidence/);
-  assert.match(live, /aria-label="Map controls"[^>]*data-max-zoom="1000%"[^>]*data-density="compact"[^>]*data-corner="bottom-right"/);
+  assert.match(live, /aria-label="Map controls"[^>]*data-max-zoom="1000%"[^>]*data-style="google-vertical"[^>]*data-corner="bottom-right"/);
+  assert.match(live, /aria-label="Map zoom controls"[^>]*>[\s\S]*?aria-label="Zoom in"[\s\S]*?aria-label="Zoom out"/);
+  assert.doesNotMatch(live, /aria-label="Map zoom level"/);
+  assert.doesNotMatch(live, /aria-label="Reset map view"/);
+  assert.match(live, /class="ops-map-fullscreen"[^>]*aria-label="Show map fullscreen"/);
   assert.doesNotMatch(live, /class="ops-map-status"/);
   assert.match(live, /class="ops-map-attribution"[^>]*data-corner="bottom-left"[^>]*>© OpenStreetMap contributors/);
 

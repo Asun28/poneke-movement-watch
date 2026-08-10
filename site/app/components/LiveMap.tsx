@@ -328,13 +328,14 @@ export default function LiveMap({
           setZoom((value) => Math.max(0.7, Math.min(10, value + (event.deltaY < 0 ? 0.25 : -0.25))));
         }}
       />
-      <div className="ops-map-controls" aria-label="Map controls" data-max-zoom="1000%" data-density="compact" data-corner="bottom-right">
-        <button type="button" aria-label="Zoom out" disabled={zoom <= 0.7} onClick={() => setZoom((value) => Math.max(0.7, value - 0.5))}>−</button>
-        <output>{Math.round(zoom * 100)}%</output>
-        <button type="button" aria-label="Zoom in" disabled={zoom >= 10} onClick={() => setZoom((value) => Math.min(10, value + 0.5))}>+</button>
-        <label><span className="sr-only">Map zoom level</span><input type="range" aria-label="Map zoom level" min="0.7" max="10" step="0.1" value={zoom} onChange={(event) => setZoom(Number(event.currentTarget.value))} /></label>
-        <button type="button" aria-label="Reset map view" onClick={() => { setZoom(1); setPan([0, 0]); }}>Reset</button>
-        <button type="button" aria-label={isFullscreen ? "Exit map fullscreen" : "Show map fullscreen"} onClick={toggleFullscreen}>{isFullscreen ? "Exit full screen" : "Full screen"}</button>
+      <div className="ops-map-controls" aria-label="Map controls" data-max-zoom="1000%" data-style="google-vertical" data-corner="bottom-right">
+        <div className="ops-map-zoom-controls" role="group" aria-label="Map zoom controls">
+          <button type="button" aria-label="Zoom in" disabled={zoom >= 10} onClick={() => setZoom((value) => Math.min(10, value + 0.5))}>+</button>
+          <button type="button" aria-label="Zoom out" disabled={zoom <= 0.7} onClick={() => setZoom((value) => Math.max(0.7, value - 0.5))}>−</button>
+        </div>
+        <button className="ops-map-fullscreen" type="button" aria-label={isFullscreen ? "Exit map fullscreen" : "Show map fullscreen"} aria-pressed={isFullscreen} title={isFullscreen ? "Exit full screen" : "Full screen"} onClick={toggleFullscreen}>
+          <span className="ops-map-fullscreen-glyph" aria-hidden="true" />
+        </button>
       </div>
       {hovered && (
         <div className="ops-map-hover" style={{ left: Math.min(hovered.x + 14, 520), top: Math.max(16, hovered.y - 32) }}>
