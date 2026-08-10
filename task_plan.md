@@ -1,5 +1,70 @@
 # Pōneke Movement Watch — evidence ontology roadmap
 
+## Phase 23 — user-friendly ontology dashboard
+
+### Goal
+
+Add a focused Ontology Dashboard inside Data Integration that shows how the
+existing registered datasets become typed ontology concepts and relationships,
+then support Live Operations, Alert Centre and Replay Analyzer.
+
+### Status
+
+- [completed] Audit the current ontology artifact, source contracts and Integration UI.
+- [completed] Add failing observable mapping, filtering and accessibility tests.
+- [completed] Implement the source-to-concept-to-module dashboard without changing source truth.
+- [in_progress] Verify responsive behavior, regressions and owner-only deployment.
+
+### Acceptance criteria
+
+- `/integration` visibly exposes an Ontology Dashboard without requiring Advanced
+  and without adding a sixth primary route.
+- The dashboard presents a readable three-stage flow: registered data sources,
+  ontology concepts/relationships, and operator modules.
+- Operators can filter or select by source, concept and destination; the selected
+  path remains understandable without hover or colour alone.
+- Every mapping is derived from the existing source registry and city ontology;
+  real, context, mock, restricted, paid and zero-weight states remain explicit.
+- The primary view is keyboard operable, has a linear/list alternative to its
+  visual flow, and does not horizontally overflow at 375px.
+- Existing Live, Alerts, Replay, Setup, source registry, evidence weights and
+  external-action boundaries do not change.
+
+### Assumptions and exclusions
+
+- This is a user-facing view over existing ontology/data contracts, not a new
+  ontology version, data source, observation, detector or trained model.
+- The existing five-module information architecture remains the navigation source
+  of truth; technical schemas and endpoint links stay under Advanced.
+- A registry entry is not presented as an active live observation. Mock, paid,
+  permissioned and restricted sources cannot gain evidence weight through this UI.
+- No database, authentication, credential, activation or outbound integration is added.
+
+### File-level plan
+
+- `site/tests/integration-model.test.mjs`, `site/tests/operator-console.test.mjs`:
+  mapping behavior, visible dashboard, filters and safety-boundary contracts.
+- `site/lib/dataIntegration.mjs`: deterministic source-to-concept projection only
+  if the existing artifacts do not already expose a suitable view model.
+- `site/app/components/OntologyDashboard.tsx`, `site/app/integration/page.tsx`:
+  focused dashboard and Integration placement.
+- `site/app/globals.css`: compact responsive flow, controls, selected paths and
+  accessible state presentation.
+- `README.md`, `findings.md`, `progress.md`: operator use and verification evidence.
+
+### Rejected major alternatives
+
+- Do not add a sixth primary Ontology route.
+- Do not use a force-directed network graph or inaccessible Sankey as the primary view.
+- Do not install a chart library or replace the existing civic visual system.
+- Do not infer source activation, runtime observations or evidence support from registry metadata.
+
+### Errors encountered
+
+| Error | Attempt | Resolution |
+|---|---:|---|
+| The first combined context read was truncated. | 1 | Re-read required skill files separately and use focused file reads for the implementation audit. |
+
 ## Phase 22 — production-demo UX polish
 
 ### Goal

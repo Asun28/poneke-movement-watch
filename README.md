@@ -84,12 +84,13 @@ flowchart LR
 | `/live` | Live Operations | Map current permitted observations and distinguish live, empty, stale and unavailable sources. |
 | `/alerts` | Alert Centre | Review signals, maintain a browser-local Case/COP, prepare approval packs and inspect read-only evidence. |
 | `/replay` | Replay Analyzer | Reconstruct the 2026 WCC sensor history with date/hour/speed and matched-hour trends. |
-| `/integration` | Data Integration | Inspect all 33 provider contracts, access/cost state, raw format and runtime policy. |
+| `/integration` | Data Integration | Trace all 33 sources through ontology roles to Live, Alerts, Replay or Integration-only use. |
 | `/setup` | Easy setup | Prepare a data source, API/MCP/A2A connection or operator defaults as a safe local draft. |
 
 Routine screens are task-first: select a source, marker, candidate or setup
-section. Page guidance is closed under **Help**. Technical APIs, ontology and
-full replay evidence are closed under **Advanced** or **Evidence review**.
+section. Page guidance is closed under **Help**. The user-facing ontology map is
+visible in Data Integration; technical APIs, the full graph and replay evidence
+remain under **Advanced** or **Evidence review**.
 
 Alert Centre uses a compact queue-and-case workflow. It keeps three independent
 states: **Signal**, **Incident** and **Warning**. A severe signal never confirms
@@ -222,6 +223,23 @@ access state, 2026 record state and evidence weight. The UI distinguishes real
 records, available feeds, static/planned context, an empty activation feed,
 credentials or permission requirements, paid mock-only capability, and stale
 records excluded by the freshness gate.
+
+### Ontology Dashboard
+
+Data Integration joins every source contract to its matching `DataLayer` by
+`source_id` and presents one readable path:
+
+```text
+data source → ontology concept + exact role → operator destination
+```
+
+The five display groups are Movement & transport, Hazards & warnings, Access &
+incidents, Lifelines & response, and People & demand. These are navigation groups
+over the existing 28 exact ontology roles; they do not create new evidence or
+change the v3 graph. Operators can filter by source, concept or destination and
+see source truth, access/cost and ontology weight on every path. Alert Centre is
+shown only for live contracts already marked `alert_eligible`; every candidate
+still requires human review.
 
 Eventfinda is a first-class planned-demand contract, not observed attendance.
 Its API uses application-specific HTTP Basic credentials, so the public build

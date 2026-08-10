@@ -147,6 +147,31 @@ test("renders truth, access and runtime health as separate integration dimension
   assert.match(html, /Add source/);
 });
 
+test("shows a user-friendly ontology dashboard before advanced technical detail", async () => {
+  const html = await (await request("/integration")).text();
+  const dashboardAt = html.indexOf("Ontology Dashboard");
+  const advancedAt = html.indexOf('<details class="operator-advanced">');
+
+  assert.ok(dashboardAt > -1);
+  assert.ok(advancedAt > dashboardAt);
+  assert.match(html, /Data sources/);
+  assert.match(html, /Ontology concepts/);
+  assert.match(html, /Operator modules/);
+  assert.match(html, /aria-label="Filter ontology pathways by concept"/);
+  assert.match(html, /aria-label="Filter ontology pathways by operator module"/);
+  assert.equal((html.match(/data-ontology-path=/g) ?? []).length, 33);
+  assert.match(html, /Movement &amp; transport/);
+  assert.match(html, /Hazards &amp; warnings/);
+  assert.match(html, /Access &amp; incidents/);
+  assert.match(html, /Lifelines &amp; response/);
+  assert.match(html, /People &amp; demand/);
+  assert.match(html, /Real replay/);
+  assert.match(html, /Mock · zero weight/);
+  assert.match(html, /Permission required/);
+  assert.match(html, /Paid API/);
+  assert.match(html, /Unknown is not open/);
+});
+
 test("labels every integration field for a complete phone-sized source record", async () => {
   const html = await (await request("/integration")).text();
   const labels = ["Source", "Ontology role", "Source truth", "Access &amp; cost", "Runtime health", "Provider format"];

@@ -1,12 +1,15 @@
 import registry from "../../public/cop/v2/source-registry.json";
-import { buildSourceContracts } from "../../lib/dataIntegration.mjs";
+import ontology from "../../public/cop/v3/city-ontology.json";
+import { buildOntologyDashboardModel, buildSourceContracts } from "../../lib/dataIntegration.mjs";
 import { SOURCE_MANIFEST } from "../../lib/sourceManifest.mjs";
 import CityOntologyExplorer from "../CityOntologyExplorer";
 import IntegrationRegistry from "../components/IntegrationRegistry";
+import OntologyDashboard from "../components/OntologyDashboard";
 import OperatorShell from "../components/OperatorShell";
 import SourceCapabilityPreview from "../SourceCapabilityPreview";
 
 const contracts = buildSourceContracts(registry, SOURCE_MANIFEST);
+const ontologyDashboard = buildOntologyDashboardModel(contracts, ontology);
 
 export default function IntegrationPage() {
   return (
@@ -14,9 +17,10 @@ export default function IntegrationPage() {
       active="/integration"
       eyebrow="Shared platform boundary"
       title="Data Integration"
-      description="Search sources or add a connection. Open Advanced for APIs and ontology."
+      description="See how sources connect to city concepts, operator modules and source contracts."
       modeLabel="33 registered sources"
     >
+      <OntologyDashboard model={ontologyDashboard} />
       <IntegrationRegistry contracts={contracts.sources} />
       <details className="operator-advanced">
         <summary>Advanced</summary>

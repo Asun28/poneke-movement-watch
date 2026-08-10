@@ -1,5 +1,26 @@
 # Progress — Phase 2 ontology and sources
 
+## Phase 23 — ontology dashboard
+
+- 2026-08-10: Started a focused Ontology Dashboard inside Data Integration. Locked
+  scope to a user-friendly source-to-concept-to-module view over existing artifacts;
+  no new route, data, model, activation, authority or outbound action is authorised.
+- 2026-08-10: Restored the clean local feature branch, loaded planning, TDD, UI and
+  Sites instructions, and rejected an inaccessible network-graph primary view in
+  favour of a compact filterable flow with a linear mapping alternative.
+- 2026-08-10: Completed the contract audit: the 33 registry sources join exactly
+  to 33 ontology `DataLayer` nodes. TDD RED is verified with two intended failures:
+  the deterministic dashboard model does not exist and `/integration` has no
+  visible Ontology Dashboard before Advanced; the other 52 tests remain green.
+- 2026-08-10: TDD GREEN passes all 54 site tests after adding the deterministic
+  33-path projection, five concept filters, Live/Alert/Replay destinations and
+  compact source-role-destination rows. Every row retains truth, access/cost and
+  ontology weight labels; the old machine-readable graph remains under Advanced.
+- 2026-08-10: Validation passes the production build, 54/54 site tests, ESLint,
+  22/22 Python regressions and whitespace checks. Responsive CSS uses a one-column
+  375px projection with native labelled controls, visible focus and no wide graph.
+
+
 ## Phase 21 — case/COP and warning operations workflow
 
 - 2026-08-10: Audited the Alert Centre, mock adapters, Replay handoff, tests and

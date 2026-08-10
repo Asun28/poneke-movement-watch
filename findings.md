@@ -1,5 +1,41 @@
 # Findings — Phase 2 ontology and sources
 
+## Phase 23 — ontology dashboard findings
+
+- The user needs an operational explanation of the existing ontology, not a new
+  ontology model or another primary destination. Data Integration is the correct
+  home because it already owns source contracts, ontology artifacts and setup entry points.
+- The useful interaction is a deterministic, filterable three-stage projection:
+  source contract → ontology role/concept → operator destination. It must preserve
+  access, cost, runtime, provenance and evidence-weight truth rather than collapse
+  them into a single confidence score.
+- UI design guidance rejects a force-directed network as the primary view because
+  it is weak on mobile and inaccessible without an alternative. A structured flow
+  plus keyboard-readable mapping list gives the same mental model with less cognitive load.
+- The generic design-system search suggested oversized landing typography and
+  scroll-reveal motion; both conflict with the existing compact civic console and
+  are rejected. Retained rules are 44px controls, visible focus, 150–300ms state
+  feedback, reduced-motion support, textual state labels and no mobile overflow.
+- No new runtime fetch is necessary. The page can be built from the packaged v2
+  source registry, v3 city ontology and existing integration contracts, keeping
+  the private demo deterministic and preserving its production-truth boundary.
+- The registry and ontology join exactly by `source_id`: 33 registered sources,
+  33 `DataLayer` nodes, no missing or extra IDs. The ontology currently exposes
+  28 exact role names, 11 relationship types and six assertion guardrails.
+- Current `/integration` hides the complete ontology explorer under Advanced and
+  presents the source registry first. The old explorer also uses an 820px semantic
+  rail with horizontal scrolling below 860px, so it is unsuitable as the new
+  primary mobile-friendly explanation.
+- Source contracts provide the operator destination, connector/runtime state,
+  access/cost and format; `DataLayer` nodes provide ontology role, 2026 status,
+  `can_support`, `cannot_assert` and ontology evidence weight. The new view model
+  should join both instead of recomputing or overriding either contract.
+- The ontology summary is intentionally conservative: one real-record layer and
+  32 zero-weight layers at the packaged graph level. Live provider contracts may
+  declare alert eligibility separately; the dashboard must not merge these two
+  meanings into one score.
+
+
 ## Phase 18 — source labels and module separation
 
 - The integration contract currently exposes connector mechanics but no explicit

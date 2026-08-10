@@ -10,6 +10,72 @@ const RUNTIME_STATES = [
   "unavailable",
 ];
 
+const ONTOLOGY_CONCEPTS = [
+  {
+    id: "movement_transport",
+    label: "Movement & transport",
+    description: "Counts, public transport and network status.",
+    roles: [
+      "movement_observation",
+      "movement_context",
+      "public_transport_observation",
+      "transport_network_context",
+      "transport_status_observation",
+    ],
+  },
+  {
+    id: "hazards_warnings",
+    label: "Hazards & warnings",
+    description: "Measurements, footprints and official alerts.",
+    roles: [
+      "hazard_observation",
+      "hazard_alert_observation",
+      "hazard_measurement_observation",
+      "hazard_footprint_observation",
+      "official_alert_observation",
+    ],
+  },
+  {
+    id: "access_incidents",
+    label: "Access & incidents",
+    description: "Road, rail, place and incident-area access.",
+    roles: [
+      "official_event_observation",
+      "official_access_event_observation",
+      "planned_access_context",
+      "official_incident_area_observation",
+      "visual_access_context",
+      "official_access_notice_context",
+      "planned_rail_access_context",
+      "commercial_route_context",
+      "place_accessibility_context",
+    ],
+  },
+  {
+    id: "lifelines_response",
+    label: "Lifelines & response",
+    description: "Community reports, lifelines and response capability.",
+    roles: [
+      "public_report_observation",
+      "lifeline_work_observation",
+      "lifeline_impact_observation",
+      "response_authority_context",
+      "lifeline_capability_context",
+      "response_capability_observation",
+      "emergency_response_context",
+    ],
+  },
+  {
+    id: "people_demand",
+    label: "People & demand",
+    description: "Potential impact and planned city demand.",
+    roles: [
+      "impact_context",
+      "planned_demand_context",
+    ],
+  },
+];
+
 function accessContract(source) {
   const status = source.access_status ?? "unknown";
   const paid = status === "paid_key_required";
@@ -88,6 +154,72 @@ export function buildSourceContracts(registry, manifest = {}) {
     verified_at: registry.verified_at,
     runtime_states: RUNTIME_STATES,
     sources,
+  };
+}
+
+export function buildOntologyDashboardModel(contracts, ontology) {
+  const layers = ontology.nodes.filter((node) => node.type === "DataLayer");
+  const layerBySource = new Map(layers.map((layer) => [layer.source_id, layer]));
+  const conceptByRole = new Map(
+    ONTOLOGY_CONCEPTS.flatMap((concept) => concept.roles.map((role) => [role, concept])),
+  );
+
+  const paths = contracts.sources.map((contract) => {
+    const layer = layerBySource.get(contract.source_id);
+    if (!layer) throw new Error(`Ontology dashboard requires DataLayer ${contract.source_id}`);
+    const concept = conceptByRole.get(layer.ontology_role);
+    if (!concept) throw new Error(`Ontology dashboard requires a concept for ${layer.ontology_role}`);
+
+    return {
+      source_id: contract.source_id,
+      source_name: contract.name,
+      concept_id: concept.id,
+      concept_label: concept.label,
+      ontology_role: layer.ontology_role,
+      operations_target: contract.operations_target,
+      alert_eligible: contract.alert_eligible,
+      connector_mode: contract.connector_mode,
+      runtime_default: contract.runtime_default,
+      source_reality: layer.source_reality,
+      demo_data_status: layer.demo_data_status,
+      data_2026_status: layer.data_2026?.status ?? "unknown",
+      access_status: layer.access_status,
+      cost: contract.access.cost,
+      ontology_evidence_weight: layer.evidence_weight ?? 0,
+      can_support: layer.can_support ?? [],
+      cannot_assert: layer.cannot_assert ?? [],
+    };
+  });
+
+  const pathCounts = Object.fromEntries(
+    ONTOLOGY_CONCEPTS.map((concept) => [
+      concept.id,
+      paths.filter((path) => path.concept_id === concept.id).length,
+    ]),
+  );
+
+  return {
+    schema: "wellington-ontology-dashboard/v1",
+    generated_from: {
+      source_contracts: contracts.schema,
+      city_ontology: ontology.schema,
+    },
+    summary: {
+      sources: paths.length,
+      ontology_roles: new Set(paths.map((path) => path.ontology_role)).size,
+      concepts: ONTOLOGY_CONCEPTS.length,
+      operator_modules: 3,
+      real_record_layers: paths.filter((path) => path.data_2026_status === "real_records").length,
+      zero_weight_layers: paths.filter((path) => path.ontology_evidence_weight === 0).length,
+    },
+    concepts: ONTOLOGY_CONCEPTS.map(({ roles, ...concept }) => ({
+      ...concept,
+      role_count: roles.length,
+      source_count: pathCounts[concept.id],
+    })),
+    semantic_relations: ontology.allowed_relation_types,
+    guardrails: ontology.assertion_rules,
+    paths,
   };
 }
 

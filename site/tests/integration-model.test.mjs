@@ -14,6 +14,10 @@ const registry = JSON.parse(
   await readFile(new URL("../public/cop/v2/source-registry.json", import.meta.url), "utf8"),
 );
 
+const cityOntology = JSON.parse(
+  await readFile(new URL("../public/cop/v3/city-ontology.json", import.meta.url), "utf8"),
+);
+
 const manifest = {
   "geonet-quakes": {
     connector_mode: "live",
@@ -175,6 +179,47 @@ test("builds one versioned integration contract for every registered source", ()
     "replay_analyzer",
     "integration_only",
   ].includes(source.operations_target)));
+});
+
+test("joins every source to one readable ontology concept and operator module", async () => {
+  const integration = await import("../lib/dataIntegration.mjs");
+  assert.equal(typeof integration.buildOntologyDashboardModel, "function");
+
+  const contracts = buildSourceContracts(registry, manifest);
+  const model = integration.buildOntologyDashboardModel(contracts, cityOntology);
+
+  assert.equal(model.schema, "wellington-ontology-dashboard/v1");
+  assert.equal(model.paths.length, 33);
+  assert.equal(new Set(model.paths.map((path) => path.source_id)).size, 33);
+  assert.deepEqual(model.concepts.map((concept) => concept.id), [
+    "movement_transport",
+    "hazards_warnings",
+    "access_incidents",
+    "lifelines_response",
+    "people_demand",
+  ]);
+  assert.equal(model.summary.ontology_roles, 28);
+  assert.equal(model.summary.operator_modules, 3);
+  assert.deepEqual(model.guardrails, cityOntology.assertion_rules);
+
+  const movement = model.paths.find((path) => path.source_id === "wcc-transport-sensors");
+  assert.equal(movement.concept_id, "movement_transport");
+  assert.equal(movement.ontology_role, "movement_observation");
+  assert.equal(movement.operations_target, "replay_analyzer");
+  assert.equal(movement.ontology_evidence_weight, 2);
+  assert.equal(movement.data_2026_status, "real_records");
+
+  const restricted = model.paths.find((path) => path.source_id === "nema-cap-alerts");
+  assert.equal(restricted.concept_id, "hazards_warnings");
+  assert.equal(restricted.access_status, "permission_required");
+  assert.equal(restricted.ontology_evidence_weight, 0);
+
+  const paidMock = model.paths.find((path) => path.source_id === "google-routes-api");
+  assert.equal(paidMock.concept_id, "access_incidents");
+  assert.equal(paidMock.operations_target, "integration_only");
+  assert.equal(paidMock.demo_data_status, "mock_preview");
+  assert.equal(paidMock.cost, "paid");
+  assert.equal(paidMock.ontology_evidence_weight, 0);
 });
 
 test("builds a partial live snapshot without hiding healthy, empty or mock sources", async () => {
