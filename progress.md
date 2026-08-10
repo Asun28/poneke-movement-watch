@@ -694,3 +694,7 @@
   behaviors, ESLint, 22/22 Python tests and whitespace checks. The source form
   meets the compact labelled-control and 44px interaction boundary; deployment
   to the existing owner-only site is next.
+- 2026-08-10: Pushed the exact validated source only to the private Sites source,
+  saved version 34 and completed the owner-only production deployment at the
+  existing live URL. Access remains owner-only with no groups or external visitors;
+  GitHub origin and remote `main` remain unchanged.

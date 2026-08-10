@@ -14,7 +14,7 @@ Live Operations or Alert Centre without changing the canonical source registry.
 - [completed] Add failing behavior tests for selection, editing and module assignment.
 - [completed] Implement the investigation source workspace and compact responsive layout.
 - [completed] Verify behavior, accessibility, build and regressions.
-- [in_progress] Deploy to the existing owner-only site.
+- [completed] Deploy to the existing owner-only site.
 
 ### Acceptance criteria
 
@@ -61,6 +61,8 @@ Live Operations or Alert Centre without changing the canonical source registry.
 | Sandboxed Node test runner could not spawn its per-file workers (`EPERM`). | 1 | Re-run the same two focused test files outside the restricted sandbox. |
 | Full regression found that an unused `module_count` field changed the established `sourceLayerState` return contract. | 1 | Removed the unused field; module membership remains on the source record where filtering and rendering consume it. |
 | ESLint rejected a synchronous status-state update inside the localStorage synchronization effect. | 1 | Removed the redundant success update and deferred the exceptional failure notice from the external-system effect. |
+| The Sites packaging helper requires Bash, which is not installed in this Windows workspace. | 1 | Reproduce the helper's bounded staging contract with native PowerShell and `tar`, then inspect both required archive entries. |
+| Windows `tar.exe` could not open an absolute archive path containing non-ASCII workspace characters. | 1 | Keep the verified staging directory and rerun `tar` with ASCII-only relative paths from the repository working directory. |
 
 ## Phase 31 — quiet daily-work interface
 
