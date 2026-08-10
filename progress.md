@@ -393,5 +393,8 @@
 - 2026-08-10: GREEN passes all 44 site tests after adding six deterministic mock
   adapter contracts, GET/POST preparation API, privacy-safe WCC TICKET_DETAIL
   envelope, compact Alert Centre preparation UI and Replay case handoff link.
+- 2026-08-10: Final verification passes the production build, 44/44 site tests,
+  ESLint, 22/22 Python tests and whitespace checks. The exact source was deployed
+  to the existing owner-only Sites project with no access change.
 
 ---

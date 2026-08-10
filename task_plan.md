@@ -14,7 +14,7 @@ authorised-agency coordination and public-warning preparation.
 - [completed] Define privacy-safe workflow adapter contracts and RED behavior tests.
 - [completed] Implement six deterministic zero-dispatch mock adapters and API surface.
 - [completed] Add a compact Alert Centre workflow action panel and Replay handoff.
-- [pending] Verify regressions, documentation and owner-only deployment.
+- [completed] Verify regressions, documentation and owner-only deployment.
 
 ### Acceptance criteria
 
