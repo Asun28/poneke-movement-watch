@@ -154,8 +154,8 @@ test("opens Live as one map-first workspace with readable evidence overlays", as
   assert.match(live, /aria-label="Unified Live map workspace"/);
   assert.match(live, /data-live-map-first="true"/);
   assert.doesNotMatch(live, /aria-label="Live Operations views"/);
-  assert.match(live, /aria-label="Evidence Inbox overlay"/);
-  assert.match(live, /aria-label="Hide Evidence Inbox"/);
+  assert.match(live, /class="live-map-inbox-overlay is-collapsed"[^>]*aria-label="Evidence Inbox overlay"/);
+  assert.match(live, /aria-expanded="false" aria-label="Show Evidence Inbox"/);
   assert.match(live, /aria-label="Live map overlays"/);
   assert.match(live, /data-live-layer-toggle="review-evidence"/);
   assert.match(live, /data-live-layer-toggle="sensors-weather"/);
@@ -166,7 +166,8 @@ test("opens Live as one map-first workspace with readable evidence overlays", as
   assert.match(live, /aria-label="Live map layers"/);
   assert.match(live, /Current feeds/);
   assert.match(live, /aria-label="City context overlay"/);
-  assert.match(live, /aria-label="Selected evidence details"/);
+  assert.doesNotMatch(live, /aria-label="Selected evidence details"/);
+  assert.doesNotMatch(live, /Select a symbol for details/);
   assert.match(live, /Search current evidence/);
   assert.match(live, /City events/);
   assert.match(live, /Flights in &amp; out/);

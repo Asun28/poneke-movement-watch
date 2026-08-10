@@ -120,7 +120,7 @@ export default function LiveOperationsClient() {
   const [selectedSources, setSelectedSources] = useState<Set<string>>(new Set());
   const [selectedObservation, setSelectedObservation] = useState<string | null>(null);
   const [activeLayers, setActiveLayers] = useState<Set<string>>(new Set(LIVE_MAP_LAYERS.map(({ id }) => id)));
-  const [inboxOpen, setInboxOpen] = useState(true);
+  const [inboxOpen, setInboxOpen] = useState(false);
   const [layersOpen, setLayersOpen] = useState(false);
   const [contextOpen, setContextOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -329,22 +329,20 @@ export default function LiveOperationsClient() {
           ))}
         </aside>
 
-        <aside className="live-map-detail-overlay" aria-label="Selected evidence details" aria-live="polite">
-          {selected ? (
-            <>
-              <header><span className="truth-chip">Official live record</span><button type="button" aria-label="Close selected evidence" onClick={() => setSelectedObservation(null)}><CloseIcon /></button></header>
-              <h2>{observationTitle(selected)}</h2>
-              <dl>
-                <div><dt>Source</dt><dd>{selectedSource?.name ?? selected.source_id}</dd></div>
-                <div><dt>Observed</dt><dd>{timeLabel(selected.observed_at)}</dd></div>
-                <div><dt>Freshness</dt><dd>{selected.freshness_state}</dd></div>
-                <div><dt>Weight</dt><dd>{selected.evidence_weight}</dd></div>
-              </dl>
-              <details className="record-raw"><summary>Raw record</summary><pre>{JSON.stringify(selected.properties, null, 2)}</pre></details>
-              <a href="/alerts">Open Signal Review</a>
-            </>
-          ) : <span className="live-map-detail-empty">Select a symbol for details</span>}
-        </aside>
+        {selected && (
+          <aside className="live-map-detail-overlay" aria-label="Selected evidence details" aria-live="polite">
+            <header><span className="truth-chip">Official live record</span><button type="button" aria-label="Close selected evidence" onClick={() => setSelectedObservation(null)}><CloseIcon /></button></header>
+            <h2>{observationTitle(selected)}</h2>
+            <dl>
+              <div><dt>Source</dt><dd>{selectedSource?.name ?? selected.source_id}</dd></div>
+              <div><dt>Observed</dt><dd>{timeLabel(selected.observed_at)}</dd></div>
+              <div><dt>Freshness</dt><dd>{selected.freshness_state}</dd></div>
+              <div><dt>Weight</dt><dd>{selected.evidence_weight}</dd></div>
+            </dl>
+            <details className="record-raw"><summary>Raw record</summary><pre>{JSON.stringify(selected.properties, null, 2)}</pre></details>
+            <a href="/alerts">Open Signal Review</a>
+          </aside>
+        )}
 
         <ul className="sr-only" aria-label="Keyboard-accessible live observation list">
           {visibleObservations.map((observation) => (
