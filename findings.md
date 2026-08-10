@@ -1322,3 +1322,39 @@ supports spatial event-footprint resolution, never direct building-damage claims
   visible without rendering the 33-source registry as an unreadable hairball.
 - Visible 44px `−`/`+` controls, a text Zoom level, Reset and per-layer plus global
   expand/collapse satisfy keyboard/touch access without gesture or hover dependence.
+# Phase 32 — Replay investigation source workspace
+
+- Replay already exposes source-layer filters, but the current page has no source editing
+  or onboarding surface. Integration owns the canonical registry and must remain the truth.
+- The existing registry carries enough source-truth, access/cost, runtime and destination
+  metadata to seed an investigation list without inventing evidence or provider connections.
+- The safest demo boundary is a device-local investigation overlay: canonical records can
+  be selected and assigned to modules, while newly entered records are explicit local drafts.
+- A single add/edit form should use progressive disclosure and three explicit module choices;
+  source selection and module assignment must not dispatch, activate an API or change alerts.
+- The project is React 19/vinext and its Sites project configuration is nested under `site/`.
+- The current Replay route is server-rendered and contains summary, April event pack,
+  August movement canvas and evidence review. It can seed a client workspace from the
+  existing registry without changing the replay dataset or timeline controls.
+- The manifest differentiates `live`, `batch`, `mock`, `context` and `stale` connector
+  modes. These map cleanly to compact status chips and must not be flattened to one
+  generic “available” state.
+- The local UI guidance search found only a tutorial-skip result, which is not applicable;
+  the built-in accessibility/form defaults therefore govern this feature: visible labels,
+  progressive disclosure, 44px controls, local errors, no hover-only actions and no
+  horizontal mobile overflow. The Next.js server-action suggestion is also rejected
+  because this feature intentionally has device-local state and no server mutation.
+- Replay already has the right visual entry point: its persistent Layer workspace lists
+  all 33 contracts, supports search, module filtering and include/exclude checkboxes.
+  Extending this panel avoids a second competing source selector elsewhere on the page.
+- Only `wcc-transport-sensors` has playable history in the packaged replay. Selecting or
+  onboarding another source may add investigation context, but must continue to show
+  `0 playable records` until a valid historical pack exists.
+- The layer model is pure and already centralises truth/access/year labels and playable
+  selection. The local overlay can extend source records with `assigned_modules` and
+  `record_origin` while leaving canonical `operations_target` and registry fields intact.
+- Editing a canonical record should create a local override of routing/display fields;
+  it must not rewrite source truth, access, 2026 status or evidence weight.
+- Local drafts cannot claim `real_replay`; that status is reserved for the canonical
+  packaged WCC history. Even a locally declared endpoint remains zero-weight and
+  non-playable until a verified historical pack is added through integration.

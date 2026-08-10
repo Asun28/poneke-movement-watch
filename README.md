@@ -30,6 +30,13 @@ The map, signal list, evidence values and timestamp change together. The selecte
 its 12 prior observations at the same weekday and hour; future rows are never
 used, and missing rows are never interpolated or converted to zero.
 
+The Replay layer rail is also the investigation source workspace. Staff can
+include or exclude sources, filter by operator module, add a source draft, edit
+its local display/routing settings and assign it to Replay Analyzer, Live
+Operations or Alert Centre. Drafts remain in that browser. Registry truth,
+access state and the packaged replay stay locked; adding a source does not make
+it connected, playable or eligible evidence.
+
 Pause the replay and move the pointer near a visible marker to open a brief
 inspection card with its place, class, travel direction, increase/decrease,
 observed and expected counts, observation time and source status. Inspection is
@@ -144,6 +151,10 @@ Integration. Complete only the visible fields and save each section. Drafts stay
 in that browser. Enter a secret reference such as `METLINK_API_KEY`, never the
 secret value. A saved draft has zero evidence weight until a server-side adapter,
 credential, connection test and human approval are complete.
+
+For a specific investigation, open **Replay → Layers → Add source**. This shorter
+form manages the case's source basket and module assignment without modifying the
+canonical registry.
 
 Remote MCP uses Streamable HTTP. A2A starts from the provider Agent Card. The
 setup screen prepares these contracts but does not call external systems.

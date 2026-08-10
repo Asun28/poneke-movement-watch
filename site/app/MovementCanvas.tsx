@@ -1,9 +1,15 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import registryData from "../public/cop/v2/source-registry.json";
 import { SOURCE_MANIFEST } from "../lib/sourceManifest.mjs";
 import { operationsTargetForConnectorMode } from "../lib/sourceOperations.mjs";
+import {
+  INVESTIGATION_MODULES,
+  mergeInvestigationSources,
+  persistableInvestigationSources,
+  upsertInvestigationSource,
+} from "../lib/replaySourceWorkspace.mjs";
 import {
   MOVEMENT_REPLAY_SOURCE_ID,
   canInspectSelectedSources,
@@ -69,6 +75,11 @@ type SourceLayer = {
   demo_data_status: string;
   access_status: string;
   operations_target: string;
+  endpoint?: string | null;
+  alert_eligible?: boolean;
+  assigned_modules?: string[];
+  record_origin?: "canonical" | "local_draft" | "local_override";
+  canonical_name?: string;
   data_2026?: {
     status: string;
     active: boolean;
@@ -110,12 +121,48 @@ const TILE_SIZE = 256;
 const EMPTY_HISTORY: HistoryPoint[] = [];
 const tileCache = new Map<string, HTMLImageElement>();
 const failedTiles = new Set<string>();
-const sourceLayers = registryData.sources.map((source) => ({
+const canonicalSourceLayers = registryData.sources.map((source) => ({
   ...source,
   operations_target: operationsTargetForConnectorMode(
     SOURCE_MANIFEST[source.id as keyof typeof SOURCE_MANIFEST]?.connector_mode,
   ),
+  alert_eligible: SOURCE_MANIFEST[source.id as keyof typeof SOURCE_MANIFEST]?.alert_eligible === true,
 })) as SourceLayer[];
+const SOURCE_WORKSPACE_STORAGE_KEY = "poneke-replay-source-workspace-v1";
+const MODULE_LABELS: Record<string, string> = {
+  replay_analyzer: "Replay Analyzer",
+  live_operations: "Live Operations",
+  alert_centre: "Alert Centre",
+};
+const STATUS_OPTIONS = [
+  { value: "registered_only", label: "Registered only" },
+  { value: "mock_preview", label: "Mock preview" },
+  { value: "real_replay", label: "Historical records" },
+];
+const ACCESS_OPTIONS = [
+  { value: "public_free", label: "Public / free" },
+  { value: "key_required", label: "API key" },
+  { value: "paid_key_required", label: "Paid API" },
+  { value: "permission_required", label: "Permission" },
+];
+
+type InvestigationSourceDraft = {
+  id: string;
+  name: string;
+  endpoint: string;
+  demo_data_status: string;
+  access_status: string;
+  assigned_modules: string[];
+};
+
+const EMPTY_SOURCE_DRAFT: InvestigationSourceDraft = {
+  id: "",
+  name: "",
+  endpoint: "",
+  demo_data_status: "registered_only",
+  access_status: "public_free",
+  assigned_modules: ["replay_analyzer"],
+};
 
 function signalKey(feature: LineFeature) {
   return [
@@ -510,10 +557,12 @@ function TrendView({ signal }: { signal?: LineFeature }) {
 }
 
 type LayerWorkspaceProps = {
+  sources: SourceLayer[];
   showBasemap: boolean;
   showCoverage: boolean;
   symbolSize: number;
   selectedSourceIds: Set<string>;
+  sourceStorageNotice: string;
   onClose: () => void;
   onSetBasemap: (value: boolean) => void;
   onSetCoverage: (value: boolean) => void;
@@ -522,13 +571,16 @@ type LayerWorkspaceProps = {
   onSelectAllSources: () => void;
   onReplayOnly: () => void;
   onClearSources: () => void;
+  onSaveSource: (draft: InvestigationSourceDraft) => { ok: boolean; errors: string[] };
 };
 
 function LayerWorkspace({
+  sources,
   showBasemap,
   showCoverage,
   symbolSize,
   selectedSourceIds,
+  sourceStorageNotice,
   onClose,
   onSetBasemap,
   onSetCoverage,
@@ -537,15 +589,80 @@ function LayerWorkspace({
   onSelectAllSources,
   onReplayOnly,
   onClearSources,
+  onSaveSource,
 }: LayerWorkspaceProps) {
   const [sourceQuery, setSourceQuery] = useState("");
   const [operationsTarget, setOperationsTarget] = useState("replay_analyzer");
-  const summary = sourceSelectionSummary(selectedSourceIds, sourceLayers);
+  const [sourceFormOpen, setSourceFormOpen] = useState(false);
+  const [editingSourceId, setEditingSourceId] = useState<string | null>(null);
+  const [sourceDraft, setSourceDraft] = useState<InvestigationSourceDraft>(EMPTY_SOURCE_DRAFT);
+  const [sourceFormNotice, setSourceFormNotice] = useState("");
+  const summary = sourceSelectionSummary(selectedSourceIds, sources);
   const visibleSources = filterSourcesByOperationsTarget(
-    sourceLayers,
+    sources,
     operationsTarget,
     sourceQuery,
   ) as SourceLayer[];
+  const editingSource = editingSourceId
+    ? sources.find((source) => source.id === editingSourceId) ?? null
+    : null;
+  const canonicalEdit = editingSource && editingSource.record_origin !== "local_draft";
+
+  function startAddSource() {
+    setEditingSourceId(null);
+    setSourceDraft({ ...EMPTY_SOURCE_DRAFT, assigned_modules: [...EMPTY_SOURCE_DRAFT.assigned_modules] });
+    setSourceFormNotice("");
+    setSourceFormOpen(true);
+  }
+
+  function startEditSource(source: SourceLayer) {
+    setEditingSourceId(source.id);
+    setSourceDraft({
+      id: source.id,
+      name: source.name,
+      endpoint: source.endpoint ?? "",
+      demo_data_status: source.demo_data_status,
+      access_status: source.access_status,
+      assigned_modules: [...(source.assigned_modules ?? [])],
+    });
+    setSourceFormNotice("");
+    setSourceFormOpen(true);
+  }
+
+  function cancelSourceForm() {
+    setEditingSourceId(null);
+    setSourceDraft({ ...EMPTY_SOURCE_DRAFT, assigned_modules: [...EMPTY_SOURCE_DRAFT.assigned_modules] });
+    setSourceFormNotice("");
+    setSourceFormOpen(false);
+  }
+
+  function setSourceField(field: keyof InvestigationSourceDraft, value: string) {
+    setSourceDraft((current) => ({ ...current, [field]: value }));
+  }
+
+  function setSourceModule(module: string, checked: boolean) {
+    setSourceDraft((current) => ({
+      ...current,
+      assigned_modules: checked
+        ? [...new Set([...current.assigned_modules, module])]
+        : current.assigned_modules.filter((item) => item !== module),
+    }));
+  }
+
+  function saveSource(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const result = onSaveSource(sourceDraft);
+    if (!result.ok) {
+      const field = result.errors[0]?.split(":")[1]?.replaceAll("_", " ") ?? "source";
+      setSourceFormNotice(`Check ${field}.`);
+      return;
+    }
+    setSourceFormNotice(editingSourceId ? "Changes saved locally." : "Source added locally.");
+    setOperationsTarget(sourceDraft.assigned_modules[0] ?? "all");
+    setEditingSourceId(null);
+    setSourceDraft({ ...EMPTY_SOURCE_DRAFT, assigned_modules: [...EMPTY_SOURCE_DRAFT.assigned_modules] });
+    setSourceFormOpen(false);
+  }
 
   return (
     <aside className="layer-workspace" aria-labelledby="layer-workspace-heading">
@@ -598,20 +715,114 @@ function LayerWorkspace({
 
       <section className="layer-group source-layer-group" aria-labelledby="source-layers-heading">
         <div className="layer-group-heading">
-          <h4 id="source-layers-heading">Replay source layers</h4>
-          <span>{visibleSources.length} shown</span>
+          <h4 id="source-layers-heading">Investigation sources</h4>
+          <span>{sourceStorageNotice}</span>
         </div>
+        <details
+          className="source-onboarding"
+          open={sourceFormOpen}
+          onToggle={(event) => setSourceFormOpen(event.currentTarget.open)}
+        >
+          <summary onClick={() => { if (!sourceFormOpen) startAddSource(); }}>
+            <span>{editingSourceId ? "Edit source" : "Add source"}</span>
+            <b aria-hidden="true">{sourceFormOpen ? "−" : "+"}</b>
+          </summary>
+          <form onSubmit={saveSource}>
+            <label>
+              <span>Source name</span>
+              <input
+                required
+                value={sourceDraft.name}
+                onChange={(event) => setSourceField("name", event.currentTarget.value)}
+              />
+            </label>
+            <label>
+              <span>Source ID</span>
+              <input
+                required
+                pattern="[a-z0-9]+(?:-[a-z0-9]+)*"
+                placeholder="source-name"
+                disabled={Boolean(editingSource)}
+                value={sourceDraft.id}
+                onChange={(event) => setSourceField("id", event.currentTarget.value)}
+              />
+            </label>
+            <label>
+              <span>Endpoint</span>
+              <input
+                type="url"
+                placeholder="https://…"
+                disabled={Boolean(canonicalEdit)}
+                value={sourceDraft.endpoint}
+                onChange={(event) => setSourceField("endpoint", event.currentTarget.value)}
+              />
+            </label>
+            <div className="source-onboarding-pair">
+              <label>
+                <span>Data status</span>
+                <select
+                  disabled={Boolean(canonicalEdit)}
+                  value={sourceDraft.demo_data_status}
+                  onChange={(event) => setSourceField("demo_data_status", event.currentTarget.value)}
+                >
+                  {STATUS_OPTIONS.map((option) => (
+                    <option
+                      disabled={option.value === "real_replay" && !canonicalEdit}
+                      key={option.value}
+                      value={option.value}
+                    >
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                <span>Access</span>
+                <select
+                  disabled={Boolean(canonicalEdit)}
+                  value={sourceDraft.access_status}
+                  onChange={(event) => setSourceField("access_status", event.currentTarget.value)}
+                >
+                  {ACCESS_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>{option.label}</option>
+                  ))}
+                </select>
+              </label>
+            </div>
+            <fieldset>
+              <legend>Use in</legend>
+              {INVESTIGATION_MODULES.map((module) => (
+                <label key={module}>
+                  <input
+                    type="checkbox"
+                    checked={sourceDraft.assigned_modules.includes(module)}
+                    onChange={(event) => setSourceModule(module, event.currentTarget.checked)}
+                  />
+                  <span>{MODULE_LABELS[module]}</span>
+                </label>
+              ))}
+            </fieldset>
+            {canonicalEdit ? <small>Registry truth is locked.</small> : null}
+            <div className="source-onboarding-actions">
+              <button type="submit">{editingSourceId ? "Save changes" : "Add to investigation"}</button>
+              {editingSourceId ? (
+                <button type="button" onClick={cancelSourceForm}>Cancel</button>
+              ) : null}
+            </div>
+            <output aria-live="polite">{sourceFormNotice}</output>
+          </form>
+        </details>
         <label className="source-operations-filter">
-          <span>Show sources for</span>
+          <span>Module</span>
           <select
-            aria-label="Filter replay source layers by operator module"
+            aria-label="Filter investigation sources by module"
             value={operationsTarget}
             onChange={(event) => setOperationsTarget(event.currentTarget.value)}
           >
             <option value="replay_analyzer">Replay Analyzer</option>
             <option value="live_operations">Live Operations</option>
-            <option value="integration_only">Integration only</option>
-            <option value="all">All source contracts</option>
+            <option value="alert_centre">Alert Centre</option>
+            <option value="all">All sources</option>
           </select>
         </label>
         <label className="source-layer-search">
@@ -629,42 +840,53 @@ function LayerWorkspace({
           <button type="button" onClick={onSelectAllSources}>Select all</button>
           <button type="button" onClick={onClearSources}>Clear sources</button>
         </div>
-        <div className="source-layer-list" aria-label={`${visibleSources.length} source layers`}>
+        <div className="source-layer-list" aria-label={`${visibleSources.length} investigation sources`}>
           {visibleSources.map((source) => {
             const state = sourceLayerState(source);
             return (
-              <label
+              <div
                 className={`source-layer-row ${state.playable ? "is-playable" : "is-contract"}`}
-                htmlFor={`source-layer-${source.id}`}
                 data-source-layer={source.id}
                 data-playable={String(state.playable)}
                 key={source.id}
               >
-                <input
-                  id={`source-layer-${source.id}`}
-                  aria-label={source.name}
-                  type="checkbox"
-                  checked={selectedSourceIds.has(source.id)}
-                  onChange={() => onToggleSource(source.id)}
-                />
-                <span className="sr-only">{source.name}</span>
-                <span
-                  className="layer-mini-symbol source-symbol"
-                  style={{ width: symbolSize, height: symbolSize }}
-                  aria-hidden="true"
-                />
-                <span className="source-layer-copy">
-                  <strong>{source.name}</strong>
-                  <small>{source.role.replaceAll("_", " ")}</small>
-                  <span className="source-layer-status">
-                    <em className={`operations-${source.operations_target}`}>{state.operations_label}</em>
-                    <em>{state.truth_label}</em>
-                    <em>{state.access_label}</em>
-                    <em>{state.record_label}</em>
-                    <em>{state.year_label}</em>
+                <label htmlFor={`source-layer-${source.id}`}>
+                  <input
+                    id={`source-layer-${source.id}`}
+                    aria-label={source.name}
+                    type="checkbox"
+                    checked={selectedSourceIds.has(source.id)}
+                    onChange={() => onToggleSource(source.id)}
+                  />
+                  <span
+                    className="layer-mini-symbol source-symbol"
+                    style={{ width: symbolSize, height: symbolSize }}
+                    aria-hidden="true"
+                  />
+                  <span className="source-layer-copy">
+                    <strong>{source.name}</strong>
+                    <small>{source.role.replaceAll("_", " ")}</small>
+                    <span className="source-layer-status">
+                      <em>{source.record_origin === "canonical" ? "Registry" : "Local"}</em>
+                      {(source.assigned_modules ?? []).map((module) => (
+                        <em className={`operations-${module}`} key={module}>{MODULE_LABELS[module]}</em>
+                      ))}
+                      <em>{state.truth_label}</em>
+                      <em>{state.access_label}</em>
+                      <em>{state.record_label}</em>
+                      <em>{state.year_label}</em>
+                    </span>
                   </span>
-                </span>
-              </label>
+                </label>
+                <button
+                  className="source-edit-button"
+                  type="button"
+                  aria-label={`Edit ${source.name}`}
+                  onClick={() => startEditSource(source)}
+                >
+                  Edit
+                </button>
+              </div>
             );
           })}
           {visibleSources.length === 0 ? (
@@ -673,7 +895,7 @@ function LayerWorkspace({
         </div>
         <div className="layer-selection-summary" aria-live="polite">
           <strong>{summary.playable_source_count} playable</strong>
-          <span>{summary.selected_count} selected source layers</span>
+          <span>{summary.selected_count} included</span>
         </div>
       </section>
     </aside>
@@ -706,9 +928,14 @@ export default function MovementCanvas() {
   const [showBasemap, setShowBasemap] = useState(true);
   const [showCoverage, setShowCoverage] = useState(true);
   const [symbolSize, setSymbolSize] = useState(10);
+  const [sourceLayers, setSourceLayers] = useState<SourceLayer[]>(
+    () => mergeInvestigationSources(canonicalSourceLayers) as SourceLayer[],
+  );
   const [selectedSourceIds, setSelectedSourceIds] = useState(
     () => new Set([MOVEMENT_REPLAY_SOURCE_ID]),
   );
+  const [sourceStorageReady, setSourceStorageReady] = useState(false);
+  const [sourceStorageNotice, setSourceStorageNotice] = useState("This browser only");
   const [mapInspection, setMapInspection] = useState<MapInspection | null>(null);
   const [isMapFullscreen, setIsMapFullscreen] = useState(false);
   const [fullscreenMessage, setFullscreenMessage] = useState<string | null>(null);
@@ -740,6 +967,47 @@ export default function MovementCanvas() {
       .catch(() => setReplayWarning("History replay is unavailable; showing the published snapshot."));
   }, []);
 
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      try {
+        const stored = window.localStorage.getItem(SOURCE_WORKSPACE_STORAGE_KEY);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          const merged = mergeInvestigationSources(
+            canonicalSourceLayers,
+            parsed.sources,
+          ) as SourceLayer[];
+          setSourceLayers(merged);
+          if (Array.isArray(parsed.selected_source_ids)) {
+            const knownIds = new Set(merged.map((source) => source.id));
+            setSelectedSourceIds(new Set(
+              parsed.selected_source_ids.filter((id: unknown) => (
+                typeof id === "string" && knownIds.has(id)
+              )),
+            ));
+          }
+          setSourceStorageNotice("Saved on this browser");
+        }
+      } catch {
+        setSourceStorageNotice("Browser storage unavailable");
+      }
+      setSourceStorageReady(true);
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    if (!sourceStorageReady) return;
+    try {
+      window.localStorage.setItem(SOURCE_WORKSPACE_STORAGE_KEY, JSON.stringify({
+        sources: persistableInvestigationSources(sourceLayers),
+        selected_source_ids: [...selectedSourceIds],
+      }));
+    } catch {
+      window.setTimeout(() => setSourceStorageNotice("Could not save"), 0);
+    }
+  }, [selectedSourceIds, sourceLayers, sourceStorageReady]);
+
   const coverageByCountline = useMemo(() => new Map(
     coverage.map((feature) => [String(feature.properties.countline_id), feature]),
   ), [coverage]);
@@ -758,7 +1026,7 @@ export default function MovementCanvas() {
   );
   const selectedLayerSignals = useMemo(
     () => playableSignalsForSources(signals, selectedSourceIds, sourceLayers) as LineFeature[],
-    [selectedSourceIds, signals],
+    [selectedSourceIds, signals, sourceLayers],
   );
   const filteredSignals = useMemo(() => selectedLayerSignals.filter((feature) => {
     const mode = String(feature.properties.transport_class);
@@ -820,6 +1088,14 @@ export default function MovementCanvas() {
       else next.add(sourceId);
       return next;
     });
+  };
+  const saveInvestigationSource = (draft: InvestigationSourceDraft) => {
+    const result = upsertInvestigationSource(sourceLayers, draft);
+    if (!result.ok) return { ok: false, errors: result.errors };
+    setSourceLayers(result.sources as SourceLayer[]);
+    setSelectedSourceIds((current) => new Set([...current, result.saved.id]));
+    setSourceStorageNotice("Saved on this browser");
+    return { ok: true, errors: [] };
   };
 
   useEffect(() => {
@@ -1028,10 +1304,12 @@ export default function MovementCanvas() {
     >
       {isLayerRailOpen ? (
         <LayerWorkspace
+          sources={sourceLayers}
           showBasemap={showBasemap}
           showCoverage={showCoverage}
           symbolSize={symbolSize}
           selectedSourceIds={selectedSourceIds}
+          sourceStorageNotice={sourceStorageNotice}
           onClose={() => setIsLayerRailOpen(false)}
           onSetBasemap={setShowBasemap}
           onSetCoverage={setShowCoverage}
@@ -1040,6 +1318,7 @@ export default function MovementCanvas() {
           onSelectAllSources={() => { setSelectedSourceIds(new Set(sourceLayers.map((source) => source.id))); setMapInspection(null); }}
           onReplayOnly={() => { setSelectedSourceIds(new Set([MOVEMENT_REPLAY_SOURCE_ID])); setMapInspection(null); }}
           onClearSources={() => { setSelectedSourceIds(new Set()); setIsPlaying(false); setMapInspection(null); }}
+          onSaveSource={saveInvestigationSource}
         />
       ) : null}
       <div className="map-column">

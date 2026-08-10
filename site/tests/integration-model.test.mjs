@@ -181,6 +181,116 @@ test("builds one versioned integration contract for every registered source", ()
   ].includes(source.operations_target)));
 });
 
+test("builds editable investigation sources without changing canonical truth", async () => {
+  const {
+    mergeInvestigationSources,
+    upsertInvestigationSource,
+  } = await import("../lib/replaySourceWorkspace.mjs");
+  const canonical = [
+    {
+      id: "wcc-transport-sensors",
+      name: "WCC Transport Sensors",
+      role: "movement_observation",
+      demo_data_status: "real_replay",
+      access_status: "public_free",
+      operations_target: "replay_analyzer",
+      alert_eligible: false,
+      data_2026: { status: "real_records", active: true },
+    },
+    {
+      id: "gwrc-hilltop",
+      name: "Greater Wellington Hilltop",
+      role: "hazard_observation",
+      demo_data_status: "registered_only",
+      access_status: "public_free",
+      operations_target: "live_operations",
+      alert_eligible: true,
+      data_2026: { status: "available_not_ingested", active: true },
+    },
+  ];
+
+  const seeded = mergeInvestigationSources(canonical);
+  assert.deepEqual(seeded[0].assigned_modules, ["replay_analyzer"]);
+  assert.deepEqual(seeded[1].assigned_modules, ["live_operations", "alert_centre"]);
+  assert.ok(seeded.every((source) => source.record_origin === "canonical"));
+
+  const added = upsertInvestigationSource(seeded, {
+    id: "operator-field-notes",
+    name: "Operator field notes",
+    endpoint: "https://example.govt.nz/field-notes",
+    demo_data_status: "mock_preview",
+    access_status: "permission_required",
+    assigned_modules: ["replay_analyzer", "alert_centre"],
+  });
+  assert.equal(added.ok, true);
+  assert.equal(added.saved.record_origin, "local_draft");
+  assert.deepEqual(added.saved.assigned_modules, ["replay_analyzer", "alert_centre"]);
+  assert.equal(added.saved.data_2026.status, "input_required");
+
+  const overridden = upsertInvestigationSource(added.sources, {
+    id: "wcc-transport-sensors",
+    name: "Movement counters for case",
+    endpoint: "https://unverified.example/replacement",
+    demo_data_status: "mock_preview",
+    access_status: "paid_key_required",
+    assigned_modules: ["replay_analyzer", "alert_centre"],
+  });
+  assert.equal(overridden.ok, true);
+  assert.equal(overridden.saved.record_origin, "local_override");
+  assert.equal(overridden.saved.name, "Movement counters for case");
+  assert.equal(overridden.saved.demo_data_status, "real_replay");
+  assert.equal(overridden.saved.access_status, "public_free");
+  assert.equal(overridden.saved.endpoint, null);
+  assert.deepEqual(overridden.saved.data_2026, canonical[0].data_2026);
+});
+
+test("rejects incomplete or unsafe investigation source drafts", async () => {
+  const { mergeInvestigationSources, upsertInvestigationSource } = await import(
+    "../lib/replaySourceWorkspace.mjs"
+  );
+  const sources = mergeInvestigationSources([]);
+
+  const missingModules = upsertInvestigationSource(sources, {
+    id: "new-source",
+    name: "New source",
+    demo_data_status: "registered_only",
+    access_status: "public_free",
+    assigned_modules: [],
+  });
+  assert.equal(missingModules.ok, false);
+  assert.deepEqual(missingModules.errors, ["required:assigned_modules"]);
+
+  const invalidId = upsertInvestigationSource(sources, {
+    id: "New Source!",
+    name: "New source",
+    demo_data_status: "registered_only",
+    access_status: "public_free",
+    assigned_modules: ["replay_analyzer"],
+  });
+  assert.equal(invalidId.ok, false);
+  assert.deepEqual(invalidId.errors, ["invalid:id"]);
+
+  const invalidModule = upsertInvestigationSource(sources, {
+    id: "new-source",
+    name: "New source",
+    demo_data_status: "registered_only",
+    access_status: "public_free",
+    assigned_modules: ["send_everywhere"],
+  });
+  assert.equal(invalidModule.ok, false);
+  assert.deepEqual(invalidModule.errors, ["invalid:assigned_modules"]);
+
+  const unverifiedHistory = upsertInvestigationSource(sources, {
+    id: "declared-history",
+    name: "Declared history",
+    demo_data_status: "real_replay",
+    access_status: "public_free",
+    assigned_modules: ["replay_analyzer"],
+  });
+  assert.equal(unverifiedHistory.ok, false);
+  assert.deepEqual(unverifiedHistory.errors, ["invalid:demo_data_status"]);
+});
+
 test("joins every source to one readable ontology concept and operator module", async () => {
   const integration = await import("../lib/dataIntegration.mjs");
   assert.equal(typeof integration.buildOntologyDashboardModel, "function");

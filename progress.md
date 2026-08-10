@@ -678,3 +678,19 @@
   tests and whitespace checks. Saved Sites version 33 and completed the owner-only
   production deployment at the existing live URL. GitHub origin and remote `main`
   remain unchanged.
+# Phase 32 — Replay investigation source workspace
+
+- 2026-08-10: Started the Replay source-onboarding update. Fixed the scope at a
+  device-local investigation overlay with add/edit, include/exclude and explicit
+  module assignment; canonical registry, evidence, live connections and alerts remain unchanged.
+- 2026-08-10: TDD RED confirmed three intended failures: the source-workspace
+  model does not exist and Replay has no add/edit/module-assignment controls.
+  The remaining 36 focused behaviors stayed green.
+- 2026-08-10: TDD GREEN confirmed. Replay now extends its existing layer rail
+  with a local add/edit form, include/exclude controls, module assignment and
+  persistent browser drafts. Canonical source truth stays locked, and only the
+  packaged WCC history remains playable. All 39 focused behaviors pass.
+- 2026-08-10: Final local verification passes: production build, 63/63 site
+  behaviors, ESLint, 22/22 Python tests and whitespace checks. The source form
+  meets the compact labelled-control and 44px interaction boundary; deployment
+  to the existing owner-only site is next.

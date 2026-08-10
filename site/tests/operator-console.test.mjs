@@ -290,16 +290,25 @@ test("labels every integration field for a complete phone-sized source record", 
   assert.equal((html.match(/data-label=/g) ?? []).length, 33 * labels.length);
 });
 
-test("defaults Replay Analyzer source layers to replay sources with explicit module filters", async () => {
+test("provides a friendly Replay investigation source workspace", async () => {
   const html = await (await request("/replay")).text();
 
-  assert.match(html, /Replay source layers/);
-  assert.match(html, /Show sources for/);
-  assert.match(html, /aria-label="Filter replay source layers by operator module"/);
+  assert.match(html, /Investigation sources/);
+  assert.match(html, /aria-label="Filter investigation sources by module"/);
   assert.match(html, /value="replay_analyzer" selected=""/);
   assert.match(html, /Replay Analyzer/);
   assert.match(html, /Live Operations/);
-  assert.match(html, /Integration only/);
+  assert.match(html, /Alert Centre/);
+  assert.match(html, /Add source/);
+  assert.match(html, /Source name/);
+  assert.match(html, /Source ID/);
+  assert.match(html, /Endpoint/);
+  assert.match(html, /Data status/);
+  assert.match(html, /Access/);
+  assert.match(html, /Use in/);
+  assert.match(html, /aria-label="Edit WCC Transport Sensors"/);
+  assert.match(html, /Registry/);
+  assert.match(html, /This browser only/);
 });
 
 test("makes model authority and mock alert exclusion explicit", async () => {

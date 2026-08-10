@@ -799,6 +799,61 @@ footer strong { color: var(--white); }
   .alert-timeline li { grid-template-columns: 1fr; gap: 5px; }
 }
 
+/* Phase 32 — Replay investigation source onboarding */
+.investigation-frame.has-layer-rail { grid-template-columns: 320px minmax(0, 1fr) 340px; }
+.source-layer-group { overflow-y: auto; }
+.source-onboarding { flex: 0 0 auto; margin-bottom: 10px; border: 1px solid var(--hairline); border-radius: 8px; background: #ffffff; overflow: hidden; }
+.source-onboarding > summary { min-height: 44px; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 0 11px; color: #0c66e4; cursor: pointer; font-size: 11px; font-weight: 700; list-style: none; }
+.source-onboarding > summary::-webkit-details-marker { display: none; }
+.source-onboarding > summary:hover { background: #e9f2ff; }
+.source-onboarding > summary b { font-size: 17px; font-weight: 500; }
+.source-onboarding form { display: grid; gap: 10px; padding: 11px; border-top: 1px solid var(--hairline); background: #f7f8f9; }
+.source-onboarding form > label > span,
+.source-onboarding-pair label > span,
+.source-onboarding legend { display: block; margin-bottom: 5px; color: var(--muted-ink); font-size: 10px; font-weight: 650; }
+.source-onboarding input:not([type="checkbox"]),
+.source-onboarding select { width: 100%; min-height: 44px; padding: 0 9px; border: 1px solid #a5adba; border-radius: 5px; color: var(--civic-ink); background: #ffffff; }
+.source-onboarding input:disabled,
+.source-onboarding select:disabled { color: #5e6c84; background: #ebecf0; cursor: not-allowed; }
+.source-onboarding-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.source-onboarding fieldset { display: grid; gap: 2px; margin: 0; padding: 0; border: 0; }
+.source-onboarding fieldset label { min-height: 40px; display: flex; align-items: center; gap: 9px; padding: 0 8px; border-radius: 5px; cursor: pointer; }
+.source-onboarding fieldset label:hover { background: #ebecf0; }
+.source-onboarding fieldset input { width: 18px; height: 18px; accent-color: #0c66e4; }
+.source-onboarding fieldset label span { font-size: 11px; }
+.source-onboarding form > small { color: #974f0c; font-size: 10px; }
+.source-onboarding-actions { display: grid; grid-template-columns: 1fr auto; gap: 7px; }
+.source-onboarding-actions button,
+.source-edit-button { min-height: 44px; padding: 0 10px; border: 1px solid #a5adba; border-radius: 5px; color: var(--civic-ink); background: #ffffff; cursor: pointer; font-size: 10px; font-weight: 700; }
+.source-onboarding-actions button[type="submit"] { color: #ffffff; border-color: #0c66e4; background: #0c66e4; }
+.source-onboarding-actions button:hover,
+.source-edit-button:hover { color: #ffffff; border-color: #172b4d; background: #172b4d; }
+.source-onboarding output { min-height: 14px; color: #974f0c; font-size: 10px; }
+.source-layer-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px; align-items: start; cursor: default; }
+.source-layer-row > label { min-width: 0; display: grid; grid-template-columns: 16px 17px minmax(0, 1fr); gap: 9px; align-items: center; padding-block: 3px; cursor: pointer; }
+.source-layer-row > label > input { width: 16px; height: 16px; margin: 0; accent-color: var(--corroboration-teal); }
+.source-edit-button { min-height: 36px; align-self: start; padding-inline: 8px; }
+.source-layer-status .operations-alert_centre { color: #7a3e00; background: #fff0d5; }
+.source-layer-status em:first-child { color: #44546f; background: #e9ebee; }
+.layer-actions button { min-height: 40px; }
+
+@media (max-width: 1220px) and (min-width: 981px) {
+  .investigation-frame.has-layer-rail { grid-template-columns: 275px minmax(0, 1fr) 300px; }
+  .source-onboarding-pair { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 980px) {
+  .investigation-frame.has-layer-rail { grid-template-columns: 1fr; }
+  .layer-workspace { max-height: none; overflow: visible; }
+  .source-layer-group { max-height: 720px; }
+}
+
+@media (max-width: 520px) {
+  .source-onboarding-pair { grid-template-columns: 1fr; }
+  .source-layer-row { grid-template-columns: 1fr; }
+  .source-edit-button { width: 100%; }
+}
+
 .integration-architecture { grid-template-columns: repeat(3, minmax(150px, 1fr) 34px) minmax(150px, 1fr); margin: 18px clamp(16px, 3vw, 40px); }
 .integration-registry { margin: 18px clamp(10px, 1.5vw, 22px); border: 1px solid var(--civic-ink); background: var(--white); box-shadow: 7px 8px 0 var(--harbour-deep); }
 .integration-toolbar { display: flex; align-items: end; justify-content: space-between; gap: 28px; padding: 20px; border-bottom: 1px solid var(--civic-ink); }

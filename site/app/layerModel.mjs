@@ -50,7 +50,10 @@ export function sourceLayerState(source) {
 export function filterSourcesByOperationsTarget(sources, target, query) {
   const normalizedQuery = query.trim().toLowerCase();
   return sources.filter((source) => {
-    const matchesTarget = target === "all" || source.operations_target === target;
+    const assignedModules = Array.isArray(source.assigned_modules)
+      ? source.assigned_modules
+      : [source.operations_target];
+    const matchesTarget = target === "all" || assignedModules.includes(target);
     const haystack = `${source.name ?? ""} ${source.role ?? ""} ${source.id}`.toLowerCase();
     return matchesTarget && haystack.includes(normalizedQuery);
   });

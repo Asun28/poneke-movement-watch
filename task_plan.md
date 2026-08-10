@@ -1,5 +1,67 @@
 # Pōneke Movement Watch — evidence ontology roadmap
 
+## Phase 32 — Replay investigation source workspace
+
+### Goal
+
+Give investigators one compact Replay workspace where they can choose the sources
+used for a case, add or edit a source draft, and assign each source to Replay,
+Live Operations or Alert Centre without changing the canonical source registry.
+
+### Status
+
+- [completed] Audit Replay, source registry, onboarding controls and route contracts.
+- [completed] Add failing behavior tests for selection, editing and module assignment.
+- [completed] Implement the investigation source workspace and compact responsive layout.
+- [completed] Verify behavior, accessibility, build and regressions.
+- [in_progress] Deploy to the existing owner-only site.
+
+### Acceptance criteria
+
+- Replay lists available sources with clear live/mock/auth/cost and active/inactive state.
+- An investigator can include or exclude a source from the current Replay investigation.
+- Add and Edit use the same short form with source name, source ID, status and modules.
+- Module assignment supports Replay Analyzer, Live Operations and Alert Centre.
+- Saved investigation drafts remain device-local and are visibly distinguished from
+  canonical registry records; no draft is treated as evidence or a live connection.
+- Controls have visible labels, 44px targets, keyboard names and responsive layout.
+
+### Assumptions and exclusions
+
+- “Add” means configure an investigation source draft, not connect or authenticate a
+  provider automatically. Existing source truth and licensing labels remain authoritative.
+- Device-local persistence is appropriate for this owner-only prototype; no D1 schema,
+  account model, credentials, external write, model training or new data feed is added.
+- Module assignment controls routing intent only; it does not send alerts or mutate Live.
+- GitHub origin and remote `main` remain unchanged; deploy only through private Sites.
+
+### File-level plan
+
+- `site/tests/integration-model.test.mjs`: pure source-draft validation and routing tests.
+- `site/tests/operator-console.test.mjs`: rendered Replay onboarding and accessibility contract.
+- `site/lib/replaySourceWorkspace.mjs`: normalize registry sources and validate local drafts.
+- `site/app/components/ReplaySourceWorkspace.tsx`, `site/app/replay/page.tsx`: source list,
+  add/edit form, module assignment and browser-local persistence.
+- `site/app/globals.css`: compact table/card layout and mobile stacking.
+- `README.md`, `findings.md`, `progress.md`: record boundaries and verification.
+
+### Rejected major alternatives
+
+- Do not make the canonical public registry editable from an investigation page.
+- Do not imply that a typed URL is connected, licensed, live or safe for alerting.
+- Do not add a database or authentication migration for a demo-only local workspace.
+
+### Errors encountered
+
+| Error | Attempt | Resolution |
+|---|---:|---|
+| Looked for `.openai/hosting.json` at repository root, but this project stores it under `site/.openai/hosting.json`. | 1 | Located and read the existing nested Sites configuration; no configuration change required. |
+| First findings patch used a wrapped sentence as an anchor and did not match the current file. | 1 | Located the Phase 32 section directly and applied a section-local patch. |
+| Sandboxed vinext build could not spawn its Windows dependency resolver (`EPERM`). | 1 | Re-run the same bounded build outside the restricted sandbox, matching prior verified phases. |
+| Sandboxed Node test runner could not spawn its per-file workers (`EPERM`). | 1 | Re-run the same two focused test files outside the restricted sandbox. |
+| Full regression found that an unused `module_count` field changed the established `sourceLayerState` return contract. | 1 | Removed the unused field; module membership remains on the source record where filtering and rendering consume it. |
+| ESLint rejected a synchronous status-state update inside the localStorage synchronization effect. | 1 | Removed the redundant success update and deferred the exceptional failure notice from the external-system effect. |
+
 ## Phase 31 — quiet daily-work interface
 
 ### Goal
