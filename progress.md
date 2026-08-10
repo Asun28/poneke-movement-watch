@@ -25,6 +25,10 @@
 - 2026-08-10: Final local verification passes: production build, 70/70 site behaviours,
   ESLint, 24/24 Python tests, desktop and 390px visual checks, 1000% street-label zoom,
   Evidence-first review order and whitespace checks. Owner-only deployment is next.
+- 2026-08-10: Pushed the exact validated feature commit only to the private Sites source,
+  saved version 38 and completed owner-only production deployment. Production verification
+  confirms Evidence Inbox is first and the April sensor pack is loaded; GitHub origin and
+  remote `main` remain unchanged. Phase 36 is complete.
 
 ## Phase 31 — quiet daily-work interface
 

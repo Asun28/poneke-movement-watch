@@ -16,7 +16,7 @@ zero-weight context, and add real April 2026 hydro-weather observations to Repla
 - [completed] Implement the evidence inbox, context cards, candidate noise gates and 1000% map.
 - [completed] Build and bind the real April Hilltop observation pack.
 - [completed] Verify all behavior, data truth, build and regressions.
-- [in_progress] Deploy to the existing owner-only site.
+- [completed] Deploy to the existing owner-only site.
 
 ### Acceptance criteria
 
