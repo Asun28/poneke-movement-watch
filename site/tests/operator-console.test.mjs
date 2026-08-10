@@ -173,7 +173,8 @@ test("opens Live as one map-first workspace with readable evidence overlays", as
   assert.match(live, /Cruise calls/);
   assert.match(live, /Mock · zero evidence/);
   assert.match(live, /aria-label="Map controls"[^>]*data-max-zoom="1000%"[^>]*data-density="compact"[^>]*data-corner="bottom-right"/);
-  assert.match(live, /Street labels · OpenStreetMap/);
+  assert.doesNotMatch(live, /class="ops-map-status"/);
+  assert.match(live, /© OpenStreetMap contributors/);
 
   assert.ok(review.indexOf(">Evidence<") < review.indexOf("Case &amp; COP"));
   assert.doesNotMatch(review, /Live signal · unreviewed/);

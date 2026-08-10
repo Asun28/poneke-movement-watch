@@ -336,10 +336,6 @@ export default function LiveMap({
         <button type="button" aria-label="Reset map view" onClick={() => { setZoom(1); setPan([0, 0]); }}>Reset</button>
         <button type="button" aria-label={isFullscreen ? "Exit map fullscreen" : "Show map fullscreen"} onClick={toggleFullscreen}>{isFullscreen ? "Exit full screen" : "Full screen"}</button>
       </div>
-      <div className="ops-map-status">
-        <strong>Wellington</strong>
-        <span>{plottable.length} records · Street labels · OpenStreetMap</span>
-      </div>
       {hovered && (
         <div className="ops-map-hover" style={{ left: Math.min(hovered.x + 14, 520), top: Math.max(16, hovered.y - 32) }}>
           <strong>{hovered.count > 1 ? `${hovered.count} nearby records` : observationLabel(hovered.observation)}</strong>

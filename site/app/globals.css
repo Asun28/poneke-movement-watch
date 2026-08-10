@@ -651,10 +651,6 @@ footer strong { color: var(--white); }
 .ops-map-controls label { grid-column: span 3; min-height: 38px; display: grid; align-items: center; padding: 0 9px; border-top: 1px solid var(--hairline); background: var(--white); }
 .ops-map-controls input { width: 100%; accent-color: var(--movement-blue); cursor: ew-resize; }
 .ops-map-controls button:nth-of-type(3), .ops-map-controls button:nth-of-type(4) { grid-column: span 3; border-top: 1px solid var(--hairline); border-right: 0; font-size: 9px; text-transform: uppercase; }
-.ops-map-status { position: absolute; z-index: 2; top: 12px; left: 12px; max-width: 250px; padding: 9px 11px; border-left: 5px solid var(--corroboration-teal); background: rgba(248,251,251,.95); box-shadow: 3px 4px 0 rgba(16,42,51,.12); pointer-events: none; }
-.ops-map-status strong, .ops-map-status span { display: block; }
-.ops-map-status strong { font: 800 10px/1.2 Consolas, monospace; text-transform: uppercase; }
-.ops-map-status span { margin-top: 4px; color: var(--muted-ink); font-size: 9px; }
 .ops-map-hover { position: absolute; z-index: 4; width: 220px; padding: 11px; border: 1px solid var(--civic-ink); background: rgba(248,251,251,.98); box-shadow: 5px 6px 0 rgba(16,42,51,.17); pointer-events: none; }
 .ops-map-hover strong, .ops-map-hover span, .ops-map-hover small { display: block; }
 .ops-map-hover strong { font-size: 12px; }
@@ -1156,7 +1152,6 @@ footer strong { color: var(--white); }
   .live-context-grid article:last-child { border-bottom: 0; }
   .live-map-heading { align-items: start; flex-direction: column; }
   .ops-map-stage { height: 480px; }
-  .ops-map-status { top: 128px; max-width: calc(100% - 24px); }
   .ops-map-hover { display: none; }
   .ops-map-legend { right: 12px; }
   .live-inspector dl { grid-template-columns: 1fr 1fr; }
@@ -1267,7 +1262,6 @@ footer strong { color: var(--white); }
 .live-situation-strip span { font-size: 10px; }
 .live-source-row small,
 .live-source-row em,
-.ops-map-status span,
 .ops-map-legend,
 .ops-map-attribution { font-size: 9px; }
 
@@ -1871,8 +1865,6 @@ h1, h2, h3, h4, h5 { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-seri
 .live-inspector { background: #f7f8f9; }
 .ops-map-controls,
 .map-controls { border-radius: 8px; box-shadow: 0 1px 3px rgba(9,30,66,.16); }
-.ops-map-status { border-radius: 6px; }
-
 .alert-centre-grid { overflow: hidden; }
 .alert-queue { border-right-color: var(--hairline); background: #f7f8f9; }
 .alert-queue-header { color: var(--civic-ink); border-bottom: 1px solid var(--hairline); background: #ffffff; }
@@ -2492,7 +2484,6 @@ h1, h2, h3, h4, h5 { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-seri
   padding: 0 4px;
   white-space: nowrap;
 }
-.live-map-workspace .ops-map-status { top: auto; bottom: 14px; left: 360px; border: 0; border-radius: 6px; box-shadow: 0 1px 4px rgba(9,30,66,.14); }
 .live-map-workspace .ops-map-legend { display: none; }
 .live-map-workspace .ops-map-attribution { right: 50%; bottom: 8px; transform: translateX(50%); border: 0; }
 .live-map-workspace .ops-map-hover { border-color: rgba(9,30,66,.2); border-radius: 8px; box-shadow: 0 3px 12px rgba(9,30,66,.18); }
@@ -2512,7 +2503,6 @@ h1, h2, h3, h4, h5 { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-seri
   .live-map-context-overlay { top: 122px; right: 8px; left: 8px; width: auto; max-height: 520px; }
   .live-map-detail-overlay { right: 8px; bottom: 174px; left: 8px; width: auto; max-height: 42%; }
   .live-map-workspace .ops-map-controls { top: auto; right: 8px; bottom: 42px; }
-  .live-map-workspace .ops-map-status { bottom: 38px; left: 8px; }
   .live-map-workspace .ops-map-attribution { right: 8px; transform: none; }
 }
 
@@ -2527,7 +2517,6 @@ h1, h2, h3, h4, h5 { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-seri
   .live-map-inbox-overlay { right: 8px; width: auto; max-height: 390px; }
   .live-map-inbox-overlay.is-collapsed { right: auto; width: 178px; }
   .live-map-detail-overlay dl { grid-template-columns: 1fr 1fr; }
-  .live-map-workspace .ops-map-status { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
