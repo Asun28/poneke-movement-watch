@@ -1128,7 +1128,7 @@ navigation immediately understandable to an emergency operator.
 - [completed] Audit the current Live mobile overlays, controls, navigation and test contracts.
 - [completed] Add failing behavior tests for progressive controls, bottom-sheet details and mobile-safe labels.
 - [completed] Implement the compact mobile hierarchy, clearer navigation icons and safer map controls.
-- [in_progress] Run build, regressions, accessibility/layout checks and owner-only deployment.
+- [completed] Run build, regressions, accessibility/layout checks and owner-only deployment.
 
 ### Acceptance criteria
 

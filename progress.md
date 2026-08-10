@@ -968,3 +968,6 @@
 - 2026-08-11: Final local verification passes: production build, 90/90 behavior tests, ESLint and
   whitespace checks. The selected-record sheet receives focus, respects reduced motion and keeps map
   controls clear; the validated source is ready for an owner-only Sites deployment.
+- 2026-08-11: Published validated commit `9a20684` only to the private Sites source, saved version 53
+  and completed the owner-only production deployment at the existing URL. The temporary archive was
+  removed; GitHub `origin` and remote `main` were not changed.
