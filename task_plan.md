@@ -14,7 +14,7 @@ make switching/searching update immediately, and merge repeated replay status in
 - [completed] Fix investigation-to-dataset binding and searchable Live source/record fields.
 - [completed] Consolidate duplicate Replay date/status/playback information into one toolbar.
 - [completed] Verify all routes, production data endpoints, accessibility and regressions.
-- [in_progress] Deploy to the existing owner-only site.
+- [completed] Deploy to the existing owner-only site.
 
 ### Acceptance criteria
 

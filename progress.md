@@ -849,3 +849,8 @@
   by scrolling the toolbar internally.
 - 2026-08-11: Final local verification passes: production build and 82/82 site behaviors, ESLint,
   whitespace checks, mobile and landscape browser checks. Owner-only deployment is next.
+- 2026-08-11: Pushed validated commit `4c71285` only to the private Sites source, saved version 49
+  and completed the owner-only production deployment. Deployed-browser checks passed: April sensor
+  replay loads 1,677 cutoff-safe records, switching to August replaces the active map immediately,
+  and Live search finds 38 current records by the displayed `offline` status. GitHub origin and
+  remote `main` remain unchanged.
