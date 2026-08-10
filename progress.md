@@ -875,3 +875,8 @@
   water, earthquake, warning, road, report, flight, cruise and city-event symbols.
 - 2026-08-11: Final production build, 86/86 behavior tests and ESLint pass. Owner-only deployment
   remains; GitHub origin and remote `main` have not been changed.
+- 2026-08-11: Published exact validated commit `7577aa0` only to the private Sites source, saved
+  version 50 and completed the owner-only production deployment. Production browser checks confirm
+  Live renders the new event families with Inbox collapsed, Replay loads 1,677 records, and
+  disabling Hutt River changes visible readings from 3 to 2 without errors. GitHub origin and
+  remote `main` remain unchanged.

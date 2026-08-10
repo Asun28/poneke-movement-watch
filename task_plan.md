@@ -13,7 +13,7 @@ each operational event family a consistent, readable map symbol.
 - [completed] Add failing behavior tests for default panel state, layer adjustment, and symbol mapping.
 - [completed] Implement compact layer controls and a consistent non-emoji event symbol system.
 - [completed] Verify Replay switching, keyboard/touch access, mobile/landscape layout, and regressions.
-- [in_progress] Deploy to the existing owner-only site.
+- [completed] Deploy to the existing owner-only site.
 
 ### Acceptance criteria
 
