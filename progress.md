@@ -938,3 +938,6 @@
 - 2026-08-11: Final local verification passes: production build, 87/87 behavior tests, ESLint and
   whitespace checks. The selected icon has a check, the unselected icon has a plus, both retain a
   44px hit target and `aria-pressed`; owner-only deployment is next.
+- 2026-08-11: Published validated commit `e68aa1c` only to the private Sites source, saved version 52
+  and completed the existing owner-only production deployment. GitHub origin and remote `main`
+  remain unchanged.

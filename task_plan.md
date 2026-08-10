@@ -2352,7 +2352,7 @@ that source from the map without opening another control.
 - [completed] Add a failing behavior test for icon-driven source selection.
 - [completed] Implement accessible icon toggles with stable selected/unselected states.
 - [completed] Run production build, full regression, lint and whitespace verification.
-- [pending] Publish the validated owner-only build without changing GitHub origin or `main`.
+- [completed] Publish the validated owner-only build without changing GitHub origin or `main`.
 
 ### Acceptance criteria
 
