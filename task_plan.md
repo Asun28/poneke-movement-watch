@@ -13,7 +13,7 @@ draft, then open Replay with an explicit case, time window, source and availabil
 - [completed] Add and verify failing investigation-catalogue and rendered-workflow tests.
 - [completed] Implement the compact investigation selector and local draft flow.
 - [completed] Verify behavior, accessibility, build and regressions.
-- [in_progress] Deploy to the existing owner-only site.
+- [completed] Deploy to the existing owner-only site.
 
 ### Acceptance criteria
 

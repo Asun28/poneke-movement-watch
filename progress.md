@@ -19,6 +19,9 @@
 - 2026-08-11: Final local regression passes: 73/73 site behaviors, 24/24 Python tests,
   production build, ESLint and whitespace checks. The restricted test-run temp-directory
   error was rerun with the verified project-local path and cleaned afterward.
+- 2026-08-11: Published the exact validated feature commit as Sites version 39 to the
+  existing owner-only production URL. Production `/replay` shows both packaged cases and
+  the local investigation action with no browser warnings. GitHub origin remains unchanged.
 
 ## Phase 36 — evidence-first live triage and April sensor replay
 
