@@ -13,7 +13,7 @@ view, with bounded zoom and accessible expand/collapse controls.
 - [completed] Add failing behavior tests for six ordered layers, zoom bounds and disclosure controls.
 - [completed] Implement the graph projection, controls and responsive canvas.
 - [completed] Verify regressions and accessibility contracts.
-- [in_progress] Deploy to the existing owner-only site.
+- [completed] Deploy to the existing owner-only site.
 
 ### Acceptance criteria
 

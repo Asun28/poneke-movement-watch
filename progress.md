@@ -616,3 +616,6 @@
   behaviors, ESLint, 22/22 Python tests and whitespace checks. The scroll canvas
   remains a named region without an unnecessary extra tab stop; all visible graph
   controls and selectable nodes remain keyboard reachable.
+- 2026-08-10: Saved Sites version 31 from the exact verified source and completed
+  the owner-only production deployment at the existing live URL. Access remains
+  owner-only with no external visitors; GitHub origin and remote `main` were not pushed.
