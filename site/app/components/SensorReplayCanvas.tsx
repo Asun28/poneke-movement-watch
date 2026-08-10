@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import hilltopPack from "../../public/cop/v4/april-storm-hilltop-observations.json";
+import detectorPack from "../../public/cop/v4/april-storm-hydro-detector.json";
+import eventPack from "../../public/cop/v4/april-storm-event-pack.json";
 import { buildSensorReplayDataset, filterSensorReplayReadings, sensorReplayFrame, updateVisibleSensorSeries } from "../../lib/replayDataWorkspace.mjs";
 import { eventSymbolFor } from "../../lib/liveMapWorkspace.mjs";
 import { replayIntervalMs } from "../layerModel.mjs";
@@ -17,7 +19,28 @@ type Investigation = {
   default_target_at?: string;
 };
 type ReplaySpeed = 0.5 | 1 | 2 | 4;
-type SensorFilter = "all" | "rain" | "flow";
+type SensorFilter = "all" | "rain" | "flow" | "anomaly";
+type MapGeometry = { type: string; coordinates: unknown };
+type MovementOutcomeSignal = {
+  id: string;
+  countline_id: string;
+  name: string;
+  transport_class: string;
+  direction: string;
+  observed_count: number;
+  expected_count: number;
+  change_direction: string;
+  robust_z: number;
+  observed_at: string;
+};
+type MovementOutcomePack = {
+  slots: Array<{ target_at: string; signals: MovementOutcomeSignal[] }>;
+};
+type MovementCoverageFeature = {
+  geometry: MapGeometry | null;
+  properties: { countline_id: string };
+};
+type MovementCoverage = { features: MovementCoverageFeature[] };
 
 function timeLabel(value: string | null) {
   if (!value) return "No replay time";
@@ -38,7 +61,7 @@ function compactValue(value: number, unit: string) {
 
 export default function SensorReplayCanvas({ investigation }: { investigation: Investigation }) {
   const dataset = useMemo(
-    () => buildSensorReplayDataset(hilltopPack, investigation),
+    () => buildSensorReplayDataset(hilltopPack, investigation, detectorPack),
     [investigation],
   );
   const preferredIndex = investigation.default_target_at
@@ -52,6 +75,11 @@ export default function SensorReplayCanvas({ investigation }: { investigation: I
   const [layersOpen, setLayersOpen] = useState(false);
   const [showBasemap, setShowBasemap] = useState(true);
   const [markerScale, setMarkerScale] = useState(1);
+  const [showMovementOutcomes, setShowMovementOutcomes] = useState(false);
+  const [showImpactEvidence, setShowImpactEvidence] = useState(false);
+  const [movementOutcomePack, setMovementOutcomePack] = useState<MovementOutcomePack | null>(null);
+  const [movementCoverage, setMovementCoverage] = useState<MovementCoverage | null>(null);
+  const [movementLoadState, setMovementLoadState] = useState<"idle" | "loading" | "ready" | "error">("idle");
   const [visibleSeriesIds, setVisibleSeriesIds] = useState<Set<string>>(
     () => new Set(dataset.series.map((series: { id: string }) => series.id)),
   );
@@ -77,13 +105,17 @@ export default function SensorReplayCanvas({ investigation }: { investigation: I
       available_at: string;
       value: number;
       change: number | null;
+      detector_candidate: boolean;
+      detector_threshold: number | null;
     }) => ({
       id: reading.id,
       source_id: investigation.source_id,
-      kind: reading.measurement.toLowerCase().includes("rain") ? "rainfall_measurement" : "river_flow_measurement",
+      kind: reading.detector_candidate
+        ? "sensor_anomaly"
+        : reading.measurement.toLowerCase().includes("rain") ? "rainfall_measurement" : "river_flow_measurement",
       observed_at: reading.observed_at,
       freshness_state: "historical replay",
-      evidence_weight: 2,
+      evidence_weight: reading.detector_candidate ? 1 : 2,
       geometry: reading.geometry,
       properties: {
         name: reading.site,
@@ -92,8 +124,45 @@ export default function SensorReplayCanvas({ investigation }: { investigation: I
         unit: reading.unit,
         change: reading.change,
         available_at: reading.available_at,
+        detector_candidate: reading.detector_candidate,
+        detector_threshold: reading.detector_threshold,
+        model: reading.detector_candidate ? "Hydro robust v1 · investigation only" : null,
       },
     }));
+  const movementOutcomeObservations = useMemo(() => {
+    if (!showMovementOutcomes || !movementOutcomePack || !movementCoverage || !frame.target_at) return [];
+    const target = new Date(frame.target_at).getTime();
+    const slot = [...(movementOutcomePack.slots ?? [])]
+      .filter((item) => new Date(item.target_at).getTime() <= target)
+      .at(-1);
+    if (!slot) return [];
+    const geometryByCountline = new Map<string, MovementCoverageFeature>(
+      movementCoverage.features.map((feature) => [String(feature.properties.countline_id), feature]),
+    );
+    return slot.signals.map((signal) => {
+      const feature = geometryByCountline.get(String(signal.countline_id));
+      return {
+        id: `april-outcome:${signal.id}`,
+        source_id: "wcc-transport-sensors",
+        kind: "movement_outcome",
+        observed_at: signal.observed_at,
+        freshness_state: "retrospective only",
+        evidence_weight: 0,
+        geometry: feature?.geometry ?? null,
+        properties: {
+          name: signal.name,
+          transport_class: signal.transport_class,
+          direction: signal.direction,
+          observed_count: signal.observed_count,
+          expected_count: signal.expected_count,
+          change_direction: signal.change_direction,
+          robust_z: signal.robust_z,
+          model: "Movement seasonal MAD v1",
+          availability: "Retrospective only",
+        },
+      };
+    });
+  }, [frame.target_at, movementCoverage, movementOutcomePack, showMovementOutcomes]);
 
   useEffect(() => {
     if (!playing || dataset.slots.length < 2) return;
@@ -108,6 +177,33 @@ export default function SensorReplayCanvas({ investigation }: { investigation: I
     }, replayIntervalMs(speed));
     return () => window.clearInterval(timer);
   }, [dataset.slots.length, playing, speed]);
+
+  async function toggleMovementOutcomes() {
+    if (showMovementOutcomes) {
+      setShowMovementOutcomes(false);
+      return;
+    }
+    setShowMovementOutcomes(true);
+    if (movementOutcomePack || movementLoadState === "loading") return;
+    setMovementLoadState("loading");
+    try {
+      const [outcomes, coverage] = await Promise.all([
+      fetch("/cop/v4/april-storm-movement-outcomes.json").then((response) => {
+        if (!response.ok) throw new Error("movement outcomes unavailable");
+        return response.json() as Promise<MovementOutcomePack>;
+      }),
+      fetch("/cop/v1/countline-coverage.geojson").then((response) => {
+        if (!response.ok) throw new Error("movement coverage unavailable");
+        return response.json() as Promise<MovementCoverage>;
+      }),
+      ]);
+      setMovementOutcomePack(outcomes);
+      setMovementCoverage(coverage);
+      setMovementLoadState("ready");
+    } catch {
+      setMovementLoadState("error");
+    }
+  }
 
   function selectDate(date: string) {
     const index = dataset.slots.findIndex((time: string) => time.startsWith(date));
@@ -126,8 +222,11 @@ export default function SensorReplayCanvas({ investigation }: { investigation: I
   return (
     <section id="replay-map" className="replay-map-workspace sensor-replay-workspace" data-replay-map-first="true" data-replay-dataset="sensor" aria-label="April sensor replay">
       <LiveMap
-        observations={observations}
-        sources={[{ source_id: investigation.source_id, name: "Greater Wellington Hilltop" }]}
+        observations={[...observations, ...movementOutcomeObservations]}
+        sources={[
+          { source_id: investigation.source_id, name: "Greater Wellington Hilltop" },
+          { source_id: "wcc-transport-sensors", name: "WCC Transport Sensors" },
+        ]}
         selectedId={selectedId}
         showBasemap={showBasemap}
         markerScale={markerScale}
@@ -139,9 +238,9 @@ export default function SensorReplayCanvas({ investigation }: { investigation: I
           <span>{timeLabel(frame.target_at)}</span>
         </div>
         <div className="filter-group" aria-label="Filter sensor series">
-          {(["all", "rain", "flow"] as SensorFilter[]).map((value) => (
+          {(["all", "rain", "flow", "anomaly"] as SensorFilter[]).map((value) => (
             <button key={value} type="button" className={filter === value ? "active" : ""} aria-pressed={filter === value} onClick={() => setFilter(value)}>
-              {value === "all" ? "All" : value === "rain" ? "Rain" : "Flow"}
+              {value === "all" ? "All" : value === "rain" ? "Rain" : value === "flow" ? "Flow" : "Candidates"}
             </button>
           ))}
         </div>
@@ -166,16 +265,36 @@ export default function SensorReplayCanvas({ investigation }: { investigation: I
       <aside className="sensor-layer-overlay" aria-label="Sensor map layers" hidden={!layersOpen}>
         <header><h2>Layers</h2><button type="button" aria-label="Close sensor layers" onClick={() => setLayersOpen(false)}>×</button></header>
         <label className="sensor-core-layer"><input type="checkbox" checked={showBasemap} onChange={(event) => setShowBasemap(event.currentTarget.checked)} /><span>Street basemap</span></label>
+        <div className="sensor-evidence-layer-summary" aria-label="April evidence layers">
+          {dataset.layer_groups.map((group: { id: string; label: string; series_count: number }) => (
+            <button key={group.id} type="button" onClick={() => setFilter(group.id === "rainfall" ? "rain" : group.id === "river-flow" ? "flow" : "anomaly")}>
+              <span>{group.label}</span><strong>{group.series_count}</strong>
+            </button>
+          ))}
+          <button type="button" aria-pressed={showMovementOutcomes} onClick={() => void toggleMovementOutcomes()}>
+            <span>Movement outcomes</span><strong>{movementLoadState === "loading" ? "…" : movementOutcomeObservations.length || "Off"}</strong>
+          </button>
+          <button type="button" aria-label="Toggle official impact evidence" aria-pressed={showImpactEvidence} onClick={() => setShowImpactEvidence((value) => !value)}>
+            <span>Official impacts</span><strong>{eventPack.ground_truth.length}</strong>
+          </button>
+        </div>
+        {movementLoadState === "error" ? <p className="sensor-layer-error" role="status">Movement layer unavailable</p> : null}
+        <section className="sensor-impact-evidence" aria-label="Official impact evidence" hidden={!showImpactEvidence}>
+          <header><strong>Official impact evidence</strong><span>Post-event · withheld</span></header>
+          <ul>
+            {eventPack.ground_truth.map((item) => <li key={item.id}><strong>{item.source}</strong><span>{item.label}</span></li>)}
+          </ul>
+        </section>
         <label className="sensor-symbol-size"><span>Symbol size <output>{Math.round(markerScale * 100)}%</output></span><input type="range" aria-label="Sensor symbol size" min="0.8" max="1.6" step="0.1" value={markerScale} onChange={(event) => setMarkerScale(Number(event.currentTarget.value))} /></label>
         <div className="sensor-layer-actions"><button type="button" onClick={() => setVisibleSeriesIds(new Set(dataset.series.map((series: { id: string }) => series.id)))}>Show all</button><button type="button" onClick={() => setVisibleSeriesIds(new Set())}>Hide all</button></div>
         <div className="sensor-series-list" aria-label={`${dataset.series.length} sensor series`}>
-          {dataset.series.map((series: { id: string; site: string; measurement: string }) => {
+          {dataset.series.map((series: { id: string; site: string; measurement: string; detector_episode_count: number }) => {
             const symbol = eventSymbolFor({ source_id: investigation.source_id, kind: series.measurement, properties: { measurement: series.measurement } });
             return (
               <label key={series.id}>
                 <input type="checkbox" checked={visibleSeriesIds.has(series.id)} onChange={(event) => { const checked = event.currentTarget.checked; setVisibleSeriesIds((current) => updateVisibleSensorSeries(current, series.id, checked)); }} />
                 <EventSymbolBadge symbolId={symbol.id} decorative />
-                <span><strong>{series.site}</strong><small>{series.measurement}</small></span>
+                <span><strong>{series.site}</strong><small>{series.measurement}{series.detector_episode_count ? ` · ${series.detector_episode_count} candidates` : ""}</small></span>
               </label>
             );
           })}
@@ -185,7 +304,7 @@ export default function SensorReplayCanvas({ investigation }: { investigation: I
         {observations.map((observation) => (
           <button key={observation.id} type="button" onClick={() => setSelectedId(observation.id)}>
             <span>{String(observation.properties.name)}</span>
-            <strong>{compactValue(Number(observation.properties.value), String(observation.properties.unit))}</strong>
+            <strong>{compactValue(Number(observation.properties.value), String(observation.properties.unit))}{observation.properties.detector_candidate ? " · candidate" : ""}</strong>
           </button>
         ))}
       </div>

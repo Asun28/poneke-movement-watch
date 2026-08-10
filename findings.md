@@ -1674,3 +1674,61 @@ supports spatial event-footprint resolution, never direct building-damage claims
   bottom-sheet surface. Search selection also closes competing panels before focusing the detail.
 - Canvas symbols remain visually compact, but hit testing now enforces a 22px radius (44px diameter).
   This improves finger accuracy without enlarging every marker or changing cluster behavior.
+
+# Phase 45 — April hydro-weather evidence enrichment
+
+- The current April pack already contains 1,683 official historical GWRC Hilltop observations across
+  Berhampore rainfall, Newtown rainfall and Hutt River at Taita Gorge flow. The event pack correctly
+  treats `available_at` as the replay gate and later reports as withheld ground truth.
+- The only fitted benchmark artifact in the repository is the WCC movement/countline model. Its
+  features and units are transport-specific, so applying it to rainfall or flow would violate the
+  repository's domain-expert policy and produce meaningless scores.
+- The current April event pack describes robust/rule/logistic comparisons, but no governed fitted
+  hydro model artifact exists. Logistic regression also lacks verified independent incident labels;
+  a cutoff-safe robust hydro detector is the honest prototype boundary.
+- Current Replay playback supports three selectable sensor series but does not yet expose anomaly
+  outputs or a rich per-case evidence graph. The enrichment should add grouped detector/evidence
+  layers rather than promoting each raw reading into a ticket.
+- Greater Wellington's official material confirms that Hilltop is the public historical hydrometric
+  store and that the regional network measures rainfall, river levels/flows, groundwater, tide and
+  soil moisture. Its 2023/24 report describes about 270 monitoring stations, mostly automated.
+- The official GW river-flow map service exposes 45 continuously monitored river/stream sites and
+  an hourly aggregated map layer. That layer is useful for site discovery/freshness context, while
+  event replay should still retrieve the underlying Hilltop series at its declared cadence.
+- The hackathon catalogue's verified supplementary notes identify the same Hilltop store as holding
+  3,339 site names and explicitly call out soil moisture/temperature as antecedent-wetness context.
+  Recency varies by site, so each candidate series must be queried and rejected if stale/empty.
+- Additional sensor enrichment should stay within the existing `gwrc-hilltop` source contract rather
+  than pretending each measurement type is a separate publisher. Rain, river/flow and antecedent
+  conditions can be separate selectable evidence layers under that one authority.
+- Direct provider verification succeeded against Hilltop server version `2606.0.2.92`. Its `Data.hts`
+  `SiteList` returns the declared GWRC site catalogue without authentication, confirming the
+  historical retrieval path used by the current build script remains operational.
+- The user-specified catalogue's `live-telemetry.md` gives the stronger current contract:
+  `Telemetry.hts` supports site coordinates, measurement lists and bounded `From`/`To` history.
+  It reports 3,339 sites, 2,787 with WGS84 coordinates, and warns that errors still return HTTP 200.
+- That catalogue verified exact name joins for all 47 flow-viewer gauges. It also documents a 228 m
+  ArcGIS/Hilltop coordinate conflict for Waikanae Water Treatment Plant; this project will prefer
+  the provider's own Hilltop coordinate and mark the location approximate if that site is included.
+- The official rainfall viewer's “latest readings” layer is time-filtered and returned only seven
+  current points during this audit, so it is not a complete historical site registry. Historical
+  candidates must come from the Hilltop WGS84 site list and be validated per measurement/window.
+- Hilltop `MeasurementList` returns `HilltopServer.DataSource[]`, each with its own time bounds and
+  nested `Measurement[]`. For Taita Gorge, the authoritative `Water Level` data source exposes
+  `Stage`, `Flow` and `Rate of Rise/Fall`; `Flow` is m³/sec and the series spans the April event.
+- A bounded measurement audit confirmed April-spanning rainfall series at Berhampore, Te Papa,
+  Karori Reservoir, Seton Nossiter Park, Birch Lane, Savage Park, Maymorn, Tasman Vaccine Limited,
+  Lake Kohangatera and Kaitoke Headworks. These are measured observations, not forecasts.
+- The official `SiteList&location=LatLong` response supplies WGS84 point geometry for the same
+  station names. For example, Te Papa is `[-41.29029822, 174.78132410]`, Karori Reservoir is
+  `[-41.29089198, 174.75321612]`, and Seton Nossiter Park is
+  `[-41.20957672, 174.81638169]`; no ArcGIS-to-Hilltop coordinate guess is required.
+- The official flow viewer adds seven high-value metropolitan river sites with exact Hilltop names:
+  Birchville, Estuary Bridge, Kaitoke, Taita Gorge, Porirua Town Centre, and two Wainuiomata sites.
+  These will be retained only if their April history query returns real observations.
+- The selected movement detector is an algorithmic matched-weekday/hour median+MAD baseline, not a
+  serialized cross-domain estimator. It can be applied to April WCC countline data only as a
+  retrospective outcome because the source publication cadence is at least monthly.
+- April history crosses the 5 April 2026 daylight-saving rollback. WCC rows contain local date/hour
+  without offsets, so the repeated 02:00 hour is normalized to the NZ standard-time occurrence
+  (`+12:00`) and that assumption is preserved in the movement outcome pack.

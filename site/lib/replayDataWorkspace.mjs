@@ -18,10 +18,14 @@ export function replayDatasetKind(investigation) {
   return investigation?.source_id === "gwrc-hilltop" ? "sensor" : "movement";
 }
 
-export function buildSensorReplayDataset(pack, investigation) {
+export function buildSensorReplayDataset(pack, investigation, detectorPack = null) {
   const startsAt = epoch(investigation?.starts_at);
   const asOf = epoch(investigation?.as_of);
+  const detectorBySeries = new Map((Array.isArray(detectorPack?.series) ? detectorPack.series : [])
+    .map((item) => [cleanText(item?.series_id), item]));
   const series = (Array.isArray(pack?.series) ? pack.series : []).map((item) => {
+    const detector = detectorBySeries.get(cleanText(item?.series_id)) ?? null;
+    const threshold = Number(detector?.baseline?.threshold);
     const observations = (Array.isArray(item?.observations) ? item.observations : [])
       .filter((observation) => {
         const observedAt = epoch(observation?.observed_at);
@@ -32,6 +36,11 @@ export function buildSensorReplayDataset(pack, investigation) {
           && (asOf === null || observedAt <= asOf)
           && (asOf === null || availableAt <= asOf);
       })
+      .map((observation) => ({
+        ...observation,
+        detector_candidate: Number.isFinite(threshold) && Number(observation?.value) > threshold,
+        detector_threshold: Number.isFinite(threshold) ? threshold : null,
+      }))
       .toSorted((first, second) => epoch(first.available_at) - epoch(second.available_at));
     return {
       id: cleanText(item?.series_id, "sensor-series"),
@@ -40,6 +49,8 @@ export function buildSensorReplayDataset(pack, investigation) {
       unit: cleanText(item?.unit),
       cadence_seconds: Number(item?.cadence_seconds) || null,
       geometry: item?.geometry ?? null,
+      domain: String(item?.measurement ?? "").toLowerCase().includes("rain") ? "rainfall" : "river-flow",
+      detector_episode_count: Number(detector?.episode_count) || 0,
       observations,
     };
   }).filter((item) => item.observations.length > 0);
@@ -62,6 +73,14 @@ export function buildSensorReplayDataset(pack, investigation) {
     total_record_count: Number(pack?.record_count) || playableRecordCount,
     playable_record_count: playableRecordCount,
     excluded_record_count: Math.max(0, (Number(pack?.record_count) || playableRecordCount) - playableRecordCount),
+    detector_candidate_count: Number(detectorPack?.episode_count) || 0,
+    detector_observation_count: Number(detectorPack?.candidate_count) || 0,
+    detector_model: detectorPack?.model ?? null,
+    layer_groups: [
+      { id: "rainfall", label: "Rainfall", series_count: series.filter((item) => item.domain === "rainfall").length },
+      { id: "river-flow", label: "River flow", series_count: series.filter((item) => item.domain === "river-flow").length },
+      { id: "detector-candidates", label: "Detector candidates", series_count: Number(detectorPack?.episode_count) || 0 },
+    ],
     series,
     slots,
   };
@@ -102,6 +121,8 @@ export function sensorReplayFrame(dataset, requestedIndex) {
       available_at_quality: observation.available_at_quality ?? null,
       value: Number(observation.value),
       change: previous ? Number(observation.value) - Number(previous.value) : null,
+      detector_candidate: observation.detector_candidate === true,
+      detector_threshold: observation.detector_threshold ?? null,
     });
   }
 
@@ -116,6 +137,7 @@ export function filterSensorReplayReadings(readings, {
   return (Array.isArray(readings) ? readings : []).filter((reading) => {
     if (!selected.has(reading.series_id)) return false;
     if (measurementFilter === "all") return true;
+    if (measurementFilter === "anomaly") return reading.detector_candidate === true;
     return String(reading.measurement ?? "").toLowerCase().includes(measurementFilter);
   });
 }

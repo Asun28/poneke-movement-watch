@@ -119,3 +119,24 @@ def build_hilltop_replay_pack(series: Iterable[dict], retrieved_at: datetime) ->
             "event_time_cutoff_required": True,
         },
     }
+
+
+def slice_hilltop_series(series: dict, start_at: datetime, end_at: datetime) -> dict:
+    """Return a provider-faithful series slice using observed time bounds."""
+
+    start = start_at.astimezone(WELLINGTON)
+    end = end_at.astimezone(WELLINGTON)
+    observations = [
+        observation for observation in series.get("observations", [])
+        if start <= _local_time(observation["observed_at"]) <= end
+    ]
+    peak_row = max(observations, key=lambda row: row["value"]) if observations else None
+    return {
+        **series,
+        "record_count": len(observations),
+        "peak": ({
+            "observed_at": peak_row["observed_at"],
+            "value": peak_row["value"],
+        } if peak_row else None),
+        "observations": observations,
+    }

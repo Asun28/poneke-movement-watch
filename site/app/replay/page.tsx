@@ -1,6 +1,7 @@
 import movementReplay from "../../public/cop/v1/movement-replay.json";
 import aprilStorm from "../../public/cop/v4/april-storm-event-pack.json";
 import hilltopPack from "../../public/cop/v4/april-storm-hilltop-observations.json";
+import detectorPack from "../../public/cop/v4/april-storm-hydro-detector.json";
 import { buildReplayInvestigationCatalog } from "../../lib/replayInvestigations.mjs";
 import EvidenceCaseLedger from "../EvidenceCaseLedger";
 import ReplayWorkspaceClient from "../components/ReplayWorkspaceClient";
@@ -23,7 +24,7 @@ export default function ReplayPage() {
           </div>
           <div className="backtest-header-status">
             <span>Replay Analyzer input</span>
-            <span className="backtest-readiness">3 sensor series loaded</span>
+            <span className="backtest-readiness">{hilltopPack.series_count} sensor series loaded</span>
             <span className="backtest-toggle">Event details</span>
           </div>
         </summary>
@@ -37,7 +38,8 @@ export default function ReplayPage() {
 
         <div className="backtest-grid">
           <article>
-            <h3>Event record</h3>
+            <h3>Official impact evidence</h3>
+            <p className="backtest-evidence-state">Post-event · withheld</p>
             <ol className="backtest-timeline">
               <li><time dateTime="2026-04-18">18 Apr</time><span>Heavy rain and flooding begin.</span></li>
               <li><time dateTime="2026-04-20">20 Apr</time><span>Berhampore 85.9 mm/h; Hutt River peaks near 475 m³/s.</span></li>
@@ -48,7 +50,7 @@ export default function ReplayPage() {
             <h3>Evaluation</h3>
             <dl className="backtest-rules">
               <div><dt>Input</dt><dd><code>available_at</code> ≤ replay step</dd></div>
-              <div><dt>Compare</dt><dd>Rules · robust anomaly · regularized logistic</dd></div>
+              <div><dt>Detector</dt><dd>Hydro robust v1 · uncalibrated</dd></div>
               <div><dt>Exclude</dt><dd>Mock, news, final reports and damage</dd></div>
               <div><dt>Score</dt><dd>Lead time · precision/recall · false alerts · Brier</dd></div>
             </dl>
@@ -56,9 +58,10 @@ export default function ReplayPage() {
           <article>
             <h3>Replay inputs</h3>
             <dl className="backtest-rules">
-              <div><dt>Rainfall</dt><dd>Berhampore · Newtown</dd></div>
-              <div><dt>River flow</dt><dd>Hutt River at Taita Gorge</dd></div>
-              <div><dt>Movement</dt><dd>{aprilStorm.coverage.wcc_transport_countlines.window_record_count.toLocaleString("en-NZ")} records · outcome only</dd></div>
+              <div><dt>Rainfall</dt><dd>12 rain gauges</dd></div>
+              <div><dt>River flow</dt><dd>6 river gauges</dd></div>
+              <div><dt>Detector candidates</dt><dd>{detectorPack.episode_count} episodes · Investigation only</dd></div>
+              <div><dt>Movement outcomes</dt><dd>{aprilStorm.coverage.wcc_transport_countlines.window_record_count.toLocaleString("en-NZ")} records · Retrospective only</dd></div>
               <div><dt>Availability</dt><dd>Derived cadence bound</dd></div>
             </dl>
           </article>
@@ -77,6 +80,8 @@ export default function ReplayPage() {
           <div className="backtest-links">
             <a href="/cop/v4/april-storm-event-pack.json">Event pack</a>
             <a href="/cop/v4/april-storm-hilltop-observations.json">Sensor data</a>
+            <a href="/cop/v4/april-storm-hydro-detector.json">Detector data</a>
+            <a href="/cop/v4/april-storm-movement-outcomes.json">Movement outcomes</a>
           </div>
         </footer>
       </details>
@@ -92,6 +97,8 @@ export default function ReplayPage() {
             <a href="/cop/v2/evidence-graph.json"><span>Evidence graph</span><code>/cop/v2/evidence-graph.json</code></a>
             <a href="/cop/v4/april-storm-event-pack.json"><span>April storm event pack</span><code>/cop/v4/april-storm-event-pack.json</code></a>
             <a href="/cop/v4/april-storm-hilltop-observations.json"><span>April storm sensor data</span><code>/cop/v4/april-storm-hilltop-observations.json</code></a>
+            <a href="/cop/v4/april-storm-hydro-detector.json"><span>April hydro detector</span><code>/cop/v4/april-storm-hydro-detector.json</code></a>
+            <a href="/cop/v4/april-storm-movement-outcomes.json"><span>April movement outcomes</span><code>/cop/v4/april-storm-movement-outcomes.json</code></a>
           </div>
         </section>
       </details>

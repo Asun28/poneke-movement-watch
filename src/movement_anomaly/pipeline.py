@@ -17,7 +17,11 @@ def _local_wall_clock(value):
 def _slot_iso(local_timestamp, timezone_aware):
     timestamp = pd.Timestamp(local_timestamp)
     if timezone_aware:
-        timestamp = timestamp.tz_localize("Pacific/Auckland")
+        timestamp = timestamp.tz_localize(
+            "Pacific/Auckland",
+            ambiguous=False,
+            nonexistent="shift_forward",
+        )
     return timestamp.isoformat()
 
 

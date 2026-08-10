@@ -57,3 +57,39 @@ def test_replay_uses_only_prior_matched_hours_and_keeps_empty_candidate_slots():
     assert {point["observed_count"] for point in signal["matched_history"]} == {100.0}
     assert max(point["observed_at"] for point in signal["matched_history"]) < signal["observed_at"]
     assert all(point["observed_count"] != 999.0 for point in signal["matched_history"])
+
+
+def test_replay_handles_the_repeated_hour_when_new_zealand_daylight_saving_ends():
+    rows = [
+        {
+            "countline_id": "47847",
+            "date": observed_date,
+            "hour": 2,
+            "count": 100.0,
+            "transport_class": "Pedestrian",
+            "direction": "SW",
+        }
+        for observed_date in pd.date_range("2026-01-25", periods=12, freq="7D")
+    ]
+    rows.append({
+        "countline_id": "47847",
+        "date": pd.Timestamp("2026-04-19"),
+        "hour": 2,
+        "count": 20.0,
+        "transport_class": "Pedestrian",
+        "direction": "SW",
+    })
+
+    replay = pipeline.analyze_replay(
+        pd.DataFrame(rows),
+        start_at="2026-04-19T02:00:00+12:00",
+        end_at="2026-04-19T02:00:00+12:00",
+        lookback_weeks=12,
+        config=DetectorConfig(),
+    )
+
+    repeated_hour = next(
+        point for point in replay["slots"][0]["signals"][0]["matched_history"]
+        if point["observed_at"].startswith("2026-04-05T02:00:00")
+    )
+    assert repeated_hour["observed_at"].endswith("+12:00")

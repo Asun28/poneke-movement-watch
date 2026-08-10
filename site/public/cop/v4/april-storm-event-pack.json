@@ -3,7 +3,7 @@
   "event_id": "wellington-april-storm-2026",
   "title": "April Storm 2026",
   "mode": "retrospective_case_study",
-  "status": "sensor_inputs_partially_packaged",
+  "status": "sensor_inputs_packaged",
   "window": {
     "start_at": "2026-04-18T00:00:00+12:00",
     "end_at": "2026-04-22T23:59:59+12:00",
@@ -15,11 +15,11 @@
     "split_strategy": "event_blocked_time_split",
     "base_model_comparisons": [
       "rules",
-      "robust_anomaly_detector",
-      "regularized_logistic_regression"
+      "hydro_robust_v1"
     ],
     "meta_model_input": "out_of_fold_predictions_only",
     "deferred_models": [
+      "regularized_logistic_regression",
       "xgboost",
       "svm",
       "learned_global_weights"
@@ -53,11 +53,19 @@
   },
   "coverage": {
     "gwrc_hilltop": {
-      "series": 3,
-      "records": 1683,
+      "series": 18,
+      "records": 10098,
       "window": "2026-04-18T00:00:00+12:00/2026-04-23T00:00:00+12:00",
       "truth": "official_historical_observations",
       "observation_pack": "/cop/v4/april-storm-hilltop-observations.json"
+    },
+    "hydro_detector": {
+      "model_id": "hydro-robust-v1",
+      "calibration_status": "uncalibrated_case_study",
+      "candidate_points": 6343,
+      "investigation_episodes": 99,
+      "decision_role": "investigation_only",
+      "detector_pack": "/cop/v4/april-storm-hydro-detector.json"
     },
     "wcc_transport_countlines": {
       "reported_active": 411,
@@ -138,21 +146,33 @@
     }
   ],
   "replay_inputs": {
-    "status": "partially_packaged",
+    "status": "packaged",
     "observations": [
       {
         "source_id": "gwrc-hilltop",
         "path": "/cop/v4/april-storm-hilltop-observations.json",
-        "series": 3,
-        "records": 1683,
+        "series": 18,
+        "records": 10098,
         "truth": "official_historical_observations",
         "available_at_quality": "derived_cadence_bound"
+      },
+      {
+        "source_id": "gwrc-hilltop",
+        "path": "/cop/v4/april-storm-hydro-detector.json",
+        "model_id": "hydro-robust-v1",
+        "role": "derived_investigation_candidates",
+        "candidate_points": 6343,
+        "episodes": 99,
+        "calibration_status": "uncalibrated_case_study"
       }
     ],
     "retrospective_outcomes": [
       {
         "source_id": "wcc-transport-sensors",
         "records": 209334,
+        "path": "/cop/v4/april-storm-movement-outcomes.json",
+        "model_id": "movement-seasonal-mad-v1",
+        "candidate_signals": 2903,
         "role": "movement_outcome_analysis_only",
         "reason": "The official publisher cadence is at least monthly, so these records cannot be treated as event-time evidence."
       }
@@ -160,5 +180,40 @@
     "missing_families": [
       "nzta_timestamped_road_impacts"
     ]
-  }
+  },
+  "evidence_layers": [
+    {
+      "id": "rainfall-observations",
+      "label": "Rainfall",
+      "series": 12,
+      "role": "replay_input",
+      "available_at_required": true
+    },
+    {
+      "id": "river-flow-observations",
+      "label": "River flow",
+      "series": 6,
+      "role": "replay_input",
+      "available_at_required": true
+    },
+    {
+      "id": "hydro-detector-candidates",
+      "label": "Detector candidates",
+      "episodes": 99,
+      "role": "derived_investigation_only",
+      "automatic_incident": false
+    },
+    {
+      "id": "movement-outcomes",
+      "label": "Movement outcomes",
+      "records": 209334,
+      "role": "retrospective_outcome_only"
+    },
+    {
+      "id": "official-impact-ground-truth",
+      "label": "Official impact evidence",
+      "records": 4,
+      "role": "withheld_ground_truth"
+    }
+  ]
 }

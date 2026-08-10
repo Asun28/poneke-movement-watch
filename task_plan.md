@@ -1,5 +1,75 @@
 # Pōneke Movement Watch — evidence ontology roadmap
 
+## Phase 45 — April hydro-weather evidence enrichment
+
+### Goal
+
+Expand the April Storm investigation with reproducible official sensor history and a truthful
+hydro-weather detector output, then connect the resulting evidence layers to Replay without mixing
+post-event labels, mock records or the unrelated movement model into event-time scoring.
+
+### Status
+
+- [completed] Audit existing April packs, sensor endpoints, model artifacts and Replay contracts.
+- [completed] Verify and retrieve additional eligible April sensor series with coordinates and time provenance.
+- [completed] Add failing tests for cutoff-safe detector output, evidence linkage and layer selection.
+- [completed] Build the enriched pack, hydro detector projection and investigation UI.
+- [in_progress] Run data validation, regressions, build and owner-only deployment.
+
+### Acceptance criteria
+
+- Replay exposes materially more official April rain/river evidence than the current three series,
+  with source, coordinates, units, `observed_at`, conservative `available_at` and data-quality state.
+- A hydro-domain robust detector uses only records before the event cutoff to establish its baseline;
+  it never consumes post-event reports, mock data, movement-model outputs or later human labels.
+- Every detector output declares model ID/version, source domain, baseline window/sample count,
+  threshold, uncertainty/coverage and its `available_at`; it remains an investigation signal only.
+- April Storm Replay can select sensor, anomaly, official impact and ground-truth/context layers
+  independently, with non-event-time layers visibly excluded from scoring.
+- Evidence links show supporting, contradicting, missing and context/ground-truth states without
+  converting the case into a confirmed incident or general accuracy claim.
+- Existing Replay investigations, Live Operations, ontology, source truth and owner-only access do not regress.
+
+### Key assumptions and exclusions
+
+- The existing fitted artifact is a movement/countline baseline. It is not valid for rainfall or
+  river-flow values and will not be reused across domains merely to satisfy a “pre-trained” label.
+- The hydro expert may be fitted only on eligible pre-event sensor history and will be labelled a
+  prototype/un-calibrated domain detector unless an existing governed hydro artifact is found.
+- News, committee reports, final impacts and timestamp-uncertain road outcomes are ground truth or
+  context only; mock/provider-shaped records remain zero weight.
+- No automatic Incident, COP, external ticket, warning, dispatch or GitHub-origin push is authorised.
+
+### File-level implementation plan
+
+- `scripts/`, `src/movement_anomaly/`, `tests/`: reproducible historical sensor retrieval,
+  normalization and cutoff-safe hydro detector projection.
+- `site/public/cop/v4/`: enriched observation, detector-output and evidence-link packs.
+- `site/lib/`, Replay components and CSS: layer projection, investigation evidence summary and controls.
+- Site and Python tests: data truth, leakage guards, model metadata and user-visible layer behavior.
+- `README.md`, `docs/model-card.md`, `findings.md`, `progress.md`: provenance and limitations.
+
+### Rejected major alternatives
+
+- Do not feed rainfall/flow into the WCC movement model or concatenate unlike units into one model.
+- Do not treat the April case alone as accuracy, calibration or a production-ready warning model.
+- Do not make every sensor row a review ticket; group evidence by place, series and event window.
+
+### Errors encountered
+
+| Error | Attempt | Resolution |
+|---|---:|---|
+| Initial PowerShell summary looked for a non-existent top-level `observations` array | 1 | Inspect and consume the pack's declared `series[].observations` structure instead. |
+| `agent-reach` executable is unavailable in this workspace | 1 | Use the official-source web/search tools and direct verified provider endpoints as the bounded fallback. |
+| Web reader rejected raw GitHub/Hilltop query URLs as unsafe/cache misses | 1 | Query the same public Hilltop provider directly with bounded read-only HTTP requests. |
+| First multi-site PowerShell probe ended with an invalid pipeline after `foreach` | 1 | Collect rows explicitly, then format the completed array; do not repeat the invalid pipeline form. |
+| Corrected probe parsed measurements at the wrong XML path and returned empty lists | 1 | Use `HilltopServer.DataSource.Measurement`; raw response verified the provider schema. |
+| First April coverage summariser piped directly after `foreach`, causing a PowerShell parser error | 1 | Assign the loop output to `$results`, then serialize it separately. |
+| Hilltop history response arrived as `System.Byte[]`, so direct `[xml]` casting failed | 1 | Decode response bytes as UTF-8 before parsing XML; no failed-row output is accepted. |
+| Full 120-hour April movement replay exceeded the first 180-second command limit | 1 | Regression tests passed; rerun the deterministic local build with a larger bounded timeout. |
+| Full Python suite could not access the default Windows pytest temp ACL | 1 | Re-run with a verified project-local `--basetemp` outside the sandbox; 27/27 passed, then remove it. |
+
+
 ## Phase 41 — Replay layer controls and event symbols
 
 ### Goal

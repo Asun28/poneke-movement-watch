@@ -267,11 +267,17 @@ test("renders the April storm as a leakage-safe retrospective case study", async
   assert.match(html, /id="april-storm-backtest"/);
   assert.match(html, /Replay Analyzer input/);
   assert.match(html, /April Storm · 18–22 Apr 2026/);
-  assert.match(html, /3 sensor series loaded/);
-  assert.match(html, /1,683/);
-  assert.match(html, /Berhampore · Newtown/);
-  assert.match(html, /Hutt River at Taita Gorge/);
-  assert.match(html, /209,334(?:<!-- -->)? records · outcome only/);
+  assert.match(html, /18(?:<!-- -->)? sensor series loaded/);
+  assert.match(html, /10,098/);
+  assert.match(html, /12 rain gauges/);
+  assert.match(html, /6 river gauges/);
+  assert.match(html, /Detector candidates/);
+  assert.match(html, /Investigation only/);
+  assert.match(html, /Movement outcomes/);
+  assert.match(html, /Retrospective only/);
+  assert.match(html, /Official impact evidence/);
+  assert.match(html, /Post-event · withheld/);
+  assert.match(html, /209,334(?:<!-- -->)? records · Retrospective only/);
   assert.match(html, /Train before 18 Apr/);
   assert.match(html, /5 or 15 min/);
   assert.match(html, /source_claimed_time/);
@@ -282,6 +288,8 @@ test("renders the April storm as a leakage-safe retrospective case study", async
   assert.match(html, /One event cannot establish general accuracy/);
   assert.match(html, /\/cop\/v4\/april-storm-event-pack\.json/);
   assert.match(html, /\/cop\/v4\/april-storm-hilltop-observations\.json/);
+  assert.match(html, /\/cop\/v4\/april-storm-hydro-detector\.json/);
+  assert.match(html, /\/cop\/v4\/april-storm-movement-outcomes\.json/);
 });
 
 test("ships a machine-readable April storm pack without invented replay observations", async () => {
@@ -303,8 +311,16 @@ test("ships a machine-readable April storm pack without invented replay observat
   assert.equal(eventPack.evaluation.general_accuracy_claim_allowed, false);
   assert.equal(eventPack.coverage.wcc_transport_countlines.reported_active, 411);
   assert.equal(eventPack.coverage.wcc_transport_countlines.total, 414);
-  assert.equal(eventPack.replay_inputs.status, "partially_packaged");
-  assert.equal(eventPack.replay_inputs.observations[0].records, 1683);
+  assert.equal(eventPack.replay_inputs.status, "packaged");
+  assert.equal(eventPack.replay_inputs.observations[0].records, 10098);
+  assert.deepEqual(eventPack.evidence_layers.map(({ id }) => id), [
+    "rainfall-observations",
+    "river-flow-observations",
+    "hydro-detector-candidates",
+    "movement-outcomes",
+    "official-impact-ground-truth",
+  ]);
+  assert.equal(eventPack.evidence_layers.at(-1).role, "withheld_ground_truth");
   assert.equal(eventPack.coverage.wcc_transport_countlines.window_record_count, 209334);
   assert.equal(eventPack.coverage.wcc_transport_countlines.availability_role, "retrospective_outcome_only");
   assert.ok(eventPack.time_claims.some((claim) =>
@@ -324,13 +340,48 @@ test("ships official Hilltop observations for the April replay without mock or p
   assert.equal(pack.schema, "wellington-hilltop-replay-observations/v1");
   assert.equal(pack.source_id, "gwrc-hilltop");
   assert.equal(pack.truth, "official_historical_observations");
-  assert.equal(pack.record_count, 1683);
-  assert.equal(pack.series_count, 3);
+  assert.equal(pack.record_count, 10098);
+  assert.equal(pack.series_count, 18);
   assert.equal(pack.availability_policy.provider_publication_time_observed, false);
   assert.equal(pack.training_policy.mock_excluded, true);
-  assert.deepEqual(pack.series.map((series) => series.record_count), [121, 121, 1441]);
+  assert.equal(pack.series.filter((series) => series.measurement.includes("Rainfall")).length, 12);
+  assert.equal(pack.series.filter((series) => series.measurement === "Flow").length, 6);
+  assert.ok(pack.series.every((series) => series.record_count > 0));
   assert.equal(pack.series[0].peak.value, 77.10347);
-  assert.equal(pack.series[2].peak.value, 474.664);
+  assert.equal(pack.series.find((series) => series.series_id === "hutt-river-taita-flow").peak.value, 474.664);
+});
+
+test("ships a cutoff-safe hydro detector pack without automatic decision authority", async () => {
+  const pack = JSON.parse(await readFile(
+    new URL("../public/cop/v4/april-storm-hydro-detector.json", import.meta.url),
+    "utf8",
+  ));
+
+  assert.equal(pack.schema, "wellington-hydro-anomaly-candidates/v1");
+  assert.equal(pack.series_count, 18);
+  assert.ok(pack.candidate_count > 0);
+  assert.equal(pack.model.calibration_status, "uncalibrated_case_study");
+  assert.equal(pack.training_policy.movement_model_reused, false);
+  assert.equal(pack.training_policy.mock_excluded, true);
+  assert.equal(pack.training_policy.post_event_ground_truth_excluded, true);
+  assert.ok(pack.series.every((series) => series.baseline.available_before === "2026-04-18T00:00:00+12:00"));
+  assert.ok(pack.episodes.every((episode) => episode.decision_role === "investigation_only"));
+  assert.ok(pack.episodes.every((episode) => episode.incident_created === false));
+});
+
+test("ships April movement-model outputs only as retrospective investigation context", async () => {
+  const pack = JSON.parse(await readFile(
+    new URL("../public/cop/v4/april-storm-movement-outcomes.json", import.meta.url),
+    "utf8",
+  ));
+
+  assert.equal(pack.schema, "movement-replay/v1");
+  assert.equal(pack.model.id, "movement-seasonal-mad-v1");
+  assert.equal(pack.availability_role, "retrospective_outcome_only");
+  assert.equal(pack.event_time_evidence, false);
+  assert.equal(pack.automatic_incident, false);
+  assert.equal(pack.slots.length, 120);
+  assert.ok(pack.slots.reduce((total, slot) => total + slot.candidate_count, 0) > 0);
 });
 
 test("ships internally consistent COP artifacts with WGS84 line geometry", async () => {

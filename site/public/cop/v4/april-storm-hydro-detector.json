@@ -1,0 +1,5093 @@
+{
+  "schema": "wellington-hydro-anomaly-candidates/v1",
+  "source_id": "gwrc-hilltop",
+  "retrieved_at": "2026-08-11T11:01:54+12:00",
+  "model": {
+    "id": "hydro-robust-v1",
+    "type": "robust_univariate_detector",
+    "calibration_status": "uncalibrated_case_study",
+    "input_domains": [
+      "rainfall",
+      "river_flow"
+    ],
+    "threshold": "max(baseline p99, median + 4.5 × max(1.4826 × MAD, measurement resolution))"
+  },
+  "training_policy": {
+    "available_before": "2026-04-18T00:00:00+12:00",
+    "movement_model_reused": false,
+    "mock_excluded": true,
+    "post_event_ground_truth_excluded": true,
+    "event_rows_excluded_from_fit": true
+  },
+  "series_count": 18,
+  "candidate_count": 6343,
+  "episode_count": 99,
+  "series": [
+    {
+      "series_id": "berhampore-hourly-rainfall",
+      "site": "Berhampore at Nursery",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.77164659,
+          -41.32322479
+        ]
+      },
+      "baseline": {
+        "available_before": "2026-04-18T00:00:00+12:00",
+        "record_count": 407,
+        "median": 0.0,
+        "mad": 0.0,
+        "p99": 2.9408951999999977,
+        "robust_scale": 0.0031791999999999376,
+        "threshold": 2.9408951999999977
+      },
+      "evaluation_record_count": 119,
+      "candidate_count": 13,
+      "episode_count": 8,
+      "episodes": [
+        {
+          "id": "hydro-episode:berhampore-hourly-rainfall:1",
+          "series_id": "berhampore-hourly-rainfall",
+          "site": "Berhampore at Nursery",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.77164659,
+              -41.32322479
+            ]
+          },
+          "starts_at": "2026-04-18T07:00:00+12:00",
+          "ends_at": "2026-04-18T07:00:00+12:00",
+          "evidence_count": 1,
+          "peak_value": 6.184397,
+          "peak_observed_at": "2026-04-18T06:00:00+12:00",
+          "threshold": 2.9408951999999977,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:berhampore-hourly-rainfall:2",
+          "series_id": "berhampore-hourly-rainfall",
+          "site": "Berhampore at Nursery",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.77164659,
+              -41.32322479
+            ]
+          },
+          "starts_at": "2026-04-18T17:00:00+12:00",
+          "ends_at": "2026-04-18T17:00:00+12:00",
+          "evidence_count": 1,
+          "peak_value": 5.6288355,
+          "peak_observed_at": "2026-04-18T16:00:00+12:00",
+          "threshold": 2.9408951999999977,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:berhampore-hourly-rainfall:3",
+          "series_id": "berhampore-hourly-rainfall",
+          "site": "Berhampore at Nursery",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.77164659,
+              -41.32322479
+            ]
+          },
+          "starts_at": "2026-04-18T20:00:00+12:00",
+          "ends_at": "2026-04-18T21:00:00+12:00",
+          "evidence_count": 2,
+          "peak_value": 4.33363,
+          "peak_observed_at": "2026-04-18T20:00:00+12:00",
+          "threshold": 2.9408951999999977,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:berhampore-hourly-rainfall:4",
+          "series_id": "berhampore-hourly-rainfall",
+          "site": "Berhampore at Nursery",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.77164659,
+              -41.32322479
+            ]
+          },
+          "starts_at": "2026-04-19T13:00:00+12:00",
+          "ends_at": "2026-04-19T13:00:00+12:00",
+          "evidence_count": 1,
+          "peak_value": 5.201728,
+          "peak_observed_at": "2026-04-19T12:00:00+12:00",
+          "threshold": 2.9408951999999977,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:berhampore-hourly-rainfall:5",
+          "series_id": "berhampore-hourly-rainfall",
+          "site": "Berhampore at Nursery",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.77164659,
+              -41.32322479
+            ]
+          },
+          "starts_at": "2026-04-20T00:00:00+12:00",
+          "ends_at": "2026-04-20T01:00:00+12:00",
+          "evidence_count": 2,
+          "peak_value": 5.471387,
+          "peak_observed_at": "2026-04-19T23:00:00+12:00",
+          "threshold": 2.9408951999999977,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:berhampore-hourly-rainfall:6",
+          "series_id": "berhampore-hourly-rainfall",
+          "site": "Berhampore at Nursery",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.77164659,
+              -41.32322479
+            ]
+          },
+          "starts_at": "2026-04-20T05:00:00+12:00",
+          "ends_at": "2026-04-20T06:00:00+12:00",
+          "evidence_count": 2,
+          "peak_value": 77.10347,
+          "peak_observed_at": "2026-04-20T04:00:00+12:00",
+          "threshold": 2.9408951999999977,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:berhampore-hourly-rainfall:7",
+          "series_id": "berhampore-hourly-rainfall",
+          "site": "Berhampore at Nursery",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.77164659,
+              -41.32322479
+            ]
+          },
+          "starts_at": "2026-04-20T12:00:00+12:00",
+          "ends_at": "2026-04-20T14:00:00+12:00",
+          "evidence_count": 3,
+          "peak_value": 6.9923105,
+          "peak_observed_at": "2026-04-20T13:00:00+12:00",
+          "threshold": 2.9408951999999977,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:berhampore-hourly-rainfall:8",
+          "series_id": "berhampore-hourly-rainfall",
+          "site": "Berhampore at Nursery",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.77164659,
+              -41.32322479
+            ]
+          },
+          "starts_at": "2026-04-21T12:00:00+12:00",
+          "ends_at": "2026-04-21T12:00:00+12:00",
+          "evidence_count": 1,
+          "peak_value": 3.4,
+          "peak_observed_at": "2026-04-21T11:00:00+12:00",
+          "threshold": 2.9408951999999977,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        }
+      ]
+    },
+    {
+      "series_id": "newtown-hourly-rainfall",
+      "site": "Newtown at Carmichael Reservoir",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.78786302,
+          -41.31589434
+        ]
+      },
+      "baseline": {
+        "available_before": "2026-04-18T00:00:00+12:00",
+        "record_count": 407,
+        "median": 0.0,
+        "mad": 0.0,
+        "p99": 2.9639999999999986,
+        "robust_scale": 0.012208999999999914,
+        "threshold": 2.9639999999999986
+      },
+      "evaluation_record_count": 119,
+      "candidate_count": 15,
+      "episode_count": 8,
+      "episodes": [
+        {
+          "id": "hydro-episode:newtown-hourly-rainfall:1",
+          "series_id": "newtown-hourly-rainfall",
+          "site": "Newtown at Carmichael Reservoir",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.78786302,
+              -41.31589434
+            ]
+          },
+          "starts_at": "2026-04-18T17:00:00+12:00",
+          "ends_at": "2026-04-18T17:00:00+12:00",
+          "evidence_count": 1,
+          "peak_value": 4.131448,
+          "peak_observed_at": "2026-04-18T16:00:00+12:00",
+          "threshold": 2.9639999999999986,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:newtown-hourly-rainfall:2",
+          "series_id": "newtown-hourly-rainfall",
+          "site": "Newtown at Carmichael Reservoir",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.78786302,
+              -41.31589434
+            ]
+          },
+          "starts_at": "2026-04-18T21:00:00+12:00",
+          "ends_at": "2026-04-18T21:00:00+12:00",
+          "evidence_count": 1,
+          "peak_value": 3.7476963,
+          "peak_observed_at": "2026-04-18T20:00:00+12:00",
+          "threshold": 2.9639999999999986,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:newtown-hourly-rainfall:3",
+          "series_id": "newtown-hourly-rainfall",
+          "site": "Newtown at Carmichael Reservoir",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.78786302,
+              -41.31589434
+            ]
+          },
+          "starts_at": "2026-04-19T13:00:00+12:00",
+          "ends_at": "2026-04-19T13:00:00+12:00",
+          "evidence_count": 1,
+          "peak_value": 4.6,
+          "peak_observed_at": "2026-04-19T12:00:00+12:00",
+          "threshold": 2.9639999999999986,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:newtown-hourly-rainfall:4",
+          "series_id": "newtown-hourly-rainfall",
+          "site": "Newtown at Carmichael Reservoir",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.78786302,
+              -41.31589434
+            ]
+          },
+          "starts_at": "2026-04-19T23:00:00+12:00",
+          "ends_at": "2026-04-20T00:00:00+12:00",
+          "evidence_count": 2,
+          "peak_value": 6.77620365,
+          "peak_observed_at": "2026-04-19T23:00:00+12:00",
+          "threshold": 2.9639999999999986,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:newtown-hourly-rainfall:5",
+          "series_id": "newtown-hourly-rainfall",
+          "site": "Newtown at Carmichael Reservoir",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.78786302,
+              -41.31589434
+            ]
+          },
+          "starts_at": "2026-04-20T03:00:00+12:00",
+          "ends_at": "2026-04-20T06:00:00+12:00",
+          "evidence_count": 3,
+          "peak_value": 36.03071,
+          "peak_observed_at": "2026-04-20T04:00:00+12:00",
+          "threshold": 2.9639999999999986,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:newtown-hourly-rainfall:6",
+          "series_id": "newtown-hourly-rainfall",
+          "site": "Newtown at Carmichael Reservoir",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.78786302,
+              -41.31589434
+            ]
+          },
+          "starts_at": "2026-04-20T12:00:00+12:00",
+          "ends_at": "2026-04-20T15:00:00+12:00",
+          "evidence_count": 4,
+          "peak_value": 7.66238838,
+          "peak_observed_at": "2026-04-20T13:00:00+12:00",
+          "threshold": 2.9639999999999986,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:newtown-hourly-rainfall:7",
+          "series_id": "newtown-hourly-rainfall",
+          "site": "Newtown at Carmichael Reservoir",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.78786302,
+              -41.31589434
+            ]
+          },
+          "starts_at": "2026-04-21T01:00:00+12:00",
+          "ends_at": "2026-04-21T02:00:00+12:00",
+          "evidence_count": 2,
+          "peak_value": 3.567855,
+          "peak_observed_at": "2026-04-21T00:00:00+12:00",
+          "threshold": 2.9639999999999986,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:newtown-hourly-rainfall:8",
+          "series_id": "newtown-hourly-rainfall",
+          "site": "Newtown at Carmichael Reservoir",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.78786302,
+              -41.31589434
+            ]
+          },
+          "starts_at": "2026-04-21T11:00:00+12:00",
+          "ends_at": "2026-04-21T11:00:00+12:00",
+          "evidence_count": 1,
+          "peak_value": 4.8406552,
+          "peak_observed_at": "2026-04-21T10:00:00+12:00",
+          "threshold": 2.9639999999999986,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        }
+      ]
+    },
+    {
+      "series_id": "te-papa-hourly-rainfall",
+      "site": "Wellington at Te Papa",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.7813241,
+          -41.29029822
+        ]
+      },
+      "baseline": {
+        "available_before": "2026-04-18T00:00:00+12:00",
+        "record_count": 407,
+        "median": 0.0,
+        "mad": 0.0,
+        "p99": 3.584467382239999,
+        "robust_scale": 0.007403800000000016,
+        "threshold": 3.584467382239999
+      },
+      "evaluation_record_count": 119,
+      "candidate_count": 12,
+      "episode_count": 8,
+      "episodes": [
+        {
+          "id": "hydro-episode:te-papa-hourly-rainfall:1",
+          "series_id": "te-papa-hourly-rainfall",
+          "site": "Wellington at Te Papa",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.7813241,
+              -41.29029822
+            ]
+          },
+          "starts_at": "2026-04-18T07:00:00+12:00",
+          "ends_at": "2026-04-18T07:00:00+12:00",
+          "evidence_count": 1,
+          "peak_value": 4.074809,
+          "peak_observed_at": "2026-04-18T06:00:00+12:00",
+          "threshold": 3.584467382239999,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:te-papa-hourly-rainfall:2",
+          "series_id": "te-papa-hourly-rainfall",
+          "site": "Wellington at Te Papa",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.7813241,
+              -41.29029822
+            ]
+          },
+          "starts_at": "2026-04-18T17:00:00+12:00",
+          "ends_at": "2026-04-18T17:00:00+12:00",
+          "evidence_count": 1,
+          "peak_value": 4.1606426,
+          "peak_observed_at": "2026-04-18T16:00:00+12:00",
+          "threshold": 3.584467382239999,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:te-papa-hourly-rainfall:3",
+          "series_id": "te-papa-hourly-rainfall",
+          "site": "Wellington at Te Papa",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.7813241,
+              -41.29029822
+            ]
+          },
+          "starts_at": "2026-04-18T21:00:00+12:00",
+          "ends_at": "2026-04-18T21:00:00+12:00",
+          "evidence_count": 1,
+          "peak_value": 3.9929532,
+          "peak_observed_at": "2026-04-18T20:00:00+12:00",
+          "threshold": 3.584467382239999,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:te-papa-hourly-rainfall:4",
+          "series_id": "te-papa-hourly-rainfall",
+          "site": "Wellington at Te Papa",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.7813241,
+              -41.29029822
+            ]
+          },
+          "starts_at": "2026-04-19T13:00:00+12:00",
+          "ends_at": "2026-04-19T13:00:00+12:00",
+          "evidence_count": 1,
+          "peak_value": 4.7493562,
+          "peak_observed_at": "2026-04-19T12:00:00+12:00",
+          "threshold": 3.584467382239999,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:te-papa-hourly-rainfall:5",
+          "series_id": "te-papa-hourly-rainfall",
+          "site": "Wellington at Te Papa",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.7813241,
+              -41.29029822
+            ]
+          },
+          "starts_at": "2026-04-20T00:00:00+12:00",
+          "ends_at": "2026-04-20T00:00:00+12:00",
+          "evidence_count": 1,
+          "peak_value": 3.5932295,
+          "peak_observed_at": "2026-04-19T23:00:00+12:00",
+          "threshold": 3.584467382239999,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:te-papa-hourly-rainfall:6",
+          "series_id": "te-papa-hourly-rainfall",
+          "site": "Wellington at Te Papa",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.7813241,
+              -41.29029822
+            ]
+          },
+          "starts_at": "2026-04-20T05:00:00+12:00",
+          "ends_at": "2026-04-20T06:00:00+12:00",
+          "evidence_count": 2,
+          "peak_value": 24.045052,
+          "peak_observed_at": "2026-04-20T05:00:00+12:00",
+          "threshold": 3.584467382239999,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:te-papa-hourly-rainfall:7",
+          "series_id": "te-papa-hourly-rainfall",
+          "site": "Wellington at Te Papa",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.7813241,
+              -41.29029822
+            ]
+          },
+          "starts_at": "2026-04-20T12:00:00+12:00",
+          "ends_at": "2026-04-20T15:00:00+12:00",
+          "evidence_count": 4,
+          "peak_value": 6.452264,
+          "peak_observed_at": "2026-04-20T13:00:00+12:00",
+          "threshold": 3.584467382239999,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:te-papa-hourly-rainfall:8",
+          "series_id": "te-papa-hourly-rainfall",
+          "site": "Wellington at Te Papa",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.7813241,
+              -41.29029822
+            ]
+          },
+          "starts_at": "2026-04-21T11:00:00+12:00",
+          "ends_at": "2026-04-21T11:00:00+12:00",
+          "evidence_count": 1,
+          "peak_value": 4.374012,
+          "peak_observed_at": "2026-04-21T10:00:00+12:00",
+          "threshold": 3.584467382239999,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        }
+      ]
+    },
+    {
+      "series_id": "karori-reservoir-hourly-rainfall",
+      "site": "Kaiwharawhara Stream at Karori Reservoir",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.75321612,
+          -41.29089198
+        ]
+      },
+      "baseline": {
+        "available_before": "2026-04-18T00:00:00+12:00",
+        "record_count": 407,
+        "median": 0.0,
+        "mad": 0.0,
+        "p99": 2.9867878559999985,
+        "robust_scale": 0.0017259999999999776,
+        "threshold": 2.9867878559999985
+      },
+      "evaluation_record_count": 119,
+      "candidate_count": 14,
+      "episode_count": 7,
+      "episodes": [
+        {
+          "id": "hydro-episode:karori-reservoir-hourly-rainfall:1",
+          "series_id": "karori-reservoir-hourly-rainfall",
+          "site": "Kaiwharawhara Stream at Karori Reservoir",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.75321612,
+              -41.29089198
+            ]
+          },
+          "starts_at": "2026-04-18T07:00:00+12:00",
+          "ends_at": "2026-04-18T07:00:00+12:00",
+          "evidence_count": 1,
+          "peak_value": 5.154023,
+          "peak_observed_at": "2026-04-18T06:00:00+12:00",
+          "threshold": 2.9867878559999985,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:karori-reservoir-hourly-rainfall:2",
+          "series_id": "karori-reservoir-hourly-rainfall",
+          "site": "Kaiwharawhara Stream at Karori Reservoir",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.75321612,
+              -41.29089198
+            ]
+          },
+          "starts_at": "2026-04-18T17:00:00+12:00",
+          "ends_at": "2026-04-18T17:00:00+12:00",
+          "evidence_count": 1,
+          "peak_value": 6.1027692,
+          "peak_observed_at": "2026-04-18T16:00:00+12:00",
+          "threshold": 2.9867878559999985,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:karori-reservoir-hourly-rainfall:3",
+          "series_id": "karori-reservoir-hourly-rainfall",
+          "site": "Kaiwharawhara Stream at Karori Reservoir",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.75321612,
+              -41.29089198
+            ]
+          },
+          "starts_at": "2026-04-18T20:00:00+12:00",
+          "ends_at": "2026-04-18T21:00:00+12:00",
+          "evidence_count": 2,
+          "peak_value": 4.3173913,
+          "peak_observed_at": "2026-04-18T19:00:00+12:00",
+          "threshold": 2.9867878559999985,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:karori-reservoir-hourly-rainfall:4",
+          "series_id": "karori-reservoir-hourly-rainfall",
+          "site": "Kaiwharawhara Stream at Karori Reservoir",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.75321612,
+              -41.29089198
+            ]
+          },
+          "starts_at": "2026-04-19T12:00:00+12:00",
+          "ends_at": "2026-04-19T13:00:00+12:00",
+          "evidence_count": 2,
+          "peak_value": 10.05,
+          "peak_observed_at": "2026-04-19T12:00:00+12:00",
+          "threshold": 2.9867878559999985,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:karori-reservoir-hourly-rainfall:5",
+          "series_id": "karori-reservoir-hourly-rainfall",
+          "site": "Kaiwharawhara Stream at Karori Reservoir",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.75321612,
+              -41.29089198
+            ]
+          },
+          "starts_at": "2026-04-20T05:00:00+12:00",
+          "ends_at": "2026-04-20T08:00:00+12:00",
+          "evidence_count": 3,
+          "peak_value": 30.61179,
+          "peak_observed_at": "2026-04-20T04:00:00+12:00",
+          "threshold": 2.9867878559999985,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:karori-reservoir-hourly-rainfall:6",
+          "series_id": "karori-reservoir-hourly-rainfall",
+          "site": "Kaiwharawhara Stream at Karori Reservoir",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.75321612,
+              -41.29089198
+            ]
+          },
+          "starts_at": "2026-04-20T12:00:00+12:00",
+          "ends_at": "2026-04-20T15:00:00+12:00",
+          "evidence_count": 4,
+          "peak_value": 8.059914,
+          "peak_observed_at": "2026-04-20T13:00:00+12:00",
+          "threshold": 2.9867878559999985,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:karori-reservoir-hourly-rainfall:7",
+          "series_id": "karori-reservoir-hourly-rainfall",
+          "site": "Kaiwharawhara Stream at Karori Reservoir",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.75321612,
+              -41.29089198
+            ]
+          },
+          "starts_at": "2026-04-20T19:00:00+12:00",
+          "ends_at": "2026-04-20T19:00:00+12:00",
+          "evidence_count": 1,
+          "peak_value": 3.4166667,
+          "peak_observed_at": "2026-04-20T18:00:00+12:00",
+          "threshold": 2.9867878559999985,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        }
+      ]
+    },
+    {
+      "series_id": "seton-nossiter-hourly-rainfall",
+      "site": "Porirua Stream at Seton Nossiter Park",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.81638169,
+          -41.20957672
+        ]
+      },
+      "baseline": {
+        "available_before": "2026-04-18T00:00:00+12:00",
+        "record_count": 407,
+        "median": 0.0,
+        "mad": 0.0,
+        "p99": 3.163999999999999,
+        "robust_scale": 0.0001665,
+        "threshold": 3.163999999999999
+      },
+      "evaluation_record_count": 119,
+      "candidate_count": 12,
+      "episode_count": 7,
+      "episodes": [
+        {
+          "id": "hydro-episode:seton-nossiter-hourly-rainfall:1",
+          "series_id": "seton-nossiter-hourly-rainfall",
+          "site": "Porirua Stream at Seton Nossiter Park",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.81638169,
+              -41.20957672
+            ]
+          },
+          "starts_at": "2026-04-18T05:00:00+12:00",
+          "ends_at": "2026-04-18T05:00:00+12:00",
+          "evidence_count": 1,
+          "peak_value": 6.503226,
+          "peak_observed_at": "2026-04-18T04:00:00+12:00",
+          "threshold": 3.163999999999999,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:seton-nossiter-hourly-rainfall:2",
+          "series_id": "seton-nossiter-hourly-rainfall",
+          "site": "Porirua Stream at Seton Nossiter Park",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.81638169,
+              -41.20957672
+            ]
+          },
+          "starts_at": "2026-04-18T08:00:00+12:00",
+          "ends_at": "2026-04-18T08:00:00+12:00",
+          "evidence_count": 1,
+          "peak_value": 4.076923,
+          "peak_observed_at": "2026-04-18T07:00:00+12:00",
+          "threshold": 3.163999999999999,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:seton-nossiter-hourly-rainfall:3",
+          "series_id": "seton-nossiter-hourly-rainfall",
+          "site": "Porirua Stream at Seton Nossiter Park",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.81638169,
+              -41.20957672
+            ]
+          },
+          "starts_at": "2026-04-18T17:00:00+12:00",
+          "ends_at": "2026-04-18T17:00:00+12:00",
+          "evidence_count": 1,
+          "peak_value": 3.3527815,
+          "peak_observed_at": "2026-04-18T16:00:00+12:00",
+          "threshold": 3.163999999999999,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:seton-nossiter-hourly-rainfall:4",
+          "series_id": "seton-nossiter-hourly-rainfall",
+          "site": "Porirua Stream at Seton Nossiter Park",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.81638169,
+              -41.20957672
+            ]
+          },
+          "starts_at": "2026-04-19T13:00:00+12:00",
+          "ends_at": "2026-04-19T13:00:00+12:00",
+          "evidence_count": 1,
+          "peak_value": 5.4,
+          "peak_observed_at": "2026-04-19T12:00:00+12:00",
+          "threshold": 3.163999999999999,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:seton-nossiter-hourly-rainfall:5",
+          "series_id": "seton-nossiter-hourly-rainfall",
+          "site": "Porirua Stream at Seton Nossiter Park",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.81638169,
+              -41.20957672
+            ]
+          },
+          "starts_at": "2026-04-19T23:00:00+12:00",
+          "ends_at": "2026-04-19T23:00:00+12:00",
+          "evidence_count": 1,
+          "peak_value": 3.3125882,
+          "peak_observed_at": "2026-04-19T22:00:00+12:00",
+          "threshold": 3.163999999999999,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:seton-nossiter-hourly-rainfall:6",
+          "series_id": "seton-nossiter-hourly-rainfall",
+          "site": "Porirua Stream at Seton Nossiter Park",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.81638169,
+              -41.20957672
+            ]
+          },
+          "starts_at": "2026-04-20T07:00:00+12:00",
+          "ends_at": "2026-04-20T09:00:00+12:00",
+          "evidence_count": 3,
+          "peak_value": 4.5422535,
+          "peak_observed_at": "2026-04-20T08:00:00+12:00",
+          "threshold": 3.163999999999999,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:seton-nossiter-hourly-rainfall:7",
+          "series_id": "seton-nossiter-hourly-rainfall",
+          "site": "Porirua Stream at Seton Nossiter Park",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.81638169,
+              -41.20957672
+            ]
+          },
+          "starts_at": "2026-04-20T12:00:00+12:00",
+          "ends_at": "2026-04-20T15:00:00+12:00",
+          "evidence_count": 4,
+          "peak_value": 10.281887,
+          "peak_observed_at": "2026-04-20T14:00:00+12:00",
+          "threshold": 3.163999999999999,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        }
+      ]
+    },
+    {
+      "series_id": "birch-lane-hourly-rainfall",
+      "site": "Hutt River at Birch Lane",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.92087073,
+          -41.21260048
+        ]
+      },
+      "baseline": {
+        "available_before": "2026-04-18T00:00:00+12:00",
+        "record_count": 407,
+        "median": 0.0,
+        "mad": 0.0,
+        "p99": 2.206558098,
+        "robust_scale": 0.0035905999999999993,
+        "threshold": 2.206558098
+      },
+      "evaluation_record_count": 119,
+      "candidate_count": 17,
+      "episode_count": 4,
+      "episodes": [
+        {
+          "id": "hydro-episode:birch-lane-hourly-rainfall:1",
+          "series_id": "birch-lane-hourly-rainfall",
+          "site": "Hutt River at Birch Lane",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.92087073,
+              -41.21260048
+            ]
+          },
+          "starts_at": "2026-04-18T04:00:00+12:00",
+          "ends_at": "2026-04-18T10:00:00+12:00",
+          "evidence_count": 6,
+          "peak_value": 5.820442,
+          "peak_observed_at": "2026-04-18T06:00:00+12:00",
+          "threshold": 2.206558098,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:birch-lane-hourly-rainfall:2",
+          "series_id": "birch-lane-hourly-rainfall",
+          "site": "Hutt River at Birch Lane",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.92087073,
+              -41.21260048
+            ]
+          },
+          "starts_at": "2026-04-18T22:00:00+12:00",
+          "ends_at": "2026-04-18T22:00:00+12:00",
+          "evidence_count": 1,
+          "peak_value": 2.4194928,
+          "peak_observed_at": "2026-04-18T21:00:00+12:00",
+          "threshold": 2.206558098,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:birch-lane-hourly-rainfall:3",
+          "series_id": "birch-lane-hourly-rainfall",
+          "site": "Hutt River at Birch Lane",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.92087073,
+              -41.21260048
+            ]
+          },
+          "starts_at": "2026-04-20T12:00:00+12:00",
+          "ends_at": "2026-04-20T21:00:00+12:00",
+          "evidence_count": 9,
+          "peak_value": 10.811525,
+          "peak_observed_at": "2026-04-20T14:00:00+12:00",
+          "threshold": 2.206558098,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:birch-lane-hourly-rainfall:4",
+          "series_id": "birch-lane-hourly-rainfall",
+          "site": "Hutt River at Birch Lane",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.92087073,
+              -41.21260048
+            ]
+          },
+          "starts_at": "2026-04-21T21:00:00+12:00",
+          "ends_at": "2026-04-21T21:00:00+12:00",
+          "evidence_count": 1,
+          "peak_value": 2.3998977,
+          "peak_observed_at": "2026-04-21T20:00:00+12:00",
+          "threshold": 2.206558098,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        }
+      ]
+    },
+    {
+      "series_id": "savage-park-hourly-rainfall",
+      "site": "Hutt River at Savage Park",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          175.07035545,
+          -41.12154048
+        ]
+      },
+      "baseline": {
+        "available_before": "2026-04-18T00:00:00+12:00",
+        "record_count": 407,
+        "median": 0.0,
+        "mad": 0.0,
+        "p99": 1.7923157999999997,
+        "robust_scale": 0.0013604999999999867,
+        "threshold": 1.7923157999999997
+      },
+      "evaluation_record_count": 119,
+      "candidate_count": 26,
+      "episode_count": 7,
+      "episodes": [
+        {
+          "id": "hydro-episode:savage-park-hourly-rainfall:1",
+          "series_id": "savage-park-hourly-rainfall",
+          "site": "Hutt River at Savage Park",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              175.07035545,
+              -41.12154048
+            ]
+          },
+          "starts_at": "2026-04-18T04:00:00+12:00",
+          "ends_at": "2026-04-18T11:00:00+12:00",
+          "evidence_count": 8,
+          "peak_value": 21.4736,
+          "peak_observed_at": "2026-04-18T07:00:00+12:00",
+          "threshold": 1.7923157999999997,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:savage-park-hourly-rainfall:2",
+          "series_id": "savage-park-hourly-rainfall",
+          "site": "Hutt River at Savage Park",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              175.07035545,
+              -41.12154048
+            ]
+          },
+          "starts_at": "2026-04-18T15:00:00+12:00",
+          "ends_at": "2026-04-18T18:00:00+12:00",
+          "evidence_count": 4,
+          "peak_value": 5.3586746,
+          "peak_observed_at": "2026-04-18T15:00:00+12:00",
+          "threshold": 1.7923157999999997,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:savage-park-hourly-rainfall:3",
+          "series_id": "savage-park-hourly-rainfall",
+          "site": "Hutt River at Savage Park",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              175.07035545,
+              -41.12154048
+            ]
+          },
+          "starts_at": "2026-04-18T22:00:00+12:00",
+          "ends_at": "2026-04-18T23:00:00+12:00",
+          "evidence_count": 2,
+          "peak_value": 4.540835,
+          "peak_observed_at": "2026-04-18T22:00:00+12:00",
+          "threshold": 1.7923157999999997,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:savage-park-hourly-rainfall:4",
+          "series_id": "savage-park-hourly-rainfall",
+          "site": "Hutt River at Savage Park",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              175.07035545,
+              -41.12154048
+            ]
+          },
+          "starts_at": "2026-04-19T22:00:00+12:00",
+          "ends_at": "2026-04-19T23:00:00+12:00",
+          "evidence_count": 2,
+          "peak_value": 2.3068182,
+          "peak_observed_at": "2026-04-19T21:00:00+12:00",
+          "threshold": 1.7923157999999997,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:savage-park-hourly-rainfall:5",
+          "series_id": "savage-park-hourly-rainfall",
+          "site": "Hutt River at Savage Park",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              175.07035545,
+              -41.12154048
+            ]
+          },
+          "starts_at": "2026-04-20T15:00:00+12:00",
+          "ends_at": "2026-04-20T22:00:00+12:00",
+          "evidence_count": 8,
+          "peak_value": 7.912538,
+          "peak_observed_at": "2026-04-20T18:00:00+12:00",
+          "threshold": 1.7923157999999997,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:savage-park-hourly-rainfall:6",
+          "series_id": "savage-park-hourly-rainfall",
+          "site": "Hutt River at Savage Park",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              175.07035545,
+              -41.12154048
+            ]
+          },
+          "starts_at": "2026-04-21T16:00:00+12:00",
+          "ends_at": "2026-04-21T16:00:00+12:00",
+          "evidence_count": 1,
+          "peak_value": 2.4104676,
+          "peak_observed_at": "2026-04-21T15:00:00+12:00",
+          "threshold": 1.7923157999999997,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:savage-park-hourly-rainfall:7",
+          "series_id": "savage-park-hourly-rainfall",
+          "site": "Hutt River at Savage Park",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              175.07035545,
+              -41.12154048
+            ]
+          },
+          "starts_at": "2026-04-22T09:00:00+12:00",
+          "ends_at": "2026-04-22T09:00:00+12:00",
+          "evidence_count": 1,
+          "peak_value": 2.209836,
+          "peak_observed_at": "2026-04-22T08:00:00+12:00",
+          "threshold": 1.7923157999999997,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        }
+      ]
+    },
+    {
+      "series_id": "pinehaven-reservoir-hourly-rainfall",
+      "site": "Pinehaven Stream at Pinehaven Reservoir",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          175.00861682,
+          -41.15776221
+        ]
+      },
+      "baseline": {
+        "available_before": "2026-04-18T00:00:00+12:00",
+        "record_count": 407,
+        "median": 0.0,
+        "mad": 0.0,
+        "p99": 2.3474455899999978,
+        "robust_scale": 0.0038663999999999366,
+        "threshold": 2.3474455899999978
+      },
+      "evaluation_record_count": 119,
+      "candidate_count": 14,
+      "episode_count": 7,
+      "episodes": [
+        {
+          "id": "hydro-episode:pinehaven-reservoir-hourly-rainfall:1",
+          "series_id": "pinehaven-reservoir-hourly-rainfall",
+          "site": "Pinehaven Stream at Pinehaven Reservoir",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              175.00861682,
+              -41.15776221
+            ]
+          },
+          "starts_at": "2026-04-18T05:00:00+12:00",
+          "ends_at": "2026-04-18T11:00:00+12:00",
+          "evidence_count": 6,
+          "peak_value": 28.153148,
+          "peak_observed_at": "2026-04-18T09:00:00+12:00",
+          "threshold": 2.3474455899999978,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:pinehaven-reservoir-hourly-rainfall:2",
+          "series_id": "pinehaven-reservoir-hourly-rainfall",
+          "site": "Pinehaven Stream at Pinehaven Reservoir",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              175.00861682,
+              -41.15776221
+            ]
+          },
+          "starts_at": "2026-04-18T16:00:00+12:00",
+          "ends_at": "2026-04-18T17:00:00+12:00",
+          "evidence_count": 2,
+          "peak_value": 3.0549964,
+          "peak_observed_at": "2026-04-18T16:00:00+12:00",
+          "threshold": 2.3474455899999978,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:pinehaven-reservoir-hourly-rainfall:3",
+          "series_id": "pinehaven-reservoir-hourly-rainfall",
+          "site": "Pinehaven Stream at Pinehaven Reservoir",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              175.00861682,
+              -41.15776221
+            ]
+          },
+          "starts_at": "2026-04-18T22:00:00+12:00",
+          "ends_at": "2026-04-18T23:00:00+12:00",
+          "evidence_count": 2,
+          "peak_value": 4.5509804,
+          "peak_observed_at": "2026-04-18T22:00:00+12:00",
+          "threshold": 2.3474455899999978,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:pinehaven-reservoir-hourly-rainfall:4",
+          "series_id": "pinehaven-reservoir-hourly-rainfall",
+          "site": "Pinehaven Stream at Pinehaven Reservoir",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              175.00861682,
+              -41.15776221
+            ]
+          },
+          "starts_at": "2026-04-20T04:00:00+12:00",
+          "ends_at": "2026-04-20T04:00:00+12:00",
+          "evidence_count": 1,
+          "peak_value": 3.6407391,
+          "peak_observed_at": "2026-04-20T03:00:00+12:00",
+          "threshold": 2.3474455899999978,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:pinehaven-reservoir-hourly-rainfall:5",
+          "series_id": "pinehaven-reservoir-hourly-rainfall",
+          "site": "Pinehaven Stream at Pinehaven Reservoir",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              175.00861682,
+              -41.15776221
+            ]
+          },
+          "starts_at": "2026-04-20T15:00:00+12:00",
+          "ends_at": "2026-04-20T15:00:00+12:00",
+          "evidence_count": 1,
+          "peak_value": 4.8145038,
+          "peak_observed_at": "2026-04-20T14:00:00+12:00",
+          "threshold": 2.3474455899999978,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:pinehaven-reservoir-hourly-rainfall:6",
+          "series_id": "pinehaven-reservoir-hourly-rainfall",
+          "site": "Pinehaven Stream at Pinehaven Reservoir",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              175.00861682,
+              -41.15776221
+            ]
+          },
+          "starts_at": "2026-04-20T21:00:00+12:00",
+          "ends_at": "2026-04-20T21:00:00+12:00",
+          "evidence_count": 1,
+          "peak_value": 2.6975758,
+          "peak_observed_at": "2026-04-20T20:00:00+12:00",
+          "threshold": 2.3474455899999978,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:pinehaven-reservoir-hourly-rainfall:7",
+          "series_id": "pinehaven-reservoir-hourly-rainfall",
+          "site": "Pinehaven Stream at Pinehaven Reservoir",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              175.00861682,
+              -41.15776221
+            ]
+          },
+          "starts_at": "2026-04-21T17:00:00+12:00",
+          "ends_at": "2026-04-21T17:00:00+12:00",
+          "evidence_count": 1,
+          "peak_value": 2.7152778,
+          "peak_observed_at": "2026-04-21T16:00:00+12:00",
+          "threshold": 2.3474455899999978,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        }
+      ]
+    },
+    {
+      "series_id": "wainui-reservoir-hourly-rainfall",
+      "site": "Wainuiomata River at Wainui Reservoir",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.9900481,
+          -41.26829647
+        ]
+      },
+      "baseline": {
+        "available_before": "2026-04-18T00:00:00+12:00",
+        "record_count": 407,
+        "median": 0.0,
+        "mad": 0.0,
+        "p99": 2.170588642,
+        "robust_scale": 0.0025775,
+        "threshold": 2.170588642
+      },
+      "evaluation_record_count": 119,
+      "candidate_count": 48,
+      "episode_count": 10,
+      "episodes": [
+        {
+          "id": "hydro-episode:wainui-reservoir-hourly-rainfall:1",
+          "series_id": "wainui-reservoir-hourly-rainfall",
+          "site": "Wainuiomata River at Wainui Reservoir",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.9900481,
+              -41.26829647
+            ]
+          },
+          "starts_at": "2026-04-18T04:00:00+12:00",
+          "ends_at": "2026-04-18T10:00:00+12:00",
+          "evidence_count": 6,
+          "peak_value": 5.815747,
+          "peak_observed_at": "2026-04-18T09:00:00+12:00",
+          "threshold": 2.170588642,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:wainui-reservoir-hourly-rainfall:2",
+          "series_id": "wainui-reservoir-hourly-rainfall",
+          "site": "Wainuiomata River at Wainui Reservoir",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.9900481,
+              -41.26829647
+            ]
+          },
+          "starts_at": "2026-04-18T17:00:00+12:00",
+          "ends_at": "2026-04-18T17:00:00+12:00",
+          "evidence_count": 1,
+          "peak_value": 2.4609186,
+          "peak_observed_at": "2026-04-18T16:00:00+12:00",
+          "threshold": 2.170588642,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:wainui-reservoir-hourly-rainfall:3",
+          "series_id": "wainui-reservoir-hourly-rainfall",
+          "site": "Wainuiomata River at Wainui Reservoir",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.9900481,
+              -41.26829647
+            ]
+          },
+          "starts_at": "2026-04-18T23:00:00+12:00",
+          "ends_at": "2026-04-18T23:00:00+12:00",
+          "evidence_count": 1,
+          "peak_value": 2.7440476,
+          "peak_observed_at": "2026-04-18T22:00:00+12:00",
+          "threshold": 2.170588642,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:wainui-reservoir-hourly-rainfall:4",
+          "series_id": "wainui-reservoir-hourly-rainfall",
+          "site": "Wainuiomata River at Wainui Reservoir",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.9900481,
+              -41.26829647
+            ]
+          },
+          "starts_at": "2026-04-20T09:00:00+12:00",
+          "ends_at": "2026-04-21T04:00:00+12:00",
+          "evidence_count": 20,
+          "peak_value": 22.442265,
+          "peak_observed_at": "2026-04-20T13:00:00+12:00",
+          "threshold": 2.170588642,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:wainui-reservoir-hourly-rainfall:5",
+          "series_id": "wainui-reservoir-hourly-rainfall",
+          "site": "Wainuiomata River at Wainui Reservoir",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.9900481,
+              -41.26829647
+            ]
+          },
+          "starts_at": "2026-04-21T08:00:00+12:00",
+          "ends_at": "2026-04-21T17:00:00+12:00",
+          "evidence_count": 9,
+          "peak_value": 5.898158,
+          "peak_observed_at": "2026-04-21T13:00:00+12:00",
+          "threshold": 2.170588642,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:wainui-reservoir-hourly-rainfall:6",
+          "series_id": "wainui-reservoir-hourly-rainfall",
+          "site": "Wainuiomata River at Wainui Reservoir",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.9900481,
+              -41.26829647
+            ]
+          },
+          "starts_at": "2026-04-21T20:00:00+12:00",
+          "ends_at": "2026-04-21T21:00:00+12:00",
+          "evidence_count": 2,
+          "peak_value": 6.4103774,
+          "peak_observed_at": "2026-04-21T20:00:00+12:00",
+          "threshold": 2.170588642,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:wainui-reservoir-hourly-rainfall:7",
+          "series_id": "wainui-reservoir-hourly-rainfall",
+          "site": "Wainuiomata River at Wainui Reservoir",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.9900481,
+              -41.26829647
+            ]
+          },
+          "starts_at": "2026-04-22T03:00:00+12:00",
+          "ends_at": "2026-04-22T03:00:00+12:00",
+          "evidence_count": 1,
+          "peak_value": 2.3425,
+          "peak_observed_at": "2026-04-22T02:00:00+12:00",
+          "threshold": 2.170588642,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:wainui-reservoir-hourly-rainfall:8",
+          "series_id": "wainui-reservoir-hourly-rainfall",
+          "site": "Wainuiomata River at Wainui Reservoir",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.9900481,
+              -41.26829647
+            ]
+          },
+          "starts_at": "2026-04-22T08:00:00+12:00",
+          "ends_at": "2026-04-22T13:00:00+12:00",
+          "evidence_count": 6,
+          "peak_value": 6.3977624,
+          "peak_observed_at": "2026-04-22T08:00:00+12:00",
+          "threshold": 2.170588642,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:wainui-reservoir-hourly-rainfall:9",
+          "series_id": "wainui-reservoir-hourly-rainfall",
+          "site": "Wainuiomata River at Wainui Reservoir",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.9900481,
+              -41.26829647
+            ]
+          },
+          "starts_at": "2026-04-22T16:00:00+12:00",
+          "ends_at": "2026-04-22T16:00:00+12:00",
+          "evidence_count": 1,
+          "peak_value": 4.0123077,
+          "peak_observed_at": "2026-04-22T15:00:00+12:00",
+          "threshold": 2.170588642,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:wainui-reservoir-hourly-rainfall:10",
+          "series_id": "wainui-reservoir-hourly-rainfall",
+          "site": "Wainuiomata River at Wainui Reservoir",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.9900481,
+              -41.26829647
+            ]
+          },
+          "starts_at": "2026-04-22T21:00:00+12:00",
+          "ends_at": "2026-04-22T21:00:00+12:00",
+          "evidence_count": 1,
+          "peak_value": 2.4,
+          "peak_observed_at": "2026-04-22T20:00:00+12:00",
+          "threshold": 2.170588642,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        }
+      ]
+    },
+    {
+      "series_id": "maymorn-hourly-rainfall",
+      "site": "Mangaroa River at Maymorn Pump Station",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          175.13157346,
+          -41.10811976
+        ]
+      },
+      "baseline": {
+        "available_before": "2026-04-18T00:00:00+12:00",
+        "record_count": 407,
+        "median": 0.0,
+        "mad": 0.0,
+        "p99": 2.591389976,
+        "robust_scale": 0.0007196000000000147,
+        "threshold": 2.591389976
+      },
+      "evaluation_record_count": 119,
+      "candidate_count": 17,
+      "episode_count": 7,
+      "episodes": [
+        {
+          "id": "hydro-episode:maymorn-hourly-rainfall:1",
+          "series_id": "maymorn-hourly-rainfall",
+          "site": "Mangaroa River at Maymorn Pump Station",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              175.13157346,
+              -41.10811976
+            ]
+          },
+          "starts_at": "2026-04-18T07:00:00+12:00",
+          "ends_at": "2026-04-18T11:00:00+12:00",
+          "evidence_count": 5,
+          "peak_value": 19.121333,
+          "peak_observed_at": "2026-04-18T08:00:00+12:00",
+          "threshold": 2.591389976,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:maymorn-hourly-rainfall:2",
+          "series_id": "maymorn-hourly-rainfall",
+          "site": "Mangaroa River at Maymorn Pump Station",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              175.13157346,
+              -41.10811976
+            ]
+          },
+          "starts_at": "2026-04-18T16:00:00+12:00",
+          "ends_at": "2026-04-18T16:00:00+12:00",
+          "evidence_count": 1,
+          "peak_value": 3.54936852,
+          "peak_observed_at": "2026-04-18T15:00:00+12:00",
+          "threshold": 2.591389976,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:maymorn-hourly-rainfall:3",
+          "series_id": "maymorn-hourly-rainfall",
+          "site": "Mangaroa River at Maymorn Pump Station",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              175.13157346,
+              -41.10811976
+            ]
+          },
+          "starts_at": "2026-04-18T23:00:00+12:00",
+          "ends_at": "2026-04-18T23:00:00+12:00",
+          "evidence_count": 1,
+          "peak_value": 3.398557,
+          "peak_observed_at": "2026-04-18T22:00:00+12:00",
+          "threshold": 2.591389976,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:maymorn-hourly-rainfall:4",
+          "series_id": "maymorn-hourly-rainfall",
+          "site": "Mangaroa River at Maymorn Pump Station",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              175.13157346,
+              -41.10811976
+            ]
+          },
+          "starts_at": "2026-04-20T15:00:00+12:00",
+          "ends_at": "2026-04-20T22:00:00+12:00",
+          "evidence_count": 7,
+          "peak_value": 14.2275501,
+          "peak_observed_at": "2026-04-20T18:00:00+12:00",
+          "threshold": 2.591389976,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:maymorn-hourly-rainfall:5",
+          "series_id": "maymorn-hourly-rainfall",
+          "site": "Mangaroa River at Maymorn Pump Station",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              175.13157346,
+              -41.10811976
+            ]
+          },
+          "starts_at": "2026-04-21T16:00:00+12:00",
+          "ends_at": "2026-04-21T16:00:00+12:00",
+          "evidence_count": 1,
+          "peak_value": 2.8212754,
+          "peak_observed_at": "2026-04-21T15:00:00+12:00",
+          "threshold": 2.591389976,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:maymorn-hourly-rainfall:6",
+          "series_id": "maymorn-hourly-rainfall",
+          "site": "Mangaroa River at Maymorn Pump Station",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              175.13157346,
+              -41.10811976
+            ]
+          },
+          "starts_at": "2026-04-21T22:00:00+12:00",
+          "ends_at": "2026-04-21T22:00:00+12:00",
+          "evidence_count": 1,
+          "peak_value": 3.8,
+          "peak_observed_at": "2026-04-21T21:00:00+12:00",
+          "threshold": 2.591389976,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:maymorn-hourly-rainfall:7",
+          "series_id": "maymorn-hourly-rainfall",
+          "site": "Mangaroa River at Maymorn Pump Station",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              175.13157346,
+              -41.10811976
+            ]
+          },
+          "starts_at": "2026-04-22T08:00:00+12:00",
+          "ends_at": "2026-04-22T08:00:00+12:00",
+          "evidence_count": 1,
+          "peak_value": 2.6758105,
+          "peak_observed_at": "2026-04-22T07:00:00+12:00",
+          "threshold": 2.591389976,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        }
+      ]
+    },
+    {
+      "series_id": "lake-kohangatera-hourly-rainfall",
+      "site": "Lake Kohangatera",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.86451878,
+          -41.37428665
+        ]
+      },
+      "baseline": {
+        "available_before": "2026-04-18T00:00:00+12:00",
+        "record_count": 407,
+        "median": 0.0,
+        "mad": 0.0,
+        "p99": 3.1391199999999997,
+        "robust_scale": 0.006965199999999977,
+        "threshold": 3.1391199999999997
+      },
+      "evaluation_record_count": 119,
+      "candidate_count": 7,
+      "episode_count": 4,
+      "episodes": [
+        {
+          "id": "hydro-episode:lake-kohangatera-hourly-rainfall:1",
+          "series_id": "lake-kohangatera-hourly-rainfall",
+          "site": "Lake Kohangatera",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.86451878,
+              -41.37428665
+            ]
+          },
+          "starts_at": "2026-04-18T08:00:00+12:00",
+          "ends_at": "2026-04-18T08:00:00+12:00",
+          "evidence_count": 1,
+          "peak_value": 3.4688848,
+          "peak_observed_at": "2026-04-18T07:00:00+12:00",
+          "threshold": 3.1391199999999997,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:lake-kohangatera-hourly-rainfall:2",
+          "series_id": "lake-kohangatera-hourly-rainfall",
+          "site": "Lake Kohangatera",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.86451878,
+              -41.37428665
+            ]
+          },
+          "starts_at": "2026-04-19T23:00:00+12:00",
+          "ends_at": "2026-04-20T00:00:00+12:00",
+          "evidence_count": 2,
+          "peak_value": 5.470792,
+          "peak_observed_at": "2026-04-19T23:00:00+12:00",
+          "threshold": 3.1391199999999997,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:lake-kohangatera-hourly-rainfall:3",
+          "series_id": "lake-kohangatera-hourly-rainfall",
+          "site": "Lake Kohangatera",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.86451878,
+              -41.37428665
+            ]
+          },
+          "starts_at": "2026-04-20T08:00:00+12:00",
+          "ends_at": "2026-04-20T08:00:00+12:00",
+          "evidence_count": 1,
+          "peak_value": 5.464463,
+          "peak_observed_at": "2026-04-20T07:00:00+12:00",
+          "threshold": 3.1391199999999997,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:lake-kohangatera-hourly-rainfall:4",
+          "series_id": "lake-kohangatera-hourly-rainfall",
+          "site": "Lake Kohangatera",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.86451878,
+              -41.37428665
+            ]
+          },
+          "starts_at": "2026-04-20T12:00:00+12:00",
+          "ends_at": "2026-04-20T14:00:00+12:00",
+          "evidence_count": 3,
+          "peak_value": 8.228567,
+          "peak_observed_at": "2026-04-20T11:00:00+12:00",
+          "threshold": 3.1391199999999997,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        }
+      ]
+    },
+    {
+      "series_id": "kaitoke-headworks-hourly-rainfall",
+      "site": "Hutt River at Kaitoke Headworks",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          175.18640867,
+          -41.05844383
+        ]
+      },
+      "baseline": {
+        "available_before": "2026-04-18T00:00:00+12:00",
+        "record_count": 407,
+        "median": 0.0,
+        "mad": 0.0,
+        "p99": 3.002402358,
+        "robust_scale": 0.0019490000000000063,
+        "threshold": 3.002402358
+      },
+      "evaluation_record_count": 119,
+      "candidate_count": 27,
+      "episode_count": 5,
+      "episodes": [
+        {
+          "id": "hydro-episode:kaitoke-headworks-hourly-rainfall:1",
+          "series_id": "kaitoke-headworks-hourly-rainfall",
+          "site": "Hutt River at Kaitoke Headworks",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              175.18640867,
+              -41.05844383
+            ]
+          },
+          "starts_at": "2026-04-18T05:00:00+12:00",
+          "ends_at": "2026-04-18T05:00:00+12:00",
+          "evidence_count": 1,
+          "peak_value": 4.1184615,
+          "peak_observed_at": "2026-04-18T04:00:00+12:00",
+          "threshold": 3.002402358,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:kaitoke-headworks-hourly-rainfall:2",
+          "series_id": "kaitoke-headworks-hourly-rainfall",
+          "site": "Hutt River at Kaitoke Headworks",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              175.18640867,
+              -41.05844383
+            ]
+          },
+          "starts_at": "2026-04-18T09:00:00+12:00",
+          "ends_at": "2026-04-18T12:00:00+12:00",
+          "evidence_count": 4,
+          "peak_value": 9.624482,
+          "peak_observed_at": "2026-04-18T10:00:00+12:00",
+          "threshold": 3.002402358,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:kaitoke-headworks-hourly-rainfall:3",
+          "series_id": "kaitoke-headworks-hourly-rainfall",
+          "site": "Hutt River at Kaitoke Headworks",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              175.18640867,
+              -41.05844383
+            ]
+          },
+          "starts_at": "2026-04-18T15:00:00+12:00",
+          "ends_at": "2026-04-18T23:00:00+12:00",
+          "evidence_count": 9,
+          "peak_value": 6.1303897,
+          "peak_observed_at": "2026-04-18T20:00:00+12:00",
+          "threshold": 3.002402358,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:kaitoke-headworks-hourly-rainfall:4",
+          "series_id": "kaitoke-headworks-hourly-rainfall",
+          "site": "Hutt River at Kaitoke Headworks",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              175.18640867,
+              -41.05844383
+            ]
+          },
+          "starts_at": "2026-04-20T14:00:00+12:00",
+          "ends_at": "2026-04-21T01:00:00+12:00",
+          "evidence_count": 12,
+          "peak_value": 23.838808,
+          "peak_observed_at": "2026-04-20T14:00:00+12:00",
+          "threshold": 3.002402358,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:kaitoke-headworks-hourly-rainfall:5",
+          "series_id": "kaitoke-headworks-hourly-rainfall",
+          "site": "Hutt River at Kaitoke Headworks",
+          "measurement": "Rainfall Running Hourly Totals",
+          "unit": "mm",
+          "domain": "rainfall",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              175.18640867,
+              -41.05844383
+            ]
+          },
+          "starts_at": "2026-04-21T16:00:00+12:00",
+          "ends_at": "2026-04-21T16:00:00+12:00",
+          "evidence_count": 1,
+          "peak_value": 3.627887,
+          "peak_observed_at": "2026-04-21T15:00:00+12:00",
+          "threshold": 3.002402358,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        }
+      ]
+    },
+    {
+      "series_id": "hutt-river-birchville-flow",
+      "site": "Hutt River at Birchville",
+      "measurement": "Flow",
+      "unit": "m³/sec",
+      "domain": "river_flow",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          175.09076014,
+          -41.10017595
+        ]
+      },
+      "baseline": {
+        "available_before": "2026-04-18T00:00:00+12:00",
+        "record_count": 4895,
+        "median": 4.394038,
+        "mad": 0.8229093000000001,
+        "p99": 36.17745762000018,
+        "robust_scale": 1.22004532818,
+        "threshold": 36.17745762000018
+      },
+      "evaluation_record_count": 1439,
+      "candidate_count": 1090,
+      "episode_count": 2,
+      "episodes": [
+        {
+          "id": "hydro-episode:hutt-river-birchville-flow:1",
+          "series_id": "hutt-river-birchville-flow",
+          "site": "Hutt River at Birchville",
+          "measurement": "Flow",
+          "unit": "m³/sec",
+          "domain": "river_flow",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              175.09076014,
+              -41.10017595
+            ]
+          },
+          "starts_at": "2026-04-18T08:40:00+12:00",
+          "ends_at": "2026-04-19T18:45:00+12:00",
+          "evidence_count": 409,
+          "peak_value": 192.379207,
+          "peak_observed_at": "2026-04-18T13:40:00+12:00",
+          "threshold": 36.17745762000018,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:hutt-river-birchville-flow:2",
+          "series_id": "hutt-river-birchville-flow",
+          "site": "Hutt River at Birchville",
+          "measurement": "Flow",
+          "unit": "m³/sec",
+          "domain": "river_flow",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              175.09076014,
+              -41.10017595
+            ]
+          },
+          "starts_at": "2026-04-20T15:15:00+12:00",
+          "ends_at": "2026-04-22T23:55:00+12:00",
+          "evidence_count": 681,
+          "peak_value": 447.06402,
+          "peak_observed_at": "2026-04-20T20:00:00+12:00",
+          "threshold": 36.17745762000018,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        }
+      ]
+    },
+    {
+      "series_id": "hutt-river-kaitoke-flow",
+      "site": "Hutt River at Kaitoke",
+      "measurement": "Flow",
+      "unit": "m³/sec",
+      "domain": "river_flow",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          175.19123118,
+          -41.05101129
+        ]
+      },
+      "baseline": {
+        "available_before": "2026-04-18T00:00:00+12:00",
+        "record_count": 4895,
+        "median": 1.608,
+        "mad": 0.38092000000000015,
+        "p99": 14.094692000000016,
+        "robust_scale": 0.5647519920000001,
+        "threshold": 14.094692000000016
+      },
+      "evaluation_record_count": 1439,
+      "candidate_count": 949,
+      "episode_count": 2,
+      "episodes": [
+        {
+          "id": "hydro-episode:hutt-river-kaitoke-flow:1",
+          "series_id": "hutt-river-kaitoke-flow",
+          "site": "Hutt River at Kaitoke",
+          "measurement": "Flow",
+          "unit": "m³/sec",
+          "domain": "river_flow",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              175.19123118,
+              -41.05101129
+            ]
+          },
+          "starts_at": "2026-04-18T11:30:00+12:00",
+          "ends_at": "2026-04-19T10:20:00+12:00",
+          "evidence_count": 275,
+          "peak_value": 78.9874052,
+          "peak_observed_at": "2026-04-18T18:00:00+12:00",
+          "threshold": 14.094692000000016,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:hutt-river-kaitoke-flow:2",
+          "series_id": "hutt-river-kaitoke-flow",
+          "site": "Hutt River at Kaitoke",
+          "measurement": "Flow",
+          "unit": "m³/sec",
+          "domain": "river_flow",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              175.19123118,
+              -41.05101129
+            ]
+          },
+          "starts_at": "2026-04-20T15:50:00+12:00",
+          "ends_at": "2026-04-22T23:55:00+12:00",
+          "evidence_count": 674,
+          "peak_value": 188.435847,
+          "peak_observed_at": "2026-04-20T18:05:00+12:00",
+          "threshold": 14.094692000000016,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        }
+      ]
+    },
+    {
+      "series_id": "porirua-town-centre-flow",
+      "site": "Porirua Stream at Town Centre",
+      "measurement": "Flow",
+      "unit": "m³/sec",
+      "domain": "river_flow",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.84296268,
+          -41.14093271
+        ]
+      },
+      "baseline": {
+        "available_before": "2026-04-18T00:00:00+12:00",
+        "record_count": 4872,
+        "median": 0.2396687,
+        "mad": 0.03183230000000001,
+        "p99": 6.1652157939999945,
+        "robust_scale": 0.04719456798000001,
+        "threshold": 6.1652157939999945
+      },
+      "evaluation_record_count": 1439,
+      "candidate_count": 325,
+      "episode_count": 4,
+      "episodes": [
+        {
+          "id": "hydro-episode:porirua-town-centre-flow:1",
+          "series_id": "porirua-town-centre-flow",
+          "site": "Porirua Stream at Town Centre",
+          "measurement": "Flow",
+          "unit": "m³/sec",
+          "domain": "river_flow",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.84296268,
+              -41.14093271
+            ]
+          },
+          "starts_at": "2026-04-18T08:05:00+12:00",
+          "ends_at": "2026-04-18T08:40:00+12:00",
+          "evidence_count": 8,
+          "peak_value": 7.794145,
+          "peak_observed_at": "2026-04-18T08:15:00+12:00",
+          "threshold": 6.1652157939999945,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:porirua-town-centre-flow:2",
+          "series_id": "porirua-town-centre-flow",
+          "site": "Porirua Stream at Town Centre",
+          "measurement": "Flow",
+          "unit": "m³/sec",
+          "domain": "river_flow",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.84296268,
+              -41.14093271
+            ]
+          },
+          "starts_at": "2026-04-19T12:40:00+12:00",
+          "ends_at": "2026-04-19T15:30:00+12:00",
+          "evidence_count": 35,
+          "peak_value": 20.152902,
+          "peak_observed_at": "2026-04-19T13:20:00+12:00",
+          "threshold": 6.1652157939999945,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:porirua-town-centre-flow:3",
+          "series_id": "porirua-town-centre-flow",
+          "site": "Porirua Stream at Town Centre",
+          "measurement": "Flow",
+          "unit": "m³/sec",
+          "domain": "river_flow",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.84296268,
+              -41.14093271
+            ]
+          },
+          "starts_at": "2026-04-20T06:35:00+12:00",
+          "ends_at": "2026-04-20T10:15:00+12:00",
+          "evidence_count": 45,
+          "peak_value": 14.18276,
+          "peak_observed_at": "2026-04-20T08:20:00+12:00",
+          "threshold": 6.1652157939999945,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:porirua-town-centre-flow:4",
+          "series_id": "porirua-town-centre-flow",
+          "site": "Porirua Stream at Town Centre",
+          "measurement": "Flow",
+          "unit": "m³/sec",
+          "domain": "river_flow",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.84296268,
+              -41.14093271
+            ]
+          },
+          "starts_at": "2026-04-20T11:05:00+12:00",
+          "ends_at": "2026-04-21T06:45:00+12:00",
+          "evidence_count": 237,
+          "peak_value": 45.217285,
+          "peak_observed_at": "2026-04-20T14:35:00+12:00",
+          "threshold": 6.1652157939999945,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        }
+      ]
+    },
+    {
+      "series_id": "wainuiomata-leonard-wood-flow",
+      "site": "Wainuiomata River at Leonard Wood Park",
+      "measurement": "Flow",
+      "unit": "m³/sec",
+      "domain": "river_flow",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.94738309,
+          -41.28400515
+        ]
+      },
+      "baseline": {
+        "available_before": "2026-04-18T00:00:00+12:00",
+        "record_count": 4752,
+        "median": 0.8509105,
+        "mad": 0.1110662,
+        "p99": 3.647951945,
+        "robust_scale": 0.16466674811999998,
+        "threshold": 3.647951945
+      },
+      "evaluation_record_count": 1439,
+      "candidate_count": 1116,
+      "episode_count": 4,
+      "episodes": [
+        {
+          "id": "hydro-episode:wainuiomata-leonard-wood-flow:1",
+          "series_id": "wainuiomata-leonard-wood-flow",
+          "site": "Wainuiomata River at Leonard Wood Park",
+          "measurement": "Flow",
+          "unit": "m³/sec",
+          "domain": "river_flow",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.94738309,
+              -41.28400515
+            ]
+          },
+          "starts_at": "2026-04-18T07:20:00+12:00",
+          "ends_at": "2026-04-19T10:20:00+12:00",
+          "evidence_count": 324,
+          "peak_value": 21.564895,
+          "peak_observed_at": "2026-04-18T12:05:00+12:00",
+          "threshold": 3.647951945,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:wainuiomata-leonard-wood-flow:2",
+          "series_id": "wainuiomata-leonard-wood-flow",
+          "site": "Wainuiomata River at Leonard Wood Park",
+          "measurement": "Flow",
+          "unit": "m³/sec",
+          "domain": "river_flow",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.94738309,
+              -41.28400515
+            ]
+          },
+          "starts_at": "2026-04-19T12:55:00+12:00",
+          "ends_at": "2026-04-19T15:20:00+12:00",
+          "evidence_count": 29,
+          "peak_value": 4.027082,
+          "peak_observed_at": "2026-04-19T13:20:00+12:00",
+          "threshold": 3.647951945,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:wainuiomata-leonard-wood-flow:3",
+          "series_id": "wainuiomata-leonard-wood-flow",
+          "site": "Wainuiomata River at Leonard Wood Park",
+          "measurement": "Flow",
+          "unit": "m³/sec",
+          "domain": "river_flow",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.94738309,
+              -41.28400515
+            ]
+          },
+          "starts_at": "2026-04-19T16:00:00+12:00",
+          "ends_at": "2026-04-19T16:00:00+12:00",
+          "evidence_count": 1,
+          "peak_value": 3.6798518,
+          "peak_observed_at": "2026-04-19T15:55:00+12:00",
+          "threshold": 3.647951945,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:wainuiomata-leonard-wood-flow:4",
+          "series_id": "wainuiomata-leonard-wood-flow",
+          "site": "Wainuiomata River at Leonard Wood Park",
+          "measurement": "Flow",
+          "unit": "m³/sec",
+          "domain": "river_flow",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.94738309,
+              -41.28400515
+            ]
+          },
+          "starts_at": "2026-04-20T08:30:00+12:00",
+          "ends_at": "2026-04-22T23:55:00+12:00",
+          "evidence_count": 762,
+          "peak_value": 72.9933,
+          "peak_observed_at": "2026-04-20T22:35:00+12:00",
+          "threshold": 3.647951945,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        }
+      ]
+    },
+    {
+      "series_id": "wainuiomata-manuka-track-flow",
+      "site": "Wainuiomata River at Manuka Track",
+      "measurement": "Flow",
+      "unit": "m³/sec",
+      "domain": "river_flow",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          175.00892684,
+          -41.25677265
+        ]
+      },
+      "baseline": {
+        "available_before": "2026-04-18T00:00:00+12:00",
+        "record_count": 4895,
+        "median": 0.2807633,
+        "mad": 0.018074900000000005,
+        "p99": 1.2955400900000045,
+        "robust_scale": 0.026797846740000006,
+        "threshold": 1.2955400900000045
+      },
+      "evaluation_record_count": 1439,
+      "candidate_count": 1353,
+      "episode_count": 1,
+      "episodes": [
+        {
+          "id": "hydro-episode:wainuiomata-manuka-track-flow:1",
+          "series_id": "wainuiomata-manuka-track-flow",
+          "site": "Wainuiomata River at Manuka Track",
+          "measurement": "Flow",
+          "unit": "m³/sec",
+          "domain": "river_flow",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              175.00892684,
+              -41.25677265
+            ]
+          },
+          "starts_at": "2026-04-18T07:15:00+12:00",
+          "ends_at": "2026-04-22T23:55:00+12:00",
+          "evidence_count": 1353,
+          "peak_value": 33.70994,
+          "peak_observed_at": "2026-04-20T21:45:00+12:00",
+          "threshold": 1.2955400900000045,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        }
+      ]
+    },
+    {
+      "series_id": "hutt-river-taita-flow",
+      "site": "Hutt River at Taita Gorge",
+      "measurement": "Flow",
+      "unit": "m³/sec",
+      "domain": "river_flow",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.984782,
+          -41.15660826
+        ]
+      },
+      "baseline": {
+        "available_before": "2026-04-18T00:00:00+12:00",
+        "record_count": 4895,
+        "median": 5.8719572,
+        "mad": 1.1801148000000001,
+        "p99": 37.746274800000116,
+        "robust_scale": 1.7496382024800001,
+        "threshold": 37.746274800000116
+      },
+      "evaluation_record_count": 1439,
+      "candidate_count": 1288,
+      "episode_count": 4,
+      "episodes": [
+        {
+          "id": "hydro-episode:hutt-river-taita-flow:1",
+          "series_id": "hutt-river-taita-flow",
+          "site": "Hutt River at Taita Gorge",
+          "measurement": "Flow",
+          "unit": "m³/sec",
+          "domain": "river_flow",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.984782,
+              -41.15660826
+            ]
+          },
+          "starts_at": "2026-04-18T08:20:00+12:00",
+          "ends_at": "2026-04-20T08:40:00+12:00",
+          "evidence_count": 581,
+          "peak_value": 236.21197,
+          "peak_observed_at": "2026-04-18T14:55:00+12:00",
+          "threshold": 37.746274800000116,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:hutt-river-taita-flow:2",
+          "series_id": "hutt-river-taita-flow",
+          "site": "Hutt River at Taita Gorge",
+          "measurement": "Flow",
+          "unit": "m³/sec",
+          "domain": "river_flow",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.984782,
+              -41.15660826
+            ]
+          },
+          "starts_at": "2026-04-20T09:30:00+12:00",
+          "ends_at": "2026-04-20T09:55:00+12:00",
+          "evidence_count": 6,
+          "peak_value": 37.824634,
+          "peak_observed_at": "2026-04-20T09:25:00+12:00",
+          "threshold": 37.746274800000116,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:hutt-river-taita-flow:3",
+          "series_id": "hutt-river-taita-flow",
+          "site": "Hutt River at Taita Gorge",
+          "measurement": "Flow",
+          "unit": "m³/sec",
+          "domain": "river_flow",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.984782,
+              -41.15660826
+            ]
+          },
+          "starts_at": "2026-04-20T10:30:00+12:00",
+          "ends_at": "2026-04-20T11:40:00+12:00",
+          "evidence_count": 15,
+          "peak_value": 38.208054,
+          "peak_observed_at": "2026-04-20T11:00:00+12:00",
+          "threshold": 37.746274800000116,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        },
+        {
+          "id": "hydro-episode:hutt-river-taita-flow:4",
+          "series_id": "hutt-river-taita-flow",
+          "site": "Hutt River at Taita Gorge",
+          "measurement": "Flow",
+          "unit": "m³/sec",
+          "domain": "river_flow",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              174.984782,
+              -41.15660826
+            ]
+          },
+          "starts_at": "2026-04-20T14:50:00+12:00",
+          "ends_at": "2026-04-22T23:55:00+12:00",
+          "evidence_count": 686,
+          "peak_value": 474.664,
+          "peak_observed_at": "2026-04-20T22:30:00+12:00",
+          "threshold": 37.746274800000116,
+          "decision_role": "investigation_only",
+          "incident_created": false
+        }
+      ]
+    }
+  ],
+  "episodes": [
+    {
+      "id": "hydro-episode:berhampore-hourly-rainfall:1",
+      "series_id": "berhampore-hourly-rainfall",
+      "site": "Berhampore at Nursery",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.77164659,
+          -41.32322479
+        ]
+      },
+      "starts_at": "2026-04-18T07:00:00+12:00",
+      "ends_at": "2026-04-18T07:00:00+12:00",
+      "evidence_count": 1,
+      "peak_value": 6.184397,
+      "peak_observed_at": "2026-04-18T06:00:00+12:00",
+      "threshold": 2.9408951999999977,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:berhampore-hourly-rainfall:2",
+      "series_id": "berhampore-hourly-rainfall",
+      "site": "Berhampore at Nursery",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.77164659,
+          -41.32322479
+        ]
+      },
+      "starts_at": "2026-04-18T17:00:00+12:00",
+      "ends_at": "2026-04-18T17:00:00+12:00",
+      "evidence_count": 1,
+      "peak_value": 5.6288355,
+      "peak_observed_at": "2026-04-18T16:00:00+12:00",
+      "threshold": 2.9408951999999977,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:berhampore-hourly-rainfall:3",
+      "series_id": "berhampore-hourly-rainfall",
+      "site": "Berhampore at Nursery",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.77164659,
+          -41.32322479
+        ]
+      },
+      "starts_at": "2026-04-18T20:00:00+12:00",
+      "ends_at": "2026-04-18T21:00:00+12:00",
+      "evidence_count": 2,
+      "peak_value": 4.33363,
+      "peak_observed_at": "2026-04-18T20:00:00+12:00",
+      "threshold": 2.9408951999999977,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:berhampore-hourly-rainfall:4",
+      "series_id": "berhampore-hourly-rainfall",
+      "site": "Berhampore at Nursery",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.77164659,
+          -41.32322479
+        ]
+      },
+      "starts_at": "2026-04-19T13:00:00+12:00",
+      "ends_at": "2026-04-19T13:00:00+12:00",
+      "evidence_count": 1,
+      "peak_value": 5.201728,
+      "peak_observed_at": "2026-04-19T12:00:00+12:00",
+      "threshold": 2.9408951999999977,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:berhampore-hourly-rainfall:5",
+      "series_id": "berhampore-hourly-rainfall",
+      "site": "Berhampore at Nursery",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.77164659,
+          -41.32322479
+        ]
+      },
+      "starts_at": "2026-04-20T00:00:00+12:00",
+      "ends_at": "2026-04-20T01:00:00+12:00",
+      "evidence_count": 2,
+      "peak_value": 5.471387,
+      "peak_observed_at": "2026-04-19T23:00:00+12:00",
+      "threshold": 2.9408951999999977,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:berhampore-hourly-rainfall:6",
+      "series_id": "berhampore-hourly-rainfall",
+      "site": "Berhampore at Nursery",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.77164659,
+          -41.32322479
+        ]
+      },
+      "starts_at": "2026-04-20T05:00:00+12:00",
+      "ends_at": "2026-04-20T06:00:00+12:00",
+      "evidence_count": 2,
+      "peak_value": 77.10347,
+      "peak_observed_at": "2026-04-20T04:00:00+12:00",
+      "threshold": 2.9408951999999977,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:berhampore-hourly-rainfall:7",
+      "series_id": "berhampore-hourly-rainfall",
+      "site": "Berhampore at Nursery",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.77164659,
+          -41.32322479
+        ]
+      },
+      "starts_at": "2026-04-20T12:00:00+12:00",
+      "ends_at": "2026-04-20T14:00:00+12:00",
+      "evidence_count": 3,
+      "peak_value": 6.9923105,
+      "peak_observed_at": "2026-04-20T13:00:00+12:00",
+      "threshold": 2.9408951999999977,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:berhampore-hourly-rainfall:8",
+      "series_id": "berhampore-hourly-rainfall",
+      "site": "Berhampore at Nursery",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.77164659,
+          -41.32322479
+        ]
+      },
+      "starts_at": "2026-04-21T12:00:00+12:00",
+      "ends_at": "2026-04-21T12:00:00+12:00",
+      "evidence_count": 1,
+      "peak_value": 3.4,
+      "peak_observed_at": "2026-04-21T11:00:00+12:00",
+      "threshold": 2.9408951999999977,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:newtown-hourly-rainfall:1",
+      "series_id": "newtown-hourly-rainfall",
+      "site": "Newtown at Carmichael Reservoir",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.78786302,
+          -41.31589434
+        ]
+      },
+      "starts_at": "2026-04-18T17:00:00+12:00",
+      "ends_at": "2026-04-18T17:00:00+12:00",
+      "evidence_count": 1,
+      "peak_value": 4.131448,
+      "peak_observed_at": "2026-04-18T16:00:00+12:00",
+      "threshold": 2.9639999999999986,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:newtown-hourly-rainfall:2",
+      "series_id": "newtown-hourly-rainfall",
+      "site": "Newtown at Carmichael Reservoir",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.78786302,
+          -41.31589434
+        ]
+      },
+      "starts_at": "2026-04-18T21:00:00+12:00",
+      "ends_at": "2026-04-18T21:00:00+12:00",
+      "evidence_count": 1,
+      "peak_value": 3.7476963,
+      "peak_observed_at": "2026-04-18T20:00:00+12:00",
+      "threshold": 2.9639999999999986,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:newtown-hourly-rainfall:3",
+      "series_id": "newtown-hourly-rainfall",
+      "site": "Newtown at Carmichael Reservoir",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.78786302,
+          -41.31589434
+        ]
+      },
+      "starts_at": "2026-04-19T13:00:00+12:00",
+      "ends_at": "2026-04-19T13:00:00+12:00",
+      "evidence_count": 1,
+      "peak_value": 4.6,
+      "peak_observed_at": "2026-04-19T12:00:00+12:00",
+      "threshold": 2.9639999999999986,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:newtown-hourly-rainfall:4",
+      "series_id": "newtown-hourly-rainfall",
+      "site": "Newtown at Carmichael Reservoir",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.78786302,
+          -41.31589434
+        ]
+      },
+      "starts_at": "2026-04-19T23:00:00+12:00",
+      "ends_at": "2026-04-20T00:00:00+12:00",
+      "evidence_count": 2,
+      "peak_value": 6.77620365,
+      "peak_observed_at": "2026-04-19T23:00:00+12:00",
+      "threshold": 2.9639999999999986,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:newtown-hourly-rainfall:5",
+      "series_id": "newtown-hourly-rainfall",
+      "site": "Newtown at Carmichael Reservoir",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.78786302,
+          -41.31589434
+        ]
+      },
+      "starts_at": "2026-04-20T03:00:00+12:00",
+      "ends_at": "2026-04-20T06:00:00+12:00",
+      "evidence_count": 3,
+      "peak_value": 36.03071,
+      "peak_observed_at": "2026-04-20T04:00:00+12:00",
+      "threshold": 2.9639999999999986,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:newtown-hourly-rainfall:6",
+      "series_id": "newtown-hourly-rainfall",
+      "site": "Newtown at Carmichael Reservoir",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.78786302,
+          -41.31589434
+        ]
+      },
+      "starts_at": "2026-04-20T12:00:00+12:00",
+      "ends_at": "2026-04-20T15:00:00+12:00",
+      "evidence_count": 4,
+      "peak_value": 7.66238838,
+      "peak_observed_at": "2026-04-20T13:00:00+12:00",
+      "threshold": 2.9639999999999986,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:newtown-hourly-rainfall:7",
+      "series_id": "newtown-hourly-rainfall",
+      "site": "Newtown at Carmichael Reservoir",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.78786302,
+          -41.31589434
+        ]
+      },
+      "starts_at": "2026-04-21T01:00:00+12:00",
+      "ends_at": "2026-04-21T02:00:00+12:00",
+      "evidence_count": 2,
+      "peak_value": 3.567855,
+      "peak_observed_at": "2026-04-21T00:00:00+12:00",
+      "threshold": 2.9639999999999986,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:newtown-hourly-rainfall:8",
+      "series_id": "newtown-hourly-rainfall",
+      "site": "Newtown at Carmichael Reservoir",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.78786302,
+          -41.31589434
+        ]
+      },
+      "starts_at": "2026-04-21T11:00:00+12:00",
+      "ends_at": "2026-04-21T11:00:00+12:00",
+      "evidence_count": 1,
+      "peak_value": 4.8406552,
+      "peak_observed_at": "2026-04-21T10:00:00+12:00",
+      "threshold": 2.9639999999999986,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:te-papa-hourly-rainfall:1",
+      "series_id": "te-papa-hourly-rainfall",
+      "site": "Wellington at Te Papa",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.7813241,
+          -41.29029822
+        ]
+      },
+      "starts_at": "2026-04-18T07:00:00+12:00",
+      "ends_at": "2026-04-18T07:00:00+12:00",
+      "evidence_count": 1,
+      "peak_value": 4.074809,
+      "peak_observed_at": "2026-04-18T06:00:00+12:00",
+      "threshold": 3.584467382239999,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:te-papa-hourly-rainfall:2",
+      "series_id": "te-papa-hourly-rainfall",
+      "site": "Wellington at Te Papa",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.7813241,
+          -41.29029822
+        ]
+      },
+      "starts_at": "2026-04-18T17:00:00+12:00",
+      "ends_at": "2026-04-18T17:00:00+12:00",
+      "evidence_count": 1,
+      "peak_value": 4.1606426,
+      "peak_observed_at": "2026-04-18T16:00:00+12:00",
+      "threshold": 3.584467382239999,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:te-papa-hourly-rainfall:3",
+      "series_id": "te-papa-hourly-rainfall",
+      "site": "Wellington at Te Papa",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.7813241,
+          -41.29029822
+        ]
+      },
+      "starts_at": "2026-04-18T21:00:00+12:00",
+      "ends_at": "2026-04-18T21:00:00+12:00",
+      "evidence_count": 1,
+      "peak_value": 3.9929532,
+      "peak_observed_at": "2026-04-18T20:00:00+12:00",
+      "threshold": 3.584467382239999,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:te-papa-hourly-rainfall:4",
+      "series_id": "te-papa-hourly-rainfall",
+      "site": "Wellington at Te Papa",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.7813241,
+          -41.29029822
+        ]
+      },
+      "starts_at": "2026-04-19T13:00:00+12:00",
+      "ends_at": "2026-04-19T13:00:00+12:00",
+      "evidence_count": 1,
+      "peak_value": 4.7493562,
+      "peak_observed_at": "2026-04-19T12:00:00+12:00",
+      "threshold": 3.584467382239999,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:te-papa-hourly-rainfall:5",
+      "series_id": "te-papa-hourly-rainfall",
+      "site": "Wellington at Te Papa",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.7813241,
+          -41.29029822
+        ]
+      },
+      "starts_at": "2026-04-20T00:00:00+12:00",
+      "ends_at": "2026-04-20T00:00:00+12:00",
+      "evidence_count": 1,
+      "peak_value": 3.5932295,
+      "peak_observed_at": "2026-04-19T23:00:00+12:00",
+      "threshold": 3.584467382239999,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:te-papa-hourly-rainfall:6",
+      "series_id": "te-papa-hourly-rainfall",
+      "site": "Wellington at Te Papa",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.7813241,
+          -41.29029822
+        ]
+      },
+      "starts_at": "2026-04-20T05:00:00+12:00",
+      "ends_at": "2026-04-20T06:00:00+12:00",
+      "evidence_count": 2,
+      "peak_value": 24.045052,
+      "peak_observed_at": "2026-04-20T05:00:00+12:00",
+      "threshold": 3.584467382239999,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:te-papa-hourly-rainfall:7",
+      "series_id": "te-papa-hourly-rainfall",
+      "site": "Wellington at Te Papa",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.7813241,
+          -41.29029822
+        ]
+      },
+      "starts_at": "2026-04-20T12:00:00+12:00",
+      "ends_at": "2026-04-20T15:00:00+12:00",
+      "evidence_count": 4,
+      "peak_value": 6.452264,
+      "peak_observed_at": "2026-04-20T13:00:00+12:00",
+      "threshold": 3.584467382239999,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:te-papa-hourly-rainfall:8",
+      "series_id": "te-papa-hourly-rainfall",
+      "site": "Wellington at Te Papa",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.7813241,
+          -41.29029822
+        ]
+      },
+      "starts_at": "2026-04-21T11:00:00+12:00",
+      "ends_at": "2026-04-21T11:00:00+12:00",
+      "evidence_count": 1,
+      "peak_value": 4.374012,
+      "peak_observed_at": "2026-04-21T10:00:00+12:00",
+      "threshold": 3.584467382239999,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:karori-reservoir-hourly-rainfall:1",
+      "series_id": "karori-reservoir-hourly-rainfall",
+      "site": "Kaiwharawhara Stream at Karori Reservoir",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.75321612,
+          -41.29089198
+        ]
+      },
+      "starts_at": "2026-04-18T07:00:00+12:00",
+      "ends_at": "2026-04-18T07:00:00+12:00",
+      "evidence_count": 1,
+      "peak_value": 5.154023,
+      "peak_observed_at": "2026-04-18T06:00:00+12:00",
+      "threshold": 2.9867878559999985,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:karori-reservoir-hourly-rainfall:2",
+      "series_id": "karori-reservoir-hourly-rainfall",
+      "site": "Kaiwharawhara Stream at Karori Reservoir",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.75321612,
+          -41.29089198
+        ]
+      },
+      "starts_at": "2026-04-18T17:00:00+12:00",
+      "ends_at": "2026-04-18T17:00:00+12:00",
+      "evidence_count": 1,
+      "peak_value": 6.1027692,
+      "peak_observed_at": "2026-04-18T16:00:00+12:00",
+      "threshold": 2.9867878559999985,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:karori-reservoir-hourly-rainfall:3",
+      "series_id": "karori-reservoir-hourly-rainfall",
+      "site": "Kaiwharawhara Stream at Karori Reservoir",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.75321612,
+          -41.29089198
+        ]
+      },
+      "starts_at": "2026-04-18T20:00:00+12:00",
+      "ends_at": "2026-04-18T21:00:00+12:00",
+      "evidence_count": 2,
+      "peak_value": 4.3173913,
+      "peak_observed_at": "2026-04-18T19:00:00+12:00",
+      "threshold": 2.9867878559999985,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:karori-reservoir-hourly-rainfall:4",
+      "series_id": "karori-reservoir-hourly-rainfall",
+      "site": "Kaiwharawhara Stream at Karori Reservoir",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.75321612,
+          -41.29089198
+        ]
+      },
+      "starts_at": "2026-04-19T12:00:00+12:00",
+      "ends_at": "2026-04-19T13:00:00+12:00",
+      "evidence_count": 2,
+      "peak_value": 10.05,
+      "peak_observed_at": "2026-04-19T12:00:00+12:00",
+      "threshold": 2.9867878559999985,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:karori-reservoir-hourly-rainfall:5",
+      "series_id": "karori-reservoir-hourly-rainfall",
+      "site": "Kaiwharawhara Stream at Karori Reservoir",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.75321612,
+          -41.29089198
+        ]
+      },
+      "starts_at": "2026-04-20T05:00:00+12:00",
+      "ends_at": "2026-04-20T08:00:00+12:00",
+      "evidence_count": 3,
+      "peak_value": 30.61179,
+      "peak_observed_at": "2026-04-20T04:00:00+12:00",
+      "threshold": 2.9867878559999985,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:karori-reservoir-hourly-rainfall:6",
+      "series_id": "karori-reservoir-hourly-rainfall",
+      "site": "Kaiwharawhara Stream at Karori Reservoir",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.75321612,
+          -41.29089198
+        ]
+      },
+      "starts_at": "2026-04-20T12:00:00+12:00",
+      "ends_at": "2026-04-20T15:00:00+12:00",
+      "evidence_count": 4,
+      "peak_value": 8.059914,
+      "peak_observed_at": "2026-04-20T13:00:00+12:00",
+      "threshold": 2.9867878559999985,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:karori-reservoir-hourly-rainfall:7",
+      "series_id": "karori-reservoir-hourly-rainfall",
+      "site": "Kaiwharawhara Stream at Karori Reservoir",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.75321612,
+          -41.29089198
+        ]
+      },
+      "starts_at": "2026-04-20T19:00:00+12:00",
+      "ends_at": "2026-04-20T19:00:00+12:00",
+      "evidence_count": 1,
+      "peak_value": 3.4166667,
+      "peak_observed_at": "2026-04-20T18:00:00+12:00",
+      "threshold": 2.9867878559999985,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:seton-nossiter-hourly-rainfall:1",
+      "series_id": "seton-nossiter-hourly-rainfall",
+      "site": "Porirua Stream at Seton Nossiter Park",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.81638169,
+          -41.20957672
+        ]
+      },
+      "starts_at": "2026-04-18T05:00:00+12:00",
+      "ends_at": "2026-04-18T05:00:00+12:00",
+      "evidence_count": 1,
+      "peak_value": 6.503226,
+      "peak_observed_at": "2026-04-18T04:00:00+12:00",
+      "threshold": 3.163999999999999,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:seton-nossiter-hourly-rainfall:2",
+      "series_id": "seton-nossiter-hourly-rainfall",
+      "site": "Porirua Stream at Seton Nossiter Park",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.81638169,
+          -41.20957672
+        ]
+      },
+      "starts_at": "2026-04-18T08:00:00+12:00",
+      "ends_at": "2026-04-18T08:00:00+12:00",
+      "evidence_count": 1,
+      "peak_value": 4.076923,
+      "peak_observed_at": "2026-04-18T07:00:00+12:00",
+      "threshold": 3.163999999999999,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:seton-nossiter-hourly-rainfall:3",
+      "series_id": "seton-nossiter-hourly-rainfall",
+      "site": "Porirua Stream at Seton Nossiter Park",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.81638169,
+          -41.20957672
+        ]
+      },
+      "starts_at": "2026-04-18T17:00:00+12:00",
+      "ends_at": "2026-04-18T17:00:00+12:00",
+      "evidence_count": 1,
+      "peak_value": 3.3527815,
+      "peak_observed_at": "2026-04-18T16:00:00+12:00",
+      "threshold": 3.163999999999999,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:seton-nossiter-hourly-rainfall:4",
+      "series_id": "seton-nossiter-hourly-rainfall",
+      "site": "Porirua Stream at Seton Nossiter Park",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.81638169,
+          -41.20957672
+        ]
+      },
+      "starts_at": "2026-04-19T13:00:00+12:00",
+      "ends_at": "2026-04-19T13:00:00+12:00",
+      "evidence_count": 1,
+      "peak_value": 5.4,
+      "peak_observed_at": "2026-04-19T12:00:00+12:00",
+      "threshold": 3.163999999999999,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:seton-nossiter-hourly-rainfall:5",
+      "series_id": "seton-nossiter-hourly-rainfall",
+      "site": "Porirua Stream at Seton Nossiter Park",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.81638169,
+          -41.20957672
+        ]
+      },
+      "starts_at": "2026-04-19T23:00:00+12:00",
+      "ends_at": "2026-04-19T23:00:00+12:00",
+      "evidence_count": 1,
+      "peak_value": 3.3125882,
+      "peak_observed_at": "2026-04-19T22:00:00+12:00",
+      "threshold": 3.163999999999999,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:seton-nossiter-hourly-rainfall:6",
+      "series_id": "seton-nossiter-hourly-rainfall",
+      "site": "Porirua Stream at Seton Nossiter Park",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.81638169,
+          -41.20957672
+        ]
+      },
+      "starts_at": "2026-04-20T07:00:00+12:00",
+      "ends_at": "2026-04-20T09:00:00+12:00",
+      "evidence_count": 3,
+      "peak_value": 4.5422535,
+      "peak_observed_at": "2026-04-20T08:00:00+12:00",
+      "threshold": 3.163999999999999,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:seton-nossiter-hourly-rainfall:7",
+      "series_id": "seton-nossiter-hourly-rainfall",
+      "site": "Porirua Stream at Seton Nossiter Park",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.81638169,
+          -41.20957672
+        ]
+      },
+      "starts_at": "2026-04-20T12:00:00+12:00",
+      "ends_at": "2026-04-20T15:00:00+12:00",
+      "evidence_count": 4,
+      "peak_value": 10.281887,
+      "peak_observed_at": "2026-04-20T14:00:00+12:00",
+      "threshold": 3.163999999999999,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:birch-lane-hourly-rainfall:1",
+      "series_id": "birch-lane-hourly-rainfall",
+      "site": "Hutt River at Birch Lane",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.92087073,
+          -41.21260048
+        ]
+      },
+      "starts_at": "2026-04-18T04:00:00+12:00",
+      "ends_at": "2026-04-18T10:00:00+12:00",
+      "evidence_count": 6,
+      "peak_value": 5.820442,
+      "peak_observed_at": "2026-04-18T06:00:00+12:00",
+      "threshold": 2.206558098,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:birch-lane-hourly-rainfall:2",
+      "series_id": "birch-lane-hourly-rainfall",
+      "site": "Hutt River at Birch Lane",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.92087073,
+          -41.21260048
+        ]
+      },
+      "starts_at": "2026-04-18T22:00:00+12:00",
+      "ends_at": "2026-04-18T22:00:00+12:00",
+      "evidence_count": 1,
+      "peak_value": 2.4194928,
+      "peak_observed_at": "2026-04-18T21:00:00+12:00",
+      "threshold": 2.206558098,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:birch-lane-hourly-rainfall:3",
+      "series_id": "birch-lane-hourly-rainfall",
+      "site": "Hutt River at Birch Lane",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.92087073,
+          -41.21260048
+        ]
+      },
+      "starts_at": "2026-04-20T12:00:00+12:00",
+      "ends_at": "2026-04-20T21:00:00+12:00",
+      "evidence_count": 9,
+      "peak_value": 10.811525,
+      "peak_observed_at": "2026-04-20T14:00:00+12:00",
+      "threshold": 2.206558098,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:birch-lane-hourly-rainfall:4",
+      "series_id": "birch-lane-hourly-rainfall",
+      "site": "Hutt River at Birch Lane",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.92087073,
+          -41.21260048
+        ]
+      },
+      "starts_at": "2026-04-21T21:00:00+12:00",
+      "ends_at": "2026-04-21T21:00:00+12:00",
+      "evidence_count": 1,
+      "peak_value": 2.3998977,
+      "peak_observed_at": "2026-04-21T20:00:00+12:00",
+      "threshold": 2.206558098,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:savage-park-hourly-rainfall:1",
+      "series_id": "savage-park-hourly-rainfall",
+      "site": "Hutt River at Savage Park",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          175.07035545,
+          -41.12154048
+        ]
+      },
+      "starts_at": "2026-04-18T04:00:00+12:00",
+      "ends_at": "2026-04-18T11:00:00+12:00",
+      "evidence_count": 8,
+      "peak_value": 21.4736,
+      "peak_observed_at": "2026-04-18T07:00:00+12:00",
+      "threshold": 1.7923157999999997,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:savage-park-hourly-rainfall:2",
+      "series_id": "savage-park-hourly-rainfall",
+      "site": "Hutt River at Savage Park",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          175.07035545,
+          -41.12154048
+        ]
+      },
+      "starts_at": "2026-04-18T15:00:00+12:00",
+      "ends_at": "2026-04-18T18:00:00+12:00",
+      "evidence_count": 4,
+      "peak_value": 5.3586746,
+      "peak_observed_at": "2026-04-18T15:00:00+12:00",
+      "threshold": 1.7923157999999997,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:savage-park-hourly-rainfall:3",
+      "series_id": "savage-park-hourly-rainfall",
+      "site": "Hutt River at Savage Park",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          175.07035545,
+          -41.12154048
+        ]
+      },
+      "starts_at": "2026-04-18T22:00:00+12:00",
+      "ends_at": "2026-04-18T23:00:00+12:00",
+      "evidence_count": 2,
+      "peak_value": 4.540835,
+      "peak_observed_at": "2026-04-18T22:00:00+12:00",
+      "threshold": 1.7923157999999997,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:savage-park-hourly-rainfall:4",
+      "series_id": "savage-park-hourly-rainfall",
+      "site": "Hutt River at Savage Park",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          175.07035545,
+          -41.12154048
+        ]
+      },
+      "starts_at": "2026-04-19T22:00:00+12:00",
+      "ends_at": "2026-04-19T23:00:00+12:00",
+      "evidence_count": 2,
+      "peak_value": 2.3068182,
+      "peak_observed_at": "2026-04-19T21:00:00+12:00",
+      "threshold": 1.7923157999999997,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:savage-park-hourly-rainfall:5",
+      "series_id": "savage-park-hourly-rainfall",
+      "site": "Hutt River at Savage Park",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          175.07035545,
+          -41.12154048
+        ]
+      },
+      "starts_at": "2026-04-20T15:00:00+12:00",
+      "ends_at": "2026-04-20T22:00:00+12:00",
+      "evidence_count": 8,
+      "peak_value": 7.912538,
+      "peak_observed_at": "2026-04-20T18:00:00+12:00",
+      "threshold": 1.7923157999999997,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:savage-park-hourly-rainfall:6",
+      "series_id": "savage-park-hourly-rainfall",
+      "site": "Hutt River at Savage Park",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          175.07035545,
+          -41.12154048
+        ]
+      },
+      "starts_at": "2026-04-21T16:00:00+12:00",
+      "ends_at": "2026-04-21T16:00:00+12:00",
+      "evidence_count": 1,
+      "peak_value": 2.4104676,
+      "peak_observed_at": "2026-04-21T15:00:00+12:00",
+      "threshold": 1.7923157999999997,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:savage-park-hourly-rainfall:7",
+      "series_id": "savage-park-hourly-rainfall",
+      "site": "Hutt River at Savage Park",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          175.07035545,
+          -41.12154048
+        ]
+      },
+      "starts_at": "2026-04-22T09:00:00+12:00",
+      "ends_at": "2026-04-22T09:00:00+12:00",
+      "evidence_count": 1,
+      "peak_value": 2.209836,
+      "peak_observed_at": "2026-04-22T08:00:00+12:00",
+      "threshold": 1.7923157999999997,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:pinehaven-reservoir-hourly-rainfall:1",
+      "series_id": "pinehaven-reservoir-hourly-rainfall",
+      "site": "Pinehaven Stream at Pinehaven Reservoir",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          175.00861682,
+          -41.15776221
+        ]
+      },
+      "starts_at": "2026-04-18T05:00:00+12:00",
+      "ends_at": "2026-04-18T11:00:00+12:00",
+      "evidence_count": 6,
+      "peak_value": 28.153148,
+      "peak_observed_at": "2026-04-18T09:00:00+12:00",
+      "threshold": 2.3474455899999978,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:pinehaven-reservoir-hourly-rainfall:2",
+      "series_id": "pinehaven-reservoir-hourly-rainfall",
+      "site": "Pinehaven Stream at Pinehaven Reservoir",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          175.00861682,
+          -41.15776221
+        ]
+      },
+      "starts_at": "2026-04-18T16:00:00+12:00",
+      "ends_at": "2026-04-18T17:00:00+12:00",
+      "evidence_count": 2,
+      "peak_value": 3.0549964,
+      "peak_observed_at": "2026-04-18T16:00:00+12:00",
+      "threshold": 2.3474455899999978,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:pinehaven-reservoir-hourly-rainfall:3",
+      "series_id": "pinehaven-reservoir-hourly-rainfall",
+      "site": "Pinehaven Stream at Pinehaven Reservoir",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          175.00861682,
+          -41.15776221
+        ]
+      },
+      "starts_at": "2026-04-18T22:00:00+12:00",
+      "ends_at": "2026-04-18T23:00:00+12:00",
+      "evidence_count": 2,
+      "peak_value": 4.5509804,
+      "peak_observed_at": "2026-04-18T22:00:00+12:00",
+      "threshold": 2.3474455899999978,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:pinehaven-reservoir-hourly-rainfall:4",
+      "series_id": "pinehaven-reservoir-hourly-rainfall",
+      "site": "Pinehaven Stream at Pinehaven Reservoir",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          175.00861682,
+          -41.15776221
+        ]
+      },
+      "starts_at": "2026-04-20T04:00:00+12:00",
+      "ends_at": "2026-04-20T04:00:00+12:00",
+      "evidence_count": 1,
+      "peak_value": 3.6407391,
+      "peak_observed_at": "2026-04-20T03:00:00+12:00",
+      "threshold": 2.3474455899999978,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:pinehaven-reservoir-hourly-rainfall:5",
+      "series_id": "pinehaven-reservoir-hourly-rainfall",
+      "site": "Pinehaven Stream at Pinehaven Reservoir",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          175.00861682,
+          -41.15776221
+        ]
+      },
+      "starts_at": "2026-04-20T15:00:00+12:00",
+      "ends_at": "2026-04-20T15:00:00+12:00",
+      "evidence_count": 1,
+      "peak_value": 4.8145038,
+      "peak_observed_at": "2026-04-20T14:00:00+12:00",
+      "threshold": 2.3474455899999978,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:pinehaven-reservoir-hourly-rainfall:6",
+      "series_id": "pinehaven-reservoir-hourly-rainfall",
+      "site": "Pinehaven Stream at Pinehaven Reservoir",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          175.00861682,
+          -41.15776221
+        ]
+      },
+      "starts_at": "2026-04-20T21:00:00+12:00",
+      "ends_at": "2026-04-20T21:00:00+12:00",
+      "evidence_count": 1,
+      "peak_value": 2.6975758,
+      "peak_observed_at": "2026-04-20T20:00:00+12:00",
+      "threshold": 2.3474455899999978,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:pinehaven-reservoir-hourly-rainfall:7",
+      "series_id": "pinehaven-reservoir-hourly-rainfall",
+      "site": "Pinehaven Stream at Pinehaven Reservoir",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          175.00861682,
+          -41.15776221
+        ]
+      },
+      "starts_at": "2026-04-21T17:00:00+12:00",
+      "ends_at": "2026-04-21T17:00:00+12:00",
+      "evidence_count": 1,
+      "peak_value": 2.7152778,
+      "peak_observed_at": "2026-04-21T16:00:00+12:00",
+      "threshold": 2.3474455899999978,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:wainui-reservoir-hourly-rainfall:1",
+      "series_id": "wainui-reservoir-hourly-rainfall",
+      "site": "Wainuiomata River at Wainui Reservoir",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.9900481,
+          -41.26829647
+        ]
+      },
+      "starts_at": "2026-04-18T04:00:00+12:00",
+      "ends_at": "2026-04-18T10:00:00+12:00",
+      "evidence_count": 6,
+      "peak_value": 5.815747,
+      "peak_observed_at": "2026-04-18T09:00:00+12:00",
+      "threshold": 2.170588642,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:wainui-reservoir-hourly-rainfall:2",
+      "series_id": "wainui-reservoir-hourly-rainfall",
+      "site": "Wainuiomata River at Wainui Reservoir",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.9900481,
+          -41.26829647
+        ]
+      },
+      "starts_at": "2026-04-18T17:00:00+12:00",
+      "ends_at": "2026-04-18T17:00:00+12:00",
+      "evidence_count": 1,
+      "peak_value": 2.4609186,
+      "peak_observed_at": "2026-04-18T16:00:00+12:00",
+      "threshold": 2.170588642,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:wainui-reservoir-hourly-rainfall:3",
+      "series_id": "wainui-reservoir-hourly-rainfall",
+      "site": "Wainuiomata River at Wainui Reservoir",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.9900481,
+          -41.26829647
+        ]
+      },
+      "starts_at": "2026-04-18T23:00:00+12:00",
+      "ends_at": "2026-04-18T23:00:00+12:00",
+      "evidence_count": 1,
+      "peak_value": 2.7440476,
+      "peak_observed_at": "2026-04-18T22:00:00+12:00",
+      "threshold": 2.170588642,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:wainui-reservoir-hourly-rainfall:4",
+      "series_id": "wainui-reservoir-hourly-rainfall",
+      "site": "Wainuiomata River at Wainui Reservoir",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.9900481,
+          -41.26829647
+        ]
+      },
+      "starts_at": "2026-04-20T09:00:00+12:00",
+      "ends_at": "2026-04-21T04:00:00+12:00",
+      "evidence_count": 20,
+      "peak_value": 22.442265,
+      "peak_observed_at": "2026-04-20T13:00:00+12:00",
+      "threshold": 2.170588642,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:wainui-reservoir-hourly-rainfall:5",
+      "series_id": "wainui-reservoir-hourly-rainfall",
+      "site": "Wainuiomata River at Wainui Reservoir",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.9900481,
+          -41.26829647
+        ]
+      },
+      "starts_at": "2026-04-21T08:00:00+12:00",
+      "ends_at": "2026-04-21T17:00:00+12:00",
+      "evidence_count": 9,
+      "peak_value": 5.898158,
+      "peak_observed_at": "2026-04-21T13:00:00+12:00",
+      "threshold": 2.170588642,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:wainui-reservoir-hourly-rainfall:6",
+      "series_id": "wainui-reservoir-hourly-rainfall",
+      "site": "Wainuiomata River at Wainui Reservoir",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.9900481,
+          -41.26829647
+        ]
+      },
+      "starts_at": "2026-04-21T20:00:00+12:00",
+      "ends_at": "2026-04-21T21:00:00+12:00",
+      "evidence_count": 2,
+      "peak_value": 6.4103774,
+      "peak_observed_at": "2026-04-21T20:00:00+12:00",
+      "threshold": 2.170588642,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:wainui-reservoir-hourly-rainfall:7",
+      "series_id": "wainui-reservoir-hourly-rainfall",
+      "site": "Wainuiomata River at Wainui Reservoir",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.9900481,
+          -41.26829647
+        ]
+      },
+      "starts_at": "2026-04-22T03:00:00+12:00",
+      "ends_at": "2026-04-22T03:00:00+12:00",
+      "evidence_count": 1,
+      "peak_value": 2.3425,
+      "peak_observed_at": "2026-04-22T02:00:00+12:00",
+      "threshold": 2.170588642,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:wainui-reservoir-hourly-rainfall:8",
+      "series_id": "wainui-reservoir-hourly-rainfall",
+      "site": "Wainuiomata River at Wainui Reservoir",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.9900481,
+          -41.26829647
+        ]
+      },
+      "starts_at": "2026-04-22T08:00:00+12:00",
+      "ends_at": "2026-04-22T13:00:00+12:00",
+      "evidence_count": 6,
+      "peak_value": 6.3977624,
+      "peak_observed_at": "2026-04-22T08:00:00+12:00",
+      "threshold": 2.170588642,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:wainui-reservoir-hourly-rainfall:9",
+      "series_id": "wainui-reservoir-hourly-rainfall",
+      "site": "Wainuiomata River at Wainui Reservoir",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.9900481,
+          -41.26829647
+        ]
+      },
+      "starts_at": "2026-04-22T16:00:00+12:00",
+      "ends_at": "2026-04-22T16:00:00+12:00",
+      "evidence_count": 1,
+      "peak_value": 4.0123077,
+      "peak_observed_at": "2026-04-22T15:00:00+12:00",
+      "threshold": 2.170588642,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:wainui-reservoir-hourly-rainfall:10",
+      "series_id": "wainui-reservoir-hourly-rainfall",
+      "site": "Wainuiomata River at Wainui Reservoir",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.9900481,
+          -41.26829647
+        ]
+      },
+      "starts_at": "2026-04-22T21:00:00+12:00",
+      "ends_at": "2026-04-22T21:00:00+12:00",
+      "evidence_count": 1,
+      "peak_value": 2.4,
+      "peak_observed_at": "2026-04-22T20:00:00+12:00",
+      "threshold": 2.170588642,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:maymorn-hourly-rainfall:1",
+      "series_id": "maymorn-hourly-rainfall",
+      "site": "Mangaroa River at Maymorn Pump Station",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          175.13157346,
+          -41.10811976
+        ]
+      },
+      "starts_at": "2026-04-18T07:00:00+12:00",
+      "ends_at": "2026-04-18T11:00:00+12:00",
+      "evidence_count": 5,
+      "peak_value": 19.121333,
+      "peak_observed_at": "2026-04-18T08:00:00+12:00",
+      "threshold": 2.591389976,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:maymorn-hourly-rainfall:2",
+      "series_id": "maymorn-hourly-rainfall",
+      "site": "Mangaroa River at Maymorn Pump Station",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          175.13157346,
+          -41.10811976
+        ]
+      },
+      "starts_at": "2026-04-18T16:00:00+12:00",
+      "ends_at": "2026-04-18T16:00:00+12:00",
+      "evidence_count": 1,
+      "peak_value": 3.54936852,
+      "peak_observed_at": "2026-04-18T15:00:00+12:00",
+      "threshold": 2.591389976,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:maymorn-hourly-rainfall:3",
+      "series_id": "maymorn-hourly-rainfall",
+      "site": "Mangaroa River at Maymorn Pump Station",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          175.13157346,
+          -41.10811976
+        ]
+      },
+      "starts_at": "2026-04-18T23:00:00+12:00",
+      "ends_at": "2026-04-18T23:00:00+12:00",
+      "evidence_count": 1,
+      "peak_value": 3.398557,
+      "peak_observed_at": "2026-04-18T22:00:00+12:00",
+      "threshold": 2.591389976,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:maymorn-hourly-rainfall:4",
+      "series_id": "maymorn-hourly-rainfall",
+      "site": "Mangaroa River at Maymorn Pump Station",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          175.13157346,
+          -41.10811976
+        ]
+      },
+      "starts_at": "2026-04-20T15:00:00+12:00",
+      "ends_at": "2026-04-20T22:00:00+12:00",
+      "evidence_count": 7,
+      "peak_value": 14.2275501,
+      "peak_observed_at": "2026-04-20T18:00:00+12:00",
+      "threshold": 2.591389976,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:maymorn-hourly-rainfall:5",
+      "series_id": "maymorn-hourly-rainfall",
+      "site": "Mangaroa River at Maymorn Pump Station",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          175.13157346,
+          -41.10811976
+        ]
+      },
+      "starts_at": "2026-04-21T16:00:00+12:00",
+      "ends_at": "2026-04-21T16:00:00+12:00",
+      "evidence_count": 1,
+      "peak_value": 2.8212754,
+      "peak_observed_at": "2026-04-21T15:00:00+12:00",
+      "threshold": 2.591389976,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:maymorn-hourly-rainfall:6",
+      "series_id": "maymorn-hourly-rainfall",
+      "site": "Mangaroa River at Maymorn Pump Station",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          175.13157346,
+          -41.10811976
+        ]
+      },
+      "starts_at": "2026-04-21T22:00:00+12:00",
+      "ends_at": "2026-04-21T22:00:00+12:00",
+      "evidence_count": 1,
+      "peak_value": 3.8,
+      "peak_observed_at": "2026-04-21T21:00:00+12:00",
+      "threshold": 2.591389976,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:maymorn-hourly-rainfall:7",
+      "series_id": "maymorn-hourly-rainfall",
+      "site": "Mangaroa River at Maymorn Pump Station",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          175.13157346,
+          -41.10811976
+        ]
+      },
+      "starts_at": "2026-04-22T08:00:00+12:00",
+      "ends_at": "2026-04-22T08:00:00+12:00",
+      "evidence_count": 1,
+      "peak_value": 2.6758105,
+      "peak_observed_at": "2026-04-22T07:00:00+12:00",
+      "threshold": 2.591389976,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:lake-kohangatera-hourly-rainfall:1",
+      "series_id": "lake-kohangatera-hourly-rainfall",
+      "site": "Lake Kohangatera",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.86451878,
+          -41.37428665
+        ]
+      },
+      "starts_at": "2026-04-18T08:00:00+12:00",
+      "ends_at": "2026-04-18T08:00:00+12:00",
+      "evidence_count": 1,
+      "peak_value": 3.4688848,
+      "peak_observed_at": "2026-04-18T07:00:00+12:00",
+      "threshold": 3.1391199999999997,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:lake-kohangatera-hourly-rainfall:2",
+      "series_id": "lake-kohangatera-hourly-rainfall",
+      "site": "Lake Kohangatera",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.86451878,
+          -41.37428665
+        ]
+      },
+      "starts_at": "2026-04-19T23:00:00+12:00",
+      "ends_at": "2026-04-20T00:00:00+12:00",
+      "evidence_count": 2,
+      "peak_value": 5.470792,
+      "peak_observed_at": "2026-04-19T23:00:00+12:00",
+      "threshold": 3.1391199999999997,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:lake-kohangatera-hourly-rainfall:3",
+      "series_id": "lake-kohangatera-hourly-rainfall",
+      "site": "Lake Kohangatera",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.86451878,
+          -41.37428665
+        ]
+      },
+      "starts_at": "2026-04-20T08:00:00+12:00",
+      "ends_at": "2026-04-20T08:00:00+12:00",
+      "evidence_count": 1,
+      "peak_value": 5.464463,
+      "peak_observed_at": "2026-04-20T07:00:00+12:00",
+      "threshold": 3.1391199999999997,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:lake-kohangatera-hourly-rainfall:4",
+      "series_id": "lake-kohangatera-hourly-rainfall",
+      "site": "Lake Kohangatera",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.86451878,
+          -41.37428665
+        ]
+      },
+      "starts_at": "2026-04-20T12:00:00+12:00",
+      "ends_at": "2026-04-20T14:00:00+12:00",
+      "evidence_count": 3,
+      "peak_value": 8.228567,
+      "peak_observed_at": "2026-04-20T11:00:00+12:00",
+      "threshold": 3.1391199999999997,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:kaitoke-headworks-hourly-rainfall:1",
+      "series_id": "kaitoke-headworks-hourly-rainfall",
+      "site": "Hutt River at Kaitoke Headworks",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          175.18640867,
+          -41.05844383
+        ]
+      },
+      "starts_at": "2026-04-18T05:00:00+12:00",
+      "ends_at": "2026-04-18T05:00:00+12:00",
+      "evidence_count": 1,
+      "peak_value": 4.1184615,
+      "peak_observed_at": "2026-04-18T04:00:00+12:00",
+      "threshold": 3.002402358,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:kaitoke-headworks-hourly-rainfall:2",
+      "series_id": "kaitoke-headworks-hourly-rainfall",
+      "site": "Hutt River at Kaitoke Headworks",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          175.18640867,
+          -41.05844383
+        ]
+      },
+      "starts_at": "2026-04-18T09:00:00+12:00",
+      "ends_at": "2026-04-18T12:00:00+12:00",
+      "evidence_count": 4,
+      "peak_value": 9.624482,
+      "peak_observed_at": "2026-04-18T10:00:00+12:00",
+      "threshold": 3.002402358,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:kaitoke-headworks-hourly-rainfall:3",
+      "series_id": "kaitoke-headworks-hourly-rainfall",
+      "site": "Hutt River at Kaitoke Headworks",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          175.18640867,
+          -41.05844383
+        ]
+      },
+      "starts_at": "2026-04-18T15:00:00+12:00",
+      "ends_at": "2026-04-18T23:00:00+12:00",
+      "evidence_count": 9,
+      "peak_value": 6.1303897,
+      "peak_observed_at": "2026-04-18T20:00:00+12:00",
+      "threshold": 3.002402358,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:kaitoke-headworks-hourly-rainfall:4",
+      "series_id": "kaitoke-headworks-hourly-rainfall",
+      "site": "Hutt River at Kaitoke Headworks",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          175.18640867,
+          -41.05844383
+        ]
+      },
+      "starts_at": "2026-04-20T14:00:00+12:00",
+      "ends_at": "2026-04-21T01:00:00+12:00",
+      "evidence_count": 12,
+      "peak_value": 23.838808,
+      "peak_observed_at": "2026-04-20T14:00:00+12:00",
+      "threshold": 3.002402358,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:kaitoke-headworks-hourly-rainfall:5",
+      "series_id": "kaitoke-headworks-hourly-rainfall",
+      "site": "Hutt River at Kaitoke Headworks",
+      "measurement": "Rainfall Running Hourly Totals",
+      "unit": "mm",
+      "domain": "rainfall",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          175.18640867,
+          -41.05844383
+        ]
+      },
+      "starts_at": "2026-04-21T16:00:00+12:00",
+      "ends_at": "2026-04-21T16:00:00+12:00",
+      "evidence_count": 1,
+      "peak_value": 3.627887,
+      "peak_observed_at": "2026-04-21T15:00:00+12:00",
+      "threshold": 3.002402358,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:hutt-river-birchville-flow:1",
+      "series_id": "hutt-river-birchville-flow",
+      "site": "Hutt River at Birchville",
+      "measurement": "Flow",
+      "unit": "m³/sec",
+      "domain": "river_flow",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          175.09076014,
+          -41.10017595
+        ]
+      },
+      "starts_at": "2026-04-18T08:40:00+12:00",
+      "ends_at": "2026-04-19T18:45:00+12:00",
+      "evidence_count": 409,
+      "peak_value": 192.379207,
+      "peak_observed_at": "2026-04-18T13:40:00+12:00",
+      "threshold": 36.17745762000018,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:hutt-river-birchville-flow:2",
+      "series_id": "hutt-river-birchville-flow",
+      "site": "Hutt River at Birchville",
+      "measurement": "Flow",
+      "unit": "m³/sec",
+      "domain": "river_flow",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          175.09076014,
+          -41.10017595
+        ]
+      },
+      "starts_at": "2026-04-20T15:15:00+12:00",
+      "ends_at": "2026-04-22T23:55:00+12:00",
+      "evidence_count": 681,
+      "peak_value": 447.06402,
+      "peak_observed_at": "2026-04-20T20:00:00+12:00",
+      "threshold": 36.17745762000018,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:hutt-river-kaitoke-flow:1",
+      "series_id": "hutt-river-kaitoke-flow",
+      "site": "Hutt River at Kaitoke",
+      "measurement": "Flow",
+      "unit": "m³/sec",
+      "domain": "river_flow",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          175.19123118,
+          -41.05101129
+        ]
+      },
+      "starts_at": "2026-04-18T11:30:00+12:00",
+      "ends_at": "2026-04-19T10:20:00+12:00",
+      "evidence_count": 275,
+      "peak_value": 78.9874052,
+      "peak_observed_at": "2026-04-18T18:00:00+12:00",
+      "threshold": 14.094692000000016,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:hutt-river-kaitoke-flow:2",
+      "series_id": "hutt-river-kaitoke-flow",
+      "site": "Hutt River at Kaitoke",
+      "measurement": "Flow",
+      "unit": "m³/sec",
+      "domain": "river_flow",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          175.19123118,
+          -41.05101129
+        ]
+      },
+      "starts_at": "2026-04-20T15:50:00+12:00",
+      "ends_at": "2026-04-22T23:55:00+12:00",
+      "evidence_count": 674,
+      "peak_value": 188.435847,
+      "peak_observed_at": "2026-04-20T18:05:00+12:00",
+      "threshold": 14.094692000000016,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:porirua-town-centre-flow:1",
+      "series_id": "porirua-town-centre-flow",
+      "site": "Porirua Stream at Town Centre",
+      "measurement": "Flow",
+      "unit": "m³/sec",
+      "domain": "river_flow",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.84296268,
+          -41.14093271
+        ]
+      },
+      "starts_at": "2026-04-18T08:05:00+12:00",
+      "ends_at": "2026-04-18T08:40:00+12:00",
+      "evidence_count": 8,
+      "peak_value": 7.794145,
+      "peak_observed_at": "2026-04-18T08:15:00+12:00",
+      "threshold": 6.1652157939999945,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:porirua-town-centre-flow:2",
+      "series_id": "porirua-town-centre-flow",
+      "site": "Porirua Stream at Town Centre",
+      "measurement": "Flow",
+      "unit": "m³/sec",
+      "domain": "river_flow",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.84296268,
+          -41.14093271
+        ]
+      },
+      "starts_at": "2026-04-19T12:40:00+12:00",
+      "ends_at": "2026-04-19T15:30:00+12:00",
+      "evidence_count": 35,
+      "peak_value": 20.152902,
+      "peak_observed_at": "2026-04-19T13:20:00+12:00",
+      "threshold": 6.1652157939999945,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:porirua-town-centre-flow:3",
+      "series_id": "porirua-town-centre-flow",
+      "site": "Porirua Stream at Town Centre",
+      "measurement": "Flow",
+      "unit": "m³/sec",
+      "domain": "river_flow",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.84296268,
+          -41.14093271
+        ]
+      },
+      "starts_at": "2026-04-20T06:35:00+12:00",
+      "ends_at": "2026-04-20T10:15:00+12:00",
+      "evidence_count": 45,
+      "peak_value": 14.18276,
+      "peak_observed_at": "2026-04-20T08:20:00+12:00",
+      "threshold": 6.1652157939999945,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:porirua-town-centre-flow:4",
+      "series_id": "porirua-town-centre-flow",
+      "site": "Porirua Stream at Town Centre",
+      "measurement": "Flow",
+      "unit": "m³/sec",
+      "domain": "river_flow",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.84296268,
+          -41.14093271
+        ]
+      },
+      "starts_at": "2026-04-20T11:05:00+12:00",
+      "ends_at": "2026-04-21T06:45:00+12:00",
+      "evidence_count": 237,
+      "peak_value": 45.217285,
+      "peak_observed_at": "2026-04-20T14:35:00+12:00",
+      "threshold": 6.1652157939999945,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:wainuiomata-leonard-wood-flow:1",
+      "series_id": "wainuiomata-leonard-wood-flow",
+      "site": "Wainuiomata River at Leonard Wood Park",
+      "measurement": "Flow",
+      "unit": "m³/sec",
+      "domain": "river_flow",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.94738309,
+          -41.28400515
+        ]
+      },
+      "starts_at": "2026-04-18T07:20:00+12:00",
+      "ends_at": "2026-04-19T10:20:00+12:00",
+      "evidence_count": 324,
+      "peak_value": 21.564895,
+      "peak_observed_at": "2026-04-18T12:05:00+12:00",
+      "threshold": 3.647951945,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:wainuiomata-leonard-wood-flow:2",
+      "series_id": "wainuiomata-leonard-wood-flow",
+      "site": "Wainuiomata River at Leonard Wood Park",
+      "measurement": "Flow",
+      "unit": "m³/sec",
+      "domain": "river_flow",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.94738309,
+          -41.28400515
+        ]
+      },
+      "starts_at": "2026-04-19T12:55:00+12:00",
+      "ends_at": "2026-04-19T15:20:00+12:00",
+      "evidence_count": 29,
+      "peak_value": 4.027082,
+      "peak_observed_at": "2026-04-19T13:20:00+12:00",
+      "threshold": 3.647951945,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:wainuiomata-leonard-wood-flow:3",
+      "series_id": "wainuiomata-leonard-wood-flow",
+      "site": "Wainuiomata River at Leonard Wood Park",
+      "measurement": "Flow",
+      "unit": "m³/sec",
+      "domain": "river_flow",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.94738309,
+          -41.28400515
+        ]
+      },
+      "starts_at": "2026-04-19T16:00:00+12:00",
+      "ends_at": "2026-04-19T16:00:00+12:00",
+      "evidence_count": 1,
+      "peak_value": 3.6798518,
+      "peak_observed_at": "2026-04-19T15:55:00+12:00",
+      "threshold": 3.647951945,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:wainuiomata-leonard-wood-flow:4",
+      "series_id": "wainuiomata-leonard-wood-flow",
+      "site": "Wainuiomata River at Leonard Wood Park",
+      "measurement": "Flow",
+      "unit": "m³/sec",
+      "domain": "river_flow",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.94738309,
+          -41.28400515
+        ]
+      },
+      "starts_at": "2026-04-20T08:30:00+12:00",
+      "ends_at": "2026-04-22T23:55:00+12:00",
+      "evidence_count": 762,
+      "peak_value": 72.9933,
+      "peak_observed_at": "2026-04-20T22:35:00+12:00",
+      "threshold": 3.647951945,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:wainuiomata-manuka-track-flow:1",
+      "series_id": "wainuiomata-manuka-track-flow",
+      "site": "Wainuiomata River at Manuka Track",
+      "measurement": "Flow",
+      "unit": "m³/sec",
+      "domain": "river_flow",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          175.00892684,
+          -41.25677265
+        ]
+      },
+      "starts_at": "2026-04-18T07:15:00+12:00",
+      "ends_at": "2026-04-22T23:55:00+12:00",
+      "evidence_count": 1353,
+      "peak_value": 33.70994,
+      "peak_observed_at": "2026-04-20T21:45:00+12:00",
+      "threshold": 1.2955400900000045,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:hutt-river-taita-flow:1",
+      "series_id": "hutt-river-taita-flow",
+      "site": "Hutt River at Taita Gorge",
+      "measurement": "Flow",
+      "unit": "m³/sec",
+      "domain": "river_flow",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.984782,
+          -41.15660826
+        ]
+      },
+      "starts_at": "2026-04-18T08:20:00+12:00",
+      "ends_at": "2026-04-20T08:40:00+12:00",
+      "evidence_count": 581,
+      "peak_value": 236.21197,
+      "peak_observed_at": "2026-04-18T14:55:00+12:00",
+      "threshold": 37.746274800000116,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:hutt-river-taita-flow:2",
+      "series_id": "hutt-river-taita-flow",
+      "site": "Hutt River at Taita Gorge",
+      "measurement": "Flow",
+      "unit": "m³/sec",
+      "domain": "river_flow",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.984782,
+          -41.15660826
+        ]
+      },
+      "starts_at": "2026-04-20T09:30:00+12:00",
+      "ends_at": "2026-04-20T09:55:00+12:00",
+      "evidence_count": 6,
+      "peak_value": 37.824634,
+      "peak_observed_at": "2026-04-20T09:25:00+12:00",
+      "threshold": 37.746274800000116,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:hutt-river-taita-flow:3",
+      "series_id": "hutt-river-taita-flow",
+      "site": "Hutt River at Taita Gorge",
+      "measurement": "Flow",
+      "unit": "m³/sec",
+      "domain": "river_flow",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.984782,
+          -41.15660826
+        ]
+      },
+      "starts_at": "2026-04-20T10:30:00+12:00",
+      "ends_at": "2026-04-20T11:40:00+12:00",
+      "evidence_count": 15,
+      "peak_value": 38.208054,
+      "peak_observed_at": "2026-04-20T11:00:00+12:00",
+      "threshold": 37.746274800000116,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    },
+    {
+      "id": "hydro-episode:hutt-river-taita-flow:4",
+      "series_id": "hutt-river-taita-flow",
+      "site": "Hutt River at Taita Gorge",
+      "measurement": "Flow",
+      "unit": "m³/sec",
+      "domain": "river_flow",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          174.984782,
+          -41.15660826
+        ]
+      },
+      "starts_at": "2026-04-20T14:50:00+12:00",
+      "ends_at": "2026-04-22T23:55:00+12:00",
+      "evidence_count": 686,
+      "peak_value": 474.664,
+      "peak_observed_at": "2026-04-20T22:30:00+12:00",
+      "threshold": 37.746274800000116,
+      "decision_role": "investigation_only",
+      "incident_created": false
+    }
+  ],
+  "decision_policy": {
+    "role": "investigation_only",
+    "automatic_incident": false,
+    "automatic_warning": false,
+    "human_review_required": true
+  }
+}

@@ -170,6 +170,10 @@ test("builds an available-at-safe April sensor replay for the selected investiga
     new URL("../public/cop/v4/april-storm-hilltop-observations.json", import.meta.url),
     "utf8",
   ));
+  const detectorPack = JSON.parse(await readFile(
+    new URL("../public/cop/v4/april-storm-hydro-detector.json", import.meta.url),
+    "utf8",
+  ));
   const investigation = {
     id: "wellington-april-storm-2026",
     title: "April Storm · 18–22 Apr 2026",
@@ -177,12 +181,14 @@ test("builds an available-at-safe April sensor replay for the selected investiga
     starts_at: "2026-04-18T00:00:00+12:00",
     as_of: "2026-04-22T23:59:59+12:00",
   };
-  const dataset = replayDataWorkspace.buildSensorReplayDataset(pack, investigation);
+  const dataset = replayDataWorkspace.buildSensorReplayDataset(pack, investigation, detectorPack);
 
   assert.equal(dataset.kind, "sensor");
-  assert.equal(dataset.total_record_count, 1683);
-  assert.equal(dataset.playable_record_count, 1677);
-  assert.equal(dataset.series.length, 3);
+  assert.equal(dataset.total_record_count, 10098);
+  assert.equal(dataset.playable_record_count, 10062);
+  assert.equal(dataset.series.length, 18);
+  assert.deepEqual(dataset.layer_groups.map(({ id }) => id), ["rainfall", "river-flow", "detector-candidates"]);
+  assert.ok(dataset.detector_candidate_count > 0);
   assert.equal(dataset.slots.length, 1439);
   assert.equal(dataset.available_from, "2026-04-18T00:05:00+12:00");
   assert.equal(dataset.available_to, "2026-04-22T23:55:00+12:00");
@@ -211,6 +217,13 @@ test("filters Replay sensor layers without changing the source frame", () => {
     visibleSeriesIds: new Set(readings.map(({ series_id }) => series_id)),
     measurementFilter: "flow",
   }).map(({ id }) => id), ["flow:hutt:1"]);
+  assert.deepEqual(replayDataWorkspace.filterSensorReplayReadings([
+    ...readings,
+    { id: "rain:alert:1", series_id: "rain:berhampore", measurement: "Rainfall", detector_candidate: true },
+  ], {
+    visibleSeriesIds: new Set(["rain:berhampore", "rain:newtown", "flow:hutt"]),
+    measurementFilter: "anomaly",
+  }).map(({ id }) => id), ["rain:alert:1"]);
 });
 
 test("updates a Replay sensor selection from a captured checkbox value", () => {
@@ -222,6 +235,18 @@ test("updates a Replay sensor selection from a captured checkbox value", () => {
   assert.deepEqual([...hidden], ["rain:berhampore"]);
   assert.deepEqual([...restored], ["rain:berhampore", "flow:hutt"]);
   assert.deepEqual([...original], ["rain:berhampore", "flow:hutt"]);
+});
+
+test("keeps April movement and official-impact layers operator-controlled", async () => {
+  const component = await readFile(
+    new URL("../app/components/SensorReplayCanvas.tsx", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(component, /aria-label="Toggle official impact evidence"/);
+  assert.match(component, /aria-pressed=\{showMovementOutcomes\}/);
+  assert.match(component, /fetch\("\/cop\/v4\/april-storm-movement-outcomes\.json"\)/);
+  assert.match(component, /evidence_weight: 0/);
 });
 
 test("keeps mobile Replay controls clear of the fixed operator navigation", async () => {

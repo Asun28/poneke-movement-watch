@@ -253,7 +253,7 @@ test("lets an operator select April Storm or create a local Replay investigation
   assert.match(replay, /<label[^>]*>.*Investigation/s);
   assert.match(replay, /name="investigation"/);
   assert.match(replay, /April Storm · 18–22 Apr 2026/);
-  assert.match(replay, /1,683 sensor records/);
+  assert.match(replay, /10,098 sensor records/);
   assert.match(replay, /August movement review · 1–6 Aug 2026/);
   assert.doesNotMatch(replay, />Open investigation</);
   assert.match(replay, />New investigation</);

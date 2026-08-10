@@ -971,3 +971,51 @@
 - 2026-08-11: Published validated commit `9a20684` only to the private Sites source, saved version 53
   and completed the owner-only production deployment at the existing URL. The temporary archive was
   removed; GitHub `origin` and remote `main` were not changed.
+
+# Phase 45 — April hydro-weather evidence enrichment
+
+- 2026-08-11: Started the April evidence enrichment. Restored project state and audited the model
+  boundary: 1,683 official Hilltop records are already packaged, while the only fitted model is the
+  unrelated movement expert. Scope is now additional official hydro sensors plus a pre-event-only
+  robust detector, never a cross-domain or post-event-trained model.
+- 2026-08-11: Confirmed the existing pack schema and peaks: 121 hourly rows each for Berhampore and
+  Newtown rainfall, plus 1,441 five-minute Hutt flow rows. `agent-reach` is not installed, so source
+  discovery continues through official web results and direct provider endpoints.
+- 2026-08-11: Official-source review confirms Hilltop is the correct historical authority and that
+  materially more rainfall, flow and antecedent-condition sites exist. Candidate series will be
+  probed individually for April coverage and freshness before entering the pack.
+- 2026-08-11: Direct Hilltop site-list verification returned HTTP 200 from the current GWRC server.
+  The generic web reader could not open these parameterized endpoints, so bounded provider requests
+  are now the authoritative retrieval path.
+- 2026-08-11: Retrieved the user-specified telemetry contract through GitHub's read-only API. It
+  confirms the WGS84 site list, exact flow-site name join, measurement-specific units and the need
+  to reject Hilltop `<Error>` bodies even when HTTP status is 200.
+- 2026-08-11: Enumerated the rainfall viewer's three mutually exclusive current-state layers:
+  34 dry, 7 latest-rain and 27 six-hour-total points at audit time. The first bounded multi-site
+  measurement probe had a PowerShell pipeline syntax error and will be retried with explicit rows.
+- 2026-08-11: Raw measurement-list inspection identified the correct nested XML schema after an
+  empty-path parse. The next probe will select only datasource/measurement pairs whose declared time
+  range covers the pre-event baseline and April event.
+- 2026-08-11: Corrected the measurement-list parser and verified multiple April-spanning official
+  rainfall stations plus Taita Gorge stage/flow/rise measures. The provider SiteList also supplies
+  matching WGS84 points, so enriched replay layers can be mapped without a cross-source ID join.
+- 2026-08-11: Queried the official flow viewer and identified seven metropolitan flow candidates
+  whose names join exactly to Hilltop. A first combined April-count summary had a PowerShell loop
+  serialization error; no data output was accepted from that failed probe.
+- 2026-08-11: The corrected loop reached every bounded Hilltop URL, but history payloads were served
+  as bytes and therefore failed direct PowerShell XML casting. The retry will decode UTF-8 first;
+  none of those failed summaries will be treated as evidence.
+- 2026-08-11: Downloaded and generated 10,098 official event-window observations across 12 rainfall
+  and six flow series. The hydro detector found 6,343 above-baseline points and grouped them into 99
+  investigation episodes; the compact detector pack is 173 KB rather than exposing every point.
+- 2026-08-11: Added a regression for the repeated 5 April 02:00 hour and made NZ standard time the
+  explicit normalization. The full 120-hour April movement build exceeded its first 180-second
+  command limit after tests passed; it will be rerun with a larger bounded timeout.
+- 2026-08-11: Completed the full April movement build: 209,334 source rows, 120 hourly slots and
+  2,903 movement-model candidates. Replay loads this optional map layer only when selected and marks
+  every result `Retrospective only` with zero event-time evidence weight.
+- 2026-08-11: Validation is green: site production build plus 93/93 Node behavior/render tests,
+  ESLint, and 27/27 Python tests. The temporary pytest directory was removed after verification.
+- 2026-08-11: Added an operator-controlled official-impact layer containing the four withheld
+  post-event labels. It stays off the map because those records lack verified event-time geometry;
+  opening it shows source and claim without changing detector input or case state.

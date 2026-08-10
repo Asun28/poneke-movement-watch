@@ -38,7 +38,8 @@ fabricated map location.
 ## Historical replay
 
 Replay opens with an **Investigation** selector. **April Storm · 18–22 Apr 2026** is a
-read-only packaged case backed by 1,683 official historical GWRC Hilltop sensor records;
+read-only packaged case backed by 10,098 official historical GWRC Hilltop sensor records,
+99 grouped hydro detector episodes and an optional retrospective movement outcome layer;
 **August movement review · 1–6 Aug 2026** remains a separate WCC movement case. Staff may
 also create a title, start, cutoff and primary-source draft in their browser and open it in
 Replay. A local draft is not an Incident/COP, does not change evidence and performs no
@@ -486,16 +487,21 @@ It is a retrospective case-study contract; it does not rewind or alter live feed
 - Training data must end before `2026-04-18T00:00:00+12:00`.
 - Every replay step may use only records whose `available_at` is not later than
   that step. News, committee reports and final damage remain withheld labels.
-- Compare rules, a robust anomaly detector and regularized logistic regression.
-  A future stacker may use out-of-fold base predictions only.
+- Compare official rules with the uncalibrated `hydro-robust-v1` detector. Logistic
+  regression and learned fusion remain deferred until multiple labelled events exist.
 - Mock records are excluded from training, calibration and scoring. One event
   cannot establish general accuracy.
-- The pack contains 1,683 official historical Hilltop observations: two hourly
-  rainfall series and five-minute Hutt River flow. Provider publication times are
-  absent, so `available_at` is a conservative cadence-derived bound.
+- The pack contains 10,098 official historical Hilltop observations: 12 hourly
+  rainfall series and six five-minute river-flow series. Provider publication
+  times are absent, so `available_at` is a conservative cadence-derived bound.
+- The hydro detector fits only records available before 18 April, identifies 6,343
+  above-baseline readings, then groups them into 99 investigation episodes. It is
+  uncalibrated and cannot create an Incident or warning.
 - The local official WCC files contain 209,334 movement rows for this window, but
   their at-least-monthly publication cadence limits them to retrospective outcome
-  analysis. Timestamped NZTA impact records remain un-packaged.
+  analysis. The selected movement model produces 2,903 retrospective candidates
+  across 120 hourly slots; this map layer is off by default and has zero event-time
+  evidence weight. Timestamped NZTA impact records remain un-packaged.
 - The later formal report's Berhampore 85.9 mm/h value and the retrieved virtual
   series peak of 77.10347 mm are preserved as distinct claims.
 
@@ -536,7 +542,9 @@ The site publishes static, cacheable contracts that can slot into a shared map.
 | `/cop/v2/source-registry.json` | Source role, access, cadence and resolution limits |
 | `/cop/v3/city-ontology.json` | Typed place, asset, time, state, impact and access relationships |
 | `/cop/v4/april-storm-event-pack.json` | Leakage-safe April storm backtest contract and withheld event labels |
-| `/cop/v4/april-storm-hilltop-observations.json` | 1,683 real GWRC rainfall and river-flow observations for the April replay |
+| `/cop/v4/april-storm-hilltop-observations.json` | 10,098 real GWRC observations across 12 rainfall and six river-flow series |
+| `/cop/v4/april-storm-hydro-detector.json` | Pre-event robust baselines and 99 grouped, investigation-only hydro episodes |
+| `/cop/v4/april-storm-movement-outcomes.json` | 120 hourly April movement-model slots; retrospective only, never event-time evidence |
 
 Example:
 

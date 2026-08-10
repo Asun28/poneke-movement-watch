@@ -3124,6 +3124,20 @@ h1, h2, h3, h4, h5 { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-seri
 .sensor-core-layer input,
 .sensor-series-list input { width: 18px; height: 18px; flex: 0 0 auto; accent-color: #0c66e4; }
 .sensor-core-layer span { font-size: 11px; font-weight: 700; }
+.sensor-evidence-layer-summary { display: grid; grid-template-columns: repeat(2, 1fr); gap: 5px; padding: 8px 10px; border-bottom: 1px solid var(--hairline); }
+.sensor-evidence-layer-summary button { min-width: 0; min-height: 42px; display: grid; place-items: center; gap: 2px; padding: 5px; border: 1px solid var(--hairline); border-radius: 7px; color: #344563; background: #f7f8f9; cursor: pointer; }
+.sensor-evidence-layer-summary span { overflow: hidden; font-size: 8px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+.sensor-evidence-layer-summary strong { color: #0747a6; font: 800 11px/1 Consolas, monospace; }
+.sensor-layer-error { margin: 0; padding: 7px 12px; border-bottom: 1px solid var(--hairline); color: #ae2e24; font-size: 9px; font-weight: 700; }
+.sensor-impact-evidence[hidden] { display: none; }
+.sensor-impact-evidence { border-bottom: 1px solid var(--hairline); background: #fff8e7; }
+.sensor-impact-evidence > header { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 10px; font-size: 9px; }
+.sensor-impact-evidence > header span { color: #974f0c; font-weight: 700; }
+.sensor-impact-evidence ul { max-height: 180px; margin: 0; padding: 0; overflow-y: auto; list-style: none; }
+.sensor-impact-evidence li { display: grid; gap: 2px; padding: 7px 10px; border-top: 1px solid rgba(151,79,12,.14); }
+.sensor-impact-evidence li strong { font-size: 9px; }
+.sensor-impact-evidence li span { color: #5e4c33; font-size: 8px; line-height: 1.35; }
+.backtest-evidence-state { margin: -2px 0 8px; color: #974f0c; font-size: 9px; font-weight: 700; }
 .sensor-symbol-size { display: grid; gap: 7px; padding: 10px 12px; border-bottom: 1px solid var(--hairline); }
 .sensor-symbol-size > span { display: flex; justify-content: space-between; gap: 10px; font-size: 10px; font-weight: 700; }
 .sensor-symbol-size output { color: #0747a6; font: 750 10px/1 Consolas, monospace; }
