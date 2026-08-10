@@ -375,7 +375,7 @@ export default function AlertCentreClient() {
     <section className="alert-centre-grid">
       <aside className="alert-queue" aria-label="Alert ticket queue" aria-busy={state === "loading"}>
         <header className="alert-queue-header">
-          <div><p className="eyebrow">Human review queue</p><h2>Signals</h2></div>
+          <h2>Signals</h2>
           <output>{filteredCandidates.length}</output>
         </header>
         <div className="alert-queue-tools">
@@ -417,9 +417,9 @@ export default function AlertCentreClient() {
         </header>
 
         <section className="alert-state-strip" aria-label="Independent case states">
-          <div><span>Signal</span><strong>{signalState}</strong><small>Model or rule proposal</small></div>
-          <div><span>Incident</span><strong>{activeCase.incidentState}</strong><small>Staff-controlled</small></div>
-          <div><span>Warning</span><strong>{activeCase.warningState.replaceAll("_", " ")}</strong><small>Authorised staff only</small></div>
+          <div><span>Signal</span><strong>{signalState}</strong></div>
+          <div><span>Incident</span><strong>{activeCase.incidentState}</strong></div>
+          <div><span>Warning</span><strong>{activeCase.warningState.replaceAll("_", " ")}</strong></div>
         </section>
 
         <dl className="alert-ticket-facts" aria-label="System fields">
@@ -456,7 +456,7 @@ export default function AlertCentreClient() {
 
         <section id="alert-panel-warning" className="alert-tab-panel" role="tabpanel" aria-labelledby="alert-tab-warning" hidden={activeTab !== "warning"}>
           <form className="alert-warning-form" onSubmit={prepareApproval}>
-            <header><div><h2>Warning preparation</h2><p>Action-first local draft</p></div><span>Never auto-issued</span></header>
+            <header><h2>Warning preparation</h2><span>Never auto-issued</span></header>
             <div className="alert-warning-fields">
               <label><span>Hazard</span><input required value={activeCase.hazard} onChange={(event) => changeCase({ hazard: event.target.value, warningState: "draft" })} /></label>
               <label><span>Warning level</span><select required value={activeCase.warningLevel} onChange={(event) => changeCase({ warningLevel: event.target.value, warningState: "draft" })}><option value="">Select</option><option value="advice">Operational advice</option><option value="protective_action">Protective action</option><option value="emergency_action">Emergency action</option></select></label>
@@ -474,7 +474,7 @@ export default function AlertCentreClient() {
             <div className="alert-warning-action"><button type="submit">Prepare local approval pack</button><span aria-live="polite">{warningResult?.ready ? "Prepared locally · awaiting approval · not sent" : "Creator and approver must be different"}</span></div>
           </form>
           <section className="alert-channel-section" aria-labelledby="alert-channel-title">
-            <header><h3 id="alert-channel-title">Channel status</h3><span>Allowed local states: not_prepared · prepared_not_sent</span></header>
+            <header><h3 id="alert-channel-title">Channel status</h3><span className="sr-only">Allowed states: not_prepared and prepared_not_sent</span></header>
             <div className="alert-channel-table" role="table" aria-label="Warning channel preparation states">
               {channelRows.map((channel) => <div role="row" key={channel.channel_id}><strong role="cell">{channel.label}</strong><code role="cell">{channel.status}</code><span role="cell">{channel.boundary}</span></div>)}
             </div>
@@ -483,7 +483,7 @@ export default function AlertCentreClient() {
 
         <section id="alert-panel-evidence" className="alert-tab-panel" role="tabpanel" aria-labelledby="alert-tab-evidence" hidden={activeTab !== "evidence"}>
           <section className="alert-evidence-section" aria-labelledby="alert-evidence-title">
-            <header><h2 id="alert-evidence-title">Evidence</h2><span>System evidence · read-only</span></header>
+            <header><h2 id="alert-evidence-title">Evidence</h2><span>Read-only</span></header>
             <div className="alert-evidence-grid">
               <Bucket label="Supporting" values={selected?.evidence.supporting ?? preview.supporting} />
               <Bucket label="Contradicting" values={selected?.evidence.contradicting ?? preview.contradicting} />
@@ -496,7 +496,7 @@ export default function AlertCentreClient() {
 
         <section id="alert-panel-activity" className="alert-tab-panel" role="tabpanel" aria-labelledby="alert-tab-activity" hidden={activeTab !== "activity"}>
           <section className="alert-activity-section">
-            <header><h2>Activity</h2><span>Local activity · not a server audit trail</span></header>
+            <header><h2>Activity</h2><span>Browser only</span></header>
             <ol className="alert-timeline">
               <li><time>{observedLabel}</time><div><strong>signal_observed</strong><span>Candidate available for staff review</span></div></li>
               {activeCase.timeline.map((item, index) => <li key={`${item.occurredAt}-${index}`}><time>{new Date(item.occurredAt).toLocaleString("en-NZ")}</time><div><strong><b>v{item.version}</b>{" "}{item.action}</strong><span>{item.summary}</span></div></li>)}
@@ -504,8 +504,8 @@ export default function AlertCentreClient() {
           </section>
           <details className="alert-handoff-details">
             <summary>Prepare handoff</summary>
-            <section className="alert-workflow-section" aria-labelledby="alert-workflow-title">
-              <header><h2 id="alert-workflow-title">Handoffs · Workflow actions</h2><span>Mock only · nothing is sent · No external delivery</span></header>
+            <section className="alert-workflow-section" aria-labelledby="alert-workflow-title" aria-label="Mock workflow actions; no external delivery">
+              <header><h2 id="alert-workflow-title">Handoffs</h2><span>Mock · not sent</span></header>
               <div className="alert-workflow-controls">
                 <label><span>Adapter</span><select aria-label="Choose workflow mock adapter" value={workflowAdapterId} onChange={(event) => { setWorkflowAdapterId(event.target.value); setWorkflowResult(null); setWorkflowState("idle"); }}>{WORKFLOW_ADAPTERS.map((adapter) => <option key={adapter.id} value={adapter.id}>{adapter.name}</option>)}</select></label>
                 <button type="button" onClick={() => void prepareWorkflow()} disabled={workflowState === "preparing"}>{workflowState === "preparing" ? "Preparing…" : "Prepare mock"}</button>
@@ -518,7 +518,7 @@ export default function AlertCentreClient() {
           </details>
         </section>
 
-        <div className="alert-authority-note"><strong>Staff decision required</strong><span>{selected ? "Case edits do not confirm an incident or issue a warning" : "Mock data cannot create alerts"}</span></div>
+        <div className="alert-authority-note"><strong>Human approval required</strong><span>{selected ? "Not issued" : "Mock · no alert"}</span></div>
       </article>
     </section>
   );

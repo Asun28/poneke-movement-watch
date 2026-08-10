@@ -88,11 +88,12 @@ flowchart LR
 | `/ontology` | City Ontology | Trace source evidence through shared concepts, corroboration and operator decisions using the operational chain or focused graph. |
 | `/setup` | Easy setup | Prepare a data source, API/MCP/A2A connection or operator defaults as a safe local draft. |
 
-Routine screens are task-first: select a source, marker, candidate or setup
-section. Every module uses one compact title bar with only its page name, current
-mode and Wellington time; usage guidance will be added separately. The user-facing
-ontology map has its own top-level **Ontology** module; technical APIs, the raw graph
-and replay evidence remain under **Advanced** or **Evidence review**.
+Routine screens are task-first. They show current data, status, fields and actions;
+tutorial paragraphs and interaction coaching are intentionally absent. Required
+truth labels—live/mock, access/cost, freshness, evidence limits and human approval—
+remain compact and visible. Every module uses the same title bar, spacing and panel
+hierarchy; technical APIs, the raw graph and replay evidence stay under **Advanced**
+or **Evidence review**.
 
 Alert Centre uses a compact queue-and-case workflow. It keeps three independent
 states: **Signal**, **Incident** and **Warning**. A severe signal never confirms

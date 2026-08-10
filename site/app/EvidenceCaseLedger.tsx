@@ -30,10 +30,7 @@ export default function EvidenceCaseLedger() {
   return (
     <section className="case-ledger" aria-labelledby="case-ledger-heading">
       <header className="case-ledger-header">
-        <div>
-          <p className="eyebrow">Ontology replay · one review case</p>
-          <h2 id="case-ledger-heading">Evidence trail</h2>
-        </div>
+        <h2 id="case-ledger-heading">Evidence trail</h2>
         <div className="case-rank" aria-label="Current review rank">
           <span>Review priority</span>
           <strong>{hypothesis.review_priority}</strong>

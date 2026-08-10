@@ -481,8 +481,8 @@ function TrendView({ signal }: { signal?: LineFeature }) {
     <section className="trend-panel" aria-labelledby="trend-heading">
       <div className="trend-heading-row">
         <div>
-          <p className="eyebrow">Matched-hour trend</p>
-          <h4 id="trend-heading">Prior 12 matching weeks</h4>
+          <h4 id="trend-heading">Matched-hour trend</h4>
+          <span>12 weeks</span>
         </div>
         <div className="trend-legend" aria-label="Trend legend">
           <span><i className="observed-line" />Observed count</span>
@@ -550,10 +550,7 @@ function LayerWorkspace({
   return (
     <aside className="layer-workspace" aria-labelledby="layer-workspace-heading">
       <header className="layer-workspace-header">
-        <div>
-          <p className="eyebrow">Replay Analyzer</p>
-          <h3 id="layer-workspace-heading">Layer workspace</h3>
-        </div>
+        <h3 id="layer-workspace-heading">Layer workspace</h3>
         <button type="button" aria-label="Hide layer panel" onClick={onClose}>×</button>
       </header>
 
@@ -1057,8 +1054,8 @@ export default function MovementCanvas() {
         </button>
         <div className="map-toolbar">
           <div>
-            <p className="eyebrow">{replayLabel}</p>
             <h2 id="map-heading">Movement changes</h2>
+            <span>{replayLabel}</span>
           </div>
           <div className="filter-group" aria-label="Filter signals">
             {(["all", "people", "vehicles"] as Filter[]).map((value) => (
@@ -1174,7 +1171,7 @@ export default function MovementCanvas() {
           <canvas
             ref={canvasRef}
             role="img"
-            aria-label={`${filteredSignals.length} unusual movement changes across 414 WCC countlines ${showBasemap ? "on a real Wellington street basemap" : "with the basemap hidden"}. Direction arrows show travel direction.`}
+            aria-label={`${filteredSignals.length} unusual movement changes across 414 WCC countlines ${showBasemap ? "on the Wellington basemap" : "with the basemap hidden"}.`}
           />
           <div
             ref={mapInteractionRef}
@@ -1202,11 +1199,7 @@ export default function MovementCanvas() {
                 ? "Playing · inspection off"
                 : "Paused · select real replay layer"}
             </strong>
-            <span>
-              {inspectionEnabled
-                ? "Click marker · drag map"
-                : ""}
-            </span>
+            <span>{inspectionEnabled ? `${filteredSignals.length} signals` : ""}</span>
             <span className="sr-only">
               Inspection is off during playback. The signal list remains available for keyboard inspection.
             </span>
@@ -1251,8 +1244,7 @@ export default function MovementCanvas() {
                 onClick={() => adjustZoom(zoom + 0.25)}
               >+</button>
             </div>
-            <label className="map-zoom-range">
-              <span>Scroll or use slider</span>
+            <div className="map-zoom-range">
               <input
                 type="range"
                 aria-label="Map zoom level"
@@ -1262,7 +1254,7 @@ export default function MovementCanvas() {
                 value={zoom}
                 onChange={(event) => adjustZoom(Number(event.currentTarget.value))}
               />
-            </label>
+            </div>
             <div className="map-view-actions">
               <button
                 type="button"
@@ -1284,12 +1276,11 @@ export default function MovementCanvas() {
           <div className="map-key">
             <span><i className="increase" />Increase</span>
             <span><i className="decrease" />Decrease</span>
-            <span aria-label="Travel direction"><b className="direction-arrow-key" aria-hidden="true">↗</b>Arrow shows travel direction</span>
+            <span aria-label="Travel direction"><b className="direction-arrow-key" aria-hidden="true">↗</b>Direction</span>
             {showCoverage ? <span><i className="coverage" />Sensor coverage</span> : null}
           </div>
           {showBasemap ? (
             <div className="map-attribution">
-              <span>Real Wellington street basemap</span>
               <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">
                 © OpenStreetMap contributors
               </a>

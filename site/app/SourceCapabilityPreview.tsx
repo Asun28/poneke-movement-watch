@@ -41,10 +41,7 @@ export default function SourceCapabilityPreview() {
   return (
     <section className="source-preview" aria-labelledby="source-preview-heading">
       <header className="source-preview-header">
-        <div>
-          <p className="eyebrow">Truth labels · capability, not production</p>
-          <h2 id="source-preview-heading">Source capability preview</h2>
-        </div>
+        <h2 id="source-preview-heading">Source capabilities</h2>
         <dl className="source-totals" aria-label="Source status totals">
           <div><dt>Real replay</dt><dd>{realCount}</dd></div>
           <div><dt>Mock</dt><dd>{mockCount}</dd></div>
@@ -63,7 +60,6 @@ export default function SourceCapabilityPreview() {
                 <span>{accessLabels[source.access_status] ?? source.access_status}</span>
               </div>
               <h3>{preview.label}</h3>
-              <p>{preview.summary}</p>
               <small>{source.name}</small>
             </article>
           );

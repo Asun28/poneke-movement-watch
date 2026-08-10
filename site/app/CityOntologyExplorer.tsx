@@ -78,10 +78,7 @@ export default function CityOntologyExplorer() {
   return (
     <section className="city-ontology" aria-labelledby="city-ontology-heading">
       <header className="city-ontology-header">
-        <div>
-          <p className="eyebrow">Wellington City Ontology · v3</p>
-          <h2 id="city-ontology-heading">City ontology explorer</h2>
-        </div>
+        <h2 id="city-ontology-heading">Ontology graph</h2>
         <a href="/cop/v3/city-ontology.json">
           <span>Machine-readable graph</span>
           <code>/cop/v3/city-ontology.json</code>
@@ -114,10 +111,7 @@ export default function CityOntologyExplorer() {
 
       <section className="data-layer-register" aria-labelledby="data-layer-register-heading">
         <header>
-          <div>
-            <p className="eyebrow">Source → role → 2026 state</p>
-            <h3 id="data-layer-register-heading">2026 data-layer register</h3>
-          </div>
+          <h3 id="data-layer-register-heading">2026 data layers</h3>
           <dl aria-label="2026 ontology layer totals">
             <div><dt>Layers</dt><dd>{dataLayers.length}</dd></div>
             <div><dt>Active context</dt><dd>{dataLayers.filter((layer) => layer.data_2026?.active).length}</dd></div>

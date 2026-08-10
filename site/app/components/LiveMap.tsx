@@ -279,14 +279,13 @@ export default function LiveMap({
         <button type="button" aria-label="Show map fullscreen" onClick={toggleFullscreen}>Full screen</button>
       </div>
       <div className="ops-map-status">
-        <strong>Real Wellington basemap</strong>
-        <span>{plottable.length} current mapped records · drag to move</span>
+        <strong>Wellington</strong>
+        <span>{plottable.length} records</span>
       </div>
       {hovered && (
         <div className="ops-map-hover" style={{ left: Math.min(hovered.x + 14, 520), top: Math.max(16, hovered.y - 32) }}>
           <strong>{observationLabel(hovered.observation)}</strong>
           <span>{hovered.observation.source_id.replaceAll("-", " ")}</span>
-          <small>Click for details</small>
         </div>
       )}
       <div className="ops-map-legend" aria-label="Map symbol legend">

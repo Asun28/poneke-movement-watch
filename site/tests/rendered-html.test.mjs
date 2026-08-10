@@ -44,7 +44,7 @@ test("server-renders the movement investigation surface with truthful batch stat
   assert.match(html, /Mock · zero evidence/);
   assert.match(html, /high baseline/);
   assert.match(html, /33 sources registered/);
-  assert.match(html, /Source capability preview/);
+  assert.match(html, /Source capabilities/);
   assert.match(html, /REAL REPLAY/);
   assert.match(html, /MOCK · ZERO WEIGHT/);
   assert.match(html, /NEEDS PERMISSION/);
@@ -108,7 +108,7 @@ test("renders a city ontology explorer with explicit semantic and truth boundari
     await readFile(new URL("../public/cop/v3/city-ontology.json", import.meta.url), "utf8"),
   );
 
-  assert.match(html, /City ontology explorer/);
+  assert.match(html, /Ontology graph/);
   assert.match(html, /Infrastructure/);
   assert.match(html, /Time window/);
   assert.match(html, /Movement state/);
@@ -119,7 +119,7 @@ test("renders a city ontology explorer with explicit semantic and truth boundari
   assert.match(html, /may affect/);
   assert.match(html, /Inference only/);
   assert.match(html, /Unknown is not open/);
-  assert.match(html, /2026 data-layer register/);
+  assert.match(html, /2026 data layers/);
   assert.match(html, /Eventfinda events/);
   assert.match(html, /Metlink bus delays &amp; disruptions/);
   assert.match(html, /Credentials required/);
@@ -165,11 +165,11 @@ test("renders a paused-only map inspection layer with a keyboard alternative", a
   const html = await response.text();
 
   assert.match(html, /aria-label="Paused map inspection layer"/);
-  assert.match(html, /Paused · hover markers/);
+  assert.match(html, /Paused/);
   assert.match(html, /Inspection is off during playback/);
   assert.match(html, /The signal list remains available for keyboard inspection/);
-  assert.match(html, /Click marker/);
-  assert.match(html, /drag map/);
+  assert.doesNotMatch(html, /Click marker/);
+  assert.doesNotMatch(html, /drag map/);
   assert.match(html, /data-map-selectable="true"/);
 });
 
@@ -193,30 +193,30 @@ test("offers continuous wheel-slider zoom and map-only fullscreen", async () => 
 
   assert.match(html, /aria-label="Map zoom level"/);
   assert.match(html, /min="0.5" max="8" step="0.1"/);
-  assert.match(html, /Scroll or use slider/);
+  assert.doesNotMatch(html, /Scroll or use slider/);
   assert.match(html, /aria-label="Show map fullscreen"/);
   assert.match(html, />Full screen</);
 });
 
-test("explains that map arrows show travel direction", async () => {
+test("keeps the travel-direction legend concise", async () => {
   const response = await render();
   assert.equal(response.status, 200);
   const html = await response.text();
 
   assert.match(html, /aria-label="Travel direction"/);
-  assert.match(html, /Arrow shows travel direction/);
-  assert.match(html, /Direction arrows show travel direction/);
+  assert.doesNotMatch(html, /Arrow shows travel direction/);
+  assert.doesNotMatch(html, /Direction arrows show travel direction/);
 });
 
-test("identifies the real Wellington street basemap and its attribution", async () => {
+test("keeps basemap attribution without coaching copy", async () => {
   const response = await render();
   assert.equal(response.status, 200);
   const html = await response.text();
 
-  assert.match(html, /Real Wellington street basemap/);
   assert.match(html, /© OpenStreetMap contributors/);
   assert.match(html, /href="https:\/\/www\.openstreetmap\.org\/copyright"/);
   assert.match(html, /OpenStreetMap contributors/);
+  assert.doesNotMatch(html, /Real Wellington street basemap/);
 });
 
 test("removes routine teaching paragraphs while preserving operational states", async () => {
@@ -260,7 +260,6 @@ test("renders the April storm as a leakage-safe retrospective case study", async
   const html = await response.text();
 
   assert.match(html, /id="april-storm-backtest"/);
-  assert.match(html, /Backtest events/);
   assert.match(html, /Replay Analyzer input/);
   assert.match(html, /April Storm · 18–22 Apr 2026/);
   assert.match(html, /Inputs not yet packaged/);

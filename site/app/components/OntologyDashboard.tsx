@@ -229,13 +229,8 @@ export default function OntologyDashboard({ model }: { model: OntologyDashboardM
   }
 
   return (
-    <section className="ontology-dashboard" aria-labelledby="ontology-dashboard-heading">
+    <section className="ontology-dashboard" aria-label="Ontology workspace">
       <header className="ontology-dashboard-header">
-        <div>
-          <p className="eyebrow">Wellington City Ontology · current setup</p>
-          <h2 id="ontology-dashboard-heading">Ontology Dashboard</h2>
-          <p>See where each source fits and which operator screen can use it.</p>
-        </div>
         <dl aria-label="Ontology dashboard totals">
           <div><dt>Sources</dt><dd>{model.summary.sources}</dd></div>
           <div><dt>Exact roles</dt><dd>{model.summary.ontology_roles}</dd></div>
@@ -247,7 +242,6 @@ export default function OntologyDashboard({ model }: { model: OntologyDashboardM
         <button type="button" aria-pressed={view === "chain"} onClick={() => setView("chain")}>Operational chain</button>
         <button type="button" aria-pressed={view === "graph"} onClick={() => setView("graph")}>Knowledge graph</button>
       </div>
-      <p className="ontology-view-note">Operational chain remains the default. The graph shows the same explicit contracts from another angle.</p>
 
       <div
         className="ontology-hierarchy"
@@ -258,7 +252,7 @@ export default function OntologyDashboard({ model }: { model: OntologyDashboardM
         <section className="ontology-level" data-ontology-level="sources" aria-labelledby="ontology-level-sources">
           <header className="ontology-level-heading">
             <span>01</span>
-            <div><h3 id="ontology-level-sources">Data sources &amp; access</h3><p>What the city can receive, and whether it is real, mock, gated or paid.</p></div>
+            <h3 id="ontology-level-sources">Data sources &amp; access</h3>
           </header>
           <div className="ontology-source-summary">
             <div><strong>{model.summary.sources}</strong><span>Source contracts</span></div>
@@ -268,29 +262,29 @@ export default function OntologyDashboard({ model }: { model: OntologyDashboardM
         </section>
 
         <div className="ontology-hierarchy-connector" data-hierarchy-connector="source-to-alignment" aria-hidden="true">
-          <span>↓</span><small>normalize and align</small>
+          <span>↓</span>
         </div>
 
         <section className="ontology-level" data-ontology-level="alignment" aria-labelledby="ontology-level-alignment">
           <header className="ontology-level-heading">
             <span>02</span>
-            <div><h3 id="ontology-level-alignment">Normalize, align time &amp; place</h3><p>Make unlike records comparable without changing their source truth.</p></div>
+            <h3 id="ontology-level-alignment">Normalize, align time &amp; place</h3>
           </header>
           <div className="ontology-processing-grid" aria-label="Normalization and alignment steps">
-            <article><span>Schema</span><strong>Common fields &amp; units</strong><small>Keep the original value and provenance.</small></article>
-            <article><span>Time</span><strong>Observed · available · valid</strong><small>Prevent future-data leakage.</small></article>
-            <article><span>Place</span><strong>WGS84 · area · asset</strong><small>Resolve records to the same city location.</small></article>
+            <article><span>Schema</span><strong>Common fields &amp; units</strong></article>
+            <article><span>Time</span><strong>Observed · available · valid</strong></article>
+            <article><span>Place</span><strong>WGS84 · area · asset</strong></article>
           </div>
         </section>
 
         <div className="ontology-hierarchy-connector" data-hierarchy-connector="alignment-to-ontology" aria-hidden="true">
-          <span>↓</span><small>type with evidence rules</small>
+          <span>↓</span>
         </div>
 
         <section className="ontology-level" data-ontology-level="concepts" aria-labelledby="ontology-level-concepts">
           <header className="ontology-level-heading">
             <span>03</span>
-            <div><h3 id="ontology-level-concepts">Ontology entities, relations &amp; evidence rules</h3><p>Give aligned records a shared meaning while preserving all {model.summary.ontology_roles} exact roles.</p></div>
+            <h3 id="ontology-level-concepts">Ontology entities, relations &amp; evidence rules</h3>
           </header>
           <div className="ontology-concepts" aria-label="Ontology concept groups">
             <button type="button" aria-pressed={concept === "all"} onClick={() => chooseConcept("all")}>
@@ -304,7 +298,6 @@ export default function OntologyDashboard({ model }: { model: OntologyDashboardM
                 key={item.id}
               >
                 <strong>{item.label}</strong>
-                <small>{item.description}</small>
                 <span>{item.source_count}</span>
               </button>
             ))}
@@ -340,31 +333,31 @@ export default function OntologyDashboard({ model }: { model: OntologyDashboardM
         </section>
 
         <div className="ontology-hierarchy-connector" data-hierarchy-connector="ontology-to-corroboration" aria-hidden="true">
-          <span>↓</span><small>detect and corroborate</small>
+          <span>↓</span>
         </div>
 
         <section className="ontology-level" data-ontology-level="corroboration" aria-labelledby="ontology-level-corroboration">
           <header className="ontology-level-heading">
             <span>04</span>
-            <div><h3 id="ontology-level-corroboration">Anomaly candidates &amp; multi-source corroboration</h3><p>Compare the same time and place, then keep supporting, contradicting and missing evidence separate.</p></div>
+            <h3 id="ontology-level-corroboration">Anomaly candidates &amp; corroboration</h3>
           </header>
           <ol className="ontology-corroboration-flow" aria-label="Candidate corroboration sequence">
-            <li><span>1</span><strong>Detect change</strong><small>One source creates a candidate.</small></li>
-            <li><span>2</span><strong>Match context</strong><small>Same time, place and affected asset.</small></li>
-            <li><span>3</span><strong>Compare evidence</strong><small>Supporting · contradicting · missing.</small></li>
-            <li><span>4</span><strong>Prompt review</strong><small>Confidence stays explainable.</small></li>
+            <li><span>1</span><strong>Detect</strong></li>
+            <li><span>2</span><strong>Match</strong></li>
+            <li><span>3</span><strong>Compare</strong></li>
+            <li><span>4</span><strong>Review</strong></li>
           </ol>
-          <p className="ontology-stage-note"><strong>Candidate, not incident</strong><span>No single score or source confirms disruption.</span></p>
+          <div className="ontology-stage-note"><strong>Candidate · not incident</strong></div>
         </section>
 
         <div className="ontology-hierarchy-connector" data-hierarchy-connector="corroboration-to-destination" aria-hidden="true">
-          <span>↓</span><small>route by operator purpose</small>
+          <span>↓</span>
         </div>
 
         <section className="ontology-level" data-ontology-level="destinations" aria-labelledby="ontology-level-destinations">
           <header className="ontology-level-heading">
             <span>05</span>
-            <div><h3 id="ontology-level-destinations">Live · Alert Centre · Replay</h3><p>Use the same evidence chain for current awareness, review and historical investigation.</p></div>
+            <h3 id="ontology-level-destinations">Live · Alert Centre · Replay</h3>
           </header>
           <div className="ontology-destinations" aria-label="Ontology operator destinations">
             {destinations.map((item) => (
@@ -376,27 +369,26 @@ export default function OntologyDashboard({ model }: { model: OntologyDashboardM
               >
                 <span>{item.count} sources</span>
                 <strong>{item.label}</strong>
-                <small>{item.description}</small>
               </button>
             ))}
           </div>
         </section>
 
         <div className="ontology-hierarchy-connector" data-hierarchy-connector="destination-to-decision" aria-hidden="true">
-          <span>↓</span><small>escalate to human authority</small>
+          <span>↓</span>
         </div>
 
         <section className="ontology-level ontology-decision-level" data-ontology-level="decision" aria-labelledby="ontology-level-decision">
           <header className="ontology-level-heading">
             <span>06</span>
-            <div><h3 id="ontology-level-decision">Human confirmation &amp; response</h3><p>Staff decide whether to investigate, confirm an incident and prepare an authorised response.</p></div>
+            <h3 id="ontology-level-decision">Human confirmation &amp; response</h3>
           </header>
           <div className="ontology-decision-grid" aria-label="Human decision stages">
-            <article><span>Review</span><strong>Investigate the case</strong><small>Check evidence, unknowns and contradictions.</small></article>
-            <article><span>Confirm</span><strong>Set incident status</strong><small>Record owner, reason and next review.</small></article>
-            <article><span>Act</span><strong>Approve the response</strong><small>External actions retain their own authority.</small></article>
+            <article><span>Review</span><strong>Investigate</strong></article>
+            <article><span>Confirm</span><strong>Set status</strong></article>
+            <article><span>Act</span><strong>Approve</strong></article>
           </div>
-          <p className="ontology-stage-note is-authority"><strong>Human decision required</strong><span>Models and ontology never issue a public warning.</span></p>
+          <div className="ontology-stage-note is-authority"><strong>Human approval required</strong><span>Not automated</span></div>
         </section>
       </div>
 
@@ -407,12 +399,8 @@ export default function OntologyDashboard({ model }: { model: OntologyDashboardM
         aria-labelledby="ontology-graph-heading"
       >
         <header className="ontology-graph-header">
-          <div>
-            <p className="eyebrow">How records change</p>
-            <h3 id="ontology-graph-heading">Six-layer change timeline</h3>
-            <p>Use + to open second-level detail and − to close it.</p>
-          </div>
-          <span>Explicit relationships only</span>
+          <h3 id="ontology-graph-heading">Change timeline</h3>
+          <span>6 layers</span>
         </header>
 
         <div className="ontology-graph-concepts" role="group" aria-label="Choose graph focus concept">
@@ -482,7 +470,6 @@ export default function OntologyDashboard({ model }: { model: OntologyDashboardM
                         <span>{layer.number}</span>
                         <div>
                           <h4 id={`knowledge-layer-${layer.id}`}>{layer.label}</h4>
-                          <small>{layer.description}</small>
                           <strong className="ontology-layer-change" data-timeline-change={layer.id}>{layer.change}</strong>
                         </div>
                         <button
@@ -534,10 +521,10 @@ export default function OntologyDashboard({ model }: { model: OntologyDashboardM
                 })}
               </div>
             </div>
-            <p className="ontology-layer-boundary">
-              <strong>Workflow sequence only · not dated event history</strong>
-              <span>Workflow connectors describe structure, not evidence.</span>
-            </p>
+            <div className="ontology-layer-boundary">
+              <strong>Workflow structure</strong>
+              <span>No evidence asserted</span>
+            </div>
           </div>
 
           <aside className="ontology-graph-inspector" id="ontology-graph-inspector" aria-live="polite">
@@ -572,11 +559,11 @@ export default function OntologyDashboard({ model }: { model: OntologyDashboardM
                   <span>Ontology weight {selectedSourcePath.ontology_evidence_weight}</span>
                 </div>
               ) : (
-                <p>Select a source node to inspect its truth, access and evidence weight.</p>
+                <span>Select source node</span>
               )}
             </section>
 
-            <p className="ontology-graph-guardrail"><strong>Graph boundary</strong> Position and distance never create evidence.</p>
+            <div className="ontology-graph-guardrail"><strong>No inferred evidence</strong></div>
           </aside>
         </div>
       </section>
@@ -587,7 +574,7 @@ export default function OntologyDashboard({ model }: { model: OntologyDashboardM
         onToggle={(event) => setPathsOpen(event.currentTarget.open)}
       >
         <summary>
-          <div><span>Source-level audit</span><strong>{`Explore ${model.summary.sources} source pathways`}</strong></div>
+          <div><strong>Source paths</strong></div>
           <small>Showing {filtered.length}</small>
         </summary>
         <div className="ontology-toolbar">

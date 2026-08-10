@@ -1,5 +1,46 @@
 # Findings — Phase 2 ontology and sources
 
+## Phase 31 — quiet daily-work interface findings
+
+- Atlassian's current navigation guidance prioritises predictable repeated patterns,
+  user control and progressive disclosure. Its content guidance calls for clear,
+  concise and consistent interface language rather than embedded documentation.
+- Microsoft Fluent 2 uses hierarchy, alignment, a 4px spacing system and restrained
+  grouping to direct attention. It retains meaningful headings, keyboard focus,
+  reflow and plain labels instead of removing accessibility structure.
+- Google Material's communication guidance recommends contextual disclosure: keep the
+  immediate task narrow, but never conceal consequences of irreversible actions.
+- The existing application already has compact shared title bars. Most remaining noise
+  is local: eyebrow labels, instructional paragraphs, repeated safety explanations and
+  verbose section subtitles across Replay, Ontology and Alert Centre.
+- Safe removal boundary: delete tutorial/promotional sentences and duplicated labels;
+  retain current state, empty/loading/error text, input labels, provenance, mock/live/auth/
+  cost distinctions, freshness, evidence limitations and human-authority warnings.
+- The seven operator routes can use one visual grammar without a new component library:
+  concise noun-based headings, compact toolbars, single-line status metadata, predictable
+  disclosure and existing native controls.
+- Route audit: Live, Integration and Setup are already mostly task-first. Their remaining
+  noise is interaction coaching such as “drag to move”, “Click for details” and redundant
+  source-preview summaries. Alert Centre has duplicated subtitles and safety explanations;
+  Ontology has the highest concentration of tutorial paragraphs; Replay repeats map and
+  policy instructions in several places.
+- Operational facts that look like prose but must not be deleted include “Not all-clear”,
+  mock/zero-weight state, approval/not-sent state, availability cutoffs, licensing,
+  attribution and event-model limitations. These can be expressed as short status chips,
+  labelled values or collapsed technical detail rather than paragraphs.
+- Existing buttons, forms, tables, map controls and disclosures are structurally sound.
+  The redesign should therefore be a copy-density and shared styling pass, not a workflow
+  rewrite or icon-only conversion.
+- The local dashboard design-system search again over-indexed on a marketing landing page
+  (oversized type, red palette, scroll reveal). Those recommendations conflict with a
+  daily emergency operations console and are rejected. Retained checks are Segoe-style
+  readable typography, no complex shadows, 44px controls, visible focus, no colour-only
+  state, labelled inputs and stable responsive reflow.
+- Tidy visual direction: neutral page background, white work surfaces, one-pixel grey
+  dividers, 6–10px radii, subtle or no shadow, compact section headers and blue reserved
+  for selection/action. Existing warning, truth and confidence colours remain semantic.
+
+
 ## Phase 30 — timeline reference findings
 
 - The supplied reference uses one quiet card, a continuous vertical rule, small

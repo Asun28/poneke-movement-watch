@@ -1,5 +1,69 @@
 # Pōneke Movement Watch — evidence ontology roadmap
 
+## Phase 31 — quiet daily-work interface
+
+### Goal
+
+Remove tutorial-style and AI-explanatory copy from every operator route, then tighten
+the shared layout into a calm, familiar work surface comparable to mainstream issue
+trackers and productivity suites without changing operational behavior.
+
+### Status
+
+- [completed] Audit every rendered route and relevant mainstream interaction patterns.
+- [completed] Add failing behavior tests for concise shared chrome and page-level copy budgets.
+- [completed] Implement compact labels, progressive disclosure and consistent spacing.
+- [completed] Verify behavior, accessibility, responsive layout and regressions.
+- [in_progress] Deploy to the existing owner-only site.
+
+### Acceptance criteria
+
+- `/`, `/live`, `/alerts`, `/replay`, `/integration`, `/ontology` and `/setup` contain
+  no tutorial paragraphs, feature explanations or AI-style narrative headings.
+- Page title, current status, primary action, field labels, errors, provenance, licensing,
+  freshness and human-authority boundaries remain available where operationally required.
+- Navigation, filters, maps, replay, cases, setup, ontology disclosure and integration
+  controls keep their current behavior and keyboard-accessible names.
+- Repeated cards and section chrome use one compact hierarchy, restrained borders and
+  consistent density across desktop and mobile.
+- Empty/loading/error states stay explicit; no meaning depends on icons, hover or colour.
+
+### Assumptions and exclusions
+
+- “Remove explanations” means remove instructional/promotional prose, not safety truth,
+  evidence labels, field names, status messages, source attribution or accessibility text.
+- Preserve all existing routes, source/mock/auth/cost distinctions, evidence rules and
+  human approval gates.
+- No new source, model, ontology rule, API, dependency, icon library or workflow behavior.
+- No public sharing and no GitHub-origin push; use the existing owner-only Sites project.
+- Browser interaction testing is not requested; rendered contracts, build and regressions
+  are the verification boundary.
+
+### File-level plan
+
+- `site/tests/operator-console.test.mjs`, `site/tests/rendered-html.test.mjs`: concise
+  shell and route-level copy contracts before implementation.
+- `site/app/components/OperatorShell.tsx`, `OperatorNavigation.tsx`: shared compact chrome.
+- Route clients and page components: remove explanatory prose while preserving controls,
+  field labels, state, provenance and authority boundaries.
+- `site/app/globals.css`: normalize spacing, panels, headings and dense responsive flow.
+- `README.md`, `findings.md`, `progress.md`: record the information-removal boundary.
+
+### Rejected major alternatives
+
+- Do not remove visible labels in favor of ambiguous icon-only controls.
+- Do not hide safety, licensing or data-truth information merely to reduce word count.
+- Do not replace the existing civic design system or rebuild working workflows.
+
+### Errors encountered
+
+| Error | Attempt | Resolution |
+|---|---:|---|
+| `agent-reach doctor` executable was not available on PATH. | 1 | Used the skill's zero-config Exa route directly; all three official-design searches completed successfully. |
+| Sandboxed Vite/Node verification could not spawn child processes (`EPERM`). | 1 | Re-run the same bounded build/test command with the existing test approval outside the restricted sandbox. |
+| First Movement Canvas copy patch used stale wrapper class anchors. | 1 | Locate the exact current JSX blocks and apply smaller targeted hunks. |
+| First full verification ran root Workstation tests and found no root `lint` script instead of targeting the nested site package. | 1 | Root 390 tests and Python 22 tests passed; re-run lint and the full site suite with the explicit `site` package prefix. |
+
 ## Phase 30 — expandable ontology change timeline
 
 ### Goal

@@ -38,10 +38,10 @@ test("publishes one integration contract for all registered providers", async ()
 test("exposes six distinct operator modules with shared navigation", async () => {
   const expectations = [
     ["/live", /Live Operations/, /Current feeds/],
-    ["/alerts", /Alert Centre/, /Human review queue/],
+    ["/alerts", /Alert Centre/, /Signals/],
     ["/replay", /Replay Analyzer/, /History replay/],
     ["/integration", /Data Integration/, /33 source contracts/],
-    ["/ontology", /City Ontology/, /Ontology Dashboard/],
+    ["/ontology", /City Ontology/, /data-ontology-view="chain"/],
     ["/setup", /Easy setup/, /Add data source/],
   ];
 
@@ -69,12 +69,37 @@ test("keeps the ontology dashboard on one dedicated top-level page", async () =>
   const ontology = await ontologyResponse.text();
   const integration = await integrationResponse.text();
   assert.match(ontology, /href="\/ontology" aria-current="page"/);
-  assert.match(ontology, /Ontology Dashboard/);
   assert.match(ontology, /data-ontology-view="chain"/);
   assert.match(ontology, /data-ontology-view="graph"/);
-  assert.doesNotMatch(integration, /Ontology Dashboard/);
   assert.doesNotMatch(integration, /City ontology explorer/);
   assert.match(integration, /33 source contracts/);
+});
+
+test("keeps every operator route task-first without tutorial copy", async () => {
+  const pages = ["/live", "/alerts", "/replay", "/integration", "/ontology", "/setup"];
+  const html = (await Promise.all(pages.map(async (path) => (await request(path)).text()))).join("\n");
+
+  assert.doesNotMatch(html, /class="eyebrow"/);
+  for (const phrase of [
+    "See where each source fits",
+    "Use + to open second-level detail",
+    "Operational chain remains the default",
+    "Make unlike records comparable",
+    "Compare the same time and place",
+    "Use the same evidence chain",
+    "Staff decide whether to investigate",
+    "Action-first local draft",
+    "Click for details",
+    "drag to move",
+    "Scroll or use slider",
+    "Click marker · drag map",
+    "Arrow shows travel direction",
+  ]) assert.doesNotMatch(html, new RegExp(phrase.replace(/[+]/g, "\\+")), phrase);
+
+  assert.match(html, /Not all-clear/);
+  assert.match(html, /Mock · zero evidence/);
+  assert.match(html, /Needs server activation/);
+  assert.match(html, /Call 111 for immediate danger/);
 });
 
 test("announces live and alert loading without presenting provisional zeroes", async () => {
@@ -128,7 +153,6 @@ test("routes backtest events to Replay Analyzer instead of Live Operations", asy
 
   assert.doesNotMatch(live, /April Storm backtest/);
   assert.doesNotMatch(live, /回测/);
-  assert.match(replay, /Backtest events/);
   assert.match(replay, /Replay Analyzer input/);
   assert.match(replay, /id="april-storm-backtest"/);
   assert.doesNotMatch(replay, /回测/);
@@ -142,7 +166,7 @@ test("keeps the April backtest detail collapsed before the playable replay", asy
   assert.match(replay, /<details id="april-storm-backtest" class="backtest-pack">/);
   assert.doesNotMatch(replay, /<details id="april-storm-backtest" class="backtest-pack" open/);
   assert.match(replay, /<summary class="backtest-header">/);
-  assert.ok(replay.indexOf("April Storm · 18–22 Apr 2026") < replay.indexOf("August movement replay"));
+  assert.ok(replay.indexOf("April Storm · 18–22 Apr 2026") < replay.indexOf("August replay"));
 });
 
 test("renders truth, access and runtime health as separate integration dimensions", async () => {
@@ -168,7 +192,7 @@ test("renders truth, access and runtime health as separate integration dimension
 
 test("shows the six-level operational evidence chain before advanced technical detail", async () => {
   const html = await (await request("/ontology")).text();
-  const dashboardAt = html.indexOf("Ontology Dashboard");
+  const dashboardAt = html.indexOf('aria-label="Ontology workspace"');
   const advancedAt = html.indexOf('<details class="operator-advanced">');
   const sourcesAt = html.indexOf('data-ontology-level="sources"');
   const alignmentAt = html.indexOf('data-ontology-level="alignment"');
@@ -193,12 +217,12 @@ test("shows the six-level operational evidence chain before advanced technical d
   assert.match(html, /Data sources &amp; access/);
   assert.match(html, /Normalize, align time &amp; place/);
   assert.match(html, /Ontology entities, relations &amp; evidence rules/);
-  assert.match(html, /Anomaly candidates &amp; multi-source corroboration/);
+  assert.match(html, /Anomaly candidates &amp; corroboration/);
   assert.match(html, /Live · Alert Centre · Replay/);
   assert.match(html, /Human confirmation &amp; response/);
-  assert.match(html, /Candidate, not incident/);
-  assert.match(html, /Human decision required/);
-  assert.match(html, /Explore 33 source pathways/);
+  assert.match(html, /Candidate · not incident/);
+  assert.match(html, /Human approval required/);
+  assert.match(html, /Source paths/);
   assert.match(html, /aria-label="Filter ontology pathways by concept"/);
   assert.match(html, /aria-label="Filter ontology pathways by operator module"/);
   assert.equal((html.match(/data-ontology-path=/g) ?? []).length, 33);
@@ -223,8 +247,8 @@ test("offers an expandable six-layer change timeline without replacing the opera
   assert.match(html, /data-ontology-view="chain"/);
   assert.match(html, /data-ontology-view="graph"/);
   assert.match(html, /data-ontology-graph="six-layer"/);
-  assert.match(html, /Six-layer change timeline/);
-  assert.match(html, /Explicit relationships only/);
+  assert.match(html, /Change timeline/);
+  assert.match(html, />6 layers</);
   assert.match(html, /aria-label="Choose graph focus concept"/);
   assert.match(html, /aria-label="Six-layer knowledge graph controls"/);
   assert.match(html, /aria-label="Zoom out"/);
@@ -253,9 +277,9 @@ test("offers an expandable six-layer change timeline without replacing the opera
   assert.match(html, /Node details/);
   assert.match(html, /Direct neighbours/);
   assert.match(html, /Source truth &amp; provenance/);
-  assert.match(html, /Workflow sequence only · not dated event history/);
-  assert.match(html, /Workflow connectors describe structure, not evidence/);
-  assert.match(html, /Operational chain remains the default/);
+  assert.match(html, /Workflow structure/);
+  assert.match(html, /No evidence asserted/);
+  assert.doesNotMatch(html, /Operational chain remains the default/);
 });
 
 test("labels every integration field for a complete phone-sized source record", async () => {
@@ -283,7 +307,7 @@ test("makes model authority and mock alert exclusion explicit", async () => {
   const html = await response.text();
 
   assert.match(html, /Decision authority/);
-  assert.match(html, /Staff decision required/);
+  assert.match(html, /Human approval required/);
   assert.match(html, /Mock · zero evidence/);
   assert.match(html, /Supporting/);
   assert.match(html, /Contradicting/);
@@ -322,15 +346,16 @@ test("renders a local case COP and warning-preparation workspace", async () => {
 
   assert.match(html, /Unconfirmed/);
   assert.match(html, /This browser only|Browser-local demo/);
-  assert.match(html, /No external delivery/);
+  assert.match(html, /aria-label="Mock workflow actions; no external delivery"/);
   assert.match(html, /prepared_not_sent/);
   assert.match(html, /available_at[_-]only/);
 });
 
 test("provides the complete mock investigation workflow without sending externally", async () => {
   const html = await (await request("/alerts")).text();
-  assert.match(html, /Workflow actions/);
-  assert.match(html, /Mock only · nothing is sent/);
+  assert.match(html, /Handoffs/);
+  assert.match(html, /Mock · not sent/);
+  assert.match(html, /aria-label="Mock workflow actions; no external delivery"/);
   assert.match(html, />WCC ticket</);
   assert.match(html, />Replay Analyzer handoff</);
   assert.match(html, />WCC field dispatch</);

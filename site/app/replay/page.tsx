@@ -22,7 +22,6 @@ export default function ReplayPage() {
       <details id="april-storm-backtest" className="backtest-pack">
         <summary className="backtest-header">
           <div>
-            <p className="eyebrow">Backtest events</p>
             <h2 id="april-storm-heading">April Storm · 18–22 Apr 2026</h2>
           </div>
           <div className="backtest-header-status">
@@ -41,7 +40,7 @@ export default function ReplayPage() {
 
         <div className="backtest-grid">
           <article>
-            <p className="eyebrow">Known event labels</p>
+            <h3>Event record</h3>
             <ol className="backtest-timeline">
               <li><time dateTime="2026-04-18">18 Apr</time><span>Heavy rain and flooding begin.</span></li>
               <li><time dateTime="2026-04-20">20 Apr</time><span>Berhampore 85.9 mm/h; Hutt River peaks near 475 m³/s.</span></li>
@@ -49,7 +48,7 @@ export default function ReplayPage() {
             </ol>
           </article>
           <article>
-            <p className="eyebrow">Evaluation rules</p>
+            <h3>Evaluation</h3>
             <dl className="backtest-rules">
               <div><dt>Input</dt><dd><code>available_at</code> ≤ replay step</dd></div>
               <div><dt>Compare</dt><dd>Rules · robust anomaly · regularized logistic</dd></div>
@@ -73,8 +72,7 @@ export default function ReplayPage() {
         </footer>
       </details>
       <div className="replay-available-heading">
-        <p className="eyebrow">Available real observations</p>
-        <h2>August movement replay</h2>
+        <h2>August replay</h2>
       </div>
       <MovementCanvas />
       <details className="operator-advanced">

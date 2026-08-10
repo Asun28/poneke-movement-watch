@@ -1639,3 +1639,168 @@ button.ontology-layer-node[aria-pressed="true"] small { color: #d5e5e7; }
 @media (prefers-reduced-motion: reduce) {
   .operator-console :where(button, a, summary):active { transform: none !important; }
 }
+
+/* Phase 31: quiet daily-work interface */
+:root {
+  --harbour-paper: #f4f6f8;
+  --harbour-deep: #e3e8ee;
+  --civic-ink: #172b4d;
+  --muted-ink: #5e6c84;
+  --movement-blue: #0c66e4;
+  --corroboration-teal: #216e5c;
+  --white: #ffffff;
+  --hairline: #dfe1e6;
+  --shadow-civic: 0 1px 2px rgba(9, 30, 66, .08);
+}
+
+body { background: var(--harbour-paper); }
+h1, h2, h3, h4, h5 { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; letter-spacing: -.012em; }
+.operator-console :where(button, input, select, textarea, summary) { border-radius: 6px; }
+.operator-console :where(button, a, summary) { transition: color var(--duration-ui) var(--ease-out), background-color var(--duration-ui) var(--ease-out), border-color var(--duration-ui) var(--ease-out); }
+
+.brand-mark { border-radius: 8px; clip-path: none; }
+.operator-sidebar { background: #172b4d; border-right-color: rgba(255,255,255,.12); }
+.operator-brand-block { min-height: 64px; padding: 11px 14px; }
+.operator-nav-toggle { margin: 8px 10px; border-color: rgba(255,255,255,.16); }
+.operator-sidebar nav { gap: 2px; padding: 2px 9px; }
+.operator-sidebar nav a { min-height: 44px; border-left: 0; border-radius: 6px; font-weight: 600; }
+.operator-sidebar nav a[aria-current="page"] { background: #0c66e4; box-shadow: none; }
+.operator-sidebar nav a[aria-current="page"] > span { color: #ffffff; }
+
+.operator-content { padding-bottom: 32px; }
+.operator-title-bar { min-height: 56px; padding-block: 8px; background: rgba(255,255,255,.96); }
+.operator-title-bar h1 { font-size: clamp(22px, 2vw, 28px); font-weight: 650; }
+.operator-mode-label { min-height: 24px; padding-inline: 8px; border-radius: 999px; background: #f1f2f4; }
+.operator-footer { border-top: 1px solid var(--hairline); background: #ffffff; }
+.operator-advanced { overflow: hidden; border-color: var(--hairline); border-radius: 8px; }
+.operator-advanced[open] > summary { color: var(--civic-ink); background: #f1f2f4; }
+
+.live-situation-strip,
+.live-grid,
+.alert-centre-grid,
+.integration-registry,
+.setup-status-strip,
+.setup-panel,
+.ontology-dashboard,
+.backtest-pack,
+.replay-summary {
+  border-color: var(--hairline);
+  border-radius: 10px;
+  box-shadow: none;
+}
+
+.live-situation-strip { overflow: hidden; }
+.live-situation-strip > div + div { border-left-color: var(--hairline); }
+.live-grid { overflow: hidden; }
+.live-source-rail { border-right-color: var(--hairline); background: #f7f8f9; }
+.live-source-rail > header { padding: 13px; color: var(--civic-ink); border-bottom: 1px solid var(--hairline); background: #ffffff; }
+.live-source-rail h2 { font-size: 16px; }
+.live-map-column { border-right-color: var(--hairline); }
+.live-map-heading h2 { font-size: 22px; }
+.live-inspector { background: #f7f8f9; }
+.ops-map-controls,
+.map-controls { border-radius: 8px; box-shadow: 0 1px 3px rgba(9,30,66,.16); }
+.ops-map-status { border-radius: 6px; }
+
+.alert-centre-grid { overflow: hidden; }
+.alert-queue { border-right-color: var(--hairline); background: #f7f8f9; }
+.alert-queue-header { color: var(--civic-ink); border-bottom: 1px solid var(--hairline); background: #ffffff; }
+.alert-queue-header h2 { margin: 0; font-size: 16px; }
+.alert-queue-header output { color: #0c66e4; border-radius: 999px; background: #e9f2ff; }
+.alert-ticket-row.is-selected { box-shadow: inset 3px 0 0 #0c66e4; background: #e9f2ff; }
+.alert-state-strip,
+.alert-review-form,
+.alert-warning-form,
+.alert-evidence-section,
+.alert-workflow-section,
+.alert-channel-section { border-color: var(--hairline); border-radius: 8px; overflow: hidden; }
+.alert-tabs { gap: 4px; border-left: 0; }
+.alert-tabs button { border: 1px solid var(--hairline); border-radius: 6px; background: #f1f2f4; }
+.alert-tabs button[aria-selected="true"] { border-color: #0c66e4; background: #0c66e4; box-shadow: none; }
+.alert-warning-form > header,
+.alert-activity-section > header,
+.alert-channel-section > header,
+.alert-evidence-section > header,
+.alert-workflow-section > header { color: var(--civic-ink); border-bottom: 1px solid var(--hairline); background: #f1f2f4; }
+.alert-warning-form > header > span,
+.alert-activity-section > header > span,
+.alert-channel-section > header > span,
+.alert-evidence-section > header span,
+.alert-workflow-section > header span { color: var(--muted-ink); }
+
+.integration-registry { overflow: hidden; }
+.integration-toolbar { padding: 14px 16px; border-bottom-color: var(--hairline); }
+.integration-toolbar h2 { font-size: 20px; }
+.integration-table th { color: var(--muted-ink); border-bottom: 1px solid var(--hairline); background: #f1f2f4; }
+.integration-table tbody tr:hover { background: #f7f8f9; }
+.integration-setup-link,
+.setup-primary-action { border-color: #0c66e4; border-radius: 6px; background: #0c66e4; }
+
+.setup-status-strip { overflow: hidden; }
+.setup-step-nav { gap: 8px; border: 0; }
+.setup-step-nav button { border: 1px solid var(--hairline); border-radius: 8px; background: #f7f8f9; }
+.setup-step-nav button[aria-pressed="true"] { border-color: #0c66e4; background: #ffffff; box-shadow: inset 0 3px 0 #0c66e4; }
+.setup-panel { overflow: hidden; }
+.setup-panel h2 { font-size: clamp(22px, 2.4vw, 30px); }
+.setup-boundary { margin-top: 8px; border: 1px solid var(--hairline); border-radius: 8px; background: #f7f8f9; }
+
+.ontology-dashboard { overflow: hidden; }
+.ontology-dashboard-header { display: flex; justify-content: flex-end; padding: 10px 14px; border-bottom-color: var(--hairline); background: #f7f8f9; }
+.ontology-dashboard-header dl { width: min(420px, 100%); border-color: var(--hairline); border-radius: 8px; overflow: hidden; background: #ffffff; }
+.ontology-dashboard-header dd,
+.ontology-source-summary strong { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+.ontology-view-switch,
+.ontology-hierarchy,
+.ontology-graph-view { background: #f7f8f9; }
+.ontology-view-switch button,
+.ontology-graph-concepts button,
+.ontology-level .ontology-concepts button,
+.ontology-destinations button { border-radius: 6px; }
+.ontology-view-switch button[aria-pressed="true"],
+.ontology-graph-concepts button[aria-pressed="true"],
+.ontology-level .ontology-concepts button[aria-pressed="true"],
+.ontology-destinations button[aria-pressed="true"] { color: #ffffff; border-color: #0c66e4; background: #0c66e4; box-shadow: none; }
+.ontology-level { overflow: hidden; border-color: var(--hairline); border-radius: 10px; box-shadow: none; }
+.ontology-level-heading { grid-template-columns: 44px minmax(0, 1fr); min-height: 60px; }
+.ontology-level-heading > span { background: #42526e; }
+.ontology-level-heading > h3 { padding: 12px 14px; font-size: clamp(18px, 2vw, 23px); }
+.ontology-hierarchy-connector { min-height: 42px; }
+.ontology-processing-grid > article,
+.ontology-decision-grid > article,
+.ontology-corroboration-flow li { min-height: 76px; }
+.ontology-stage-note { border-top-color: var(--hairline); }
+.ontology-graph-header,
+.ontology-graph-workspace { border-color: var(--hairline); border-radius: 10px; }
+.ontology-graph-header { padding: 13px 15px; }
+.ontology-graph-header h3 { font-size: 21px; }
+.ontology-graph-workspace { overflow: hidden; }
+.ontology-graph-inspector { border-left-color: var(--hairline); }
+.ontology-layer-boundary { border-radius: 6px; }
+.ontology-pathways { border-top-color: var(--hairline); }
+.ontology-path-list { background: #f7f8f9; }
+.ontology-path { border-radius: 8px; overflow: hidden; }
+
+.source-preview-header { align-items: center; }
+.source-preview-header h2,
+.city-ontology-header h2,
+.case-ledger-header h2 { font-size: clamp(22px, 2.4vw, 30px); }
+.source-card,
+.city-ontology,
+.case-ledger { border-color: var(--hairline); box-shadow: none; }
+
+.investigation-frame { border-color: var(--hairline); border-radius: 10px; box-shadow: none; overflow: hidden; }
+.layer-workspace { border-right-color: var(--hairline); background: #f7f8f9; }
+.layer-workspace-header { align-items: center; padding: 12px 13px; background: #172b4d; }
+.layer-workspace-header h3 { margin: 0; font: 650 18px/1.2 "Segoe UI", sans-serif; }
+.map-toolbar h2 { font-size: clamp(22px, 2.4vw, 30px); }
+.map-toolbar > div > span,
+.trend-heading-row > div > span { color: var(--muted-ink); font-size: 10px; }
+
+@media (max-width: 700px) {
+  .operator-title-bar { min-height: 52px; }
+  .operator-mode-label { display: none; }
+  .live-situation-strip,
+  .setup-status-strip { border-radius: 8px; }
+  .ontology-dashboard-header { justify-content: stretch; }
+  .ontology-dashboard-header dl { width: 100%; }
+}

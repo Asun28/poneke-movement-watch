@@ -1,5 +1,29 @@
 # Progress — Phase 2 ontology and sources
 
+## Phase 31 — quiet daily-work interface
+
+- 2026-08-10: Started a full seven-route copy and density audit. Official Atlassian,
+  Microsoft Fluent and Google Material guidance converges on concise labels, repeated
+  patterns, progressive disclosure, clear hierarchy and preserved consequences.
+- 2026-08-10: Locked the removal boundary: tutorial and AI-style narrative copy goes;
+  operational state, errors, field labels, source truth and human-authority limits stay.
+- 2026-08-10: Completed the route/component inventory. The implementation will remove
+  interaction coaching and repeated subtitles, convert required boundaries to compact
+  state labels, and preserve all current controls and data contracts.
+- 2026-08-10: TDD RED is confirmed. The focused rendered suite has six expected failures
+  from current eyebrow copy, tutorial sentences, map coaching, verbose direction legend
+  and the old capability heading; the build itself succeeds.
+- 2026-08-10: TDD GREEN passes. Seven routes now use concise headings and status labels;
+  Ontology, Replay, Alert Centre and map surfaces no longer show tutorial copy. Styling
+  now uses neutral work surfaces, subtle dividers, consistent radii and low shadow.
+- 2026-08-10: Final local verification passes: ESLint, production build, 61/61 site
+  behaviors, 22/22 Python tests and an additional 390/390 root regressions. Required
+  loading/error states, field labels, mock/access/freshness truth and human approval
+  boundaries remain present.
+- 2026-08-10: Publishing the exact validated interface commit to the existing owner-only
+  Sites project next; GitHub origin remains out of scope.
+
+
 ## Phase 30 — expandable ontology change timeline
 
 - 2026-08-10: Audited the supplied timeline reference and the deployed six-layer

@@ -28,7 +28,7 @@ export default function ReplayCaseContext() {
       <div><span>Case handoff</span><strong>{context.caseId}</strong></div>
       <div><span>Source reference</span><strong>{context.sourceId || "No source supplied"}</strong></div>
       <div><span>Replay cutoff</span><strong>{context.asOf || "No cutoff supplied"}</strong></div>
-      <p>Use evidence with <code>available_at ≤ as_of</code> only. The v1 replay rows do not carry individual <code>available_at</code> values, so this cutoff is required but not yet verifiable.</p>
+      <div><span>Availability</span><strong>Cutoff required · v1 unverified</strong></div>
     </section>
   );
 }
