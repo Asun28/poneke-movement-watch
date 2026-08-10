@@ -469,3 +469,6 @@
   a 339px complete record with no horizontal scrolling, and Setup's active form
   moves from roughly 624px to 464px on phone. Site tests are 52/52, ESLint is
   clean and all 22 Python tests pass.
+- 2026-08-10: Saved Sites version 24 from the exact verified source and completed
+  the owner-only production deployment at the existing live URL. GitHub origin
+  was not pushed and its deleted feature branch was not recreated. Phase 22 is complete.

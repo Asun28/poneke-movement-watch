@@ -14,7 +14,7 @@ data semantics or external side effects.
 - [completed] Define a restrained civic interaction and surface system from the existing visual language.
 - [completed] Add failing observable UX/accessibility tests before implementation.
 - [completed] Implement the shared polish and route-specific usability fixes.
-- [in_progress] Verify regressions, reduced motion, responsive behavior and owner-only deployment.
+- [completed] Verify regressions, reduced motion, responsive behavior and owner-only deployment.
 
 ### Acceptance criteria
 
