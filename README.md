@@ -254,6 +254,14 @@ cannot issue a public warning. The 33 source-level paths are collapsed by defaul
 selecting a concept or destination opens the matching audit detail. Integration-only
 contracts remain visible as gated context but do not become operational evidence.
 
+Operators can also switch to a **Knowledge graph** inspired by Semantica's focused
+graph explorer. It uses a bounded ego view: one selected node in the centre, only
+its explicit direct neighbours around it, and a readable inspector for relation
+labels, source truth, access and evidence weight. Selecting a neighbour recentres
+the graph. The six-level operational chain remains the default, and graph position
+or distance never creates a relationship. Reference pattern:
+[semantica-agi/semantica](https://github.com/semantica-agi/semantica).
+
 Eventfinda is a first-class planned-demand contract, not observed attendance.
 Its API uses application-specific HTTP Basic credentials, so the public build
 does not fetch or republish records without a key issued for this application.

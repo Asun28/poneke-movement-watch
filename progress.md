@@ -534,3 +534,17 @@
   saved version 27 and completed the owner-only production deployment at the
   existing live URL. GitHub origin and remote `main` remain unchanged. Phase 25
   is complete.
+# Phase 26 — alternate ontology graph view
+
+- 2026-08-10: Started a Semantica-inspired alternate ontology view. Verified the
+  public repository's Knowledge Explorer pattern and selected a bounded ego-graph
+  projection alongside—not instead of—the existing operational chain.
+- 2026-08-10: TDD RED confirmed two intended failures: the explicit ego-graph
+  projection functions do not exist, and Integration has no alternate view switch.
+  The other 54 tests remain green.
+- 2026-08-10: TDD GREEN confirmed. The explicit graph projection, view switch,
+  focused neighbour selection and source-truth inspector pass all 56 site tests in
+  the focused run, including the production build.
+- 2026-08-10: Full local verification passes: production build, 56/56 site tests,
+  ESLint, 22/22 Python tests and whitespace checks. The pytest temporary directory
+  was removed. Publishing to the existing owner-only site is next.

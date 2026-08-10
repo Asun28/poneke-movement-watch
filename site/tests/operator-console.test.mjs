@@ -195,6 +195,27 @@ test("shows the six-level operational evidence chain before advanced technical d
   assert.match(html, /Unknown is not open/);
 });
 
+test("offers an accessible focused knowledge graph without replacing the operational chain", async () => {
+  const html = await (await request("/integration")).text();
+
+  assert.match(html, /aria-label="Choose ontology view"/);
+  assert.match(html, /aria-pressed="true">Operational chain/);
+  assert.match(html, /aria-pressed="false">Knowledge graph/);
+  assert.match(html, /data-ontology-view="chain"/);
+  assert.match(html, /data-ontology-view="graph"/);
+  assert.match(html, /data-ontology-graph="ego"/);
+  assert.match(html, /Focused neighbourhood/);
+  assert.match(html, /Explicit relationships only/);
+  assert.match(html, /aria-label="Choose graph focus concept"/);
+  assert.match(html, /data-graph-node-kind="source"/);
+  assert.match(html, /data-graph-node-kind="concept"/);
+  assert.match(html, /data-graph-node-kind="destination"/);
+  assert.match(html, /Node details/);
+  assert.match(html, /Direct neighbours/);
+  assert.match(html, /Source truth &amp; provenance/);
+  assert.match(html, /Operational chain remains the default/);
+});
+
 test("labels every integration field for a complete phone-sized source record", async () => {
   const html = await (await request("/integration")).text();
   const labels = ["Source", "Ontology role", "Source truth", "Access &amp; cost", "Runtime health", "Provider format"];

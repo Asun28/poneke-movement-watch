@@ -223,6 +223,139 @@ export function buildOntologyDashboardModel(contracts, ontology) {
   };
 }
 
+const ONTOLOGY_GRAPH_DESTINATIONS = {
+  live_operations: {
+    label: "Live Operations",
+    description: "Current permitted records",
+  },
+  alert_centre: {
+    label: "Alert Centre",
+    description: "Review-eligible candidates",
+  },
+  replay_analyzer: {
+    label: "Replay Analyzer",
+    description: "Packaged historical records",
+  },
+  integration_only: {
+    label: "Integration only",
+    description: "Context, gated or mock",
+  },
+};
+
+export function buildOntologyEgoGraph(model, conceptId) {
+  const concept = model?.concepts?.find((item) => item.id === conceptId);
+  if (!concept) throw new Error(`Ontology ego graph requires concept ${conceptId}`);
+
+  const paths = model.paths.filter((path) => path.concept_id === concept.id);
+  const destinationIds = new Set(paths.map((path) => path.operations_target));
+  if (paths.some((path) => path.alert_eligible)) destinationIds.add("alert_centre");
+
+  const nodes = [
+    {
+      id: `concept:${concept.id}`,
+      kind: "concept",
+      label: concept.label,
+      description: concept.description,
+      source_count: paths.length,
+      role_count: concept.role_count,
+    },
+    ...paths.map((path) => ({
+      id: `source:${path.source_id}`,
+      kind: "source",
+      label: path.source_name,
+      source_id: path.source_id,
+      ontology_role: path.ontology_role,
+      demo_data_status: path.demo_data_status,
+      data_2026_status: path.data_2026_status,
+      access_status: path.access_status,
+      cost: path.cost,
+      evidence_weight: path.ontology_evidence_weight,
+      alert_eligible: path.alert_eligible,
+    })),
+    ...[...destinationIds].map((id) => ({
+      id: `destination:${id}`,
+      kind: "destination",
+      destination_id: id,
+      label: ONTOLOGY_GRAPH_DESTINATIONS[id]?.label ?? id,
+      description: ONTOLOGY_GRAPH_DESTINATIONS[id]?.description ?? "Registered destination",
+      source_count: paths.filter((path) => (
+        id === "alert_centre" ? path.alert_eligible : path.operations_target === id
+      )).length,
+    })),
+    {
+      id: "authority:human_decision",
+      kind: "authority",
+      label: "Human confirmation & response",
+      description: "Staff confirm incidents and authorise external actions.",
+    },
+  ];
+
+  const edges = paths.flatMap((path) => {
+    const source = `source:${path.source_id}`;
+    const explicitEdges = [
+      {
+        id: `${source}|typed_as|concept:${concept.id}`,
+        source,
+        target: `concept:${concept.id}`,
+        relation: "typed_as",
+        label: `typed as ${path.ontology_role.replaceAll("_", " ")}`,
+        basis: "explicit_contract",
+      },
+      {
+        id: `${source}|used_in|destination:${path.operations_target}`,
+        source,
+        target: `destination:${path.operations_target}`,
+        relation: "used_in",
+        label: "used in",
+        basis: "explicit_contract",
+      },
+    ];
+    if (path.alert_eligible) {
+      explicitEdges.push({
+        id: `${source}|eligible_for_review|destination:alert_centre`,
+        source,
+        target: "destination:alert_centre",
+        relation: "eligible_for_review",
+        label: "eligible for review",
+        basis: "explicit_contract",
+      });
+    }
+    return explicitEdges;
+  });
+
+  if (destinationIds.has("alert_centre")) {
+    edges.push({
+      id: "destination:alert_centre|reviewed_by|authority:human_decision",
+      source: "destination:alert_centre",
+      target: "authority:human_decision",
+      relation: "reviewed_by",
+      label: "reviewed by",
+      basis: "explicit_contract",
+    });
+  }
+
+  return {
+    schema: "wellington-ontology-ego-graph/v1",
+    concept_id: concept.id,
+    nodes,
+    edges,
+  };
+}
+
+export function selectOntologyGraphNode(graph, nodeId) {
+  const node = graph.nodes.find((item) => item.id === nodeId);
+  if (!node) return null;
+  const edges = graph.edges.filter((edge) => edge.source === nodeId || edge.target === nodeId);
+  const neighborIds = new Set(edges.map((edge) => (
+    edge.source === nodeId ? edge.target : edge.source
+  )));
+  return {
+    node,
+    edges,
+    neighbors: graph.nodes.filter((item) => neighborIds.has(item.id)),
+  };
+}
+
 function freshnessState(observedAt, now, freshnessSeconds) {
   if (!observedAt || !freshnessSeconds) return "unknown";
   const ageMs = now.getTime() - new Date(observedAt).getTime();

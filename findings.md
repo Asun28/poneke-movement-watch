@@ -1170,3 +1170,49 @@ supports spatial event-footprint resolution, never direct building-damage claims
 - The implemented hierarchy preserves the existing concept/destination filters and
   33 collapsed audit paths. New alignment, corroboration and decision cards are
   non-interactive explanations, so they add no competing workflow or hidden state.
+# Phase 26 — Semantica-inspired alternate ontology view
+
+- Verified from the public MIT-licensed Semantica repository README
+  (`https://github.com/semantica-agi/semantica`): its Knowledge Explorer is a
+  React 19 + Sigma.js browser workbench with graph pan/zoom, Ego Mode, semantic
+  distance, timelines, decision causal chains, mutation registry, entity resolution,
+  ontology editing and provenance lineage.
+- The relevant pattern for this WCC demo is not the entire platform. It is a
+  switchable relationship explorer in which selecting one entity focuses its direct
+  neighbourhood and shows typed relationships plus provenance in a side detail.
+- Semantica explicitly separates normalization, conflict detection/deduplication,
+  knowledge graph, ontology/reasoning/provenance/decisions and outputs. This supports
+  keeping the existing six-level operational chain as the default rather than
+  collapsing pipeline responsibilities into a graph picture.
+- A full force-directed view of all 33 source paths would be a dense hairball and
+  weak for routine emergency operators. The bounded WCC projection should show the
+  five concept hubs, four destination/authority hubs and only the source nodes for
+  the currently selected concept; the detail list remains the non-spatial truth.
+- Semantica's conflict/provenance emphasis aligns with existing WCC guardrails:
+  supporting, contradicting and missing evidence remain separate, and visual
+  proximity must never imply a relationship or evidence weight.
+- The actual explorer code confirms the core interaction: search or click a node,
+  focus it, then inspect identity/type, temporal bounds, neighbour count, source
+  attribution, properties and path context in a dedicated inspector. Grouped display
+  items are explicitly not treated as directly inspectable until Focused mode resolves
+  them to a canonical node.
+- Its dark “Palantir” HUD, large animated force canvas, link prediction actions and
+  provenance-download controls are not appropriate to copy into this lightweight
+  public demo. Borrow selection, bounded neighbourhood, labelled edges and inspector
+  structure; retain the existing civic colours, zero-dispatch boundary and simple data.
+- The current `OntologyDashboardModel` already contains every field needed for a
+  truthful graph projection: source ID/name, concept ID/label, exact ontology role,
+  operator destination, alert eligibility, source truth/access/cost and ontology
+  evidence weight. No schema or data artifact change is required.
+- The existing rendered test boundary can protect the view switch and visible graph
+  semantics. A small pure graph projection should additionally prove that a selected
+  concept returns only explicit source→concept and source→destination edges, with
+  alert review represented as an explicit eligibility edge rather than inferred proximity.
+- The implemented projection is stricter than the initial sketch: every source has
+  explicit `typed_as` and `used_in` edges, alert eligibility is a separate edge, and
+  only Alert Centre links to human authority. Selecting any node returns only edges
+  that actually name that node and their corresponding direct neighbours.
+- The UI starts from a real source node in the first concept, renders its focused
+  neighbourhood with labelled relations, and uses semantic buttons plus a text
+  inspector. Concept switching recentres on that concept's first source; no pan,
+  drag, hidden hover or spatial inference is required.

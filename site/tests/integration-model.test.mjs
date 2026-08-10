@@ -222,6 +222,81 @@ test("joins every source to one readable ontology concept and operator module", 
   assert.equal(paidMock.ontology_evidence_weight, 0);
 });
 
+test("projects only explicit ontology paths into a bounded selectable ego graph", async () => {
+  const integration = await import("../lib/dataIntegration.mjs");
+  assert.equal(typeof integration.buildOntologyEgoGraph, "function");
+  assert.equal(typeof integration.selectOntologyGraphNode, "function");
+
+  const graph = integration.buildOntologyEgoGraph({
+    concepts: [{
+      id: "movement_transport",
+      label: "Movement & transport",
+      description: "Counts and network status.",
+      source_count: 2,
+      role_count: 2,
+    }],
+    paths: [
+      {
+        source_id: "counter-1",
+        source_name: "City counter",
+        concept_id: "movement_transport",
+        concept_label: "Movement & transport",
+        ontology_role: "movement_observation",
+        operations_target: "live_operations",
+        alert_eligible: true,
+        demo_data_status: "real_replay",
+        data_2026_status: "real_records",
+        access_status: "public_free",
+        cost: "free",
+        ontology_evidence_weight: 2,
+      },
+      {
+        source_id: "route-mock",
+        source_name: "Commercial route preview",
+        concept_id: "movement_transport",
+        concept_label: "Movement & transport",
+        ontology_role: "movement_context",
+        operations_target: "integration_only",
+        alert_eligible: false,
+        demo_data_status: "mock_preview",
+        data_2026_status: "mock_only",
+        access_status: "key_required",
+        cost: "paid",
+        ontology_evidence_weight: 0,
+      },
+    ],
+  }, "movement_transport");
+
+  assert.equal(graph.schema, "wellington-ontology-ego-graph/v1");
+  assert.deepEqual(graph.nodes.map((node) => node.id).sort(), [
+    "authority:human_decision",
+    "concept:movement_transport",
+    "destination:alert_centre",
+    "destination:integration_only",
+    "destination:live_operations",
+    "source:counter-1",
+    "source:route-mock",
+  ]);
+  assert.deepEqual(graph.edges.map((edge) => `${edge.source}|${edge.relation}|${edge.target}`).sort(), [
+    "destination:alert_centre|reviewed_by|authority:human_decision",
+    "source:counter-1|eligible_for_review|destination:alert_centre",
+    "source:counter-1|typed_as|concept:movement_transport",
+    "source:counter-1|used_in|destination:live_operations",
+    "source:route-mock|typed_as|concept:movement_transport",
+    "source:route-mock|used_in|destination:integration_only",
+  ]);
+  assert.ok(graph.edges.every((edge) => edge.basis === "explicit_contract"));
+
+  const selected = integration.selectOntologyGraphNode(graph, "source:route-mock");
+  assert.equal(selected.node.label, "Commercial route preview");
+  assert.equal(selected.node.evidence_weight, 0);
+  assert.deepEqual(selected.edges.map((edge) => edge.relation).sort(), ["typed_as", "used_in"]);
+  assert.deepEqual(selected.neighbors.map((node) => node.id).sort(), [
+    "concept:movement_transport",
+    "destination:integration_only",
+  ]);
+});
+
 test("builds a partial live snapshot without hiding healthy, empty or mock sources", async () => {
   const contracts = buildSourceContracts(registry, manifest);
   const adapters = {

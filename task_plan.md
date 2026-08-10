@@ -1,5 +1,60 @@
 # Pōneke Movement Watch — evidence ontology roadmap
 
+## Phase 26 — alternate ontology graph view
+
+### Goal
+
+Add a Semantica-inspired relationship explorer as an optional second view of the
+existing ontology, while keeping the six-level operational chain as the default.
+
+### Status
+
+- [completed] Verify Semantica's relevant interaction patterns and audit current graph data.
+- [completed] Define the smallest accessible graph/list interaction and add failing behavior tests.
+- [completed] Implement the alternate view without changing evidence or authority semantics.
+- [completed] Verify regressions.
+- [in_progress] Deploy to the existing owner-only site.
+
+### Acceptance criteria
+
+- Operators can switch between `Operational chain` and `Knowledge graph` without a new route.
+- The graph uses existing sources, ontology concepts and operator destinations only.
+- Selecting a graph node reveals its directly connected relations in a readable detail panel.
+- The same relationship information remains keyboard-accessible and understandable without
+  relying on node position, hover or colour alone.
+- The default remains the six-level operational chain; mobile has no horizontal page overflow.
+- Mock/access/cost/weight labels and human decision authority remain unchanged.
+
+### Assumptions and exclusions
+
+- “Reference Semantica” means borrow the graph-exploration pattern, not copy its brand,
+  codebase, backend, AI extraction pipeline or technical ontology model.
+- This is a visual projection over the existing model, not a new graph database, source,
+  inference, detector, model training, API, route or external action.
+- No GitHub push and no change to remote `main`.
+- Browser visual testing is not requested; rendered behavior, build and regression tests
+  are the verification boundary.
+
+### File-level plan
+
+- `site/tests/operator-console.test.mjs`: alternate-view, selection and safety contracts.
+- `site/app/components/OntologyDashboard.tsx`: view switch and graph explorer.
+- `site/app/globals.css`: responsive graph canvas, nodes, edges and detail panel.
+- `README.md`, `findings.md`, `progress.md`: source attribution, design boundary and validation.
+
+### Rejected major alternatives
+
+- Do not replace the operational chain with a graph-only interface.
+- Do not install a force-graph library or render an unreadable 33-source hairball.
+- Do not infer new relationships from visual proximity.
+
+### Errors encountered
+
+| Error | Attempt | Resolution |
+|---|---:|---|
+| The first combined test patch used an outdated assertion anchor. | 1 | Re-read the focused test block and apply the two test changes separately. |
+| Focused RED run found the graph projection and view switch absent. | 1 | Expected TDD failure; implement only the protected projection and alternate view. |
+
 ## Phase 25 — operational evidence chain
 
 ### Goal

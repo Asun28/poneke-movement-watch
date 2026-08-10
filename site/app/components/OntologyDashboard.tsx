@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { buildOntologyEgoGraph, selectOntologyGraphNode } from "../../lib/dataIntegration.mjs";
 import { operationsTargetLabel } from "../../lib/sourceOperations.mjs";
 
 type OntologyConcept = {
@@ -42,6 +43,36 @@ type OntologyDashboardModel = {
   paths: OntologyPath[];
 };
 
+type OntologyGraphNode = {
+  id: string;
+  kind: "source" | "concept" | "destination" | "authority";
+  label: string;
+  description?: string;
+  source_id?: string;
+  ontology_role?: string;
+  evidence_weight?: number;
+  source_count?: number;
+};
+
+type OntologyGraphEdge = {
+  id: string;
+  source: string;
+  target: string;
+  relation: string;
+  label: string;
+};
+
+type OntologyEgoGraph = {
+  nodes: OntologyGraphNode[];
+  edges: OntologyGraphEdge[];
+};
+
+type OntologyGraphSelection = {
+  node: OntologyGraphNode;
+  edges: OntologyGraphEdge[];
+  neighbors: OntologyGraphNode[];
+};
+
 function readable(value: string) {
   return value.replaceAll("_", " ");
 }
@@ -68,10 +99,17 @@ function accessLabel(path: OntologyPath) {
 }
 
 export default function OntologyDashboard({ model }: { model: OntologyDashboardModel }) {
+  const defaultGraphConcept = model.concepts[0]?.id ?? "";
+  const defaultGraphSource = model.paths.find((path) => path.concept_id === defaultGraphConcept)?.source_id;
   const [query, setQuery] = useState("");
   const [concept, setConcept] = useState("all");
   const [target, setTarget] = useState("all");
   const [pathsOpen, setPathsOpen] = useState(false);
+  const [view, setView] = useState<"chain" | "graph">("chain");
+  const [graphConcept, setGraphConcept] = useState(defaultGraphConcept);
+  const [graphNodeId, setGraphNodeId] = useState(
+    defaultGraphSource ? `source:${defaultGraphSource}` : `concept:${defaultGraphConcept}`,
+  );
 
   const filtered = useMemo(() => model.paths.filter((path) => {
     const matchesConcept = concept === "all" || path.concept_id === concept;
@@ -109,6 +147,18 @@ export default function OntologyDashboard({ model }: { model: OntologyDashboardM
     },
   ];
 
+  const graph = useMemo(
+    () => buildOntologyEgoGraph(model, graphConcept) as OntologyEgoGraph,
+    [graphConcept, model],
+  );
+  const graphSelection = useMemo(
+    () => selectOntologyGraphNode(graph, graphNodeId) as OntologyGraphSelection | null,
+    [graph, graphNodeId],
+  );
+  const selectedSourcePath = graphSelection?.node.kind === "source"
+    ? model.paths.find((path) => path.source_id === graphSelection.node.source_id)
+    : null;
+
   function chooseConcept(next: string) {
     setConcept(next);
     setPathsOpen(true);
@@ -117,6 +167,12 @@ export default function OntologyDashboard({ model }: { model: OntologyDashboardM
   function chooseTarget(next: string) {
     setTarget(next);
     setPathsOpen(true);
+  }
+
+  function chooseGraphConcept(next: string) {
+    setGraphConcept(next);
+    const firstSource = model.paths.find((path) => path.concept_id === next)?.source_id;
+    setGraphNodeId(firstSource ? `source:${firstSource}` : `concept:${next}`);
   }
 
   return (
@@ -134,7 +190,18 @@ export default function OntologyDashboard({ model }: { model: OntologyDashboardM
         </dl>
       </header>
 
-      <div className="ontology-hierarchy" aria-label="Top-to-bottom city ontology hierarchy">
+      <div className="ontology-view-switch" role="group" aria-label="Choose ontology view">
+        <button type="button" aria-pressed={view === "chain"} onClick={() => setView("chain")}>Operational chain</button>
+        <button type="button" aria-pressed={view === "graph"} onClick={() => setView("graph")}>Knowledge graph</button>
+      </div>
+      <p className="ontology-view-note">Operational chain remains the default. The graph shows the same explicit contracts from another angle.</p>
+
+      <div
+        className="ontology-hierarchy"
+        aria-label="Top-to-bottom city ontology hierarchy"
+        data-ontology-view="chain"
+        hidden={view !== "chain"}
+      >
         <section className="ontology-level" data-ontology-level="sources" aria-labelledby="ontology-level-sources">
           <header className="ontology-level-heading">
             <span>01</span>
@@ -279,6 +346,125 @@ export default function OntologyDashboard({ model }: { model: OntologyDashboardM
           <p className="ontology-stage-note is-authority"><strong>Human decision required</strong><span>Models and ontology never issue a public warning.</span></p>
         </section>
       </div>
+
+      <section
+        className="ontology-graph-view"
+        data-ontology-view="graph"
+        hidden={view !== "graph"}
+        aria-labelledby="ontology-graph-heading"
+      >
+        <header className="ontology-graph-header">
+          <div>
+            <p className="eyebrow">Focused neighbourhood</p>
+            <h3 id="ontology-graph-heading">Knowledge graph</h3>
+            <p>Select a node to reveal only its direct, registered relationships.</p>
+          </div>
+          <span>Explicit relationships only</span>
+        </header>
+
+        <div className="ontology-graph-concepts" role="group" aria-label="Choose graph focus concept">
+          {model.concepts.map((item) => (
+            <button
+              type="button"
+              aria-pressed={graphConcept === item.id}
+              onClick={() => chooseGraphConcept(item.id)}
+              key={item.id}
+            >
+              <strong>{item.label}</strong>
+              <span>{item.source_count}</span>
+            </button>
+          ))}
+        </div>
+
+        <div className="ontology-graph-workspace" data-ontology-graph="ego">
+          <div className="ontology-ego-canvas" aria-label="Selected node and direct ontology neighbours">
+            <div className="ontology-graph-legend" aria-label="Knowledge graph node types">
+              <span data-kind="source">Source</span>
+              <span data-kind="concept">Concept</span>
+              <span data-kind="destination">Operator module</span>
+              <span data-kind="authority">Human authority</span>
+            </div>
+
+            {graphSelection && (
+              <>
+                <article
+                  className={`ontology-ego-focus kind-${graphSelection.node.kind}`}
+                  data-graph-node-kind={graphSelection.node.kind}
+                >
+                  <span>{readable(graphSelection.node.kind)}</span>
+                  <strong>{graphSelection.node.label}</strong>
+                  <small>{graphSelection.node.description ?? graphSelection.node.ontology_role?.replaceAll("_", " ")}</small>
+                </article>
+                <div className="ontology-ego-stem" aria-hidden="true"><span>direct relations</span></div>
+                <div className="ontology-ego-neighbours" aria-label="Direct neighbours">
+                  {graphSelection.neighbors.map((node) => {
+                    const edge = graphSelection.edges.find((item) => (
+                      item.source === node.id || item.target === node.id
+                    ));
+                    const direction = edge?.source === graphSelection.node.id ? "outgoing" : "incoming";
+                    return (
+                      <button
+                        type="button"
+                        className={`ontology-ego-node kind-${node.kind}`}
+                        data-graph-node-kind={node.kind}
+                        data-graph-edge-role={edge?.relation}
+                        aria-label={`${node.label}; ${edge?.label}; ${direction} relationship`}
+                        aria-pressed={graphNodeId === node.id}
+                        aria-controls="ontology-graph-inspector"
+                        onClick={() => setGraphNodeId(node.id)}
+                        key={node.id}
+                      >
+                        <span>{edge?.label}</span>
+                        <strong>{node.label}</strong>
+                        <small>{readable(node.kind)}</small>
+                      </button>
+                    );
+                  })}
+                </div>
+              </>
+            )}
+          </div>
+
+          <aside className="ontology-graph-inspector" id="ontology-graph-inspector" aria-live="polite">
+            <header>
+              <span>Node details</span>
+              <h4>{graphSelection?.node.label}</h4>
+              <small>{graphSelection?.node.id}</small>
+            </header>
+
+            <section>
+              <h5>Direct neighbours</h5>
+              <ul>
+                {graphSelection?.edges.map((edge) => {
+                  const neighborId = edge.source === graphSelection.node.id ? edge.target : edge.source;
+                  const neighbor = graph.nodes.find((node) => node.id === neighborId);
+                  return (
+                    <li key={edge.id}>
+                      <span>{edge.label}</span>
+                      <strong>{neighbor?.label}</strong>
+                    </li>
+                  );
+                })}
+              </ul>
+            </section>
+
+            <section>
+              <h5>Source truth &amp; provenance</h5>
+              {selectedSourcePath ? (
+                <div className="ontology-graph-truth">
+                  <span>{truthLabel(selectedSourcePath)}</span>
+                  <span>{accessLabel(selectedSourcePath)}</span>
+                  <span>Ontology weight {selectedSourcePath.ontology_evidence_weight}</span>
+                </div>
+              ) : (
+                <p>Select a source node to inspect its truth, access and evidence weight.</p>
+              )}
+            </section>
+
+            <p className="ontology-graph-guardrail"><strong>Graph boundary</strong> Position and distance never create evidence.</p>
+          </aside>
+        </div>
+      </section>
 
       <details
         className="ontology-pathways"
