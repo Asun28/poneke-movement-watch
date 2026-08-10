@@ -13,7 +13,7 @@ existing ontology, while keeping the six-level operational chain as the default.
 - [completed] Define the smallest accessible graph/list interaction and add failing behavior tests.
 - [completed] Implement the alternate view without changing evidence or authority semantics.
 - [completed] Verify regressions.
-- [in_progress] Deploy to the existing owner-only site.
+- [completed] Deploy to the existing owner-only site.
 
 ### Acceptance criteria
 
