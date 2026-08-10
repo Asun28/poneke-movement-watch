@@ -2,12 +2,15 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import registryData from "../public/cop/v2/source-registry.json";
+import { SOURCE_MANIFEST } from "../lib/sourceManifest.mjs";
+import { operationsTargetForConnectorMode } from "../lib/sourceOperations.mjs";
 import {
   MOVEMENT_REPLAY_SOURCE_ID,
   canInspectSelectedSources,
   canReplaySelectedSources,
   clampMapZoom,
   findNearestMapMarker,
+  filterSourcesByOperationsTarget,
   playableSignalsForSources,
   replayIntervalMs,
   sourceLayerState,
@@ -65,6 +68,7 @@ type SourceLayer = {
   role: string;
   demo_data_status: string;
   access_status: string;
+  operations_target: string;
   data_2026?: {
     status: string;
     active: boolean;
@@ -106,7 +110,12 @@ const TILE_SIZE = 256;
 const EMPTY_HISTORY: HistoryPoint[] = [];
 const tileCache = new Map<string, HTMLImageElement>();
 const failedTiles = new Set<string>();
-const sourceLayers = registryData.sources as SourceLayer[];
+const sourceLayers = registryData.sources.map((source) => ({
+  ...source,
+  operations_target: operationsTargetForConnectorMode(
+    SOURCE_MANIFEST[source.id as keyof typeof SOURCE_MANIFEST]?.connector_mode,
+  ),
+})) as SourceLayer[];
 
 function signalKey(feature: LineFeature) {
   return [
@@ -530,16 +539,19 @@ function LayerWorkspace({
   onClearSources,
 }: LayerWorkspaceProps) {
   const [sourceQuery, setSourceQuery] = useState("");
+  const [operationsTarget, setOperationsTarget] = useState("replay_analyzer");
   const summary = sourceSelectionSummary(selectedSourceIds, sourceLayers);
-  const visibleSources = sourceLayers.filter((source) => (
-    `${source.name} ${source.role}`.toLowerCase().includes(sourceQuery.trim().toLowerCase())
-  ));
+  const visibleSources = filterSourcesByOperationsTarget(
+    sourceLayers,
+    operationsTarget,
+    sourceQuery,
+  ) as SourceLayer[];
 
   return (
     <aside className="layer-workspace" aria-labelledby="layer-workspace-heading">
       <header className="layer-workspace-header">
         <div>
-          <p className="eyebrow">Map + integration</p>
+          <p className="eyebrow">Replay Analyzer</p>
           <h3 id="layer-workspace-heading">Layer workspace</h3>
         </div>
         <button type="button" aria-label="Hide layer panel" onClick={onClose}>×</button>
@@ -589,9 +601,22 @@ function LayerWorkspace({
 
       <section className="layer-group source-layer-group" aria-labelledby="source-layers-heading">
         <div className="layer-group-heading">
-          <h4 id="source-layers-heading">Source layers</h4>
-          <span>{summary.selected_count}/{sourceLayers.length} selected</span>
+          <h4 id="source-layers-heading">Replay source layers</h4>
+          <span>{visibleSources.length} shown</span>
         </div>
+        <label className="source-operations-filter">
+          <span>Show sources for</span>
+          <select
+            aria-label="Filter replay source layers by operator module"
+            value={operationsTarget}
+            onChange={(event) => setOperationsTarget(event.currentTarget.value)}
+          >
+            <option value="replay_analyzer">Replay Analyzer</option>
+            <option value="live_operations">Live Operations</option>
+            <option value="integration_only">Integration only</option>
+            <option value="all">All source contracts</option>
+          </select>
+        </label>
         <label className="source-layer-search">
           <span>Search source layers</span>
           <input
@@ -635,6 +660,7 @@ function LayerWorkspace({
                   <strong>{source.name}</strong>
                   <small>{source.role.replaceAll("_", " ")}</small>
                   <span className="source-layer-status">
+                    <em className={`operations-${source.operations_target}`}>{state.operations_label}</em>
                     <em>{state.truth_label}</em>
                     <em>{state.access_label}</em>
                     <em>{state.record_label}</em>
@@ -650,7 +676,7 @@ function LayerWorkspace({
         </div>
         <div className="layer-selection-summary" aria-live="polite">
           <strong>{summary.playable_source_count} playable</strong>
-          <span>{summary.selected_count} selected integration layers</span>
+          <span>{summary.selected_count} selected source layers</span>
         </div>
       </section>
     </aside>

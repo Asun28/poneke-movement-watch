@@ -1,5 +1,26 @@
 # Progress — Phase 2 ontology and sources
 
+## Phase 18 — source labels and module separation
+
+- 2026-08-10: Audited contracts and all source-facing screens. Confirmed Live is
+  already connector-isolated, while Data Integration lacks a destination field,
+  Setup cannot choose a destination and Replay mixes all 33 contracts by default.
+- 2026-08-10: Locked the safe design to one explicit operations target per
+  contract plus text badges and filters. This does not activate sources or move
+  records between Live and Replay.
+- 2026-08-10: RED confirmed the missing contract field, Setup destination,
+  Integration filter and Replay module filter. The first GREEN run passed all
+  new tests and exposed one obsolete assertion that still required all 33 source
+  contracts to render together by default; it was updated to the new separation contract.
+- 2026-08-10: GREEN passes 41/41 site tests. Every contract now has one current
+  operator destination; Data Integration filters and labels it, Setup collects
+  it, and Replay defaults to its single playable historical source.
+- 2026-08-10: Final verification passes: production build, 41/41 site tests,
+  ESLint, 22/22 Python tests, reduced-motion/focus/label review and whitespace
+  checks. The exact validated source is prepared for the existing owner-only site.
+
+---
+
 ## Phase 17 — April storm 回测
 
 - 2026-08-10: Audited Live/Replay boundaries and verified that packaged real

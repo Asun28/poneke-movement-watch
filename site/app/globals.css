@@ -105,8 +105,9 @@ h2 { font-size: clamp(29px, 3.2vw, 47px); line-height: 1; }
 .symbol-size-control output { color: var(--movement-blue); font: 700 10px/1 Consolas, monospace; }
 .symbol-size-control input { width: 100%; margin: 9px 0 0; accent-color: var(--signal-amber); }
 .layer-truth-note { margin: 0 0 11px; padding: 9px; color: var(--civic-ink); background: rgba(215,137,22,.11); font-size: 10px; line-height: 1.4; }
-.source-layer-search span { display: block; margin-bottom: 5px; color: var(--muted-ink); font: 9px/1 Consolas, monospace; text-transform: uppercase; }
-.source-layer-search input { width: 100%; min-height: 34px; padding: 0 9px; border: 1px solid var(--hairline); border-radius: 0; background: var(--white); color: var(--civic-ink); }
+.source-operations-filter span, .source-layer-search span { display: block; margin-bottom: 5px; color: var(--muted-ink); font: 9px/1 Consolas, monospace; text-transform: uppercase; }
+.source-operations-filter select, .source-layer-search input { width: 100%; min-height: 44px; padding: 0 9px; border: 1px solid var(--hairline); border-radius: 0; background: var(--white); color: var(--civic-ink); }
+.source-layer-search { display: block; margin-top: 9px; }
 .layer-actions { display: grid; grid-template-columns: 1fr 1fr; margin-top: 9px; border-top: 1px solid var(--hairline); border-left: 1px solid var(--hairline); }
 .layer-actions button { min-height: 32px; padding: 5px 6px; border: 0; border-right: 1px solid var(--hairline); border-bottom: 1px solid var(--hairline); background: var(--white); color: var(--civic-ink); font-size: 9px; cursor: pointer; }
 .layer-actions button:first-child { grid-column: 1 / -1; color: var(--white); background: var(--corroboration-teal); font-weight: 700; }
@@ -121,7 +122,9 @@ h2 { font-size: clamp(29px, 3.2vw, 47px); line-height: 1; }
 .source-layer-copy > small { margin-top: 3px; color: var(--muted-ink); font-size: 8px; line-height: 1.25; text-transform: capitalize; }
 .source-layer-status { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 6px; }
 .source-layer-status em { padding: 3px 4px; color: #486068; background: rgba(16,42,51,.06); font: 700 7px/1 Consolas, monospace; font-style: normal; text-transform: uppercase; }
-.source-layer-row.is-playable .source-layer-status em:first-child { color: #205c50; background: rgba(45,122,104,.14); }
+.source-layer-status .operations-live_operations { color: #205c50; background: rgba(45,122,104,.14); }
+.source-layer-status .operations-replay_analyzer { color: var(--movement-blue); background: rgba(30,106,141,.12); }
+.source-layer-status .operations-integration_only { color: #7c4c00; background: rgba(215,137,22,.13); }
 .no-source-match { padding: 18px 8px; color: var(--muted-ink); font-size: 10px; text-align: center; }
 .layer-selection-summary { display: flex; justify-content: space-between; gap: 8px; padding-top: 10px; color: var(--muted-ink); font-size: 9px; }
 .layer-selection-summary strong { color: var(--corroboration-teal); text-transform: uppercase; }
@@ -741,6 +744,10 @@ footer strong { color: var(--white); }
 .integration-table td { padding: 12px; border-right: 1px solid var(--hairline); border-bottom: 1px solid var(--hairline); vertical-align: top; font-size: 10px; line-height: 1.4; overflow-wrap: anywhere; }
 .integration-table tbody tr:hover { background: #edf4f2; }
 .integration-table td strong, .integration-table td code, .integration-table td small { display: block; }
+.operations-target { display: inline-block; margin-top: 7px; padding: 5px 6px; color: #3e5961; background: rgba(16,42,51,.08); font: 800 8px/1.2 Consolas, monospace; text-transform: uppercase; }
+.operations-target.target-live_operations { color: #205c50; background: rgba(45,122,104,.14); }
+.operations-target.target-replay_analyzer { color: var(--movement-blue); background: rgba(30,106,141,.12); }
+.operations-target.target-integration_only { color: #7c4c00; background: rgba(215,137,22,.13); }
 .integration-table td code { margin-top: 6px; color: var(--movement-blue); font-size: 8px; }
 .integration-table td small { margin-top: 6px; color: var(--muted-ink); font-size: 8px; }
 .contract-mode, .runtime-state { display: inline-block; padding: 5px 6px; color: #3e5961; background: rgba(16,42,51,.08); font: 800 8px/1.2 Consolas, monospace; text-transform: uppercase; }

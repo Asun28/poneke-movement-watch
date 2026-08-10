@@ -1,3 +1,5 @@
+import { operationsTargetForConnectorMode } from "./sourceOperations.mjs";
+
 const RUNTIME_STATES = [
   "live",
   "mock",
@@ -57,6 +59,7 @@ export function buildSourceContracts(registry, manifest = {}) {
       role: source.role,
       source_version: declared.source_version ?? "2026-08-10",
       connector_mode: connectorMode,
+      operations_target: operationsTargetForConnectorMode(connectorMode),
       runtime_default: runtimeDefault(connectorMode, access),
       access,
       endpoint: declared.endpoint ?? source.endpoint ?? null,

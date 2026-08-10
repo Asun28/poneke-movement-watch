@@ -153,10 +153,9 @@ test("renders a collapsible per-source layer workspace with selected-data replay
   assert.match(html, /Map symbol size/);
   assert.match(html, /1(?:<!-- -->)? playable/);
   assert.match(html, /Real replay/);
-  assert.match(html, /0 playable records/);
-  assert.match(html, /Needs permission/);
-  assert.match(html, /Paid API/);
-  assert.equal((html.match(/data-source-layer=/g) ?? []).length, 33);
+  assert.match(html, /Replay Analyzer/);
+  assert.doesNotMatch(html, /0 playable records/);
+  assert.equal((html.match(/data-source-layer=/g) ?? []).length, 1);
   assert.equal((html.match(/data-playable="true"/g) ?? []).length, 1);
 });
 

@@ -1,5 +1,73 @@
 # Pōneke Movement Watch — evidence ontology roadmap
 
+## Phase 18 — clear source labels and operator-module separation
+
+### Goal
+
+Make every data source easy to identify by operational destination and keep
+Live Operations sources distinct from Replay Analyzer sources in contracts,
+setup and source-selection UI.
+
+### Status
+
+- [completed] Audit source contracts, Setup, Integration, Live and Replay source selectors.
+- [completed] Define one truth-preserving operations-target label contract.
+- [completed] Add failing contract and rendered-behavior tests.
+- [completed] Implement target labels, filters and Setup destination selection.
+- [completed] Verify accessibility, regressions and owner-only deployment.
+
+### Acceptance criteria
+
+- Every integration contract declares exactly one `operations_target`:
+  `live_operations`, `replay_analyzer` or `integration_only`.
+- Live connectors map to Live Operations; batch replay maps to Replay Analyzer;
+  mock, stale and unconnected context remain Integration only.
+- Data Integration can filter by `Used in` and shows a text destination badge on
+  every source; meaning is not conveyed by colour alone.
+- Add data source exposes a required `Use in` field with the same three choices.
+- Replay's layer workspace defaults to Replay Analyzer sources and can explicitly
+  reveal Live Operations or Integration-only contracts without making them playable.
+- Existing Live data selection, replay evidence rules and activation boundaries do not change.
+
+### Assumptions and exclusions
+
+- A source contract has one current operational destination. A future archival
+  adapter may be registered separately instead of silently treating a live feed
+  as historical replay data.
+- `connector_mode` remains technical source truth; `operations_target` is the
+  plain-language operator destination and does not change access or runtime state.
+- Setup continues to save a browser-only draft; no source is activated and no
+  credentials, database schema or access settings are changed.
+- No new data source, model, live API or replay observation is added.
+
+### Initial file-level plan
+
+- `site/tests/integration-model.test.mjs`, `site/tests/layer-model.test.mjs`,
+  `site/tests/operator-console.test.mjs`: contract, separation and rendered controls.
+- `site/lib/dataIntegration.mjs`: canonical target derivation and contract field.
+- `site/app/components/IntegrationRegistry.tsx`, `SetupClient.tsx`: target filter,
+  badges and destination choice.
+- `site/app/MovementCanvas.tsx`, `site/app/layerModel.mjs`: Replay-only default
+  filter and explicit non-playable destination labels.
+- `site/app/globals.css`, `README.md`, `findings.md`, `progress.md`: compact,
+  accessible presentation and handoff notes.
+
+### Rejected major alternatives
+
+- Do not use connector modes (`live`, `batch`, `mock`) as the only user-facing labels.
+- Do not rely on colour, icons or route context alone to distinguish source use.
+- Do not place live connector records into historical replay without an archival contract.
+
+### Errors encountered
+
+| Error | Attempt | Resolution |
+|---|---:|---|
+| Planning skill was first read from `.codex/skills`; its actual root is `.agents/skills`. | 1 | Read the complete skill from the catalogued `r1` path. |
+| Source-contract audit first requested nonexistent `site/lib/integration.mjs`. | 1 | Read the existing `site/lib/dataIntegration.mjs`; do not retry the wrong path. |
+| One audit search included nonexistent `site/app/api`. | 1 | Use the existing app/lib routes directly and omit the absent directory. |
+
+---
+
 ## Phase 17 — April storm 回测 entry point and event pack
 
 ### Goal

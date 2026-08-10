@@ -70,6 +70,11 @@ test("offers short safe setup paths for sources, API, MCP and A2A", async () => 
   assert.match(html, />MCP</);
   assert.match(html, />A2A</);
   assert.match(html, /Source name/);
+  assert.match(html, /Use in/);
+  assert.match(html, /name="operationsTarget"/);
+  assert.match(html, />Live Operations</);
+  assert.match(html, />Replay Analyzer</);
+  assert.match(html, />Integration only</);
   assert.match(html, /Secret reference/);
   assert.equal((html.match(/No secrets stored/g) ?? []).length, 1);
   assert.match(html, /Needs server activation/);
@@ -105,11 +110,28 @@ test("renders truth, access and runtime health as separate integration dimension
   assert.match(html, /Access &amp; cost/);
   assert.match(html, /Runtime health/);
   assert.match(html, /Provider format/);
+  assert.match(html, /Used in/);
+  assert.match(html, /Filter by operator module/);
+  assert.match(html, /Live Operations source/);
+  assert.match(html, /Replay Analyzer source/);
+  assert.match(html, /Integration only/);
   assert.match(html, /Mock · zero evidence weight/);
   assert.match(html, /Google Routes API/);
   assert.match(html, /NEMA Emergency Mobile Alert/);
   assert.match(html, /href="\/setup"/);
   assert.match(html, /Add source/);
+});
+
+test("defaults Replay Analyzer source layers to replay sources with explicit module filters", async () => {
+  const html = await (await request("/replay")).text();
+
+  assert.match(html, /Replay source layers/);
+  assert.match(html, /Show sources for/);
+  assert.match(html, /aria-label="Filter replay source layers by operator module"/);
+  assert.match(html, /value="replay_analyzer" selected=""/);
+  assert.match(html, /Replay Analyzer/);
+  assert.match(html, /Live Operations/);
+  assert.match(html, /Integration only/);
 });
 
 test("makes model authority and mock alert exclusion explicit", async () => {

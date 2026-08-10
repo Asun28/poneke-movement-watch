@@ -1,5 +1,31 @@
 # Findings — Phase 2 ontology and sources
 
+## Phase 18 — source labels and module separation
+
+- The integration contract currently exposes connector mechanics but no explicit
+  operator destination. Operators must infer `live` versus `batch`, which is the
+  labeling problem the user reported.
+- Live Operations already fails closed correctly: it renders only contracts whose
+  connector mode is `live`. This boundary must remain unchanged.
+- Replay Analyzer currently displays all 33 registry contracts together in one
+  source list, although only WCC Transport Sensors is playable. Truth chips exist,
+  but the default mixed list makes Live, Replay and registered-only sources look
+  like peers.
+- Setup has cadence, format and access fields but no destination selection. A
+  required `Use in` select is the smallest operator-friendly addition and remains
+  a browser-only draft.
+- The canonical destination mapping is: connected live adapter → Live Operations;
+  batch replay → Replay Analyzer; mock, context, stale or merely registered →
+  Integration only. This is a label and filtering contract, not evidence promotion.
+- UX guidance supports explicit text labels, 44px controls, a predictable default
+  filter and no colour-only status. The existing civic palette and compact table
+  remain suitable; no new navigation destination is needed.
+- The final UI uses the same three labels in the integration contract, Data
+  Integration filter, source badge, Setup field and Replay layer filter. A single
+  shared label helper prevents copy drift between server and client contracts.
+
+---
+
 ## Phase 17 — April storm 回测
 
 - The Live situation strip is the correct secondary entry point: the operator can

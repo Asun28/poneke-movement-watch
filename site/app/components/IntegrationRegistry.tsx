@@ -1,12 +1,14 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { operationsTargetLabel } from "../../lib/sourceOperations.mjs";
 
 type Contract = {
   source_id: string;
   name: string;
   role: string;
   connector_mode: string;
+  operations_target: string;
   runtime_default: string;
   access: {
     status: string;
@@ -42,12 +44,12 @@ function accessLabel(contract: Contract) {
 
 export default function IntegrationRegistry({ contracts }: { contracts: Contract[] }) {
   const [query, setQuery] = useState("");
-  const [mode, setMode] = useState("all");
+  const [target, setTarget] = useState("all");
   const filtered = useMemo(() => contracts.filter((contract) => {
-    const matchesMode = mode === "all" || contract.connector_mode === mode;
-    const haystack = `${contract.name} ${contract.source_id} ${contract.role}`.toLowerCase();
-    return matchesMode && haystack.includes(query.toLowerCase());
-  }), [contracts, mode, query]);
+    const matchesTarget = target === "all" || contract.operations_target === target;
+    const haystack = `${contract.name} ${contract.source_id} ${contract.role} ${operationsTargetLabel(contract.operations_target)}`.toLowerCase();
+    return matchesTarget && haystack.includes(query.toLowerCase());
+  }), [contracts, target, query]);
 
   return (
     <section className="integration-registry" aria-labelledby="integration-registry-heading">
@@ -61,14 +63,16 @@ export default function IntegrationRegistry({ contracts }: { contracts: Contract
             <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Name, role or ID" />
           </label>
           <label>
-            <span>Connector mode</span>
-            <select value={mode} onChange={(event) => setMode(event.target.value)}>
-              <option value="all">All modes</option>
-              <option value="live">Live</option>
-              <option value="mock">Mock / gated</option>
-              <option value="batch">Batch</option>
-              <option value="context">Context</option>
-              <option value="stale">Stale</option>
+            <span>Used in</span>
+            <select
+              aria-label="Filter by operator module"
+              value={target}
+              onChange={(event) => setTarget(event.target.value)}
+            >
+              <option value="all">All sources</option>
+              <option value="live_operations">Live Operations</option>
+              <option value="replay_analyzer">Replay Analyzer</option>
+              <option value="integration_only">Integration only</option>
             </select>
           </label>
           <a className="integration-setup-link" href="/setup">Add source</a>
@@ -92,6 +96,11 @@ export default function IntegrationRegistry({ contracts }: { contracts: Contract
               <tr key={contract.source_id} data-source-contract={contract.source_id}>
                 <td>
                   <strong>{contract.name}</strong>
+                  <span className={`operations-target target-${contract.operations_target}`}>
+                    {contract.operations_target === "integration_only"
+                      ? operationsTargetLabel(contract.operations_target)
+                      : `${operationsTargetLabel(contract.operations_target)} source`}
+                  </span>
                   <code>{contract.source_id}</code>
                 </td>
                 <td>{contract.role.replaceAll("_", " ")}</td>

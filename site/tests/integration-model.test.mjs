@@ -52,6 +52,16 @@ test("builds one versioned integration contract for every registered source", ()
   assert.equal(paid.access.cost, "paid");
   assert.equal(paid.access.credentials_required, true);
   assert.equal(paid.alert_eligible, false);
+
+  const replay = contracts.sources.find((source) => source.source_id === "wcc-transport-sensors");
+  assert.equal(live.operations_target, "live_operations");
+  assert.equal(replay.operations_target, "replay_analyzer");
+  assert.equal(paid.operations_target, "integration_only");
+  assert.ok(contracts.sources.every((source) => [
+    "live_operations",
+    "replay_analyzer",
+    "integration_only",
+  ].includes(source.operations_target)));
 });
 
 test("builds a partial live snapshot without hiding healthy, empty or mock sources", async () => {

@@ -324,6 +324,16 @@ The registry contains 33 source contracts, including authoritative operator and
 commercial catalogues where explicitly labelled. That does **not** mean 33 live
 feeds are connected. Every source declares demo-data, access and 2026 states.
 
+Each provider contract also declares one current operator destination:
+
+- `Live Operations` — connected current-feed adapters only;
+- `Replay Analyzer` — packaged historical/batch observations only;
+- `Integration only` — Mock, gated, static, stale or not-yet-connected contracts.
+
+Data Integration can filter by this label. Add data source requires the same
+`Use in` choice. Replay defaults to Replay Analyzer sources; selecting another
+label reveals its contract but does not make it playable.
+
 | Demo status | Sources shown | Access / cost |
 |---|---|---|
 | **Real replay** | WCC Transport Sensors | Public source; real August 2026 batch records |

@@ -1,3 +1,5 @@
+import { operationsTargetLabel } from "../lib/sourceOperations.mjs";
+
 export const MOVEMENT_REPLAY_SOURCE_ID = "wcc-transport-sensors";
 const DEFAULT_REPLAY_INTERVAL_MS = 900;
 const REPLAY_SPEEDS = new Set([0.5, 1, 2, 4]);
@@ -39,9 +41,19 @@ export function sourceLayerState(source) {
     truth_label: TRUTH_LABELS[source.demo_data_status] ?? "Unknown",
     access_label: ACCESS_LABELS[source.access_status] ?? "Access unknown",
     playable,
+    operations_label: operationsTargetLabel(source.operations_target),
     record_label: playable ? "Playable history" : "0 playable records",
     year_label: YEAR_2026_LABELS[source.data_2026?.status] ?? "2026 state unknown",
   };
+}
+
+export function filterSourcesByOperationsTarget(sources, target, query) {
+  const normalizedQuery = query.trim().toLowerCase();
+  return sources.filter((source) => {
+    const matchesTarget = target === "all" || source.operations_target === target;
+    const haystack = `${source.name ?? ""} ${source.role ?? ""} ${source.id}`.toLowerCase();
+    return matchesTarget && haystack.includes(normalizedQuery);
+  });
 }
 
 export function canReplaySelectedSources(selectedSourceIds, sources) {

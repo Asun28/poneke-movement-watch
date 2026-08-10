@@ -6,6 +6,7 @@ import {
   canInspectSelectedSources,
   canReplaySelectedSources,
   findNearestMapMarker,
+  filterSourcesByOperationsTarget,
   playableSignalsForSources,
   sourceLayerState,
   sourceSelectionSummary,
@@ -16,19 +17,31 @@ const sources = [
     id: "wcc-transport-sensors",
     demo_data_status: "real_replay",
     access_status: "public_free",
+    operations_target: "replay_analyzer",
     data_2026: { status: "real_records" },
   },
   {
     id: "nema-cap-alerts",
     demo_data_status: "mock_preview",
     access_status: "permission_required",
+    operations_target: "integration_only",
     data_2026: { status: "restricted_not_ingested" },
   },
   {
     id: "google-routes-api",
     demo_data_status: "mock_preview",
     access_status: "paid_key_required",
+    operations_target: "integration_only",
     data_2026: { status: "paid_mock_only" },
+  },
+  {
+    id: "geonet-quakes",
+    name: "GeoNet earthquakes",
+    role: "hazard_observation",
+    demo_data_status: "registered_only",
+    access_status: "public_free",
+    operations_target: "live_operations",
+    data_2026: { status: "available_not_ingested" },
   },
 ];
 const signals = [{ id: "movement:1" }, { id: "movement:2" }];
@@ -54,6 +67,7 @@ test("mock permission and paid layers remain zero-record integration layers", ()
     truth_label: "Real replay",
     access_label: "Public / free",
     playable: true,
+    operations_label: "Replay Analyzer",
     record_label: "Playable history",
     year_label: "2026 real records",
   });
@@ -61,6 +75,7 @@ test("mock permission and paid layers remain zero-record integration layers", ()
     truth_label: "Mock preview",
     access_label: "Needs permission",
     playable: false,
+    operations_label: "Integration only",
     record_label: "0 playable records",
     year_label: "2026 restricted",
   });
@@ -68,9 +83,25 @@ test("mock permission and paid layers remain zero-record integration layers", ()
     truth_label: "Mock preview",
     access_label: "Paid API",
     playable: false,
+    operations_label: "Integration only",
     record_label: "0 playable records",
     year_label: "2026 paid / mock",
   });
+});
+
+test("separates replay, live and integration-only source labels before search", () => {
+  assert.deepEqual(
+    filterSourcesByOperationsTarget(sources, "replay_analyzer", "").map((source) => source.id),
+    ["wcc-transport-sensors"],
+  );
+  assert.deepEqual(
+    filterSourcesByOperationsTarget(sources, "live_operations", "geo").map((source) => source.id),
+    ["geonet-quakes"],
+  );
+  assert.deepEqual(
+    filterSourcesByOperationsTarget(sources, "integration_only", "google").map((source) => source.id),
+    ["google-routes-api"],
+  );
 });
 
 test("paused inspection is limited to a paused selected real-replay source", () => {

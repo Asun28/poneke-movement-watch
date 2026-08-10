@@ -104,6 +104,7 @@ export default function SetupClient() {
           <div className="setup-fields">
             <label><span>Source name</span><input name="sourceName" required placeholder="e.g. Metlink alerts" /></label>
             <label><span>Publisher</span><input name="publisher" required placeholder="Organisation" /></label>
+            <label><span>Use in</span><select name="operationsTarget" defaultValue="live_operations" required><option value="live_operations">Live Operations</option><option value="replay_analyzer">Replay Analyzer</option><option value="integration_only">Integration only</option></select></label>
             <label><span>Ontology role</span><select name="ontologyRole" defaultValue="observation"><option value="observation">Observation</option><option value="official_event">Official event</option><option value="lifeline">Lifeline</option><option value="context">Context only</option></select></label>
             <label><span>Update</span><select name="cadence" defaultValue="live"><option value="live">Live</option><option value="5_minutes">5 minutes</option><option value="hourly">Hourly</option><option value="daily">Daily</option><option value="batch">Batch</option></select></label>
             <label><span>Format</span><select name="format" defaultValue="json"><option value="json">JSON</option><option value="geojson">GeoJSON</option><option value="xml">XML / CAP</option><option value="gtfs_rt">GTFS-Realtime</option><option value="csv">CSV / Parquet</option></select></label>
