@@ -1019,3 +1019,6 @@
 - 2026-08-11: Added an operator-controlled official-impact layer containing the four withheld
   post-event labels. It stays off the map because those records lack verified event-time geometry;
   opening it shows source and claim without changing detector input or case state.
+- 2026-08-11: Published validated feature commit `938aeda` only to the private Sites source, saved
+  version 54 and completed the owner-only production deployment at the existing URL. The temporary
+  archive was removed; GitHub `origin` and remote `main` were not changed.

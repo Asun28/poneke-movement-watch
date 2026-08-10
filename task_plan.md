@@ -14,7 +14,7 @@ post-event labels, mock records or the unrelated movement model into event-time 
 - [completed] Verify and retrieve additional eligible April sensor series with coordinates and time provenance.
 - [completed] Add failing tests for cutoff-safe detector output, evidence linkage and layer selection.
 - [completed] Build the enriched pack, hydro detector projection and investigation UI.
-- [in_progress] Run data validation, regressions, build and owner-only deployment.
+- [completed] Run data validation, regressions, build and owner-only deployment.
 
 ### Acceptance criteria
 
