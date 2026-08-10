@@ -1507,3 +1507,57 @@ supports spatial event-footprint resolution, never direct building-damage claims
 - Independent review caught and closed an important visual-semantics issue: planned context and
   post-event news now live in a non-scoring branch after fusion, not in the Stage 1 expert-input
   path. Reduced-motion mode also disables the fusion zoom transition.
+# Phase 40 — Replay/Live data binding and compact controls
+
+- The supplied Replay screenshot shows the selected snapshot three times: a floating
+  `Movement changes` card, a `History replay` date-range header and a separate `Paused · hover
+  markers` card. The controls themselves also split date, hour, speed, play and counts across
+  two rows. The target is one operational toolbar, not removal of those values.
+- Reported behavior indicates a data-binding problem, not only stale copy: changing an
+  investigation must select a compatible dataset and reset/clamp its date/hour/playback index.
+- Live search must be checked against the normalized snapshot payload and the active source/layer
+  filters. A valid query with no visible result must distinguish “no match” from “no live data.”
+- Existing truth boundaries remain: WCC transport is batch history, April Hilltop is retrospective
+  sensor replay, and only current adapters belong in Live Operations.
+- Root cause confirmed in code: `ReplayInvestigationSelector` changes only its own `selectedId`;
+  the dataset changes only after pressing `Open investigation`, which performs a full navigation.
+  `MovementCanvas` never reads the investigation query and always fetches `/cop/v1/movement-replay.json`.
+- The April URL therefore opens the April details section but the visible playable map remains the
+  August movement dataset. This is a genuine label/data mismatch and cannot be fixed by copy alone.
+- The page-level replay summary is also hard-coded to August health, so it remains stale for April.
+- Screenshot duplication maps directly to three components inside `MovementCanvas`: map title/time,
+  History replay range/counts, and map inspection status. These can become one compact control row.
+- The April pack is sufficient for a real typed Replay view: 1,683 official historical observations
+  across three geolocated series (two hourly rainfall series and one higher-cadence river-flow series),
+  each with `observed_at`, conservative derived `available_at`, value and unit.
+- The current Live snapshot route already rebuilds adapters on every request and returns `no-store`;
+  stale Live display is therefore more likely a UI/filter/upstream-state issue than HTTP caching.
+- Live search currently indexes only identity/title/place fields. It omits the values operators see
+  in hover cards (`status`, `impact`, `severity`, `event_type`, measurement values and direction),
+  so many reasonable searches necessarily return no matches.
+- The deployed DOM confirms the duplicate Replay presentation is structural: `Movement changes`,
+  `History replay`, and `Paused · hover markers` are three separate visible regions repeating the
+  same time, count and playback state.
+- The deployed `/replay` page still renders August movement as its active map while the April Storm
+  sensor pack sits below it as a separate collapsed card; the April pack is not bound to playback.
+- Browser page evaluation is intentionally read-only and does not expose `fetch`; live endpoint
+  freshness will be checked through direct navigation plus the Worker contract tests.
+- Direct top-level navigation to the deployed private snapshot endpoint is blocked by the browser
+  client. The deployed `/live` page itself loads, initially showing `Refreshing…` and zero records;
+  this needs a post-refresh state check rather than being treated as an all-clear.
+- After refresh, deployed Live loads 61 records from seven connected sources, with two connected
+  sources reporting no current records and one issue. The feed is arriving; the failure is not a
+  globally stale page.
+- Searching a displayed operational value such as `offline` returns zero and removes the list,
+  confirming the search index omits properties that operators can see and reasonably expect to find.
+- Local browser verification now binds the April URL to a real sensor map at the 20 Apr 20:00
+  replay point, showing 1,677 cutoff-safe records out of 1,683 packaged records and current values
+  for Berhampore, Newtown and Hutt River.
+- Switching the investigation selector from April to August replaces the sensor dataset with the
+  movement dataset in place; the selector is no longer a label-only control.
+- Local Live verification now returns 38 records for `offline` and renders a compact seven-result
+  list with source and operational value, rather than silently showing zero.
+- Final 375px QA normalizes old April deep links to `#replay-map`, keeps exactly one Replay control
+  region, binds the sensor dataset, and leaves the event-detail card collapsed with no page overflow.
+- Landscape QA keeps the page width bounded; the dense one-line Replay toolbar scrolls inside its
+  own control surface instead of forcing horizontal page overflow.

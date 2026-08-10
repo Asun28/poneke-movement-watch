@@ -56,10 +56,18 @@ function dateLabel(value: string) {
   }).format(new Date(value));
 }
 
-export default function ReplayInvestigationSelector({ catalog }: { catalog: Investigation[] }) {
+export default function ReplayInvestigationSelector({
+  catalog,
+  activeId,
+  onSelect,
+}: {
+  catalog: Investigation[];
+  activeId?: string;
+  onSelect?: (investigation: Investigation) => void;
+}) {
   const defaultId = catalog.find((item) => item.id === "august-movement-review-2026")?.id ?? catalog[0]?.id ?? "";
   const [investigations, setInvestigations] = useState(catalog);
-  const [selectedId, setSelectedId] = useState(defaultId);
+  const [selectedId, setSelectedId] = useState(activeId ?? defaultId);
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [title, setTitle] = useState("");
@@ -80,18 +88,22 @@ export default function ReplayInvestigationSelector({ catalog }: { catalog: Inve
     const requestedId = new URLSearchParams(window.location.search).get("investigation");
     window.setTimeout(() => {
       setInvestigations(merged);
-      if (requestedId && merged.some((item) => item.id === requestedId)) setSelectedId(requestedId);
+      const next = merged.find((item) => item.id === requestedId)
+        ?? merged.find((item) => item.id === activeId)
+        ?? merged.find((item) => item.id === defaultId)
+        ?? merged[0];
+      if (next) {
+        setSelectedId(next.id);
+        onSelect?.(next as Investigation);
+        if (requestedId) {
+          window.history.replaceState(null, "", workspaceReplayUrl(next));
+          window.setTimeout(() => window.scrollTo({ top: 0, behavior: "auto" }), 0);
+        }
+      }
     }, 0);
-  }, [catalog]);
+  }, [activeId, catalog, defaultId, onSelect]);
 
   const selected = investigations.find((item) => item.id === selectedId) ?? investigations[0];
-
-  useEffect(() => {
-    const requestedId = new URLSearchParams(window.location.search).get("investigation");
-    if (!selected || requestedId !== selected.id) return;
-    const target = document.getElementById(selected.target_hash);
-    if (target instanceof HTMLDetailsElement) target.open = true;
-  }, [selected]);
 
   const sourceWindows = useMemo(() => {
     const seen = new Set<string>();
@@ -111,8 +123,13 @@ export default function ReplayInvestigationSelector({ catalog }: { catalog: Inve
     }
   }
 
-  function openSelected() {
-    if (selected) window.location.assign(buildReplayInvestigationUrl(selected));
+  function selectInvestigation(nextId: string) {
+    const next = investigations.find((item) => item.id === nextId);
+    if (!next) return;
+    setSelectedId(next.id);
+    onSelect?.(next as Investigation);
+    window.history.replaceState(null, "", workspaceReplayUrl(next));
+    setNotice("Dataset loaded.");
   }
 
   function createInvestigation(event: FormEvent<HTMLFormElement>) {
@@ -140,7 +157,8 @@ export default function ReplayInvestigationSelector({ catalog }: { catalog: Inve
     setInvestigations(next);
     setSelectedId(result.investigation.id);
     setNotice("Local investigation created.");
-    window.location.assign(result.replay_url);
+    onSelect?.(result.investigation as Investigation);
+    window.history.replaceState(null, "", workspaceReplayUrl(result.investigation as Investigation));
   }
 
   return (
@@ -167,14 +185,13 @@ export default function ReplayInvestigationSelector({ catalog }: { catalog: Inve
           </div>
           <label className="replay-investigation-select">
             <span>Investigation</span>
-            <select name="investigation" value={selectedId} onChange={(event) => setSelectedId(event.target.value)}>
+            <select name="investigation" value={selectedId} onChange={(event) => selectInvestigation(event.target.value)}>
               {investigations.map((item) => (
                 <option key={item.id} value={item.id}>{item.title} · {item.data_label}</option>
               ))}
             </select>
           </label>
           <div className="replay-investigation-actions">
-            <button type="button" className="is-primary" onClick={openSelected}>Open investigation</button>
             <button type="button" aria-expanded={isCreating} aria-controls="new-replay-investigation" onClick={() => { setIsCreating((value) => !value); setNotice(""); }}>New investigation</button>
           </div>
         </div>
@@ -202,4 +219,8 @@ export default function ReplayInvestigationSelector({ catalog }: { catalog: Inve
       </div>
     </section>
   );
+}
+
+function workspaceReplayUrl(investigation: Investigation) {
+  return buildReplayInvestigationUrl(investigation).replace(/#[^#]*$/, "#replay-map");
 }

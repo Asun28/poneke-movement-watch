@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { buildLiveMapCard, filterLiveMapObservations, LIVE_MAP_LAYERS } from "../../lib/liveMapWorkspace.mjs";
 import LiveMap from "./LiveMap";
 
@@ -113,6 +113,7 @@ function CollapseIcon({ open }: { open: boolean }) {
 }
 
 export default function LiveOperationsClient() {
+  const sourceSelectionInitialized = useRef(false);
   const [snapshot, setSnapshot] = useState<Snapshot | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
@@ -133,9 +134,10 @@ export default function LiveOperationsClient() {
       if (!response.ok) throw new Error(`Snapshot request failed (${response.status})`);
       const next = await response.json() as Snapshot;
       setSnapshot(next);
-      setSelectedSources((current) => current.size
-        ? current
-        : new Set(next.sources.filter((source) => source.connector_mode === "live").map((source) => source.source_id)));
+      if (!sourceSelectionInitialized.current) {
+        sourceSelectionInitialized.current = true;
+        setSelectedSources(new Set(next.sources.filter((source) => source.connector_mode === "live").map((source) => source.source_id)));
+      }
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Live snapshot is unavailable.");
     } finally {
@@ -234,8 +236,25 @@ export default function LiveOperationsClient() {
           <label htmlFor="live-evidence-search" className="sr-only">Search current evidence</label>
           <SearchIcon />
           <input id="live-evidence-search" type="search" value={query} onChange={(event) => setQuery(event.currentTarget.value)} placeholder="Search current evidence" />
-          <output>{visibleObservations.length}</output>
+          <output aria-live="polite">{loading ? "…" : visibleObservations.length}</output>
         </div>
+        {query.trim() && (
+          <div className="live-map-search-results" aria-label="Live search results">
+            {loading ? <p role="status">Searching current feeds…</p> : null}
+            {!loading && error ? <p role="alert">Current feeds unavailable.</p> : null}
+            {!loading && !error && visibleObservations.length === 0 ? <p>No matches in selected layers.</p> : null}
+            {visibleObservations.slice(0, 7).map((observation) => {
+              const source = snapshot?.sources.find((item) => item.source_id === observation.source_id);
+              const card = buildLiveMapCard(observation, source);
+              return (
+                <button key={observation.id} type="button" onClick={() => setSelectedObservation(observation.id)}>
+                  <span><strong>{card.title}</strong><small>{card.source}</small></span>
+                  <b>{card.value}</b>
+                </button>
+              );
+            })}
+          </div>
+        )}
 
         <nav className="live-map-overlay-bar" aria-label="Live map overlays">
           {LIVE_MAP_LAYERS.map((layer) => (

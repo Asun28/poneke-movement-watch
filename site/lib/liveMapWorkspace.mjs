@@ -19,7 +19,22 @@ function searchableObservation(observation, source) {
     observation.properties?.name,
     observation.properties?.site_id,
     observation.properties?.locality,
+    liveObservationValue(observation),
+    searchablePropertyValues(observation.properties),
   ].filter(Boolean).join(" ").toLowerCase();
+}
+
+function searchablePropertyValues(value, depth = 0) {
+  if (!value || depth > 2) return "";
+  if (Array.isArray(value)) {
+    return value.map((item) => searchablePropertyValues(item, depth + 1)).join(" ");
+  }
+  if (typeof value !== "object") return String(value);
+  return Object.entries(value).map(([key, item]) => [
+    key,
+    humanise(key),
+    searchablePropertyValues(item, depth + 1),
+  ].join(" ")).join(" ");
 }
 
 function humanise(value) {

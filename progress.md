@@ -826,3 +826,26 @@
 - 2026-08-10: Pushed the exact validated feature commit only to the private Sites source, saved
   version 37 and completed the owner-only production deployment. Access remains one owner, no
   groups and no external visitors. GitHub origin and remote `main` remain unchanged.
+# Phase 40 — reliable Replay/Live data binding and compact controls
+
+- 2026-08-11: Started end-to-end audit after a deployed Replay screenshot showed duplicated
+  time/status surfaces and the user reported stale investigation switching plus ineffective Live
+  search. Scope is data-to-UI binding and compact presentation; source truth and model rules stay fixed.
+- 2026-08-11: Code audit reproduced the Replay defect: investigation selection is isolated from
+  `MovementCanvas`, which always loads August movement history. The April URL only opens details;
+  it does not bind April sensor observations to the playable map or summary.
+- 2026-08-11: Data-shape audit confirmed the April pack can support an honest sensor replay and
+  confirmed the Live endpoint is `no-store`. Live search coverage is incomplete for displayed values.
+- 2026-08-11: The generic web reader could not access the private Sites URLs. Browser verification
+  will use the existing authenticated in-app session instead of retrying the rejected path.
+- 2026-08-11: Deployed browser verification found 61 Live records after refresh and reproduced
+  the search defect with `offline`. TDD RED now records the missing operational-value search and
+  missing available-at-safe April sensor replay builder as the two expected failures.
+- 2026-08-11: TDD GREEN completed. April Storm now binds 1,677 cutoff-safe Hilltop readings to
+  a sensor replay, investigation switches replace the active dataset immediately, and Live search
+  indexes displayed values, status, direction, units and source properties.
+- 2026-08-11: Replay date, count, speed and playback controls now share one compact toolbar.
+  Duplicate summary, history and paused cards were removed; narrow screens keep page width stable
+  by scrolling the toolbar internally.
+- 2026-08-11: Final local verification passes: production build and 82/82 site behaviors, ESLint,
+  whitespace checks, mobile and landscape browser checks. Owner-only deployment is next.

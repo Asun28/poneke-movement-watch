@@ -18,6 +18,13 @@ try {
   // The contract tests stay readable during the initial RED step.
 }
 
+let replayDataWorkspace = {};
+try {
+  replayDataWorkspace = await import("../lib/replayDataWorkspace.mjs");
+} catch {
+  // The contract tests stay readable during the initial RED step.
+}
+
 const registry = JSON.parse(
   await readFile(new URL("../public/cop/v2/source-registry.json", import.meta.url), "utf8"),
 );
@@ -96,6 +103,69 @@ test("filters the live map without changing source truth or evidence eligibility
     candidateEvidenceIds: new Set(),
     query: "karori",
   }).map(({ id }) => id), ["rain:1"]);
+});
+
+test("searches the operational values shown on Live evidence cards", () => {
+  const observations = [
+    {
+      id: "camera:1",
+      source_id: "camera",
+      kind: "traffic_camera_observation",
+      properties: { name: "Ngauranga Gorge", offline: true, direction: "southbound" },
+    },
+    {
+      id: "rain:1",
+      source_id: "rain",
+      kind: "rainfall_observation",
+      properties: { site_id: "Karori", latest_rainfall: 7.4, rainfall_6h: 42.1, unit: "mm" },
+    },
+  ];
+  const sources = [
+    { source_id: "camera", name: "NZTA cameras", role: "access_context" },
+    { source_id: "rain", name: "Hilltop", role: "natural_hazard_sensor" },
+  ];
+  const filter = (query) => liveMapWorkspace.filterLiveMapObservations({
+    observations,
+    sources,
+    selectedSourceIds: new Set(["camera", "rain"]),
+    activeLayerIds: new Set(["access-impacts", "sensors-weather"]),
+    candidateEvidenceIds: new Set(),
+    query,
+  }).map(({ id }) => id);
+
+  assert.deepEqual(filter("offline"), ["camera:1"]);
+  assert.deepEqual(filter("southbound"), ["camera:1"]);
+  assert.deepEqual(filter("42.1 mm"), ["rain:1"]);
+});
+
+test("builds an available-at-safe April sensor replay for the selected investigation", async () => {
+  assert.equal(typeof replayDataWorkspace.buildSensorReplayDataset, "function");
+  assert.equal(typeof replayDataWorkspace.sensorReplayFrame, "function");
+  const pack = JSON.parse(await readFile(
+    new URL("../public/cop/v4/april-storm-hilltop-observations.json", import.meta.url),
+    "utf8",
+  ));
+  const investigation = {
+    id: "wellington-april-storm-2026",
+    title: "April Storm · 18–22 Apr 2026",
+    source_id: "gwrc-hilltop",
+    starts_at: "2026-04-18T00:00:00+12:00",
+    as_of: "2026-04-22T23:59:59+12:00",
+  };
+  const dataset = replayDataWorkspace.buildSensorReplayDataset(pack, investigation);
+
+  assert.equal(dataset.kind, "sensor");
+  assert.equal(dataset.total_record_count, 1683);
+  assert.equal(dataset.playable_record_count, 1677);
+  assert.equal(dataset.series.length, 3);
+  assert.equal(dataset.slots.length, 1439);
+  assert.equal(dataset.available_from, "2026-04-18T00:05:00+12:00");
+  assert.equal(dataset.available_to, "2026-04-22T23:55:00+12:00");
+
+  const frame = replayDataWorkspace.sensorReplayFrame(dataset, 0);
+  assert.equal(frame.target_at, dataset.available_from);
+  assert.ok(frame.readings.length >= 1);
+  assert.ok(frame.readings.every((reading) => new Date(reading.available_at) <= new Date(frame.target_at)));
 });
 
 test("clusters overlapping evidence only at broad map zoom", () => {

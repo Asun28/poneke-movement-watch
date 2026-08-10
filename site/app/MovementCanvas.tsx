@@ -902,7 +902,9 @@ function LayerWorkspace({
   );
 }
 
-export default function MovementCanvas() {
+export default function MovementCanvas({ investigation }: {
+  investigation?: { id: string; title: string; starts_at: string; as_of: string; default_target_at?: string };
+}) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const mapStageRef = useRef<HTMLDivElement>(null);
   const mapInteractionRef = useRef<HTMLDivElement>(null);
@@ -959,14 +961,28 @@ export default function MovementCanvas() {
         return response.json();
       })
       .then((payload: ReplayPayload) => {
-        setReplay(payload);
-        const defaultIndex = payload.slots.findIndex(
-          (slot) => slot.target_at === payload.default_target_at,
+        const startsAt = investigation?.starts_at ? new Date(investigation.starts_at).getTime() : null;
+        const asOf = investigation?.as_of ? new Date(investigation.as_of).getTime() : null;
+        const slots = payload.slots.filter((slot) => {
+          const targetAt = new Date(slot.target_at).getTime();
+          return (startsAt === null || targetAt >= startsAt) && (asOf === null || targetAt <= asOf);
+        });
+        if (slots.length === 0) throw new Error("no replay records in investigation window");
+        const boundedPayload = {
+          ...payload,
+          available_from: slots[0].target_at,
+          available_to: slots.at(-1)?.target_at ?? slots[0].target_at,
+          default_target_at: investigation?.default_target_at ?? payload.default_target_at,
+          slots,
+        };
+        setReplay(boundedPayload);
+        const defaultIndex = slots.findIndex(
+          (slot) => slot.target_at === boundedPayload.default_target_at,
         );
-        setSlotIndex(defaultIndex >= 0 ? defaultIndex : payload.slots.length - 1);
+        setSlotIndex(defaultIndex >= 0 ? defaultIndex : slots.length - 1);
       })
       .catch(() => setReplayWarning("History replay is unavailable; showing the published snapshot."));
-  }, []);
+  }, [investigation?.as_of, investigation?.default_target_at, investigation?.starts_at]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -1300,10 +1316,12 @@ export default function MovementCanvas() {
 
   return (
     <section
+      id="replay-map"
       ref={mapStageRef}
       className="investigation-frame replay-map-workspace"
       aria-labelledby="map-heading"
       data-replay-map-first="true"
+      data-replay-dataset="movement"
     >
       <div className="replay-layer-overlay" hidden={!isLayerRailOpen}>
         <LayerWorkspace
@@ -1325,12 +1343,12 @@ export default function MovementCanvas() {
         />
       </div>
       <div className="map-column">
-        <div className="map-toolbar" aria-label="Replay map filters and panels">
-          <div className="replay-map-title-control">
-            <h2 id="map-heading">Movement changes</h2>
+        <div className="replay-compact-bar movement-replay-compact" aria-label="Replay controls">
+          <div className="replay-compact-identity">
+            <h2 id="map-heading">{investigation?.title ?? "Movement changes"}</h2>
             <span>{replayLabel}</span>
           </div>
-          <nav className="replay-map-toolbar-actions" aria-label="Replay map views">
+          <nav className="replay-compact-actions" aria-label="Replay map views">
             <div className="filter-group" aria-label="Filter signals">
               {(["all", "people", "vehicles"] as Filter[]).map((value) => (
                 <button
@@ -1357,26 +1375,7 @@ export default function MovementCanvas() {
               onClick={() => setIsEvidenceOpen((value) => !value)}
             >Evidence <span>{filteredSignals.length}</span></button>
           </nav>
-        </div>
-        <section className="replay-console replay-map-playback" aria-labelledby="replay-heading" aria-label="History replay controls">
-          <div className="replay-console-title">
-            <div>
-              <span id="replay-heading">History replay</span>
-              <small>
-                {replay
-                  ? `${formatReplayTime(replay.available_from)} to ${formatReplayTime(replay.available_to)}`
-                  : "Loading published history range…"}
-              </small>
-            </div>
-            <output aria-live="polite">
-              {!replaySourceSelected
-                ? "No playable data selected"
-                : currentSlot
-                ? `${currentSlot.candidate_count} signals · ${currentSlot.data_gap_groups} data gaps`
-                : "Published snapshot"}
-            </output>
-          </div>
-          <div className="replay-inputs">
+          <div className="replay-compact-inputs">
             <label>
               <span>Date</span>
               <input
@@ -1442,8 +1441,15 @@ export default function MovementCanvas() {
               >→</button>
             </div>
           </div>
+          <output className="replay-compact-count" aria-live="polite">
+            {!replaySourceSelected
+              ? "No playable data"
+              : currentSlot
+              ? `${currentSlot.candidate_count} signals · ${currentSlot.data_gap_groups} gaps`
+              : "Loading…"}
+          </output>
           <input
-            className="replay-scrubber"
+            className="replay-compact-scrubber"
             type="range"
             aria-label="Replay timeline"
             min={0}
@@ -1453,7 +1459,7 @@ export default function MovementCanvas() {
             onChange={(event) => { setSlotIndex(Number(event.currentTarget.value)); setIsPlaying(false); setMapInspection(null); }}
           />
           {replayWarning ? <p className="replay-warning" role="status">{replayWarning}</p> : null}
-        </section>
+        </div>
         <div className="map-stage replay-map-stage">
           <canvas
             ref={canvasRef}
@@ -1476,21 +1482,14 @@ export default function MovementCanvas() {
             onPointerUp={finishMapPan}
             onPointerCancel={finishMapPan}
           />
-          <div className={`map-inspection-status ${inspectionEnabled ? "is-ready" : "is-off"}`}>
-            <strong>
-              {isPanning
-                ? "Moving map"
-                : inspectionEnabled
-                ? "Paused · hover markers"
-                : isPlaying
-                ? "Playing · inspection off"
-                : "Paused · select real replay layer"}
-            </strong>
-            <span>{inspectionEnabled ? `${filteredSignals.length} signals` : ""}</span>
-            <span className="sr-only">
-              Inspection is off during playback. The signal list remains available for keyboard inspection.
-            </span>
-          </div>
+          <span className="sr-only" aria-live="polite">
+            {isPanning
+              ? "Moving map."
+              : inspectionEnabled
+              ? `Paused. ${filteredSignals.length} markers can be inspected.`
+              : "Inspection is off during playback. The signal list remains available for keyboard inspection."}
+          </span>
+          <span className="sr-only">Inspection is off during playback. The signal list remains available for keyboard inspection.</span>
           {mapInspection ? (
             <aside
               className="map-hover-card"

@@ -1,5 +1,60 @@
 # Pōneke Movement Watch — evidence ontology roadmap
 
+## Phase 40 — reliable Replay/Live data binding and compact controls
+
+### Goal
+
+Ensure every packaged investigation and current Live record can reach its intended UI,
+make switching/searching update immediately, and merge repeated replay status into one line.
+
+### Status
+
+- [completed] Reproduce Replay switching, Live search and deployed data-feed failures.
+- [completed] Add failing data-binding, search and compact-toolbar behavior tests.
+- [completed] Fix investigation-to-dataset binding and searchable Live source/record fields.
+- [completed] Consolidate duplicate Replay date/status/playback information into one toolbar.
+- [completed] Verify all routes, production data endpoints, accessibility and regressions.
+- [in_progress] Deploy to the existing owner-only site.
+
+### Acceptance criteria
+
+- Switching between April Storm and August Movement immediately changes the displayed dataset,
+  date range, count, sources and playback state without requiring a page reload.
+- Live search can find records by title, source name/ID, kind, place and key displayed values;
+  loading, no-match and upstream-error states remain distinct.
+- Every observation returned by the current snapshot and every packaged Replay observation is
+  either displayed by its compatible module or explicitly counted as non-playable with a reason.
+- Replay presents investigation, selected time, counts, speed and playback actions in one compact
+  row; duplicated floating status/date cards are removed.
+- Data truth, `available_at`, mock exclusion, evidence weight and human-authority rules do not change.
+
+### Assumptions and exclusions
+
+- “Refresh” means UI state follows the selected investigation/current snapshot; it does not make
+  monthly WCC transport history into a live feed.
+- April hydro-weather and August movement remain typed, separate datasets with compatible views.
+- No new source, model, evidence score, schema, external write or GitHub-origin push is introduced.
+
+### File-level plan
+
+- `site/lib/replayInvestigations.mjs`, replay data/model helpers: investigation-to-dataset binding.
+- `site/app/components/ReplayInvestigationSelector.tsx`, `MovementCanvas.tsx`: switch state and toolbar.
+- `site/lib/liveMapWorkspace.mjs`, `LiveOperationsClient.tsx`: complete search projection and states.
+- `site/tests/*`: switching, search, data coverage and rendered compact-toolbar behavior.
+- `site/app/globals.css`: one-line desktop toolbar and responsive wrapping.
+
+### Rejected major alternatives
+
+- Do not merge rainfall, flow and movement into one untyped series.
+- Do not fake refresh by changing labels while leaving the underlying dataset unchanged.
+- Do not hide unmatched or non-playable records without a visible count/reason.
+
+### Errors encountered
+
+| Error | Attempt | Resolution |
+|---|---:|---|
+| Generic web reader rejected the private Sites/API URLs as unsafe. | 1 | Switch to the authenticated in-app browser for deployed UI/API verification. |
+
 ## Phase 38 — unified map-first Live workspace
 
 ### Goal

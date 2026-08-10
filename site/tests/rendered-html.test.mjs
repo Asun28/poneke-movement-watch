@@ -29,11 +29,10 @@ test("server-renders the movement investigation surface with truthful batch stat
   );
   assert.match(html, /Replay Analyzer/);
   assert.match(html, /Batch replay/);
-  assert.match(html, /Investigation signals/);
-  assert.match(html, /Data gaps/);
-  assert.match(html, />12</);
-  assert.match(html, />207</);
-  assert.match(html, /Data through/);
+  assert.match(html, /data-investigation-switches-dataset="true"/);
+  assert.match(html, /data-replay-dataset="movement"/);
+  assert.match(html, /class="replay-compact-count"/);
+  assert.doesNotMatch(html, /aria-label="Replay dataset summary"/);
   assert.match(html, /6 Aug 2026/);
   assert.match(html, /Evidence review/);
   assert.match(html, /Observation/);
@@ -237,7 +236,8 @@ test("offers historical date-hour replay and a matched-hour trend view", async (
   assert.equal(response.status, 200);
   const html = await response.text();
 
-  assert.match(html, /History replay/);
+  assert.match(html, /aria-label="Replay controls"/);
+  assert.doesNotMatch(html, /History replay/);
   assert.match(html, /aria-label="Replay date"/);
   assert.match(html, /aria-label="Replay hour"/);
   assert.match(html, /aria-label="Previous replay hour"/);

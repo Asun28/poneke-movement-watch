@@ -39,7 +39,7 @@ test("exposes six distinct operator modules with shared navigation", async () =>
   const expectations = [
     ["/live", /Live Operations/, /Current feeds/],
     ["/alerts", /Signal Review/, /Review queue/],
-    ["/replay", /Replay Analyzer/, /History replay/],
+    ["/replay", /Replay Analyzer/, /aria-label="Replay controls"/],
     ["/integration", /Data Integration/, /33 source contracts/],
     ["/ontology", /City Ontology/, /data-ontology-view="chain"/],
     ["/setup", /Easy setup/, /Add data source/],
@@ -150,7 +150,7 @@ test("keeps replay controls out of the live module and preserves them in replay"
 test("opens Replay as a map-first workspace with secondary panels collapsed", async () => {
   const replay = await (await request("/replay")).text();
   const mapAt = replay.indexOf('data-replay-map-first="true"');
-  const playbackAt = replay.indexOf('aria-label="History replay controls"');
+  const playbackAt = replay.indexOf('aria-label="Replay controls"');
 
   assert.ok(mapAt > -1);
   assert.ok(playbackAt > mapAt);
@@ -160,7 +160,7 @@ test("opens Replay as a map-first workspace with secondary panels collapsed", as
   assert.match(replay, /aria-expanded="false" aria-label="Show signal evidence"/);
   assert.match(replay, /class="replay-layer-overlay" hidden=""/);
   assert.match(replay, /class="evidence-column replay-map-evidence-overlay"[^>]*hidden=""[^>]*aria-label="Signal evidence"/);
-  assert.match(replay, /aria-label="Replay map filters and panels"/);
+  assert.match(replay, /data-replay-dataset="movement"/);
   assert.match(replay, /aria-label="Map zoom controls"/);
 });
 
@@ -230,17 +230,17 @@ test("keeps the April backtest detail collapsed after the map-first replay", asy
 test("lets an operator select April Storm or create a local Replay investigation", async () => {
   const replay = await (await request("/replay")).text();
   const selectorAt = replay.indexOf('aria-label="Replay investigations"');
-  const summaryAt = replay.indexOf('aria-label="Replay dataset summary"');
+  const mapAt = replay.indexOf('data-replay-map-first="true"');
 
   assert.ok(selectorAt > -1);
-  assert.ok(selectorAt < summaryAt);
+  assert.ok(selectorAt < mapAt);
   assert.match(replay, /aria-expanded="false" aria-label="Show investigation settings"/);
   assert.match(replay, /<label[^>]*>.*Investigation/s);
   assert.match(replay, /name="investigation"/);
   assert.match(replay, /April Storm · 18–22 Apr 2026/);
   assert.match(replay, /1,683 sensor records/);
   assert.match(replay, /August movement review · 1–6 Aug 2026/);
-  assert.match(replay, />Open investigation</);
+  assert.doesNotMatch(replay, />Open investigation</);
   assert.match(replay, />New investigation</);
   assert.match(replay, /aria-label="New Replay investigation"/);
   assert.match(replay, />Title</);
@@ -249,6 +249,17 @@ test("lets an operator select April Storm or create a local Replay investigation
   assert.match(replay, />Primary source</);
   assert.match(replay, />Create &amp; open</);
   assert.match(replay, /Local draft · not Incident\/COP/);
+});
+
+test("switches Replay datasets immediately and keeps playback in one compact control bar", async () => {
+  const replay = await (await request("/replay")).text();
+
+  assert.match(replay, /data-investigation-switches-dataset="true"/);
+  assert.match(replay, /aria-label="Replay controls"/);
+  assert.doesNotMatch(replay, /aria-label="History replay controls"/);
+  assert.doesNotMatch(replay, />Open investigation</);
+  assert.doesNotMatch(replay, /Paused · hover markers/);
+  assert.equal((replay.match(/aria-label="Replay controls"/g) ?? []).length, 1);
 });
 
 test("renders truth, access and runtime health as separate integration dimensions", async () => {

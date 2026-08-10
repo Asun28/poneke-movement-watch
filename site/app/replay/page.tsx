@@ -1,12 +1,9 @@
-import health from "../../public/cop/v1/movement-health.json";
 import movementReplay from "../../public/cop/v1/movement-replay.json";
 import aprilStorm from "../../public/cop/v4/april-storm-event-pack.json";
 import hilltopPack from "../../public/cop/v4/april-storm-hilltop-observations.json";
 import { buildReplayInvestigationCatalog } from "../../lib/replayInvestigations.mjs";
 import EvidenceCaseLedger from "../EvidenceCaseLedger";
-import ReplayCaseContext from "../components/ReplayCaseContext";
-import ReplayInvestigationSelector from "../components/ReplayInvestigationSelector";
-import MovementCanvas from "../MovementCanvas";
+import ReplayWorkspaceClient from "../components/ReplayWorkspaceClient";
 import OperatorShell from "../components/OperatorShell";
 
 export default function ReplayPage() {
@@ -18,15 +15,7 @@ export default function ReplayPage() {
       title="Replay Analyzer"
       modeLabel="Batch replay"
     >
-      <ReplayInvestigationSelector catalog={investigations} />
-      <ReplayCaseContext />
-      <section className="replay-summary" aria-label="Replay dataset summary">
-        <div><span>Investigation signals</span><strong>{health.candidate_count}</strong></div>
-        <div><span>Data gaps</span><strong>{health.data_gap_groups}</strong></div>
-        <div><span>Publisher cadence</span><strong>At least monthly</strong></div>
-        <div><span>Data through</span><strong>6 Aug 2026</strong></div>
-      </section>
-      <MovementCanvas />
+      <ReplayWorkspaceClient catalog={investigations} />
       <details id="april-storm-backtest" className="backtest-pack">
         <summary className="backtest-header">
           <div>
