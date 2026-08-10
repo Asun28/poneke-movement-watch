@@ -665,3 +665,16 @@
 - 2026-08-10: Saved Sites version 31 from the exact verified source and completed
   the owner-only production deployment at the existing live URL. Access remains
   owner-only with no external visitors; GitHub origin and remote `main` were not pushed.
+
+# Phase 31 — quiet daily-work interface
+
+- 2026-08-10: Removed tutorial-style and AI-explanatory prose from all seven
+  operator routes while preserving current state, source truth, safety boundaries,
+  field labels, errors and accessible control names.
+- 2026-08-10: Standardised compact navigation, panels, spacing and state colours
+  around restrained issue-tracker and productivity-suite interaction patterns.
+  No workflow, source, model, ontology rule or authority behavior changed.
+- 2026-08-10: Verification passes: ESLint, 61/61 site behaviors, 22/22 Python
+  tests and whitespace checks. Saved Sites version 33 and completed the owner-only
+  production deployment at the existing live URL. GitHub origin and remote `main`
+  remain unchanged.

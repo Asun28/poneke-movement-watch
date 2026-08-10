@@ -14,7 +14,7 @@ trackers and productivity suites without changing operational behavior.
 - [completed] Add failing behavior tests for concise shared chrome and page-level copy budgets.
 - [completed] Implement compact labels, progressive disclosure and consistent spacing.
 - [completed] Verify behavior, accessibility, responsive layout and regressions.
-- [in_progress] Deploy to the existing owner-only site.
+- [completed] Deploy to the existing owner-only site.
 
 ### Acceptance criteria
 
