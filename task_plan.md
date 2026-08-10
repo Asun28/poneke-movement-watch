@@ -13,7 +13,7 @@ the 33 per-source pathways available only when the operator asks for detail.
 - [completed] Audit the current horizontal flow, dense path list and responsive contract.
 - [completed] Add a failing rendered hierarchy and progressive-disclosure test.
 - [completed] Implement the vertical hierarchy and focused detail expansion.
-- [in_progress] Verify regressions and deploy to the existing owner-only site.
+- [completed] Verify regressions and deploy to the existing owner-only site.
 
 ### Acceptance criteria
 

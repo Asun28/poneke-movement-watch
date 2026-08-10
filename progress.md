@@ -16,6 +16,9 @@
   22/22 Python regressions and whitespace checks. The hierarchy uses labelled
   native buttons/details, 44px+ targets, existing focus/reduced-motion rules and
   one-column breakpoints without changing data contracts.
+- 2026-08-10: Saved Sites version 26 from the exact verified hierarchy source and
+  completed the owner-only production deployment at the existing URL. GitHub
+  origin was not pushed and remote `main` was not changed. Phase 24 is complete.
 
 
 ## Phase 23 — ontology dashboard
