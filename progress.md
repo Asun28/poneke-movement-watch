@@ -709,3 +709,6 @@
 - 2026-08-10: Full local verification passes: production build, 64/64 site
   behaviors, ESLint, 22/22 Python tests and whitespace checks. Temporary test
   files were removed; owner-only deployment is next.
+- 2026-08-10: Pushed commit `8fa9a51` only to the private Sites source, saved
+  version 35 and completed the owner-only production deployment. GitHub origin
+  and remote `main` remain unchanged.

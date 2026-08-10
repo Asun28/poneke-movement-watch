@@ -13,7 +13,7 @@ content on the left and a tidy, persistent field rail on the right.
 - [completed] Add a failing behavior test for the issue-details workspace.
 - [completed] Implement the compact field rail and investigation layout.
 - [completed] Verify behavior, accessibility, build and regressions.
-- [pending] Deploy to the existing owner-only site.
+- [completed] Deploy to the existing owner-only site.
 
 ### Acceptance criteria
 
