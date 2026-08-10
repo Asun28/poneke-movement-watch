@@ -85,6 +85,18 @@ flowchart LR
 | `/alerts` | Alert Centre | Review deterministic candidates with supporting, contradicting, missing and context evidence. |
 | `/replay` | Replay Analyzer | Reconstruct the 2026 WCC sensor history with date/hour/speed and matched-hour trends. |
 | `/integration` | Data Integration | Inspect all 33 provider contracts, access/cost state, raw format and runtime policy. |
+| `/setup` | Easy setup | Prepare a data source, API/MCP/A2A connection or operator defaults as a safe local draft. |
+
+### Easy setup
+
+Open **Setup** from the left navigation or **Add or connect** in Data
+Integration. Complete only the visible fields and save each section. Drafts stay
+in that browser. Enter a secret reference such as `METLINK_API_KEY`, never the
+secret value. A saved draft has zero evidence weight until a server-side adapter,
+credential, connection test and human approval are complete.
+
+Remote MCP uses Streamable HTTP. A2A starts from the provider Agent Card. The
+setup screen prepares these contracts but does not call external systems.
 
 The browser never calls providers directly. Server adapters fan out with bounded
 timeouts and return a partial snapshot when one provider fails. Source

@@ -303,3 +303,12 @@
 - 2026-08-09: Generated one project-bound ontology replay social card and added it as `site/public/og-ontology-v2.png`.
 - 2026-08-09: Full verification passed: 20 Python tests, four rendered-site/artifact tests and ESLint.
 - 2026-08-09: Rebuilt the downloadable whole-source ZIP, saved Sites version 2 from commit `238feaa`, and completed an owner-only production deployment at the existing live URL.
+# Phase 14 — easy setup
+
+- Added `/setup` with compact Source, API/MCP/A2A and Operations Settings flows.
+- Added browser-only safe drafts, explicit server-activation status, no secret
+  value field, and zero-evidence/human-review boundaries.
+- Added a Setup navigation destination and an Add or connect entry point from
+  Data Integration.
+- Verified the six-route production build, 32 site tests, lint and 22 Python
+  regression tests.

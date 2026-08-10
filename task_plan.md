@@ -1,5 +1,28 @@
 # Pōneke Movement Watch — evidence ontology roadmap
 
+## Phase 14 — easy integration setup
+
+### Goal
+
+Give non-technical operators one short, safe place to prepare a new data source,
+an API/MCP/A2A connection and basic operating defaults.
+
+### Status
+
+- [completed] Audit the current five-surface information architecture and setup safety boundary.
+- [completed] Add failing route and shared-navigation tests.
+- [completed] Add `/setup`, a Data Integration entry point and five-item responsive navigation.
+- [completed] Add source, REST API, MCP, A2A and settings drafts with browser-only persistence.
+- [completed] Keep secrets, live calls, registry mutation and evidence activation out of the browser flow.
+- [completed] Run build, route, accessibility lint and regression tests.
+
+### Acceptance boundary
+
+- Setup stores a secret reference only, never a credential value.
+- Saved drafts remain `needs server activation` and carry zero evidence weight.
+- Real activation still requires an approved server adapter, secret store,
+  connection test and human review.
+
 ## Phase 13 — shared integration layer, live operations and alert centre
 
 ### Goal

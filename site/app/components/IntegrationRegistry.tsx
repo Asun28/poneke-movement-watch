@@ -73,6 +73,7 @@ export default function IntegrationRegistry({ contracts }: { contracts: Contract
               <option value="stale">Stale</option>
             </select>
           </label>
+          <a className="integration-setup-link" href="/setup">Add or connect</a>
         </div>
       </div>
 

@@ -762,3 +762,12 @@ supports spatial event-footprint resolution, never direct building-damage claims
 - Review units are deterministic and source-capped: measured movement can rank a hypothesis, an unverified real ticket can add limited weight, and a synthetic fixture always adds zero.
 - The deployed case ledger retains the original civic map and adds four explicit states plus Supporting, Contradicting, Missing and Context/Excluded buckets.
 - The real replay contains no contradictory observation. The UI says so directly instead of inventing a road-open record.
+# Phase 14 — easy setup findings
+
+- The existing four-item mobile navigation can safely grow to five labelled
+  destinations; five remains the recommended upper bound for bottom navigation.
+- Remote MCP setup should default to Streamable HTTP. A2A discovery should begin
+  with an Agent Card URL, normally `/.well-known/agent-card.json`.
+- A public browser form must not accept or persist credential values. The setup
+  page records only a server-side secret reference and leaves evidence weight at
+  zero until activation is approved.

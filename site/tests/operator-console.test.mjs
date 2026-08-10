@@ -35,12 +35,13 @@ test("publishes one integration contract for all registered providers", async ()
   );
 });
 
-test("exposes four distinct operator modules with shared navigation", async () => {
+test("exposes five distinct operator modules with shared navigation", async () => {
   const expectations = [
     ["/live", /Live Operations/, /What is happening now/],
     ["/alerts", /Alert Centre/, /Human review queue/],
     ["/replay", /Replay Analyzer/, /History replay/],
     ["/integration", /Data Integration/, /33 source contracts/],
+    ["/setup", /Easy setup/, /Add data source/],
   ];
 
   for (const [path, heading, content] of expectations) {
@@ -53,7 +54,26 @@ test("exposes four distinct operator modules with shared navigation", async () =
     assert.match(html, /Alert Centre/, path);
     assert.match(html, /Replay Analyzer/, path);
     assert.match(html, /Data Integration/, path);
+    assert.match(html, /Setup/, path);
   }
+});
+
+test("offers short safe setup paths for sources, API, MCP and A2A", async () => {
+  const response = await request("/setup");
+  assert.equal(response.status, 200);
+  const html = await response.text();
+
+  assert.match(html, /Add data source/);
+  assert.match(html, /Connect a system/);
+  assert.match(html, /Operations settings/);
+  assert.match(html, />REST API</);
+  assert.match(html, />MCP</);
+  assert.match(html, />A2A</);
+  assert.match(html, /Source name/);
+  assert.match(html, /Secret reference/);
+  assert.match(html, /No secrets stored here/);
+  assert.match(html, /Needs server activation/);
+  assert.match(html, /Saved on this browser/);
 });
 
 test("keeps replay controls out of the live module and preserves them in replay", async () => {
@@ -77,6 +97,8 @@ test("renders truth, access and runtime health as separate integration dimension
   assert.match(html, /Mock · zero evidence weight/);
   assert.match(html, /Google Routes API/);
   assert.match(html, /NEMA Emergency Mobile Alert/);
+  assert.match(html, /href="\/setup"/);
+  assert.match(html, /Add or connect/);
 });
 
 test("makes model authority and mock alert exclusion explicit", async () => {

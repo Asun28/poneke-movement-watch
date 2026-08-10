@@ -7,6 +7,7 @@ const destinations = [
   { href: "/alerts", label: "Alert Centre", short: "Alerts", glyph: "!" },
   { href: "/replay", label: "Replay Analyzer", short: "Replay", glyph: "↺" },
   { href: "/integration", label: "Data Integration", short: "Integrate", glyph: "⇄" },
+  { href: "/setup", label: "Setup", short: "Setup", glyph: "+" },
 ];
 
 export default function OperatorNavigation({ active }: { active: string }) {
