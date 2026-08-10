@@ -1116,6 +1116,63 @@ data semantics or external side effects.
 | Python regression temp directories were blocked by the Windows sandbox. | 2 | Ran the same 22-test suite with an explicit repository-local basetemp outside the sandbox, then removed both verified temp directories. |
 
 ---
+## Phase 44 — Mobile Live map decluttering
+
+### Goal
+
+Maximise useful map space on phones while keeping status, search, filters, evidence details and
+navigation immediately understandable to an emergency operator.
+
+### Status
+
+- [completed] Audit the current Live mobile overlays, controls, navigation and test contracts.
+- [completed] Add failing behavior tests for progressive controls, bottom-sheet details and mobile-safe labels.
+- [completed] Implement the compact mobile hierarchy, clearer navigation icons and safer map controls.
+- [in_progress] Run build, regressions, accessibility/layout checks and owner-only deployment.
+
+### Acceptance criteria
+
+- On narrow screens, a selected map record opens in a full-width bottom sheet rather than a clipped floating card.
+- Search remains directly available; filters collapse into one labelled control and do not cover the map by default.
+- Evidence Inbox remains collapsed by default and does not share the map surface with an open detail sheet.
+- Live status stays one compact row with Connected, Empty, Issues, freshness, Pause and Refresh.
+- Mobile warning/filter labels do not truncate; touch targets are at least 44px and map tools clear the bottom navigation.
+- Mobile navigation uses consistent outline-style Activity, Review inbox and Setup controls with text labels.
+- Cluster markers retain a minimum 44px hit area while their records remain available in the
+  keyboard-accessible observation list.
+- Desktop layout, source truth, evidence eligibility, map search and refresh behavior do not change.
+
+### Assumptions and exclusions
+
+- The supplied review is an implementation request and prioritises the four named actions over a wholesale visual redesign.
+- Existing civic colours and typography remain; the generated red design-system palette is rejected as off-brand.
+- No data source, ontology, alert threshold, map provider, model or desktop information architecture changes.
+- Native pinch/double-tap remains available, but visible zoom controls stay as an accessible gesture alternative.
+
+### File-level implementation plan
+
+- `site/app/components/LiveOperationsClient.tsx`: mobile filter drawer state and selected-record coordination.
+- `site/app/components/LiveMap.tsx`: bottom-sheet detail semantics, cluster touch targets and concise mobile controls.
+- `site/app/components/OperatorNavigation.tsx`: consistent accessible navigation glyphs.
+- `site/app/globals.css`: mobile overlay hierarchy, safe-area offsets, contrast and reduced-motion treatment.
+- `site/tests/operator-console.test.mjs` and focused model tests where needed: protect user-visible behavior.
+- `findings.md`, `progress.md`: record decisions, RED/GREEN evidence and deployment state.
+
+### Rejected major alternatives
+
+- Do not remove visible zoom buttons; gestures alone are not an accessible control path.
+- Do not hide system health inside a menu; it is high-frequency operational state.
+- Use one tree-shaken outline icon package across operator navigation and mobile map actions; do not
+  mix text punctuation, emoji and incompatible icon styles.
+
+### Errors encountered
+
+| Error | Attempt | Resolution |
+|---|---:|---|
+| Focused Node test could not spawn its worker inside the sandbox (`EPERM`) | 1 | Re-ran the same bounded test with scoped approval; both focused tests passed. |
+| Production build could not start compiler workers inside the sandbox (`EPERM`) | 1 | Re-ran the unchanged build with scoped approval; build completed successfully. |
+
+---
 
 ## Phase 21 — case/COP and warning operations workflow
 

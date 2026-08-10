@@ -174,6 +174,9 @@ test("opens Live as one map-first workspace with readable evidence overlays", as
   assert.match(live, /class="live-map-inbox-overlay is-collapsed"[^>]*aria-label="Evidence Inbox overlay"/);
   assert.match(live, /aria-expanded="false" aria-label="Show Evidence Inbox"/);
   assert.match(live, /aria-label="Live map overlays"/);
+  assert.match(live, /class="live-mobile-filter-toggle"[^>]*aria-expanded="false"[^>]*aria-controls="live-map-overlay-filters"[^>]*aria-label="Show map filters"/);
+  assert.match(live, /class="live-mobile-inbox-toggle"[^>]*aria-expanded="false"[^>]*aria-controls="live-evidence-inbox"[^>]*aria-label="Show Evidence Inbox"/);
+  assert.match(live, /id="live-map-overlay-filters" class="live-map-overlay-bar"/);
   assert.match(live, /data-live-layer-toggle="review-evidence"/);
   assert.match(live, /data-live-layer-toggle="sensors-weather"/);
   assert.match(live, /data-live-layer-toggle="warnings-hazards"/);
@@ -204,6 +207,11 @@ test("opens Live as one map-first workspace with readable evidence overlays", as
   assert.match(live, /class="ops-map-fullscreen"[^>]*aria-label="Show map fullscreen"/);
   assert.doesNotMatch(live, /class="ops-map-status"/);
   assert.match(live, /class="ops-map-attribution"[^>]*data-corner="bottom-left"[^>]*>© OpenStreetMap contributors/);
+  assert.match(live, /data-nav-icon="activity"/);
+  assert.match(live, /data-nav-icon="inbox"/);
+  assert.match(live, /data-nav-icon="settings"/);
+  assert.doesNotMatch(live, /<span aria-hidden="true">!<\/span>Review/);
+  assert.doesNotMatch(live, /<span aria-hidden="true">\+<\/span>Setup/);
 
   assert.ok(review.indexOf(">Evidence<") < review.indexOf("Case &amp; COP"));
   assert.doesNotMatch(review, /Live signal · unreviewed/);

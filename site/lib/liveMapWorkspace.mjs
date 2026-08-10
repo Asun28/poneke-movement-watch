@@ -6,6 +6,15 @@ export const LIVE_MAP_LAYERS = Object.freeze([
   { id: "reports", label: "Reports" },
   { id: "other-live", label: "Other live" },
 ]);
+
+export function toggleLiveMapPanel(currentPanel, requestedPanel) {
+  return currentPanel === requestedPanel ? null : requestedPanel;
+}
+
+export function liveMapHitRadius(visualRadius) {
+  return Math.max(22, visualRadius + 7);
+}
+
 export const EVENT_SYMBOLS = Object.freeze({
   rain: { id: "rain", label: "Rain & weather", glyph: "↓", colour: "#1e6a8d", shape: "circle" },
   water: { id: "water", label: "Flood & water", glyph: "≈", colour: "#0c66a1", shape: "circle" },

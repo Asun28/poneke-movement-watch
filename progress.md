@@ -941,3 +941,30 @@
 - 2026-08-11: Published validated commit `e68aa1c` only to the private Sites source, saved version 52
   and completed the existing owner-only production deployment. GitHub origin and remote `main`
   remain unchanged.
+
+# Phase 44 — Mobile Live map decluttering
+
+- 2026-08-11: Converted the supplied mobile UX review into a bounded implementation phase. Priority
+  is bottom-sheet details, progressive search/filter controls, explicit navigation glyphs and safer
+  cluster/tool touch geometry; data and desktop behavior remain unchanged.
+- 2026-08-11: UI guidance and the pre-delivery checklist confirm 44px targets, safe-area clearance,
+  higher contrast and reduced-motion support. The existing civic visual system remains authoritative.
+- 2026-08-11: Code audit confirmed six independent map-overlay states can overlap. The implementation
+  will coordinate them on mobile, reuse existing search/data selection, and restyle the existing
+  selected-record overlay into a bottom sheet rather than duplicating evidence content.
+- 2026-08-11: LiveMap audit found canvas hit radii can fall below 44px while the zoom controls sit
+  only 16px from the map bottom. The plan now expands hit testing and moves tools above the mobile
+  navigation/sheet area while retaining the screen-reader observation list.
+- 2026-08-11: Status/search review fixed the hierarchy decision: keep the existing compact health
+  row, remove the redundant mobile map count, and add two labelled icon controls to search for
+  Filters and Inbox. No operational count or refresh action is removed.
+- 2026-08-11: Added RED contracts for mutually exclusive Live panels, 44px canvas hit targets,
+  collapsed Filters/Inbox search actions and unambiguous Activity/Inbox/Settings navigation icons.
+- 2026-08-11: Implemented one exclusive map-panel state, full-width mobile bottom sheets, collapsed
+  filter/inbox controls, 44px canvas hit radii, higher metadata contrast and navigation icons from
+  one tree-shaken outline set. The focused model tests are GREEN; production build is next.
+- 2026-08-11: The first focused GREEN run was blocked by sandboxed worker spawning (`EPERM`). The
+  same bounded test passed with scoped approval; no product code workaround was introduced.
+- 2026-08-11: Final local verification passes: production build, 90/90 behavior tests, ESLint and
+  whitespace checks. The selected-record sheet receives focus, respects reduced motion and keeps map
+  controls clear; the validated source is ready for an owner-only Sites deployment.

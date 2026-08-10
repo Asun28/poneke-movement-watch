@@ -1,14 +1,22 @@
 "use client";
 
 import { useState } from "react";
+import {
+  ArrowCounterClockwise,
+  ArrowsLeftRight,
+  Pulse,
+  ShareNetwork,
+  SlidersHorizontal,
+  Tray,
+} from "@phosphor-icons/react";
 
 const destinations = [
-  { href: "/live", label: "Live Operations", short: "Live", glyph: "●" },
-  { href: "/alerts", label: "Signal Review", short: "Review", glyph: "!" },
-  { href: "/replay", label: "Replay Analyzer", short: "Replay", glyph: "↺" },
-  { href: "/integration", label: "Data Integration", short: "Integrate", glyph: "⇄" },
-  { href: "/ontology", label: "Ontology", short: "Ontology", glyph: "◇" },
-  { href: "/setup", label: "Setup", short: "Setup", glyph: "+" },
+  { href: "/live", label: "Live Operations", short: "Live", icon: "activity", Icon: Pulse },
+  { href: "/alerts", label: "Signal Review", short: "Review", icon: "inbox", Icon: Tray },
+  { href: "/replay", label: "Replay Analyzer", short: "Replay", icon: "replay", Icon: ArrowCounterClockwise },
+  { href: "/integration", label: "Data Integration", short: "Integrate", icon: "integration", Icon: ArrowsLeftRight },
+  { href: "/ontology", label: "Ontology", short: "Ontology", icon: "ontology", Icon: ShareNetwork },
+  { href: "/setup", label: "Setup", short: "Setup", icon: "settings", Icon: SlidersHorizontal },
 ];
 
 export default function OperatorNavigation({ active }: { active: string }) {
@@ -44,7 +52,7 @@ export default function OperatorNavigation({ active }: { active: string }) {
               aria-current={active === destination.href ? "page" : undefined}
               title={collapsed ? destination.label : undefined}
             >
-              <span aria-hidden="true">{destination.glyph}</span>
+              <span className="operator-nav-icon" data-nav-icon={destination.icon} aria-hidden="true"><destination.Icon size={18} weight="regular" /></span>
               {!collapsed && destination.label}
             </a>
           ))}
@@ -57,7 +65,7 @@ export default function OperatorNavigation({ active }: { active: string }) {
             href={destination.href}
             aria-current={active === destination.href ? "page" : undefined}
           >
-            <span aria-hidden="true">{destination.glyph}</span>
+            <span className="operator-nav-icon" data-nav-icon={destination.icon} aria-hidden="true"><destination.Icon size={19} weight="regular" /></span>
             {destination.short}
           </a>
         ))}

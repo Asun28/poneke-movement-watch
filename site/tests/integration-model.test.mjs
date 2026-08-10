@@ -245,6 +245,33 @@ test("clusters overlapping evidence only at broad map zoom", () => {
   assert.deepEqual(liveMapWorkspace.clusterMapPoints(points, 4).map(({ count }) => count), [1, 1, 1]);
 });
 
+test("keeps one Live map panel open at a time", () => {
+  assert.equal(typeof liveMapWorkspace.toggleLiveMapPanel, "function");
+  assert.equal(liveMapWorkspace.toggleLiveMapPanel(null, "filters"), "filters");
+  assert.equal(liveMapWorkspace.toggleLiveMapPanel("filters", "inbox"), "inbox");
+  assert.equal(liveMapWorkspace.toggleLiveMapPanel("inbox", "inbox"), null);
+});
+
+test("expands every Live map hit target to at least 44 pixels", () => {
+  assert.equal(typeof liveMapWorkspace.liveMapHitRadius, "function");
+  assert.equal(liveMapWorkspace.liveMapHitRadius(8), 22);
+  assert.equal(liveMapWorkspace.liveMapHitRadius(13), 22);
+  assert.equal(liveMapWorkspace.liveMapHitRadius(20), 27);
+});
+
+test("keeps Live mobile map details in one clear bottom sheet", async () => {
+  const [css, component] = await Promise.all([
+    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/LiveOperationsClient.tsx", import.meta.url), "utf8"),
+  ]);
+
+  assert.match(component, /data-mobile-surface="bottom-sheet"/);
+  assert.match(component, /tabIndex=\{-1\} className="live-map-detail-overlay" role="dialog" aria-modal="false" aria-label="Selected evidence details"/);
+  assert.ok(css.includes(".live-map-inbox-overlay.is-collapsed { display: none; }"));
+  assert.ok(css.includes("border-radius: 16px 16px 0 0;"));
+  assert.ok(css.includes(".live-map-workspace .ops-map-controls { top: auto; right: 8px; bottom: 82px; }"));
+});
+
 test("projects every live map record into a compact label and value card", () => {
   assert.equal(typeof liveMapWorkspace.buildLiveMapCard, "function");
   const card = liveMapWorkspace.buildLiveMapCard({

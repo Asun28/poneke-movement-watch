@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { buildLiveMapCard, buildLiveMapClusterCard, clusterMapPoints, eventSymbolFor } from "../../lib/liveMapWorkspace.mjs";
+import { buildLiveMapCard, buildLiveMapClusterCard, clusterMapPoints, eventSymbolFor, liveMapHitRadius } from "../../lib/liveMapWorkspace.mjs";
 import EventSymbolBadge from "./EventSymbolBadge";
 
 type Coordinate = [number, number];
@@ -278,7 +278,7 @@ export default function LiveMap({
           observations: cluster.points.map((point) => point.observation),
           x: cluster.x,
           y: cluster.y,
-          radius: radius + 7,
+          radius: liveMapHitRadius(radius),
           count: cluster.count,
         };
       });

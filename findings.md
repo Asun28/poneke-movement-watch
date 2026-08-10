@@ -1631,3 +1631,46 @@ supports spatial event-footprint resolution, never direct building-damage claims
   visual glyph can stay about 18px, showing plus when off and check when on, so state is not colour-only.
 - The implementation can reuse the existing `toggleSource` path rather than introducing layer state:
   this preserves replay stop-on-removal, inspection reset, immediate map filtering and local persistence.
+
+# Phase 44 — Mobile Live map decluttering
+
+- The user's priority is map visibility, not removal of operational capability: detail belongs in a
+  bottom sheet, filters behind progressive disclosure, and the status row remains compact and visible.
+- Local UI guidance confirms 44px targets, 8px spacing, non-colour state, darker metadata, clear
+  focus labels, safe-area offsets and 150–300ms cause-and-effect motion.
+- A visible zoom control must remain because pinch/double-tap cannot be the only interaction path.
+- Navigation should keep icon plus label, but replace ambiguous punctuation with one consistent
+  outline language: activity/live, inbox/review and sliders/settings.
+- The generated generic emergency palette overuses red and conflicts with the existing civic product;
+  retain the current palette and apply semantic green/amber/red only to source health states.
+- Current Live markup confirms the overlap is structural: search, six layer pills, Inbox, Layers,
+  City context and selected-record detail are independently positioned over the same map.
+- `inboxOpen`, `layersOpen`, `contextOpen` and `selectedObservation` can all be true together. A
+  single mobile overlay coordinator should close competing panels whenever one is opened.
+- Search results already exist as a bounded seven-row list; the missing mobile behavior is an
+  explicit Filters drawer and a collapsed default, not a new search implementation.
+- The selected record is already a sibling overlay with complete value/source/evidence/raw data,
+  so it can become a mobile bottom sheet through semantics and CSS without changing data contracts.
+- The bottom navigation previously projected one-character glyphs from `OperatorNavigation`. A single
+  tree-shaken Phosphor outline set now gives Live, Review, Replay, Integration, Ontology and Setup a
+  consistent visual language without mixing punctuation or emoji.
+- Mobile CSS currently moves the entire horizontal pill bar below search at `top: 68px`; it never
+  collapses, which directly causes the reported map occlusion and truncated warning label.
+- The map's pointer layer is canvas-based and intentionally hidden from assistive technology; the
+  existing screen-reader observation list is the keyboard alternative. Mobile accuracy should be
+  improved by expanding hit radii to a 44px minimum, not by inventing inaccessible canvas buttons.
+- Map zoom controls already provide the correct visible gesture alternative. The fix is a larger
+  bottom/safe-area offset on phones, not removal.
+- The selected-record overlay is positioned `left/right: 8px` but remains vertically floating at
+  `bottom: 174px`; converting it to `bottom: 0`, full-width sheet geometry removes clipping and
+  preserves every existing fact and action.
+- Source health already renders in one 46px toolbar, so the correct response to the “dual header”
+  concern is not another merged component: retain that row, hide the map record counter on phones,
+  and put Filters/Inbox in the search surface.
+- The mobile navigation contains six top-level destinations, exceeding the common five-item guideline,
+  but removing a product module is outside this request. Consistent icons and labels are the safe fix.
+- The final mobile hierarchy leaves only search, Filters and Inbox visible by default. Filters use a
+  two-column drawer; Inbox, Layers, City context and selected evidence use one mutually exclusive
+  bottom-sheet surface. Search selection also closes competing panels before focusing the detail.
+- Canvas symbols remain visually compact, but hit testing now enforces a 22px radius (44px diameter).
+  This improves finger accuracy without enlarging every marker or changing cluster behavior.

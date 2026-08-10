@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { buildLiveMapCard, filterLiveMapObservations, LIVE_MAP_LAYERS } from "../../lib/liveMapWorkspace.mjs";
+import { CaretRight, FunnelSimple, MagnifyingGlass, Tray, X } from "@phosphor-icons/react";
+import { buildLiveMapCard, filterLiveMapObservations, LIVE_MAP_LAYERS, toggleLiveMapPanel } from "../../lib/liveMapWorkspace.mjs";
 import EventSymbolBadge from "./EventSymbolBadge";
 import LiveMap from "./LiveMap";
 
@@ -114,20 +115,15 @@ function observationTitle(observation: Observation) {
   );
 }
 
-function SearchIcon() {
-  return <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6" /><path d="m16 16 4 4" /></svg>;
-}
-
 function CloseIcon() {
-  return <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m7 7 10 10M17 7 7 17" /></svg>;
+  return <X aria-hidden="true" size={18} weight="regular" />;
 }
 
-function CollapseIcon({ open }: { open: boolean }) {
-  return <svg aria-hidden="true" viewBox="0 0 24 24"><path d={open ? "m14 7-5 5 5 5" : "m10 7 5 5-5 5"} /></svg>;
-}
+type LiveMapPanel = "filters" | "inbox" | "layers" | "context" | null;
 
 export default function LiveOperationsClient() {
   const sourceSelectionInitialized = useRef(false);
+  const detailRef = useRef<HTMLElement>(null);
   const [snapshot, setSnapshot] = useState<Snapshot | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
@@ -135,9 +131,7 @@ export default function LiveOperationsClient() {
   const [selectedSources, setSelectedSources] = useState<Set<string>>(new Set());
   const [selectedObservation, setSelectedObservation] = useState<string | null>(null);
   const [activeLayers, setActiveLayers] = useState<Set<string>>(new Set(LIVE_MAP_LAYERS.map(({ id }) => id)));
-  const [inboxOpen, setInboxOpen] = useState(false);
-  const [layersOpen, setLayersOpen] = useState(false);
-  const [contextOpen, setContextOpen] = useState(false);
+  const [activePanel, setActivePanel] = useState<LiveMapPanel>(null);
   const [query, setQuery] = useState("");
 
   const refresh = useCallback(async () => {
@@ -202,6 +196,26 @@ export default function LiveOperationsClient() {
   const selectedSource = selected ? snapshot?.sources.find((source) => source.source_id === selected.source_id) : null;
   const selectedCard = selected ? buildLiveMapCard(selected, selectedSource) : null;
   const contextCards = inbox?.context_cards?.length ? inbox.context_cards : CONTEXT_PLACEHOLDERS;
+  const filtersOpen = activePanel === "filters";
+  const inboxOpen = activePanel === "inbox";
+  const layersOpen = activePanel === "layers";
+  const contextOpen = activePanel === "context";
+
+  useEffect(() => {
+    if (selected?.id) detailRef.current?.focus();
+  }, [selected?.id]);
+
+  function togglePanel(panel: Exclude<LiveMapPanel, null>) {
+    setSelectedObservation(null);
+    setQuery("");
+    setActivePanel((current) => toggleLiveMapPanel(current, panel) as LiveMapPanel);
+  }
+
+  function selectObservation(observationId: string) {
+    setActivePanel(null);
+    setQuery("");
+    setSelectedObservation(observationId);
+  }
 
   function showCandidate(candidate: EvidenceCandidate) {
     const observationId = candidate.evidence.supporting[0];
@@ -209,7 +223,7 @@ export default function LiveOperationsClient() {
     if (!observation) return;
     setSelectedSources((current) => new Set(current).add(observation.source_id));
     setActiveLayers((current) => new Set(current).add("review-evidence"));
-    setSelectedObservation(observation.id);
+    selectObservation(observation.id);
   }
 
   function toggleLayer(layerId: string) {
@@ -240,20 +254,36 @@ export default function LiveOperationsClient() {
         </div>
       </div>
 
-      <section className="live-map-workspace" aria-label="Unified Live map workspace" data-live-map-first="true">
+      <section className={`live-map-workspace${selected || inboxOpen || layersOpen || contextOpen ? " has-mobile-sheet" : ""}`} aria-label="Unified Live map workspace" data-live-map-first="true">
         <LiveMap
           observations={visibleObservations}
           sources={snapshot?.sources ?? []}
           selectedId={selectedObservation}
           highlightedIds={activeLayers.has("review-evidence") ? candidateEvidenceIds : undefined}
-          onSelect={setSelectedObservation}
+          onSelect={selectObservation}
         />
 
         <div className="live-map-search">
           <label htmlFor="live-evidence-search" className="sr-only">Search current evidence</label>
-          <SearchIcon />
+          <MagnifyingGlass aria-hidden="true" size={19} weight="regular" />
           <input id="live-evidence-search" type="search" value={query} onChange={(event) => setQuery(event.currentTarget.value)} placeholder="Search current evidence" />
-          <output aria-live="polite">{loading ? "…" : visibleObservations.length}</output>
+          <output className="live-map-search-count" aria-live="polite">{loading ? "…" : visibleObservations.length}</output>
+          <button
+            className="live-mobile-filter-toggle"
+            type="button"
+            aria-expanded={filtersOpen}
+            aria-controls="live-map-overlay-filters"
+            aria-label={filtersOpen ? "Hide map filters" : "Show map filters"}
+            onClick={() => togglePanel("filters")}
+          ><FunnelSimple aria-hidden="true" size={20} weight="regular" /></button>
+          <button
+            className="live-mobile-inbox-toggle"
+            type="button"
+            aria-expanded={inboxOpen}
+            aria-controls="live-evidence-inbox"
+            aria-label={inboxOpen ? "Hide Evidence Inbox" : "Show Evidence Inbox"}
+            onClick={() => togglePanel("inbox")}
+          ><Tray aria-hidden="true" size={20} weight="regular" /><b>{inbox?.review_candidate_count ?? 0}</b></button>
         </div>
         {query.trim() && (
           <div className="live-map-search-results" aria-label="Live search results">
@@ -264,7 +294,7 @@ export default function LiveOperationsClient() {
               const source = snapshot?.sources.find((item) => item.source_id === observation.source_id);
               const card = buildLiveMapCard(observation, source);
               return (
-                <button key={observation.id} type="button" onClick={() => setSelectedObservation(observation.id)}>
+                <button key={observation.id} type="button" onClick={() => selectObservation(observation.id)}>
                   <span><strong>{card.title}</strong><small>{card.source}</small></span>
                   <b>{card.value}</b>
                 </button>
@@ -273,7 +303,7 @@ export default function LiveOperationsClient() {
           </div>
         )}
 
-        <nav className="live-map-overlay-bar" aria-label="Live map overlays">
+        <nav id="live-map-overlay-filters" className={`live-map-overlay-bar${filtersOpen ? " is-mobile-open" : ""}`} aria-label="Live map overlays">
           {LIVE_MAP_LAYERS.map((layer) => (
             <button
               key={layer.id}
@@ -284,14 +314,14 @@ export default function LiveOperationsClient() {
               onClick={() => toggleLayer(layer.id)}
             ><EventSymbolBadge symbolId={LIVE_LAYER_SYMBOLS[layer.id]} decorative />{layer.label}</button>
           ))}
-          <button type="button" aria-expanded={layersOpen} onClick={() => setLayersOpen((value) => !value)}>Layers</button>
-          <button type="button" aria-expanded={contextOpen} onClick={() => setContextOpen((value) => !value)}>City context</button>
+          <button type="button" aria-expanded={layersOpen} onClick={() => togglePanel("layers")}>Layers</button>
+          <button type="button" aria-expanded={contextOpen} onClick={() => togglePanel("context")}>City context</button>
         </nav>
 
-        <aside className={`live-map-inbox-overlay ${inboxOpen ? "" : "is-collapsed"}`} aria-label="Evidence Inbox overlay">
+        <aside id="live-evidence-inbox" className={`live-map-inbox-overlay ${inboxOpen ? "" : "is-collapsed"}`} aria-label="Evidence Inbox overlay">
           <header>
             <div><h2>Evidence Inbox</h2><span>{inbox?.review_candidate_count ?? 0} to review</span></div>
-            <button type="button" aria-expanded={inboxOpen} aria-label={inboxOpen ? "Hide Evidence Inbox" : "Show Evidence Inbox"} onClick={() => setInboxOpen((value) => !value)}><CollapseIcon open={inboxOpen} /></button>
+            <button type="button" aria-expanded={inboxOpen} aria-label={inboxOpen ? "Hide Evidence Inbox" : "Show Evidence Inbox"} onClick={() => togglePanel("inbox")}>{inboxOpen ? <CloseIcon /> : <CaretRight aria-hidden="true" size={18} weight="regular" />}</button>
           </header>
           {inboxOpen && (
             <div className="live-map-inbox-body">
@@ -324,7 +354,7 @@ export default function LiveOperationsClient() {
         </aside>
 
         <aside className="live-map-layers-overlay" aria-label="Live map layers" hidden={!layersOpen}>
-          <header><h2>Layers</h2><button type="button" aria-label="Close layers" onClick={() => setLayersOpen(false)}><CloseIcon /></button></header>
+          <header><h2>Layers</h2><button type="button" aria-label="Close layers" onClick={() => setActivePanel(null)}><CloseIcon /></button></header>
           {loading && <p className="ops-state is-loading" role="status">Loading current feeds…</p>}
           <div className="live-layer-actions">
             <button type="button" onClick={() => setActiveLayers(new Set(LIVE_MAP_LAYERS.map(({ id }) => id)))}>Show all</button>
@@ -357,7 +387,7 @@ export default function LiveOperationsClient() {
         </aside>
 
         <aside className="live-map-context-overlay" aria-label="City context overlay" hidden={!contextOpen}>
-          <header><h2>City context</h2><button type="button" aria-label="Close city context" onClick={() => setContextOpen(false)}><CloseIcon /></button></header>
+          <header><h2>City context</h2><button type="button" aria-label="Close city context" onClick={() => setActivePanel(null)}><CloseIcon /></button></header>
           {contextCards.map((card) => (
             <article key={card.source_id}>
               <div><h3><EventSymbolBadge symbolId={CONTEXT_SYMBOLS[card.source_id] ?? "other"} decorative />{card.label}</h3><span>{card.runtime_state.replaceAll("_", " ")}</span></div>
@@ -368,7 +398,7 @@ export default function LiveOperationsClient() {
         </aside>
 
         {selected && selectedCard && (
-          <aside className="live-map-detail-overlay" aria-label="Selected evidence details" aria-live="polite">
+          <aside ref={detailRef} tabIndex={-1} className="live-map-detail-overlay" role="dialog" aria-modal="false" aria-label="Selected evidence details" aria-live="polite" data-mobile-surface="bottom-sheet">
             <header><div className="live-map-detail-status"><span className="truth-chip">Official live record</span><strong className={`state-${selectedCard.state.toLowerCase().replaceAll(" ", "-")}`}>{selectedCard.state}</strong></div><button type="button" aria-label="Close selected evidence" onClick={() => setSelectedObservation(null)}><CloseIcon /></button></header>
             <h2>{selectedCard.title}</h2>
             <dl>
@@ -384,7 +414,7 @@ export default function LiveOperationsClient() {
 
         <ul className="sr-only" aria-label="Keyboard-accessible live observation list">
           {visibleObservations.map((observation) => (
-            <li key={observation.id}><button type="button" onClick={() => setSelectedObservation(observation.id)}>{observationTitle(observation)} · {observation.source_id}</button></li>
+            <li key={observation.id}><button type="button" onClick={() => selectObservation(observation.id)}>{observationTitle(observation)} · {observation.source_id}</button></li>
           ))}
         </ul>
       </section>
