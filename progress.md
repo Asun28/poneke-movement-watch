@@ -7,6 +7,7 @@
 - 2026-08-10: GREEN passes 35/35 production-rendered, integration, replay and operator tests. All five daily modules now use closed Help, Integration/Replay technical content is closed by default, and Live/Alerts/Setup retain only actionable controls plus compact truth states.
 - 2026-08-10: A focused RED test caught contradictory unsaved Setup copy. The static boundary now says “Browser draft”; only actual client state may say a draft was saved.
 - 2026-08-10: Final local verification passes: 35/35 site tests with production build, ESLint, 22/22 Python tests and whitespace checks. Help/Advanced are closed by default, focus remains visible and all routine controls retain 44px touch targets.
+- 2026-08-10: Published the verified concise operator interface to the existing owner-only Sites deployment. Phase 15 is complete.
 
 ---
 

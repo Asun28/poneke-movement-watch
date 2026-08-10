@@ -14,7 +14,7 @@ without weakening source truth, mock, access, freshness or human-review guards.
 - [completed] Replace explanatory page copy with short task labels, status chips and direct controls.
 - [completed] Add one predictable Help menu for guidance that is not needed during routine work.
 - [completed] Verify keyboard, touch, responsive, truth-label and existing workflow regressions.
-- [in_progress] Publish the exact verified source to the existing owner-only Sites deployment.
+- [completed] Publish the exact verified source to the existing owner-only Sites deployment.
 
 ### Acceptance criteria
 
