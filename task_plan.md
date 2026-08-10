@@ -13,7 +13,7 @@ operator modules, and human confirmation/action.
 - [completed] Audit the current four-level hierarchy and rendered contract.
 - [completed] Add a failing test for the six ordered levels and authority boundary.
 - [completed] Implement the two missing processing/decision levels with concise copy.
-- [in_progress] Verify regressions and deploy to the existing owner-only site.
+- [completed] Verify regressions and deploy to the existing owner-only site.
 
 ### Acceptance criteria
 
@@ -54,6 +54,8 @@ operator modules, and human confirmation/action.
 |---|---:|---|
 | Focused RED run failed at the absent alignment level. | 1 | Expected TDD failure; proceed with the minimal six-level presentation change. |
 | First GREEN run retained the old `Data sources` heading. | 1 | Align the source-level heading with the agreed access-status responsibility. |
+| Hosting metadata was checked at the repository root. | 1 | Read the established `site/.openai/hosting.json` location. |
+| The packaging helper was first called without an available `bash` command, then with Windows-style arguments. | 2 | Use the installed Git Bash executable with POSIX paths; the canonical helper then packaged successfully. |
 
 ## Phase 24 — top-to-bottom ontology hierarchy
 

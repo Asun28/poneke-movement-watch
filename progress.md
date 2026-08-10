@@ -530,3 +530,7 @@
 - 2026-08-10: Full local verification passes: production build, 54/54 site tests,
   ESLint, 22/22 Python tests and whitespace checks. The pytest temporary directory
   was removed. Publishing to the existing owner-only site is next.
+- 2026-08-10: Pushed the exact validated source only to the private Sites source,
+  saved version 27 and completed the owner-only production deployment at the
+  existing live URL. GitHub origin and remote `main` remain unchanged. Phase 25
+  is complete.
