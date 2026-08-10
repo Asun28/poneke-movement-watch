@@ -44,10 +44,6 @@ export default function SourceCapabilityPreview() {
         <div>
           <p className="eyebrow">Truth labels · capability, not production</p>
           <h2 id="source-preview-heading">Source capability preview</h2>
-          <p>
-            Official sources stay distinct from demo records. Mock cards are synthetic,
-            carry zero evidence weight, and never claim a real incident.
-          </p>
         </div>
         <dl className="source-totals" aria-label="Source status totals">
           <div><dt>Real replay</dt><dd>{realCount}</dd></div>

@@ -37,7 +37,7 @@ test("publishes one integration contract for all registered providers", async ()
 
 test("exposes five distinct operator modules with shared navigation", async () => {
   const expectations = [
-    ["/live", /Live Operations/, /What is happening now/],
+    ["/live", /Live Operations/, /Current feeds/],
     ["/alerts", /Alert Centre/, /Human review queue/],
     ["/replay", /Replay Analyzer/, /History replay/],
     ["/integration", /Data Integration/, /33 source contracts/],
@@ -71,9 +71,10 @@ test("offers short safe setup paths for sources, API, MCP and A2A", async () => 
   assert.match(html, />A2A</);
   assert.match(html, /Source name/);
   assert.match(html, /Secret reference/);
-  assert.match(html, /No secrets stored here/);
+  assert.equal((html.match(/No secrets stored/g) ?? []).length, 1);
   assert.match(html, /Needs server activation/);
-  assert.match(html, /Saved on this browser/);
+  assert.match(html, /Browser draft/);
+  assert.doesNotMatch(html, /Saved on this browser/);
 });
 
 test("keeps replay controls out of the live module and preserves them in replay", async () => {
@@ -81,7 +82,7 @@ test("keeps replay controls out of the live module and preserves them in replay"
   const replay = await (await request("/replay")).text();
 
   assert.doesNotMatch(live, /aria-label="Replay speed"/);
-  assert.match(live, /No current records is not an all-clear/);
+  assert.match(live, /No current records/);
   assert.match(replay, /aria-label="Replay speed"/);
   assert.match(replay, /Batch replay/);
 });
@@ -98,19 +99,42 @@ test("renders truth, access and runtime health as separate integration dimension
   assert.match(html, /Google Routes API/);
   assert.match(html, /NEMA Emergency Mobile Alert/);
   assert.match(html, /href="\/setup"/);
-  assert.match(html, /Add or connect/);
+  assert.match(html, /Add source/);
 });
 
 test("makes model authority and mock alert exclusion explicit", async () => {
   const response = await request("/alerts");
   const html = await response.text();
 
-  assert.match(html, /Pre-trained sensor monitor/);
-  assert.match(html, /Ontology correlation/);
-  assert.match(html, /LLM explanation only/);
-  assert.match(html, /Mock data cannot create an alert candidate/);
+  assert.match(html, /Models can propose and explain/);
+  assert.match(html, /Mock · zero evidence/);
+  assert.match(html, /Human review required/);
   assert.match(html, /Supporting/);
   assert.match(html, /Contradicting/);
   assert.match(html, /Missing/);
   assert.match(html, /Context/);
+});
+
+test("keeps routine screens concise and moves guidance into closed help", async () => {
+  for (const path of ["/live", "/alerts", "/replay", "/integration", "/setup"]) {
+    const html = await (await request(path)).text();
+    const heading = html.match(/<section class="operator-module-heading">([\s\S]*?)<\/section>/)?.[1] ?? "";
+
+    assert.match(html, /<details class="operator-help"><summary>Help<\/summary>/, path);
+    assert.doesNotMatch(html, /<details class="operator-help" open/, path);
+    assert.match(heading, /<h1>/, path);
+    assert.equal((heading.match(/<p/g) ?? []).length, 1, path);
+    assert.doesNotMatch(html, /Emergency information prototype/, path);
+    assert.doesNotMatch(html, /Every candidate remains an inference/, path);
+  }
+});
+
+test("hides advanced architecture and replay evidence until requested", async () => {
+  const integration = await (await request("/integration")).text();
+  const replay = await (await request("/replay")).text();
+
+  assert.match(integration, /<details class="operator-advanced"><summary>Advanced<\/summary>/);
+  assert.doesNotMatch(integration, /<details class="operator-advanced" open/);
+  assert.match(replay, /<details class="operator-advanced"><summary>Evidence review<\/summary>/);
+  assert.doesNotMatch(replay, /<details class="operator-advanced" open/);
 });

@@ -8,10 +8,10 @@ type SavedDraft = Partial<Record<SetupSection, Record<string, string | boolean>>
 
 const STORAGE_KEY = "poneke-setup-draft-v1";
 
-const sections: Array<{ id: SetupSection; number: string; title: string; note: string }> = [
-  { id: "source", number: "01", title: "Add data source", note: "Describe the feed" },
-  { id: "connection", number: "02", title: "Connect a system", note: "API · MCP · A2A" },
-  { id: "settings", number: "03", title: "Operations settings", note: "Safe defaults" },
+const sections: Array<{ id: SetupSection; number: string; title: string }> = [
+  { id: "source", number: "01", title: "Add data source" },
+  { id: "connection", number: "02", title: "Connect a system" },
+  { id: "settings", number: "03", title: "Operations settings" },
 ];
 
 const connectionLabels: Record<ConnectionKind, string> = {
@@ -79,6 +79,7 @@ export default function SetupClient() {
         <div><span>Activation</span><strong>Needs server activation</strong></div>
         <button type="button" onClick={clearDraft} disabled={!completed}>Clear draft</button>
       </div>
+      <SetupBoundary />
 
       <div className="setup-step-nav" aria-label="Setup sections">
         {sections.map((section) => (
@@ -90,7 +91,6 @@ export default function SetupClient() {
           >
             <span>{section.number}</span>
             <strong>{section.title}</strong>
-            <small>{section.note}</small>
             <b aria-hidden="true">{saved[section.id] ? "Saved" : "Open"}</b>
           </button>
         ))}
@@ -99,7 +99,6 @@ export default function SetupClient() {
       <section className="setup-panel" hidden={active !== "source"} aria-labelledby="setup-source-title">
         <form onSubmit={(event) => save(event, "source")}>
           <header>
-            <p className="eyebrow">Data source</p>
             <h2 id="setup-source-title">Add data source</h2>
           </header>
           <div className="setup-fields">
@@ -122,13 +121,11 @@ export default function SetupClient() {
           </details>
           <button className="setup-primary-action" type="submit">Save source draft</button>
         </form>
-        <SetupBoundary />
       </section>
 
       <section className="setup-panel" hidden={active !== "connection"} aria-labelledby="setup-connection-title">
         <form onSubmit={(event) => save(event, "connection")}>
           <header>
-            <p className="eyebrow">External integration</p>
             <h2 id="setup-connection-title">Connect a system</h2>
           </header>
           <div className="setup-choice-row" aria-label="Connection type">
@@ -144,18 +141,13 @@ export default function SetupClient() {
             <label><span>Authentication</span><select name="auth" defaultValue="none"><option value="none">None</option><option value="api_key">API key</option><option value="oauth2">OAuth 2</option><option value="bearer">Bearer token</option><option value="from_agent_card">From Agent Card</option></select></label>
             <label><span>Secret reference</span><input name="secretReference" placeholder="e.g. METLINK_API_KEY" autoComplete="off" /></label>
           </div>
-          <div hidden={connectionKind !== "api"} className="setup-protocol-note"><strong>REST API</strong><span>Optional OpenAPI contract can be added during server activation.</span></div>
-          <div hidden={connectionKind !== "mcp"} className="setup-protocol-note"><strong>MCP · Streamable HTTP</strong><span>Remote endpoint only. Server validates Origin, auth and capabilities.</span></div>
-          <div hidden={connectionKind !== "a2a"} className="setup-protocol-note"><strong>A2A · Agent Card</strong><span>Capabilities, interface and auth come from the Agent Card.</span></div>
           <button className="setup-primary-action" type="submit">Save connection draft</button>
         </form>
-        <SetupBoundary />
       </section>
 
       <section className="setup-panel" hidden={active !== "settings"} aria-labelledby="setup-settings-title">
         <form onSubmit={(event) => save(event, "settings")}>
           <header>
-            <p className="eyebrow">Operator defaults</p>
             <h2 id="setup-settings-title">Operations settings</h2>
           </header>
           <div className="setup-fields">
@@ -168,7 +160,6 @@ export default function SetupClient() {
           </div>
           <button className="setup-primary-action" type="submit">Save settings</button>
         </form>
-        <SetupBoundary />
       </section>
     </section>
   );
@@ -177,14 +168,8 @@ export default function SetupClient() {
 function SetupBoundary() {
   return (
     <aside className="setup-boundary" aria-label="Activation boundary">
-      <span>Safe draft</span>
-      <strong>No secrets stored here</strong>
-      <ul>
-        <li>Saved on this browser</li>
-        <li>Evidence weight stays 0</li>
-        <li>Server test required</li>
-        <li>Human approval required</li>
-      </ul>
+      <strong>No secrets stored</strong>
+      <span>Browser draft · human approval</span>
     </aside>
   );
 }

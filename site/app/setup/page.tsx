@@ -7,8 +7,8 @@ export default function SetupPage() {
       active="/setup"
       eyebrow="Integration workspace"
       title="Easy setup"
-      description="Prepare a source, system connection or operator preference without exposing credentials or changing the live platform."
-      modeLabel="Local setup draft"
+      description="Choose a section, complete the fields, then save the draft. Server activation is separate."
+      modeLabel="Draft"
     >
       <SetupClient />
     </OperatorShell>

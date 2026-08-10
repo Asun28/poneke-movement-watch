@@ -7,8 +7,8 @@ export default function LiveOperationsPage() {
       active="/live"
       eyebrow="Current operating picture"
       title="Live Operations"
-      description="What is happening now across Wellington? Current official observations, source freshness and connector failures stay visible without turning absence into an all-clear."
-      modeLabel="Live source snapshot"
+      description="Choose source layers, then select a map marker. Empty is not an all-clear."
+      modeLabel="Live"
     >
       <LiveOperationsClient />
     </OperatorShell>

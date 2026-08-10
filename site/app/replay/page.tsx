@@ -9,7 +9,7 @@ export default function ReplayPage() {
       active="/replay"
       eyebrow="Known-event analysis module"
       title="Replay Analyzer"
-      description="Reconstruct an already known time window, compare movement with matched history and inspect the evidence trail. This module is historical batch analysis, not current emergency information."
+      description="Choose a date, hour and source. Select a signal to inspect its history."
       modeLabel="Batch replay"
     >
       <section className="replay-summary" aria-label="Replay dataset summary">
@@ -19,20 +19,19 @@ export default function ReplayPage() {
         <div><span>Data through</span><strong>6 Aug 2026</strong></div>
       </section>
       <MovementCanvas />
-      <EvidenceCaseLedger />
-      <section className="replay-handoff" aria-labelledby="replay-handoff-heading">
-        <div>
-          <p className="eyebrow">Replay API handoff</p>
-          <h2 id="replay-handoff-heading">Historical evidence remains modular</h2>
-          <p>Existing v1 and v2 artifacts stay stable while Live Operations consumes the separate integration snapshot.</p>
-        </div>
-        <div className="endpoint-list">
-          <a href="/cop/v1/movement-replay.json"><span>Historical replay</span><code>/cop/v1/movement-replay.json</code></a>
-          <a href="/cop/v1/movement-signals.geojson"><span>Signal feed</span><code>/cop/v1/movement-signals.geojson</code></a>
-          <a href="/cop/v1/movement-health.json"><span>Coverage and health</span><code>/cop/v1/movement-health.json</code></a>
-          <a href="/cop/v2/evidence-graph.json"><span>Evidence graph</span><code>/cop/v2/evidence-graph.json</code></a>
-        </div>
-      </section>
+      <details className="operator-advanced">
+        <summary>Evidence review</summary>
+        <EvidenceCaseLedger />
+        <section className="replay-handoff" aria-labelledby="replay-handoff-heading">
+          <h2 id="replay-handoff-heading">Data links</h2>
+          <div className="endpoint-list">
+            <a href="/cop/v1/movement-replay.json"><span>Historical replay</span><code>/cop/v1/movement-replay.json</code></a>
+            <a href="/cop/v1/movement-signals.geojson"><span>Signal feed</span><code>/cop/v1/movement-signals.geojson</code></a>
+            <a href="/cop/v1/movement-health.json"><span>Coverage and health</span><code>/cop/v1/movement-health.json</code></a>
+            <a href="/cop/v2/evidence-graph.json"><span>Evidence graph</span><code>/cop/v2/evidence-graph.json</code></a>
+          </div>
+        </section>
+      </details>
     </OperatorShell>
   );
 }

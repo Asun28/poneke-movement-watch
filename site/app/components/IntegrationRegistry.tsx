@@ -53,9 +53,7 @@ export default function IntegrationRegistry({ contracts }: { contracts: Contract
     <section className="integration-registry" aria-labelledby="integration-registry-heading">
       <div className="integration-toolbar">
         <div>
-          <p className="eyebrow">Provider inventory</p>
           <h2 id="integration-registry-heading">33 source contracts</h2>
-          <p>One normalized boundary for Live, Alerts, Replay and future Council modules.</p>
         </div>
         <div className="integration-filters">
           <label>
@@ -73,7 +71,7 @@ export default function IntegrationRegistry({ contracts }: { contracts: Contract
               <option value="stale">Stale</option>
             </select>
           </label>
-          <a className="integration-setup-link" href="/setup">Add or connect</a>
+          <a className="integration-setup-link" href="/setup">Add source</a>
         </div>
       </div>
 

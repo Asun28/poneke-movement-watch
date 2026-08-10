@@ -70,12 +70,12 @@ export default function AlertCentreClient() {
           <h2>Candidate alerts</h2>
           <span>{candidates.length} current</span>
         </header>
-        {state === "loading" && <p className="ops-state" role="status">Loading deterministic alert candidates…</p>}
-        {state === "error" && <p className="ops-state is-error" role="alert">Candidate service unavailable. No alert state has been inferred.</p>}
+        {state === "loading" && <p className="ops-state" role="status">Loading…</p>}
+        {state === "error" && <p className="ops-state is-error" role="alert">Alert service unavailable.</p>}
         {state === "ready" && candidates.length === 0 && (
           <div className="alert-empty-state">
             <strong>No current candidates</strong>
-            <p>This means no rule passed the current evidence gates. It is not an all-clear.</p>
+            <p>No rule passed · not all-clear</p>
           </div>
         )}
         {candidates.map((candidate) => (
@@ -91,32 +91,19 @@ export default function AlertCentreClient() {
           </button>
         ))}
         <article className="mock-alert-preview">
-          <span>Mock workflow preview · zero evidence</span>
+          <span>Mock · zero evidence</span>
           <strong>{preview.title}</strong>
-          <p>Demonstrates review layout only. It is not returned by the Alert API.</p>
         </article>
       </aside>
 
       <div className="alert-review-panel">
-        <div className="alert-pipeline" aria-label="Alert decision pipeline">
-          <div><span>01</span><strong>Pre-trained sensor monitor</strong><small>Candidate signal only</small></div>
-          <b aria-hidden="true">→</b>
-          <div><span>02</span><strong>Ontology correlation</strong><small>Typed evidence roles</small></div>
-          <b aria-hidden="true">→</b>
-          <div><span>03</span><strong>Deterministic policy</strong><small>Severity and gates</small></div>
-          <b aria-hidden="true">→</b>
-          <div><span>04</span><strong>LLM explanation only</strong><small>No publish authority</small></div>
-          <b aria-hidden="true">→</b>
-          <div><span>05</span><strong>Human decision</strong><small>Authorised review</small></div>
-        </div>
-
         <article className="alert-case-header">
           {selected ? (
             <>
               <div>
                 <span className="truth-chip">Live inference · unreviewed</span>
                 <h2>{selected.title}</h2>
-                <p>Rule {selected.rule_id}. Decision authority: {selected.decision_authority}.</p>
+                <span className="case-rule">{selected.rule_id}</span>
               </div>
               <dl>
                 <div><dt>Severity basis</dt><dd>{selected.severity}</dd></div>
@@ -129,7 +116,6 @@ export default function AlertCentreClient() {
               <div>
                 <span className="mock-chip">Mock · not a live alert</span>
                 <h2>{preview.title}</h2>
-                <p>Visible only to demonstrate the review workflow when live sources are quiet.</p>
               </div>
               <dl>
                 <div><dt>Severity basis</dt><dd>Not computed</dd></div>
@@ -147,25 +133,9 @@ export default function AlertCentreClient() {
           <Bucket label="Context" values={selected?.evidence.context ?? preview.context} />
         </div>
 
-        <section className="mock-llm-explanation" aria-label="Mock LLM explanation preview">
-          <div>
-            <span>Mock LLM explanation · zero authority</span>
-            <strong>Why this would be shown to an operator</strong>
-          </div>
-          <p>
-            A synthetic movement drop may indicate lost access, but the current
-            evidence has no official closure record and no independent movement
-            source. Investigate the source health and road status before acting.
-          </p>
-          <ul>
-            <li>Is the sensor current and complete?</li>
-            <li>Does an official access event overlap this place and time?</li>
-          </ul>
-        </section>
-
         <div className="alert-authority-note">
-          <strong>Mock data cannot create an alert candidate.</strong>
-          <p>The LLM may summarise evidence and suggest questions. It cannot confirm, publish, dispatch, change severity or override source access.</p>
+          <strong>Human review required</strong>
+          <span>Mock data cannot create alerts</span>
         </div>
       </div>
     </section>

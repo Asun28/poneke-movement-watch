@@ -61,7 +61,6 @@ function SemanticNode({ kind, node }: { kind: string; node: CityNode }) {
     <div className={`semantic-node node-${node.type.toLowerCase()}`}>
       <span>{kind}</span>
       <strong>{node.label}</strong>
-      <small>{node.can_support[0]}</small>
     </div>
   );
 }
@@ -82,11 +81,6 @@ export default function CityOntologyExplorer() {
         <div>
           <p className="eyebrow">Wellington City Ontology · v3</p>
           <h2 id="city-ontology-heading">City ontology explorer</h2>
-          <p>
-            Follow one real movement signal through its place, infrastructure,
-            time and possible effect. Every connector is typed; none of them turns
-            a movement change into a confirmed incident.
-          </p>
         </div>
         <a href="/cop/v3/city-ontology.json">
           <span>Machine-readable graph</span>
@@ -123,11 +117,6 @@ export default function CityOntologyExplorer() {
           <div>
             <p className="eyebrow">Source → role → 2026 state</p>
             <h3 id="data-layer-register-heading">2026 data-layer register</h3>
-            <p>
-              All 33 contracts sit inside the ontology with their access and time
-              state. Zero evidence until a record is time-aligned, entity-resolved
-              and permitted for this application.
-            </p>
           </div>
           <dl aria-label="2026 ontology layer totals">
             <div><dt>Layers</dt><dd>{dataLayers.length}</dd></div>
@@ -157,17 +146,15 @@ export default function CityOntologyExplorer() {
         <article>
           <span>Potential impact</span>
           <strong>Inference only</strong>
-          <p>{potentialImpact.cannot_assert[0]}.</p>
         </article>
         <article className="access-unknown">
           <span>Access state</span>
           <strong>{accessState.value}</strong>
-          <p>Unknown is not open. A time-aligned authoritative record is required.</p>
+          <small>Unknown is not open</small>
         </article>
         <article>
           <span>Human confirmation</span>
           <strong>None recorded</strong>
-          <p>Only authorised review can create a decision or confirmed fact.</p>
         </article>
       </div>
     </section>

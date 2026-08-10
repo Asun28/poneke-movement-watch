@@ -87,9 +87,13 @@ flowchart LR
 | `/integration` | Data Integration | Inspect all 33 provider contracts, access/cost state, raw format and runtime policy. |
 | `/setup` | Easy setup | Prepare a data source, API/MCP/A2A connection or operator defaults as a safe local draft. |
 
+Routine screens are task-first: select a source, marker, candidate or setup
+section. Page guidance is closed under **Help**. Technical APIs, ontology and
+full replay evidence are closed under **Advanced** or **Evidence review**.
+
 ### Easy setup
 
-Open **Setup** from the left navigation or **Add or connect** in Data
+Open **Setup** from the left navigation or **Add source** in Data
 Integration. Complete only the visible fields and save each section. Drafts stay
 in that browser. Enter a secret reference such as `METLINK_API_KEY`, never the
 secret value. A saved draft has zero evidence weight until a server-side adapter,

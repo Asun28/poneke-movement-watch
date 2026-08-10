@@ -32,12 +32,7 @@ export default function EvidenceCaseLedger() {
       <header className="case-ledger-header">
         <div>
           <p className="eyebrow">Ontology replay · one review case</p>
-          <h2 id="case-ledger-heading">From movement change to an evidence trail</h2>
-          <p>
-            Centennial Highway northern access. Sources remain observations; the
-            system may rank a hypothesis, but only an authorised person can decide
-            or record a confirmed fact.
-          </p>
+          <h2 id="case-ledger-heading">Evidence trail</h2>
         </div>
         <div className="case-rank" aria-label="Current review rank">
           <span>Review priority</span>
@@ -49,19 +44,19 @@ export default function EvidenceCaseLedger() {
       <ol className="epistemic-track" aria-label="Evidence lifecycle">
         <li className="is-current">
           <span>01</span><strong>Observation</strong>
-          <p>502 cars measured; 873.5 expected at this countline and hour.</p>
+          <p>502 observed · 873.5 expected</p>
         </li>
         <li>
           <span>02</span><strong>Inference</strong>
-          <p>Physical access disruption is a review hypothesis, not a diagnosis.</p>
+          <p>Access disruption · unconfirmed</p>
         </li>
         <li>
           <span>03</span><strong>Human decision</strong>
-          <p>Unreviewed. No authorised action is recorded.</p>
+          <p>Not reviewed</p>
         </li>
         <li>
           <span>04</span><strong>Confirmed fact</strong>
-          <p>None recorded in this replay.</p>
+          <p>None</p>
         </li>
       </ol>
 
@@ -71,14 +66,14 @@ export default function EvidenceCaseLedger() {
           {supporting.map((item) => (
             <div className="evidence-row" key={item.observation_id ?? item.source_id}>
               <strong>{sourceName(item.source_id)}</strong>
-              <span>Direct count fell 42.5% below its matched baseline.</span>
-              <small>{item.units} review units · measured observation · Baseline strength: high</small>
+              <span>42.5% below baseline</span>
+              <small>{item.units} units · high baseline</small>
             </div>
           ))}
           <div className="evidence-row fixture-row">
             <strong>WCC ticket format adapter</strong>
-            <span>Slips taxonomy maps to this case for demonstration only.</span>
-            <small>Synthetic format fixture · no evidence weight</small>
+            <span>Demo format only</span>
+            <small>Mock · zero evidence</small>
           </div>
         </article>
 
@@ -91,8 +86,7 @@ export default function EvidenceCaseLedger() {
             </div>
           )) : (
             <div className="evidence-row empty-row">
-              <strong>None received in this replay</strong>
-              <span>Silence is missing evidence, not proof that access is clear.</span>
+              <strong>None received</strong>
             </div>
           )}
         </article>
@@ -102,7 +96,7 @@ export default function EvidenceCaseLedger() {
           {missing.map((item) => (
             <div className="evidence-row" key={item.source_id}>
               <strong>{sourceName(item.source_id)}</strong>
-              <span>No observation aligned to the 6 August replay window.</span>
+              <span>No 6 August record</span>
             </div>
           ))}
         </article>
@@ -111,8 +105,7 @@ export default function EvidenceCaseLedger() {
           <p className="bucket-label">Context / excluded</p>
           <div className="evidence-row">
             <strong>{`${registryData.sources.length} sources registered`}</strong>
-            <span>Only time-aligned, resolved records may affect this case.</span>
-            <small>NZTA TMS stays unresolved; static layers stay context-only.</small>
+            <span>Time-aligned records only</span>
           </div>
           <small className="case-id">{graph.observation_refs[0]}</small>
         </article>

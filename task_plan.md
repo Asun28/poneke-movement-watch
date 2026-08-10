@@ -1,5 +1,61 @@
 # Pōneke Movement Watch — evidence ontology roadmap
 
+## Phase 15 — concise day-to-day operator mode
+
+### Goal
+
+Turn every operator module into a low-reading, click-and-select daily workflow
+without weakening source truth, mock, access, freshness or human-review guards.
+
+### Status
+
+- [completed] Audit visible copy, repeated guidance and current action hierarchy across all six routes.
+- [completed] Add failing rendered-behavior tests for concise screens and optional help.
+- [completed] Replace explanatory page copy with short task labels, status chips and direct controls.
+- [completed] Add one predictable Help menu for guidance that is not needed during routine work.
+- [completed] Verify keyboard, touch, responsive, truth-label and existing workflow regressions.
+- [in_progress] Publish the exact verified source to the existing owner-only Sites deployment.
+
+### Acceptance criteria
+
+- Live, Alerts, Integration, Replay and Setup open with a clear primary task and no long explanatory paragraphs.
+- Routine actions are visible buttons, selects, filters or status chips; no instruction is required to discover the next action.
+- Help is optional, keyboard reachable and closed by default.
+- Real, mock, permission, cost, freshness and human-review states remain visible in compact labels.
+- Interactive targets remain at least 44px, focus-visible and usable on mobile without horizontal overflow.
+
+### Assumptions and exclusions
+
+- “Remove explanations” means remove visible instructional prose from routine screens, not legal attribution, accessibility labels or critical truth/safety state.
+- Existing data, ontology, alert policy, evidence weights, source registry and deployment access do not change.
+- No new design-system package or icon dependency is needed; preserve the established civic visual language.
+- No auto-connect, credential handling, alert dispatch or public-access change is authorised.
+
+### File-level plan
+
+- `site/tests/operator-console.test.mjs` and `site/tests/rendered-html.test.mjs`: concise-screen and optional-help behavior contracts.
+- `site/app/components/OperatorShell.tsx` and `OperatorNavigation.tsx`: shared compact heading and Help menu.
+- `site/app/components/*`, `site/app/MovementCanvas.tsx`, `site/app/*/page.tsx`: remove repeated prose and clarify direct actions.
+- `site/app/globals.css`: task-first hierarchy, compact labels, touch/focus and responsive help treatment.
+- `README.md`, `findings.md`, `progress.md`: document the operator-mode boundary and verification.
+
+### Rejected major alternatives
+
+- Do not remove provenance or truth-state labels to make the screen look cleaner.
+- Do not hide primary operations inside a hamburger menu.
+- Do not introduce a guided tour, modal chain or new settings wizard for routine work.
+
+### Errors encountered
+
+| Error | Attempt | Resolution |
+|---|---:|---|
+| The first planning patch assumed generic `Findings` and `Progress` headings. | 1 | Read the actual file heads and patch against their Phase 2 titles. |
+| A first PowerShell copy-search used double-quoted regex text and parsed `[` as syntax. | 1 | Re-ran the same read-only search with a single-quoted pattern. |
+| First GREEN run left three legacy exact-copy assertions for baseline, numeric React comments and capitalisation. | 1 | Pointed the assertions at the new compact rendered states without weakening their truth checks. |
+| A four-file documentation patch included an empty hunk marker. | 1 | Re-applied the patch with valid per-file hunk boundaries. |
+
+---
+
 ## Phase 14 — easy integration setup
 
 ### Goal

@@ -21,7 +21,7 @@ export default function OperatorNavigation({ active }: { active: string }) {
           {!collapsed && (
             <span>
               <strong>Pōneke watch</strong>
-              <small>Emergency information prototype</small>
+              <small>WCC operations</small>
             </span>
           )}
         </div>
@@ -33,7 +33,7 @@ export default function OperatorNavigation({ active }: { active: string }) {
           onClick={() => setCollapsed((value) => !value)}
         >
           <span aria-hidden="true">{collapsed ? "›" : "‹"}</span>
-          {!collapsed && "Hide navigation"}
+          {!collapsed && "Hide menu"}
         </button>
         <nav aria-label="Operator modules">
           {destinations.map((destination) => (
@@ -48,11 +48,6 @@ export default function OperatorNavigation({ active }: { active: string }) {
             </a>
           ))}
         </nav>
-        {!collapsed && (
-          <p className="operator-boundary">
-            Decision support only. Candidate alerts require human review.
-          </p>
-        )}
       </aside>
       <nav className="operator-mobile-nav" aria-label="Operator modules">
         {destinations.map((destination) => (

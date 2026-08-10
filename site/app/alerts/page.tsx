@@ -7,8 +7,8 @@ export default function AlertCentrePage() {
       active="/alerts"
       eyebrow="Evidence-gated investigation"
       title="Alert Centre"
-      description="Human review queue for fresh, real observations that pass deterministic source, time and ontology gates. Models can propose and explain; authorised staff decide."
-      modeLabel="Review-only alerts"
+      description="Select a candidate and check its evidence. Models can propose and explain; authorised staff decide."
+      modeLabel="Review queue"
     >
       <AlertCentreClient />
     </OperatorShell>

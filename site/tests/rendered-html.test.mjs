@@ -35,14 +35,14 @@ test("server-renders the movement investigation surface with truthful batch stat
   assert.match(html, />207</);
   assert.match(html, /Data through/);
   assert.match(html, /6 Aug 2026/);
-  assert.match(html, /From movement change to an evidence trail/);
+  assert.match(html, /Evidence review/);
   assert.match(html, /Observation/);
   assert.match(html, /Inference/);
   assert.match(html, /Human decision/);
   assert.match(html, /Confirmed fact/);
-  assert.match(html, /None received in this replay/);
-  assert.match(html, /Synthetic format fixture · no evidence weight/);
-  assert.match(html, /Baseline strength/);
+  assert.match(html, /None received/);
+  assert.match(html, /Mock · zero evidence/);
+  assert.match(html, /high baseline/);
   assert.match(html, /33 sources registered/);
   assert.match(html, /Source capability preview/);
   assert.match(html, /REAL REPLAY/);
@@ -57,7 +57,7 @@ test("server-renders the movement investigation surface with truthful batch stat
   assert.ok(html.includes("/cop/v2/observations.geojson"));
   assert.ok(html.includes("/cop/v2/evidence-graph.json"));
   assert.ok(html.includes("/cop/v2/source-registry.json"));
-  assert.match(html, /Not an emergency dispatch system/);
+  assert.match(html, /Call 111 for immediate danger/);
   assert.doesNotMatch(html, /Requester|probability/i);
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton|taking shape/i);
 });
@@ -125,7 +125,7 @@ test("renders a city ontology explorer with explicit semantic and truth boundari
   assert.match(html, /Credentials required/);
   assert.match(html, /Empty activation feed/);
   assert.match(html, /Stale · excluded/);
-  assert.match(html, /Zero evidence until a record is time-aligned/);
+  assert.match(html, /weight (?:<!-- -->)?0/);
   assert.ok(html.includes("/cop/v3/city-ontology.json"));
 
   assert.equal(city.schema, "wellington-city-ontology/v1");
@@ -151,7 +151,7 @@ test("renders a collapsible per-source layer workspace with selected-data replay
   assert.match(html, /Replay source only/);
   assert.match(html, /Clear sources/);
   assert.match(html, /Map symbol size/);
-  assert.match(html, /Only selected sources with real replay records are played/);
+  assert.match(html, /1(?:<!-- -->)? playable/);
   assert.match(html, /Real replay/);
   assert.match(html, /0 playable records/);
   assert.match(html, /Needs permission/);
@@ -169,9 +169,8 @@ test("renders a paused-only map inspection layer with a keyboard alternative", a
   assert.match(html, /Paused · hover markers/);
   assert.match(html, /Inspection is off during playback/);
   assert.match(html, /The signal list remains available for keyboard inspection/);
-  assert.match(html, /Hover to preview/);
-  assert.match(html, /Click to select/);
-  assert.match(html, /Drag to move after zooming/);
+  assert.match(html, /Click marker/);
+  assert.match(html, /drag map/);
   assert.match(html, /data-map-selectable="true"/);
 });
 
@@ -218,7 +217,20 @@ test("identifies the real Wellington street basemap and its attribution", async 
   assert.match(html, /Real Wellington street basemap/);
   assert.match(html, /© OpenStreetMap contributors/);
   assert.match(html, /href="https:\/\/www\.openstreetmap\.org\/copyright"/);
-  assert.match(html, /Sensor overlay remains available if map tiles cannot load/);
+  assert.match(html, /OpenStreetMap contributors/);
+});
+
+test("removes routine teaching paragraphs while preserving operational states", async () => {
+  const html = ["/live", "/alerts", "/replay", "/setup"]
+    .map(async (path) => (await render(path)).text());
+  const combined = (await Promise.all(html)).join("\n");
+
+  assert.doesNotMatch(combined, /Connector health stays visible even when a layer is hidden/);
+  assert.doesNotMatch(combined, /Visible only to demonstrate the review workflow/);
+  assert.doesNotMatch(combined, /Geometry is the WCC sensor countline itself/);
+  assert.doesNotMatch(combined, /Optional OpenAPI contract can be added/);
+  assert.match(combined, /Mock · zero evidence/);
+  assert.match(combined, /Needs server activation/);
 });
 
 test("offers historical date-hour replay and a matched-hour trend view", async () => {

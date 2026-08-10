@@ -1,5 +1,28 @@
 # Findings — Phase 2 ontology and sources
 
+## Phase 15 — concise day-to-day operator mode
+
+- The target user is a WCC day-to-day emergency operator with limited computer confidence; the interface must be task-first, predictable and touch-safe.
+- The selected dashboard UX guidance prioritises 44px targets, immediate click feedback, visible focus, five or fewer primary destinations and progressive disclosure.
+- The design-system search suggested an exaggerated-minimal marketing style; it is rejected because this is a public-sector operations dashboard. The existing civic palette and compact density remain appropriate.
+- Routine pages should keep only task, current state and controls. Repeated explanations move to one optional Help menu; safety-critical truth states stay visible.
+- Copy concentration is highest in the shared shell, Live source rail/inspector, Alert review details, Integration architecture, Replay captions and Setup protocol notes. Screen-reader alternatives are already separate and should remain.
+- The existing navigation already uses five destinations, so Help must be a secondary header action rather than a sixth primary destination.
+- The shared shell currently repeats a mode label, eyebrow, long description, environment label and three-sentence footer on every route. The long description belongs in closed Help; the routine heading only needs the page title and current mode.
+- Live already has direct layer checkboxes and map selection. Remove source explanatory messages, the map-boundary paragraph and the empty-inspector tutorial; retain compact state/count labels and a keyboard-accessible observation list.
+- Alert Centre's five-stage pipeline and mock LLM essay are architecture education, not daily review. Keep the candidate list, evidence buckets, authority chip and human action boundary; move model guidance to Help.
+- Integration should lead with search, connector-mode select and Add source. Architecture, raw endpoints and ontology diagnostics are advanced tools and should be closed by default.
+- Setup repeats the same four safety bullets after every form. Replace them with one compact activation status and keep the actual selectable fields.
+- Final UX guards: one primary action per screen, native controls, click/tap as the primary interaction, 44px minimum targets, visible focus, compact empty/error states with recovery actions, no color-only status and no sixth bottom-nav item.
+- Closed progressive disclosure is appropriate for Help and advanced integration diagnostics; primary source selection, alert review and setup fields must remain directly visible.
+- Ontology explorer, capability preview and replay evidence ledger mix operational data with educational prose. Keep their structured labels and values, but place the technical Integration views behind one closed `Advanced` menu and shorten Replay lifecycle text to state labels.
+- Replay map controls are already direct. Remove the long inspection tutorial, long map geometry caption, trend methodology paragraph and repeated cause-warning paragraph; retain short status, attribution, legend, selected evidence and accessibility-only guidance.
+- The implemented routine hierarchy is now consistent: compact mode header plus Help, one short page title, then direct page controls. Raw records, API endpoints, ontology diagnostics and evidence-detail boards are closed by default.
+- The final accessibility validation confirms existing loading feedback, reduced-motion handling and visible focus coverage. New Help uses the established z-index scale rather than an arbitrary extreme value.
+- The compact Setup boundary initially said “Saved on this browser” before any save. That contradicts the status strip; the invariant must be “Browser draft” until client state confirms a save.
+
+---
+
 ## Phase 13 integration, live operations and alerts
 
 ### Local architecture and UI audit

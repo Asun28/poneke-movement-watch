@@ -22,21 +22,27 @@ export default function OperatorShell({ active, eyebrow, title, description, mod
             <strong>{modeLabel}</strong>
           </div>
           <div className="operator-header-meta">
-            <span>WCC prototype environment</span>
+            <span>WCC demo</span>
             <NowClock />
+            <details className="operator-help">
+              <summary>Help</summary>
+              <div>
+                <p>{description}</p>
+                <strong>Human review required</strong>
+              </div>
+            </details>
           </div>
         </header>
         <main id="main-content" className="operator-content" tabIndex={-1}>
           <section className="operator-module-heading">
             <p className="eyebrow">{eyebrow}</p>
             <h1>{title}</h1>
-            <p>{description}</p>
           </section>
           {children}
         </main>
         <footer className="operator-footer">
-          <strong>Not an emergency dispatch system.</strong> Call 111 for immediate danger.
-          Every candidate remains an inference until an authorised human reviews it.
+          <strong>Decision support</strong>
+          <span>Call 111 for immediate danger.</span>
         </footer>
       </div>
     </div>

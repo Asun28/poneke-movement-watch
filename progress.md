@@ -1,5 +1,15 @@
 # Progress — Phase 2 ontology and sources
 
+## Phase 15 — concise day-to-day operator mode
+
+- 2026-08-10: Started a cross-route copy and interaction audit. Locked the scope to visible prose reduction, direct click/select workflows and one optional Help surface while preserving all evidence and access safeguards.
+- 2026-08-10: TDD RED is confirmed through the production build. Seven tests fail on the intended old behavior: repeated setup boundaries, long shared headings/footer, always-visible teaching copy, no closed Help, and no closed Advanced/Evidence menus; 28 unrelated tests remain green.
+- 2026-08-10: GREEN passes 35/35 production-rendered, integration, replay and operator tests. All five daily modules now use closed Help, Integration/Replay technical content is closed by default, and Live/Alerts/Setup retain only actionable controls plus compact truth states.
+- 2026-08-10: A focused RED test caught contradictory unsaved Setup copy. The static boundary now says “Browser draft”; only actual client state may say a draft was saved.
+- 2026-08-10: Final local verification passes: 35/35 site tests with production build, ESLint, 22/22 Python tests and whitespace checks. Help/Advanced are closed by default, focus remains visible and all routine controls retain 44px touch targets.
+
+---
+
 - 2026-08-10: Phase 13 TDD RED confirmed in-process: the new integration-model
   test fails on the intentionally missing shared module after locking contracts
   for all 33 sources, partial failure, Mock zero-weight and review-only alerts.

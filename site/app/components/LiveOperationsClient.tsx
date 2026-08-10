@@ -114,19 +114,17 @@ export default function LiveOperationsClient() {
     <section className="live-workspace" aria-label="Live emergency information workspace">
       <div className="live-situation-strip">
         <div>
-          <span>Connected now</span>
+          <span>Connected</span>
           <strong>{liveCount}</strong>
-          <small>sources with current records</small>
         </div>
         <div>
           <span>No current records</span>
           <strong>{emptyCount}</strong>
-          <small>not an all-clear</small>
+          <small>Not all-clear</small>
         </div>
         <div>
-          <span>Source issues</span>
+          <span>Issues</span>
           <strong>{issueCount}</strong>
-          <small>unavailable or stale</small>
         </div>
         <div className="live-strip-actions">
           <span>{paused ? "Display paused" : "Auto refresh · 60 s"}</span>
@@ -141,12 +139,10 @@ export default function LiveOperationsClient() {
       <div className="live-grid">
         <aside className="live-source-rail" aria-label="Live source layers">
           <header>
-            <p className="eyebrow">Source layers</p>
             <h2>Current feeds</h2>
-            <p>Select the sources drawn on the map. Connector health stays visible even when a layer is hidden.</p>
           </header>
-          {loading && <p className="ops-state" role="status">Loading current source health…</p>}
-          {error && <p className="ops-state is-error" role="alert">{error} Last successful data remains visible.</p>}
+          {loading && <p className="ops-state" role="status">Loading sources…</p>}
+          {error && <p className="ops-state is-error" role="alert">Snapshot unavailable. Showing last data.</p>}
           <div className="live-layer-actions">
             <button type="button" onClick={() => setSelectedSources(new Set(liveSources.map((source) => source.source_id)))}>Show all</button>
             <button type="button" onClick={() => setSelectedSources(new Set())}>Hide all</button>
@@ -173,8 +169,7 @@ export default function LiveOperationsClient() {
                 <span className="live-source-symbol" aria-hidden="true" />
                 <span>
                   <strong>{source.name}</strong>
-                  <small>{source.runtime_state.replaceAll("_", " ")} · {source.record_count} records</small>
-                  <em>{source.message}</em>
+                  <small>{source.runtime_state.replaceAll("_", " ")} · {source.record_count}</small>
                 </span>
               </label>
             ))}
@@ -184,15 +179,11 @@ export default function LiveOperationsClient() {
         <div className="live-map-column">
           <div className="live-map-heading">
             <div>
-              <p className="eyebrow">Current operating picture</p>
-              <h2>Wellington signals</h2>
+              <h2>Wellington map</h2>
             </div>
-            <p><strong>{visibleObservations.length}</strong> records on selected layers</p>
+            <p><strong>{visibleObservations.length}</strong> selected</p>
           </div>
           <LiveMap observations={visibleObservations} selectedId={selectedObservation} onSelect={setSelectedObservation} />
-          <p className="live-map-boundary">
-            No current records is not an all-clear. Source unavailable, stale and filtered states remain separate.
-          </p>
           <ul className="sr-only" aria-label="Keyboard-accessible live observation list">
             {visibleObservations.map((observation) => (
               <li key={observation.id}>
@@ -205,12 +196,12 @@ export default function LiveOperationsClient() {
         </div>
 
         <aside className="live-inspector" aria-label="Selected live record">
-          <p className="eyebrow">Record inspector</p>
+          <h2>Details</h2>
           {selected ? (
             <>
               <span className="truth-chip">Official live record</span>
-              <h2>{observationTitle(selected)}</h2>
-              <p>{selected.kind.replaceAll("_", " ")}</p>
+              <h3>{observationTitle(selected)}</h3>
+              <span className="record-kind">{selected.kind.replaceAll("_", " ")}</span>
               <dl>
                 <div><dt>Source</dt><dd>{selectedSource?.name ?? selected.source_id}</dd></div>
                 <div><dt>Observed</dt><dd>{timeLabel(selected.observed_at)}</dd></div>
@@ -218,12 +209,14 @@ export default function LiveOperationsClient() {
                 <div><dt>Freshness</dt><dd>{selected.freshness_state}</dd></div>
                 <div><dt>Evidence weight</dt><dd>{selected.evidence_weight}</dd></div>
               </dl>
-              <pre>{JSON.stringify(selected.properties, null, 2)}</pre>
+              <details className="record-raw">
+                <summary>Raw record</summary>
+                <pre>{JSON.stringify(selected.properties, null, 2)}</pre>
+              </details>
             </>
           ) : (
             <div className="live-inspector-empty">
               <strong>Select a map symbol</strong>
-              <p>Hover for a brief label, then select to inspect provenance, time and source truth.</p>
             </div>
           )}
         </aside>

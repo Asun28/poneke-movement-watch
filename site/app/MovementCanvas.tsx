@@ -492,10 +492,9 @@ function TrendView({ signal }: { signal?: LineFeature }) {
             <strong>Selected hour</strong>
             <span>{lastDate ? shortDate(lastDate) : ""}</span>
           </div>
-          <p>Real observations at the same weekday and hour. Gaps are not interpolated.</p>
         </>
       ) : (
-        <p className="trend-empty">Select a signal in a replay hour to view its real matched history.</p>
+        <p className="trend-empty">Select a signal</p>
       )}
     </section>
   );
@@ -593,9 +592,6 @@ function LayerWorkspace({
           <h4 id="source-layers-heading">Source layers</h4>
           <span>{summary.selected_count}/{sourceLayers.length} selected</span>
         </div>
-        <p className="layer-truth-note">
-          Only selected sources with real replay records are played.
-        </p>
         <label className="source-layer-search">
           <span>Search source layers</span>
           <input
@@ -1036,7 +1032,7 @@ export default function MovementCanvas() {
         <div className="map-toolbar">
           <div>
             <p className="eyebrow">{replayLabel}</p>
-            <h2 id="map-heading">Countline change field</h2>
+            <h2 id="map-heading">Movement changes</h2>
           </div>
           <div className="filter-group" aria-label="Filter signals">
             {(["all", "people", "vehicles"] as Filter[]).map((value) => (
@@ -1182,8 +1178,8 @@ export default function MovementCanvas() {
             </strong>
             <span>
               {inspectionEnabled
-                ? "Hover to preview. Click to select. Drag to move after zooming."
-                : "Inspection is off during playback. The signal list remains available for keyboard inspection."}
+                ? "Click marker · drag map"
+                : ""}
             </span>
             <span className="sr-only">
               Inspection is off during playback. The signal list remains available for keyboard inspection.
@@ -1210,7 +1206,7 @@ export default function MovementCanvas() {
                 <div><dt>Expected</dt><dd>{Number(mapInspection.feature.properties.expected_count).toLocaleString("en-NZ", { maximumFractionDigits: 1 })}</dd></div>
               </dl>
               <time>{formatReplayTime(String(mapInspection.feature.properties.observed_at))}</time>
-              <small>WCC Transport Sensors · real replay · no cause inferred</small>
+              <small>WCC Transport Sensors · real replay</small>
             </aside>
           ) : null}
           <div className="map-controls" aria-label="Map zoom controls">
@@ -1276,12 +1272,6 @@ export default function MovementCanvas() {
           {coverage.length === 0 && !error ? <p className="map-message">Loading countlines…</p> : null}
           {error ? <p className="map-message error" role="alert">{error}</p> : null}
         </div>
-        <p className="map-caption">
-          Geometry is the WCC sensor countline itself. It does not imply the whole
-          surrounding street or suburb changed. Sensor overlay remains available if
-          map tiles cannot load. Only selected real-replay source layers animate;
-          contract-only layers never create markers.
-        </p>
       </div>
 
       <aside className="evidence-column" aria-label="Signal evidence">
@@ -1304,13 +1294,12 @@ export default function MovementCanvas() {
               <div><dt>History</dt><dd>{confidence?.history_samples ?? 0} matched hours</dd></div>
               <div><dt>Baseline strength</dt><dd>{confidence?.level ?? "unknown"}</dd></div>
             </dl>
-            <p className="evidence-note">No cause inferred. Check operational context before acting.</p>
           </div>
         ) : (
           <p className="empty-evidence">
             {replaySourceSelected
-              ? "Select a signal to inspect its evidence."
-              : "Select WCC Transport Sensors in the layer workspace to replay movement."}
+              ? "Select a signal"
+              : "Select a movement source"}
           </p>
         )}
 
