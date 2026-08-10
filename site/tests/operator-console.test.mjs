@@ -214,7 +214,7 @@ test("shows the six-level operational evidence chain before advanced technical d
   assert.match(html, /Unknown is not open/);
 });
 
-test("offers an accessible six-layer knowledge graph without replacing the operational chain", async () => {
+test("offers an expandable six-layer change timeline without replacing the operational chain", async () => {
   const html = await (await request("/ontology")).text();
 
   assert.match(html, /aria-label="Choose ontology view"/);
@@ -223,7 +223,7 @@ test("offers an accessible six-layer knowledge graph without replacing the opera
   assert.match(html, /data-ontology-view="chain"/);
   assert.match(html, /data-ontology-view="graph"/);
   assert.match(html, /data-ontology-graph="six-layer"/);
-  assert.match(html, /Six-layer knowledge graph/);
+  assert.match(html, /Six-layer change timeline/);
   assert.match(html, /Explicit relationships only/);
   assert.match(html, /aria-label="Choose graph focus concept"/);
   assert.match(html, /aria-label="Six-layer knowledge graph controls"/);
@@ -239,8 +239,13 @@ test("offers an accessible six-layer knowledge graph without replacing the opera
     [...html.matchAll(/data-knowledge-layer="([^"]+)"/g)].map((match) => match[1]),
     ["sources", "alignment", "ontology", "corroboration", "destinations", "decision"],
   );
+  assert.match(html, /data-knowledge-timeline="workflow-change"/);
+  assert.equal((html.match(/data-timeline-entry=/g) ?? []).length, 6);
+  assert.equal((html.match(/data-timeline-change=/g) ?? []).length, 6);
   assert.equal((html.match(/data-layer-toggle=/g) ?? []).length, 6);
-  assert.equal((html.match(/aria-expanded="true"/g) ?? []).length >= 6, true);
+  assert.equal((html.match(/data-layer-toggle="[^"]+" aria-expanded="false"/g) ?? []).length, 6);
+  assert.match(html, /aria-label="Expand Sources layer"/);
+  assert.match(html, /aria-hidden="true">\+<\/span><span>Expand<\/span>/);
   assert.match(html, /data-graph-node-kind="source"/);
   assert.match(html, /data-graph-node-kind="concept"/);
   assert.match(html, /data-graph-node-kind="destination"/);
@@ -248,6 +253,7 @@ test("offers an accessible six-layer knowledge graph without replacing the opera
   assert.match(html, /Node details/);
   assert.match(html, /Direct neighbours/);
   assert.match(html, /Source truth &amp; provenance/);
+  assert.match(html, /Workflow sequence only · not dated event history/);
   assert.match(html, /Workflow connectors describe structure, not evidence/);
   assert.match(html, /Operational chain remains the default/);
 });

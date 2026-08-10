@@ -1,5 +1,63 @@
 # Pōneke Movement Watch — evidence ontology roadmap
 
+## Phase 30 — expandable ontology change timeline
+
+### Goal
+
+Recompose the six-layer Knowledge graph as a clean vertical timeline that shows
+how a record changes through the evidence workflow, with `+`/`−` drill-down for
+second-level nodes.
+
+### Status
+
+- [completed] Audit the reference image and existing six-layer graph contracts.
+- [completed] Add failing behavior tests for timeline order, change labels and collapsed detail.
+- [completed] Implement the vertical timeline and accessible per-layer disclosure.
+- [completed] Verify regressions and responsive/accessibility contracts.
+- [in_progress] Deploy to the existing owner-only site.
+
+### Acceptance criteria
+
+- Knowledge graph displays the same six ordered architecture layers on one vertical spine.
+- Every layer states the transformation outcome from source record to human decision.
+- All second-level detail is collapsed initially; each row has a 44px `+` button that
+  becomes `−` while expanded, with labelled `aria-expanded`/`aria-controls` behavior.
+- Expand all, Collapse all and 60–160% zoom remain available.
+- Expanded source, concept, module and authority nodes still update the existing inspector.
+- Workflow sequence is explicitly not a historical event log or evidence assertion.
+
+### Assumptions and exclusions
+
+- “Timeline” is a workflow-change timeline, not invented dated ontology history; the
+  repository has no authoritative ontology change-event ledger to present as dates.
+- Six top-level layers always remain visible; only second-level nodes are disclosed.
+- Preserve source truth, concept filtering, direct-neighbour inspection, evidence rules,
+  human authority, routes and access policy.
+- No new data, graph database, detector, model, dependency, external action or GitHub push.
+- Browser interaction testing was not requested; rendered behavior, build and regressions
+  are the verification boundary.
+
+### File-level plan
+
+- `site/tests/integration-model.test.mjs`: exact six transformation labels.
+- `site/tests/operator-console.test.mjs`: timeline structure and initial `+` disclosure state.
+- `site/lib/dataIntegration.mjs`: presentation-only transformation labels.
+- `site/app/components/OntologyDashboard.tsx`: timeline markup and collapsed default.
+- `site/app/globals.css`: vertical spine, markers, nested detail and mobile flow.
+- `README.md`, `findings.md`, `progress.md`: record the workflow-timeline boundary.
+
+### Rejected major alternatives
+
+- Do not fabricate dates, versions or ontology change events.
+- Do not remove zoom, concept filters or the evidence inspector.
+- Do not add a timeline/graph package for six deterministic stages.
+
+### Errors encountered
+
+| Error | Attempt | Resolution |
+|---|---:|---|
+| First combined test patch used an operator-test anchor inside the model-test file. | 1 | Split the patch by file and apply each behavioral contract at its exact current block. |
+
 ## Phase 29 — six-layer ontology knowledge graph controls
 
 ### Goal

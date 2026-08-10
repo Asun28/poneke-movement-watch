@@ -91,6 +91,7 @@ type OntologyLayerGraph = {
     number: string;
     label: string;
     description: string;
+    change: string;
     nodes: OntologyLayerGraphNode[];
   }>;
 };
@@ -143,7 +144,7 @@ export default function OntologyDashboard({ model }: { model: OntologyDashboardM
   );
   const [graphZoom, setGraphZoom] = useState(100);
   const [expandedGraphLayers, setExpandedGraphLayers] = useState(
-    () => new Set(ONTOLOGY_LAYER_IDS),
+    () => new Set<string>(),
   );
 
   const filtered = useMemo(() => model.paths.filter((path) => {
@@ -407,9 +408,9 @@ export default function OntologyDashboard({ model }: { model: OntologyDashboardM
       >
         <header className="ontology-graph-header">
           <div>
-            <p className="eyebrow">All six architecture layers</p>
-            <h3 id="ontology-graph-heading">Six-layer knowledge graph</h3>
-            <p>Zoom the full workflow, collapse detail, or select a registered node.</p>
+            <p className="eyebrow">How records change</p>
+            <h3 id="ontology-graph-heading">Six-layer change timeline</h3>
+            <p>Use + to open second-level detail and − to close it.</p>
           </div>
           <span>Explicit relationships only</span>
         </header>
@@ -464,14 +465,16 @@ export default function OntologyDashboard({ model }: { model: OntologyDashboardM
             <div className="ontology-layer-viewport" role="region" aria-label="Scrollable six-layer knowledge graph">
               <div
                 className="ontology-layer-track"
+                data-knowledge-timeline="workflow-change"
                 style={{ "--ontology-zoom": graphZoom / 100 } as CSSProperties}
               >
-                {layerGraph.layers.map((layer, layerIndex) => {
+                {layerGraph.layers.map((layer) => {
                   const expanded = expandedGraphLayers.has(layer.id);
                   return (
                     <section
                       className={`ontology-knowledge-layer layer-${layer.id}`}
                       data-knowledge-layer={layer.id}
+                      data-timeline-entry={layer.id}
                       aria-labelledby={`knowledge-layer-${layer.id}`}
                       key={layer.id}
                     >
@@ -480,6 +483,7 @@ export default function OntologyDashboard({ model }: { model: OntologyDashboardM
                         <div>
                           <h4 id={`knowledge-layer-${layer.id}`}>{layer.label}</h4>
                           <small>{layer.description}</small>
+                          <strong className="ontology-layer-change" data-timeline-change={layer.id}>{layer.change}</strong>
                         </div>
                         <button
                           type="button"
@@ -525,15 +529,15 @@ export default function OntologyDashboard({ model }: { model: OntologyDashboardM
                           );
                         })}
                       </div>
-                      {layerIndex < layerGraph.layers.length - 1 && (
-                        <div className="ontology-layer-connector" aria-hidden="true"><span>→</span></div>
-                      )}
                     </section>
                   );
                 })}
               </div>
             </div>
-            <p className="ontology-layer-boundary"><strong>Graph boundary</strong> Workflow connectors describe structure, not evidence.</p>
+            <p className="ontology-layer-boundary">
+              <strong>Workflow sequence only · not dated event history</strong>
+              <span>Workflow connectors describe structure, not evidence.</span>
+            </p>
           </div>
 
           <aside className="ontology-graph-inspector" id="ontology-graph-inspector" aria-live="polite">

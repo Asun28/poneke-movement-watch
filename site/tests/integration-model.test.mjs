@@ -316,6 +316,14 @@ test("projects one concept through six ordered display layers without creating e
     "destinations",
     "decision",
   ]);
+  assert.deepEqual(graph.layers.map((layer) => layer.change), [
+    "Records enter with source truth",
+    "Records become comparable",
+    "Records gain shared meaning",
+    "Signals become review candidates",
+    "Candidates reach operator modules",
+    "Staff decide and authorise response",
+  ]);
   assert.deepEqual(graph.connections.map((connection) => (
     `${connection.source}|${connection.target}|${connection.basis}`
   )), [

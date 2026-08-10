@@ -1,5 +1,21 @@
 # Findings — Phase 2 ontology and sources
 
+## Phase 30 — timeline reference findings
+
+- The supplied reference uses one quiet card, a continuous vertical rule, small
+  semantic markers and short stacked entries. Its value is reading order and low
+  visual noise, not the changelog dates themselves.
+- The current graph already has the correct six ordered layers and disclosure state,
+  but its six-column canvas forces horizontal panning and makes the sequence harder
+  to scan. The safe redesign is presentation-only.
+- The repository has no authoritative dated ontology-change ledger. Show transformations
+  through the workflow instead: source truth, comparability, shared meaning, candidate,
+  operator routing and human authority.
+- Keep all layer headings visible and collapse nested nodes by default. Per-layer
+  `+`/`−`, global controls, visible focus and 44px targets make the second level usable
+  without relying on hover, gesture or colour.
+
+
 ## Phase 24 — vertical hierarchy findings
 
 - The current dashboard is logically correct but still reads left-to-right twice:

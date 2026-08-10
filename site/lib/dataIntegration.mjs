@@ -371,6 +371,7 @@ export function buildOntologyLayerGraph(model, conceptId) {
       number: "01",
       label: "Sources",
       description: "Access and source truth",
+      change: "Records enter with source truth",
       nodes: paths.map((path) => ({
         id: `source:${path.source_id}`,
         kind: "source",
@@ -383,6 +384,7 @@ export function buildOntologyLayerGraph(model, conceptId) {
       number: "02",
       label: "Alignment",
       description: "Normalize time and place",
+      change: "Records become comparable",
       nodes: [
         { id: "alignment:schema", kind: "alignment", label: "Schema", detail: "Common fields and units" },
         { id: "alignment:time", kind: "alignment", label: "Time", detail: "Observed · available · valid" },
@@ -394,6 +396,7 @@ export function buildOntologyLayerGraph(model, conceptId) {
       number: "03",
       label: "Ontology",
       description: "Entities, relations and rules",
+      change: "Records gain shared meaning",
       nodes: [
         { id: `concept:${concept.id}`, kind: "concept", label: concept.label, detail: concept.description },
         ...roles.map((role) => ({
@@ -409,6 +412,7 @@ export function buildOntologyLayerGraph(model, conceptId) {
       number: "04",
       label: "Corroboration",
       description: "Candidate and evidence states",
+      change: "Signals become review candidates",
       nodes: [
         { id: "corroboration:candidate", kind: "candidate", label: "Candidate", detail: "Not a confirmed incident" },
         { id: "corroboration:supporting", kind: "evidence", label: "Supporting", detail: "Same time and place" },
@@ -421,6 +425,7 @@ export function buildOntologyLayerGraph(model, conceptId) {
       number: "05",
       label: "Modules",
       description: "Live, Alerts and Replay",
+      change: "Candidates reach operator modules",
       nodes: [...destinations].map((id) => ({
         id: `destination:${id}`,
         kind: "destination",
@@ -433,6 +438,7 @@ export function buildOntologyLayerGraph(model, conceptId) {
       number: "06",
       label: "Human decision",
       description: "Confirmation and response",
+      change: "Staff decide and authorise response",
       nodes: [
         { id: "decision:review", kind: "decision", label: "Investigate", detail: "Review the case" },
         { id: "authority:human_decision", kind: "authority", label: "Confirm", detail: "Set incident status" },

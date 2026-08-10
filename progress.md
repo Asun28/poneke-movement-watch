@@ -1,5 +1,23 @@
 # Progress — Phase 2 ontology and sources
 
+## Phase 30 — expandable ontology change timeline
+
+- 2026-08-10: Audited the supplied timeline reference and the deployed six-layer
+  graph. Locked the scope to a vertical workflow-change timeline with all six main
+  layers visible and second-level detail collapsed behind `+`/`−`; no dated history
+  or new ontology evidence will be invented.
+- 2026-08-10: TDD RED confirmed two intended failures: the six display layers do
+  not yet expose transformation outcomes, and the rendered graph is still a fully
+  expanded six-column canvas rather than a collapsed vertical timeline.
+- 2026-08-10: TDD GREEN confirmed. The six transformation labels, vertical timeline
+  structure, semantic stage markers and collapsed `+` controls pass the focused
+  model and rendered behavior tests; zoom, global disclosure and node inspection remain.
+- 2026-08-10: Final local verification passes: production build, 60/60 site
+  behaviors, ESLint, 22/22 Python tests and whitespace checks. The timeline uses
+  labelled native buttons, 44px targets, one-column mobile detail and existing
+  reduced-motion/focus behavior without introducing a new dependency.
+
+
 ## Phase 28 — compact operator title bars
 
 - 2026-08-10: Audited the supplied Live screenshot and all six shared shell call sites.
