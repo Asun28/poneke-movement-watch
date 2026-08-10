@@ -16,6 +16,10 @@
   behaviors, ESLint, 22/22 Python tests and whitespace checks. The timeline uses
   labelled native buttons, 44px targets, one-column mobile detail and existing
   reduced-motion/focus behavior without introducing a new dependency.
+- 2026-08-10: Pushed the exact verified commit only to the private Sites source,
+  saved version 32 and completed the owner-only production deployment. The
+  expandable ontology timeline is live at `/ontology`; GitHub origin and remote
+  `main` remain unchanged. Phase 30 is complete.
 
 
 ## Phase 28 — compact operator title bars

@@ -14,7 +14,7 @@ second-level nodes.
 - [completed] Add failing behavior tests for timeline order, change labels and collapsed detail.
 - [completed] Implement the vertical timeline and accessible per-layer disclosure.
 - [completed] Verify regressions and responsive/accessibility contracts.
-- [in_progress] Deploy to the existing owner-only site.
+- [completed] Deploy to the existing owner-only site.
 
 ### Acceptance criteria
 
