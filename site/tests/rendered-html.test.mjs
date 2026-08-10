@@ -255,6 +255,55 @@ test("offers historical date-hour replay and a matched-hour trend view", async (
   assert.match(html, /\/cop\/v1\/movement-replay\.json/);
 });
 
+test("renders the April storm as a leakage-safe retrospective case study", async () => {
+  const response = await render("/replay");
+  assert.equal(response.status, 200);
+  const html = await response.text();
+
+  assert.match(html, /id="april-storm-backtest"/);
+  assert.match(html, /April Storm · 18–22 Apr 2026/);
+  assert.match(html, /Retrospective case study/);
+  assert.match(html, /Inputs not yet packaged/);
+  assert.match(html, /Train before 18 Apr/);
+  assert.match(html, /5 or 15 min/);
+  assert.match(html, /source_claimed_time/);
+  assert.match(html, /normalized_event_time/);
+  assert.match(html, /correction_note/);
+  assert.match(html, /available_at/);
+  assert.match(html, /Mock excluded/);
+  assert.match(html, /One event cannot establish general accuracy/);
+  assert.match(html, /\/cop\/v4\/april-storm-event-pack\.json/);
+});
+
+test("ships a machine-readable April storm pack without invented replay observations", async () => {
+  const eventPack = JSON.parse(await readFile(
+    new URL("../public/cop/v4/april-storm-event-pack.json", import.meta.url),
+    "utf8",
+  ));
+
+  assert.equal(eventPack.schema, "wellington-backtest-event-pack/v1");
+  assert.equal(eventPack.event_id, "wellington-april-storm-2026");
+  assert.equal(eventPack.mode, "retrospective_case_study");
+  assert.equal(eventPack.window.start_at, "2026-04-18T00:00:00+12:00");
+  assert.equal(eventPack.window.end_at, "2026-04-22T23:59:59+12:00");
+  assert.deepEqual(eventPack.window.replay_step_minutes, [5, 15]);
+  assert.equal(eventPack.training_policy.training_data_before, "2026-04-18T00:00:00+12:00");
+  assert.equal(eventPack.training_policy.meta_model_input, "out_of_fold_predictions_only");
+  assert.equal(eventPack.training_policy.mock_policy, "excluded_from_training_calibration_and_scoring");
+  assert.equal(eventPack.availability_policy.input_time_field, "available_at");
+  assert.equal(eventPack.evaluation.general_accuracy_claim_allowed, false);
+  assert.equal(eventPack.coverage.wcc_transport_countlines.reported_active, 411);
+  assert.equal(eventPack.coverage.wcc_transport_countlines.total, 414);
+  assert.equal(eventPack.replay_inputs.status, "not_packaged");
+  assert.deepEqual(eventPack.replay_inputs.observations, []);
+  assert.ok(eventPack.time_claims.some((claim) =>
+    claim.source_claimed_time.includes("24 April")
+      && claim.normalized_event_time === "2026-04-20"
+      && claim.correction_note,
+  ));
+  assert.ok(eventPack.ground_truth.every((item) => Object.hasOwn(item, "available_at")));
+});
+
 test("ships internally consistent COP artifacts with WGS84 line geometry", async () => {
   const [healthText, signalsText, coverageText, replayText] = await Promise.all([
     readFile(new URL("../public/cop/v1/movement-health.json", import.meta.url), "utf8"),

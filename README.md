@@ -338,6 +338,31 @@ The capability cards on the demo use synthetic examples only to show possible
 ontology links. Mock cards always carry `evidence_weight: 0`. Timetables and
 event schedules are planned-demand context, not proof of attendance or disruption.
 
+### April storm 回测
+
+Live Operations includes a `回测` action for the 18–22 April 2026 storm. It opens
+a retrospective case-study contract; it does not rewind or alter live feeds.
+
+- Training data must end before `2026-04-18T00:00:00+12:00`.
+- Every replay step may use only records whose `available_at` is not later than
+  that step. News, committee reports and final damage remain withheld labels.
+- Compare rules, a robust anomaly detector and regularized logistic regression.
+  A future stacker may use out-of-fold base predictions only.
+- Mock records are excluded from training, calibration and scoring. One event
+  cannot establish general accuracy.
+- The current pack contains no April observations. It is an evaluation contract
+  until permitted transport, rainfall/river and road-impact rows are packaged.
+
+The event labels reference the official
+[Greater Wellington committee paper](https://ltp.gw.govt.nz/assets/Documents/Documents/2026/06/Environment-and-Climate-Committee-18-June-2026-Order-Paper.pdf),
+[water-monitoring article](https://www.gw.govt.nz/your-region/news/meet-greater-wellingtons-water-monitoring-team/),
+[WCC reports](https://meetings.wellington.govt.nz/your-council/reports) and
+[NZTA bulletin](https://www.journeys.nzta.govt.nz/traffic-bulletins/wellingtonwairarapa-regional-state-highway-status-and-weather-update-sh2-remutaka-hill-open).
+The leakage guards follow scikit-learn's
+[out-of-fold stacking](https://scikit-learn.org/stable/auto_examples/ensemble/plot_stack_predictors.html)
+and [independent calibration](https://scikit-learn.org/stable/modules/calibration.html)
+guidance.
+
 Explicitly excluded:
 
 - private emergency, 111-call, social-media or unlicensed commercial records;
@@ -364,6 +389,7 @@ The site publishes static, cacheable contracts that can slot into a shared map.
 | `/cop/v2/evidence-graph.json` | Entities, evidence roles, hypotheses and decision state |
 | `/cop/v2/source-registry.json` | Source role, access, cadence and resolution limits |
 | `/cop/v3/city-ontology.json` | Typed place, asset, time, state, impact and access relationships |
+| `/cop/v4/april-storm-event-pack.json` | Leakage-safe April storm backtest contract and withheld event labels |
 
 Example:
 

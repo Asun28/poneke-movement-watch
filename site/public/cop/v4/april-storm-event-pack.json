@@ -1,0 +1,131 @@
+{
+  "schema": "wellington-backtest-event-pack/v1",
+  "event_id": "wellington-april-storm-2026",
+  "title": "April Storm 2026",
+  "mode": "retrospective_case_study",
+  "status": "event_contract_ready_observations_not_packaged",
+  "window": {
+    "start_at": "2026-04-18T00:00:00+12:00",
+    "end_at": "2026-04-22T23:59:59+12:00",
+    "display_timezone": "Pacific/Auckland",
+    "replay_step_minutes": [5, 15]
+  },
+  "training_policy": {
+    "training_data_before": "2026-04-18T00:00:00+12:00",
+    "split_strategy": "event_blocked_time_split",
+    "base_model_comparisons": [
+      "rules",
+      "robust_anomaly_detector",
+      "regularized_logistic_regression"
+    ],
+    "meta_model_input": "out_of_fold_predictions_only",
+    "deferred_models": [
+      "xgboost",
+      "svm",
+      "learned_global_weights"
+    ],
+    "mock_policy": "excluded_from_training_calibration_and_scoring"
+  },
+  "availability_policy": {
+    "input_time_field": "available_at",
+    "rule": "A replay step may use only records with available_at less than or equal to step_at.",
+    "withheld_ground_truth": [
+      "post_event_news",
+      "committee_reports",
+      "final_damage",
+      "retrospective_classification"
+    ]
+  },
+  "evaluation": {
+    "metrics": [
+      "first_valid_alert_lead_time",
+      "precision",
+      "recall",
+      "false_alerts_per_day",
+      "missed_events",
+      "brier_score",
+      "calibration_curve"
+    ],
+    "calibration": "independent_time_block",
+    "evaluation_case_count": 1,
+    "general_accuracy_claim_allowed": false,
+    "claim_limit": "One event cannot establish general accuracy."
+  },
+  "coverage": {
+    "wcc_transport_countlines": {
+      "reported_active": 411,
+      "total": 414,
+      "cutoff": "2026-04-20",
+      "verification_status": "project_note_not_recomputed_in_this_build"
+    }
+  },
+  "time_claims": [
+    {
+      "source": "Greater Wellington Environment and Climate Committee order paper",
+      "source_claimed_time": "Monday 20 April 2026",
+      "normalized_event_time": "2026-04-20",
+      "correction_note": null
+    },
+    {
+      "source": "Greater Wellington water monitoring article",
+      "source_claimed_time": "Monday 24 April 2026",
+      "normalized_event_time": "2026-04-20",
+      "correction_note": "The later article conflicts with the formal committee paper and the 2026 calendar. Preserve the claim; use 20 April as the normalized event date."
+    }
+  ],
+  "ground_truth": [
+    {
+      "id": "gt-rain-berhampore",
+      "source": "Greater Wellington Environment and Climate Committee order paper",
+      "source_url": "https://ltp.gw.govt.nz/assets/Documents/Documents/2026/06/Environment-and-Climate-Committee-18-June-2026-Order-Paper.pdf",
+      "source_claimed_time": "Monday 20 April 2026",
+      "normalized_event_time": "2026-04-20",
+      "available_at": "2026-06-18T00:00:00+12:00",
+      "correction_note": null,
+      "label": "Berhampore recorded 85.9 mm in one hour, above the local 1-in-200-year level.",
+      "use": "ground_truth_only"
+    },
+    {
+      "id": "gt-river-hutt",
+      "source": "Greater Wellington water monitoring article",
+      "source_url": "https://www.gw.govt.nz/your-region/news/meet-greater-wellingtons-water-monitoring-team/",
+      "source_claimed_time": "10:30 pm Monday 20 April 2026",
+      "normalized_event_time": "2026-04-20T22:30:00+12:00",
+      "available_at": null,
+      "correction_note": "Publication time was not verified; this row is withheld ground truth.",
+      "label": "Hutt River at Taita Gorge peaked at about 475 cubic metres per second.",
+      "use": "ground_truth_only"
+    },
+    {
+      "id": "gt-wcc-classification",
+      "source": "Wellington City Council reports",
+      "source_url": "https://meetings.wellington.govt.nz/your-council/reports",
+      "source_claimed_time": "20 April 2026",
+      "normalized_event_time": "2026-04-20",
+      "available_at": null,
+      "correction_note": "Retrospective Council classification; never a replay input.",
+      "label": "WCC later classified the 20 April event as a severe weather event.",
+      "use": "ground_truth_only"
+    },
+    {
+      "id": "gt-nzta-remutaka",
+      "source": "NZ Transport Agency traffic bulletin",
+      "source_url": "https://www.journeys.nzta.govt.nz/traffic-bulletins/wellingtonwairarapa-regional-state-highway-status-and-weather-update-sh2-remutaka-hill-open",
+      "source_claimed_time": "21–22 April 2026",
+      "normalized_event_time": "2026-04-21/2026-04-22",
+      "available_at": null,
+      "correction_note": "The reported reopening time is not a verified publication timestamp. Keep this withheld until its available_at time is captured.",
+      "label": "SH2 Remutaka Hill closed after washout and reopened shortly before 06:20 on 22 April.",
+      "use": "ground_truth_only"
+    }
+  ],
+  "replay_inputs": {
+    "status": "not_packaged",
+    "observations": [],
+    "missing_families": [
+      "wcc_transport_counts",
+      "gwrc_rainfall_and_river_telemetry",
+      "nzta_timestamped_road_impacts"
+    ]
+  }
+}

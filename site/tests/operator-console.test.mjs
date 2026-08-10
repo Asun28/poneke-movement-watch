@@ -87,6 +87,16 @@ test("keeps replay controls out of the live module and preserves them in replay"
   assert.match(replay, /Batch replay/);
 });
 
+test("opens the April storm backtest from Live Operations without rewinding live feeds", async () => {
+  const live = await (await request("/live")).text();
+
+  assert.match(live, /href="\/replay#april-storm-backtest"/);
+  assert.match(live, /aria-label="Open April Storm backtest"/);
+  assert.match(live, /aria-hidden="true"/);
+  assert.match(live, />回测</);
+  assert.doesNotMatch(live, /2026-04-18T00:00:00\+12:00/);
+});
+
 test("renders truth, access and runtime health as separate integration dimensions", async () => {
   const response = await request("/integration");
   const html = await response.text();

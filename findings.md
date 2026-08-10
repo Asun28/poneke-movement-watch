@@ -1,5 +1,32 @@
 # Findings — Phase 2 ontology and sources
 
+## Phase 17 — April storm 回测
+
+- The Live situation strip is the correct secondary entry point: the operator can
+  open a known-event evaluation without adding a sixth primary module or mutating
+  the live snapshot state.
+- The repository's packaged movement replay covers only 1–6 August 2026. No April
+  transport, rainfall, river or road-impact rows are present, so the April pack
+  must start as an event/evaluation contract with an empty observations array.
+- The formal Greater Wellington committee paper places the Berhampore 85.9 mm
+  one-hour record on Monday 20 April. A later Greater Wellington article says
+  “Monday 24 April”; the ontology must retain that literal source claim, normalize
+  to 20 April and preserve a correction note rather than silently overwrite it.
+- The same official evidence supports an 18–22 April window: heavy rain and river
+  impacts began on 18 April, the Hutt River peaked near 475 m³/s at 22:30 on 20
+  April, and the NZTA bulletin records the SH2 washout closure/reopening sequence.
+- Publication time is not verified for several retrospective sources. Their
+  `available_at` remains null and they stay ground-truth-only until a timestamped
+  archive is captured; an event time is not a publication time.
+- Leak-free validation requires event-blocked time splits, out-of-fold base-model
+  predictions for any stacker, and an independent calibration period. Mock data
+  and post-event reporting are never training, calibration or score inputs.
+- UI validation selected a visible text label with one consistent stroke SVG,
+  a deep link, a 44px target and no continuous animation. The event contract is
+  compact, and technical fields remain visible only where they express truth.
+
+---
+
 ## Phase 15 — concise day-to-day operator mode
 
 - The target user is a WCC day-to-day emergency operator with limited computer confidence; the interface must be task-first, predictable and touch-safe.
@@ -804,3 +831,15 @@ supports spatial event-footprint resolution, never direct building-damage claims
 - The specialised incident-queue UX query had no database match. The applicable built-in defaults are visible form labels, read-only distinction, 44px controls, inline success feedback, preserved loading space and no reliance on drag or hover.
 - The site uses React 19/vinext and has no D1 or R2 binding. Existing Setup code already establishes the browser-only draft convention to reuse without adding infrastructure.
 - The broader UX search matched keyboard navigation, visible focus, submit feedback and a useful no-results recovery. Product guidance favours a data-dense drill-down layout, consistent with the selected queue/detail design.
+# Phase 17 — April storm 回测 findings
+
+- The user requests a 18–22 April 2026 storm case study with strict `available_at` replay, an 18 April training cutoff, post-event evidence withheld as ground truth, and no mock contribution to fitting or scoring.
+- A single event can validate replay behavior and alert lead time but cannot establish general accuracy or train reliable fusion weights.
+- The requested UI belongs as a labelled secondary action in Live Operations, not a sixth primary module, so live state and retrospective evidence remain distinct.
+- The current Replay Analyzer only packages real WCC movement observations for 1–6 August 2026. An April workflow must therefore begin as an event/evaluation contract and cannot imply April movement rows already exist.
+- Live Operations already has a compact action strip; adding a labelled 回测 link there preserves the five-item primary navigation and does not mutate live snapshot state.
+- The Agent Reach executable is unavailable in this environment, so official pages will be read through its documented Jina/Web fallback rather than guessed.
+- Official GW committee material records 85.9 mm in one hour at Berhampore on Monday 20 April, while a later GW news page says “Monday 24 April”. The event pack must retain both claims and normalize to 20 April with an explicit correction note and stronger-source basis.
+- GW's monitoring article records the Hutt River at Taitā Gorge peaking near 475 m³/s at 22:30 on Monday 20 April; the same article confirms Pāuatahanui impacts beginning Saturday 18 April.
+- WCC's report index describes the 20 April 2026 severe weather event and later emergency-event/rates-relief action. This is retrospective ground truth, not an input available during the event.
+- NZTA bulletins provide event-time road labels: SH58 flooding/closure and partial reopening from 18–19 April, then SH2 Remutaka washout closure on 21 April and temporary repair/reopening by 06:20 on 22 April.

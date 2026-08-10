@@ -132,6 +132,18 @@ export default function LiveOperationsClient() {
           <div>
             <button type="button" onClick={() => setPaused((value) => !value)}>{paused ? "Resume display" : "Pause display"}</button>
             <button type="button" onClick={() => void refresh()} disabled={paused}>Refresh</button>
+            <a
+              className="live-backtest-link"
+              href="/replay#april-storm-backtest"
+              aria-label="Open April Storm backtest"
+            >
+              <svg aria-hidden="true" viewBox="0 0 24 24" width="18" height="18">
+                <path d="M4.5 8.5A8 8 0 1 1 4 14" />
+                <path d="M4.5 3.5v5h5" />
+                <path d="M12 7.5v5l3 2" />
+              </svg>
+              <span>回测</span>
+            </a>
           </div>
         </div>
       </div>

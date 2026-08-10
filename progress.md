@@ -1,5 +1,18 @@
 # Progress — Phase 2 ontology and sources
 
+## Phase 17 — April storm 回测
+
+- 2026-08-10: Audited Live/Replay boundaries and verified that packaged real
+  observations cover August only. Locked April to a retrospective event contract,
+  not a fabricated replay.
+- 2026-08-10: RED verified three missing behaviors: no Live deep link, no rendered
+  April case study and no machine-readable event pack.
+- 2026-08-10: GREEN passes 39/39 site tests. Live now exposes a labelled 回测
+  action; Replay renders the April case contract; the v4 artifact has zero invented
+  observations and enforces time availability, OOF stacking and Mock exclusion.
+
+---
+
 ## Phase 15 — concise day-to-day operator mode
 
 - 2026-08-10: Started a cross-route copy and interaction audit. Locked the scope to visible prose reduction, direct click/select workflows and one optional Help surface while preserving all evidence and access safeguards.
@@ -331,3 +344,7 @@
 - 2026-08-10: Implemented queue search/status filters, focused ticket selection, browser-local review drafts and compact read-only evidence cards.
 - 2026-08-10: Focused production build and all 10 operator-console behaviors pass.
 - 2026-08-10: Final verification passes: production build, 36 site tests, ESLint, 22 Python tests and whitespace checks. Textarea focus, 44px controls, mock zero-weight and read-only system truth remain explicit.
+# Phase 17 — April storm 回测
+
+- 2026-08-10: Started the source-verification and implementation audit. Locked the design to a Live Operations 回测 action that opens a separate retrospective workflow rather than changing live time.
+- 2026-08-10: Verified the official GW, WCC and NZTA April-event evidence, including the contradictory 20/24 April rainfall date and road closure/reopening chronology.

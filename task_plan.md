@@ -1,5 +1,61 @@
 # Pōneke Movement Watch — evidence ontology roadmap
 
+## Phase 17 — April storm 回测 entry point and event pack
+
+### Goal
+
+Add a clear 回测 action to Live Operations and a truthful 18–22 April 2026
+storm evaluation pack that demonstrates retrospective validation without
+mixing hindsight, mock records or post-event reports into model inputs.
+
+### Status
+
+- [completed] Audit Live/Replay entry points, existing historical coverage and cited official event evidence.
+- [completed] Define the event-pack time/provenance/leakage contract and supported UI states.
+- [completed] Add failing behavior and artifact tests for the 回测 entry point and April pack.
+- [completed] Implement the Live Operations 回测 icon and event-pack view in Replay Analyzer.
+- [in_progress] Verify source truth, responsive accessibility and full regressions.
+
+### Acceptance criteria
+
+- Live Operations exposes one labelled 回测 control with an accessible icon and 44px target.
+- The control deep-links to a Replay Analyzer April Storm evaluation view without changing Live feed state.
+- The pack uses `2026-04-18T00:00:00+12:00` through `2026-04-22T23:59:59+12:00` and preserves claimed, normalized and correction times separately.
+- Training cutoff, replay cadence, `available_at`, allowed inputs, withheld ground truth and evaluation metrics are explicit and machine-readable.
+- One event is labelled a case study, not an accuracy claim; mock records remain excluded from training, calibration and scoring.
+- No April movement/rainfall/road record is presented as ingested unless a permitted timestamped record is actually packaged.
+
+### Assumptions and exclusions
+
+- “Stimulation icon” means a Simulation/回测 action inside Live Operations, not a sixth primary navigation destination.
+- Existing Live and Replay modules stay separate: the button opens a retrospective mode and never rewinds live APIs.
+- This phase prepares the event contract and operator workflow; it does not claim a trained fusion model or calibrated accuracy from one storm.
+- Logistic regression is a declared comparison candidate only after leak-free event rows exist; XGBoost, SVM and learned global weights remain deferred.
+- No paid/keyed source activation, credential change, public-access change or invented event observation is authorised.
+
+### Initial file-level plan
+
+- `site/tests/operator-console.test.mjs`, `site/tests/rendered-html.test.mjs`: deep-link and rendered truth behavior.
+- `site/lib/` and `site/public/cop/`: April Storm event-pack contract and generated/static artifact as warranted by the audit.
+- `site/app/components/LiveOperationsClient.tsx`: compact 回测 action.
+- `site/app/replay/page.tsx` and a focused client/server component: selected event-pack view.
+- `site/app/globals.css`: accessible icon/action and dense evaluation layout.
+- `README.md`, `findings.md`, `progress.md`: source, leakage and evidence boundaries.
+
+### Rejected major alternatives
+
+- Do not add a sixth bottom-navigation item for a subordinate evaluation workflow.
+- Do not relabel the existing August replay as the April storm or fabricate April sensor rows.
+- Do not use news or final reports as model inputs, and do not randomly split adjacent 5/15-minute records.
+
+### Errors encountered
+
+| Error | Attempt | Resolution |
+|---|---:|---|
+| `agent-reach` executable is not installed on the active PATH. | 1 | Use the skill's documented Jina Reader/Exa fallback routes and the primary web reader; do not retry the missing executable. |
+
+---
+
 ## Phase 16 — compact human review ticket workbench
 
 ### Goal
