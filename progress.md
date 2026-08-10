@@ -19,6 +19,9 @@
 - 2026-08-10: Validation passes the production build, 54/54 site tests, ESLint,
   22/22 Python regressions and whitespace checks. Responsive CSS uses a one-column
   375px projection with native labelled controls, visible focus and no wide graph.
+- 2026-08-10: Saved Sites version 25 from the exact verified source and completed
+  the owner-only production deployment at the existing live URL. GitHub origin
+  was not pushed and remote `main` was not changed. Phase 23 is complete.
 
 
 ## Phase 21 — case/COP and warning operations workflow

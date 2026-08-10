@@ -13,7 +13,7 @@ then support Live Operations, Alert Centre and Replay Analyzer.
 - [completed] Audit the current ontology artifact, source contracts and Integration UI.
 - [completed] Add failing observable mapping, filtering and accessibility tests.
 - [completed] Implement the source-to-concept-to-module dashboard without changing source truth.
-- [in_progress] Verify responsive behavior, regressions and owner-only deployment.
+- [completed] Verify responsive behavior, regressions and owner-only deployment.
 
 ### Acceptance criteria
 
