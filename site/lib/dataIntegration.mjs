@@ -342,6 +342,117 @@ export function buildOntologyEgoGraph(model, conceptId) {
   };
 }
 
+const ONTOLOGY_GRAPH_ZOOM = Object.freeze({ min: 60, max: 160, step: 10, initial: 100 });
+
+export function clampOntologyGraphZoom(value) {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return ONTOLOGY_GRAPH_ZOOM.initial;
+  const stepped = Math.round(numeric / ONTOLOGY_GRAPH_ZOOM.step) * ONTOLOGY_GRAPH_ZOOM.step;
+  return Math.min(ONTOLOGY_GRAPH_ZOOM.max, Math.max(ONTOLOGY_GRAPH_ZOOM.min, stepped));
+}
+
+export function stepOntologyGraphZoom(current, direction) {
+  const delta = Math.sign(Number(direction)) * ONTOLOGY_GRAPH_ZOOM.step;
+  return clampOntologyGraphZoom(clampOntologyGraphZoom(current) + delta);
+}
+
+export function buildOntologyLayerGraph(model, conceptId) {
+  const concept = model?.concepts?.find((item) => item.id === conceptId);
+  if (!concept) throw new Error(`Ontology layer graph requires concept ${conceptId}`);
+
+  const paths = model.paths.filter((path) => path.concept_id === concept.id);
+  const destinations = new Set(paths.map((path) => path.operations_target));
+  if (paths.some((path) => path.alert_eligible)) destinations.add("alert_centre");
+  const roles = [...new Set(paths.map((path) => path.ontology_role))];
+
+  const layers = [
+    {
+      id: "sources",
+      number: "01",
+      label: "Sources",
+      description: "Access and source truth",
+      nodes: paths.map((path) => ({
+        id: `source:${path.source_id}`,
+        kind: "source",
+        label: path.source_name,
+        detail: path.ontology_role.replaceAll("_", " "),
+      })),
+    },
+    {
+      id: "alignment",
+      number: "02",
+      label: "Alignment",
+      description: "Normalize time and place",
+      nodes: [
+        { id: "alignment:schema", kind: "alignment", label: "Schema", detail: "Common fields and units" },
+        { id: "alignment:time", kind: "alignment", label: "Time", detail: "Observed · available · valid" },
+        { id: "alignment:place", kind: "alignment", label: "Place", detail: "WGS84 · area · asset" },
+      ],
+    },
+    {
+      id: "ontology",
+      number: "03",
+      label: "Ontology",
+      description: "Entities, relations and rules",
+      nodes: [
+        { id: `concept:${concept.id}`, kind: "concept", label: concept.label, detail: concept.description },
+        ...roles.map((role) => ({
+          id: `role:${role}`,
+          kind: "role",
+          label: role.replaceAll("_", " "),
+          detail: "Explicit source role",
+        })),
+      ],
+    },
+    {
+      id: "corroboration",
+      number: "04",
+      label: "Corroboration",
+      description: "Candidate and evidence states",
+      nodes: [
+        { id: "corroboration:candidate", kind: "candidate", label: "Candidate", detail: "Not a confirmed incident" },
+        { id: "corroboration:supporting", kind: "evidence", label: "Supporting", detail: "Same time and place" },
+        { id: "corroboration:contradicting", kind: "evidence", label: "Contradicting", detail: "Keep disagreement visible" },
+        { id: "corroboration:missing", kind: "evidence", label: "Missing", detail: "Absence is not contradiction" },
+      ],
+    },
+    {
+      id: "destinations",
+      number: "05",
+      label: "Modules",
+      description: "Live, Alerts and Replay",
+      nodes: [...destinations].map((id) => ({
+        id: `destination:${id}`,
+        kind: "destination",
+        label: ONTOLOGY_GRAPH_DESTINATIONS[id]?.label ?? id,
+        detail: ONTOLOGY_GRAPH_DESTINATIONS[id]?.description ?? "Registered destination",
+      })),
+    },
+    {
+      id: "decision",
+      number: "06",
+      label: "Human decision",
+      description: "Confirmation and response",
+      nodes: [
+        { id: "decision:review", kind: "decision", label: "Investigate", detail: "Review the case" },
+        { id: "authority:human_decision", kind: "authority", label: "Confirm", detail: "Set incident status" },
+        { id: "decision:act", kind: "decision", label: "Authorise", detail: "Approve external response" },
+      ],
+    },
+  ];
+
+  return {
+    schema: "wellington-ontology-layer-graph/v1",
+    concept_id: concept.id,
+    layers,
+    connections: layers.slice(0, -1).map((layer, index) => ({
+      source: layer.id,
+      target: layers[index + 1].id,
+      basis: "display_pipeline",
+    })),
+  };
+}
+
 export function selectOntologyGraphNode(graph, nodeId) {
   const node = graph.nodes.find((item) => item.id === nodeId);
   if (!node) return null;

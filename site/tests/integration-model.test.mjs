@@ -297,6 +297,55 @@ test("projects only explicit ontology paths into a bounded selectable ego graph"
   ]);
 });
 
+test("projects one concept through six ordered display layers without creating evidence", async () => {
+  const integration = await import("../lib/dataIntegration.mjs");
+  assert.equal(typeof integration.buildOntologyLayerGraph, "function");
+
+  const model = integration.buildOntologyDashboardModel(
+    buildSourceContracts(registry, manifest),
+    cityOntology,
+  );
+  const graph = integration.buildOntologyLayerGraph(model, "movement_transport");
+
+  assert.equal(graph.schema, "wellington-ontology-layer-graph/v1");
+  assert.deepEqual(graph.layers.map((layer) => layer.id), [
+    "sources",
+    "alignment",
+    "ontology",
+    "corroboration",
+    "destinations",
+    "decision",
+  ]);
+  assert.deepEqual(graph.connections.map((connection) => (
+    `${connection.source}|${connection.target}|${connection.basis}`
+  )), [
+    "sources|alignment|display_pipeline",
+    "alignment|ontology|display_pipeline",
+    "ontology|corroboration|display_pipeline",
+    "corroboration|destinations|display_pipeline",
+    "destinations|decision|display_pipeline",
+  ]);
+  assert.ok(graph.layers.every((layer) => layer.nodes.length > 0));
+  assert.ok(graph.layers[0].nodes.every((node) => node.kind === "source"));
+  assert.ok(graph.layers[0].nodes.some((node) => node.id === "source:wcc-transport-sensors"));
+  assert.ok(graph.layers[2].nodes.some((node) => node.id === "concept:movement_transport"));
+  assert.ok(graph.layers[5].nodes.some((node) => node.id === "authority:human_decision"));
+});
+
+test("keeps ontology graph zoom on usable ten-percent steps", async () => {
+  const integration = await import("../lib/dataIntegration.mjs");
+  assert.equal(typeof integration.clampOntologyGraphZoom, "function");
+  assert.equal(typeof integration.stepOntologyGraphZoom, "function");
+
+  assert.equal(integration.clampOntologyGraphZoom(41), 60);
+  assert.equal(integration.clampOntologyGraphZoom(166), 160);
+  assert.equal(integration.clampOntologyGraphZoom(Number.NaN), 100);
+  assert.equal(integration.stepOntologyGraphZoom(100, -1), 90);
+  assert.equal(integration.stepOntologyGraphZoom(100, 1), 110);
+  assert.equal(integration.stepOntologyGraphZoom(60, -1), 60);
+  assert.equal(integration.stepOntologyGraphZoom(160, 1), 160);
+});
+
 test("builds a partial live snapshot without hiding healthy, empty or mock sources", async () => {
   const contracts = buildSourceContracts(registry, manifest);
   const adapters = {

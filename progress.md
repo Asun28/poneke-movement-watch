@@ -599,3 +599,20 @@
   saved version 28 and completed the owner-only production deployment at the
   existing live URL. GitHub origin and remote `main` remain unchanged. Phase 26
   is complete.
+# Phase 29 — six-layer ontology knowledge graph
+
+- 2026-08-10: Audited the existing concept-scoped ego graph and six-step
+  operational chain. Chosen design keeps all six architecture layers visible,
+  progressively discloses layer detail and preserves the existing node inspector.
+- 2026-08-10: TDD RED confirmed three intended failures: the six-layer projection
+  helper is absent, zoom bounds are absent, and the rendered graph has no six-layer
+  canvas or zoom/disclosure controls. The build/test sandbox EPERM was isolated to
+  Windows process spawning and the exact tests ran correctly outside it.
+- 2026-08-10: TDD GREEN confirmed. The graph now projects the selected concept
+  through six ordered layers, preserves the existing direct-neighbour inspector,
+  supports 60–160% zoom in 10% steps and exposes per-layer plus global disclosure.
+  All three focused behavior tests pass after a clean production build.
+- 2026-08-10: Final local verification passes: production build, 60/60 site
+  behaviors, ESLint, 22/22 Python tests and whitespace checks. The scroll canvas
+  remains a named region without an unnecessary extra tab stop; all visible graph
+  controls and selectable nodes remain keyboard reachable.

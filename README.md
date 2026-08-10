@@ -257,11 +257,14 @@ selecting a concept or destination opens the matching audit detail. Integration-
 contracts remain visible as gated context but do not become operational evidence.
 
 Operators can also switch to a **Knowledge graph** inspired by Semantica's focused
-graph explorer. It uses a bounded ego view: one selected node in the centre, only
-its explicit direct neighbours around it, and a readable inspector for relation
-labels, source truth, access and evidence weight. Selecting a neighbour recentres
-the graph. The six-level operational chain remains the default, and graph position
-or distance never creates a relationship. Reference pattern:
+graph explorer. The graph keeps all six architecture layers visible together:
+Sources, Alignment, Ontology, Corroboration, Modules and Human decision. Operators
+can zoom from 60% to 160% with visible `−`/`+` controls, reset to 100%, or expand
+and collapse each layer individually or all at once. Selecting a registered source,
+concept, module or authority node updates the existing direct-neighbour inspector
+with relation labels, source truth, access and evidence weight. The six-level
+operational chain remains the default, and workflow connectors, graph position or
+distance never create evidence. Reference pattern:
 [semantica-agi/semantica](https://github.com/semantica-agi/semantica).
 
 Eventfinda is a first-class planned-demand contract, not observed attendance.

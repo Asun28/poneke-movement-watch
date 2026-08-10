@@ -1254,3 +1254,14 @@ supports spatial event-footprint resolution, never direct building-damage claims
 - UI validation reinforces the current boundary: loading feedback remains visible,
   decorative animation is unnecessary and the sticky title bar must keep its existing
   controlled z-index rather than creating new overlays.
+# Phase 29 — six-layer ontology graph findings
+
+- The current alternate graph is a concept-scoped ego neighbourhood: it exposes
+  sources, one concept, destinations and human authority, but it does not show
+  Alignment or Corroboration as graph layers.
+- The existing Operational chain already defines the authoritative six-step order.
+  The new graph should project that same order rather than invent new relationships.
+- Keep progressive disclosure inside every layer so all six architecture layers stay
+  visible without rendering the 33-source registry as an unreadable hairball.
+- Visible 44px `−`/`+` controls, a text Zoom level, Reset and per-layer plus global
+  expand/collapse satisfy keyboard/touch access without gesture or hover dependence.

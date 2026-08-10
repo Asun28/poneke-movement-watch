@@ -214,7 +214,7 @@ test("shows the six-level operational evidence chain before advanced technical d
   assert.match(html, /Unknown is not open/);
 });
 
-test("offers an accessible focused knowledge graph without replacing the operational chain", async () => {
+test("offers an accessible six-layer knowledge graph without replacing the operational chain", async () => {
   const html = await (await request("/ontology")).text();
 
   assert.match(html, /aria-label="Choose ontology view"/);
@@ -222,16 +222,33 @@ test("offers an accessible focused knowledge graph without replacing the operati
   assert.match(html, /aria-pressed="false">Knowledge graph/);
   assert.match(html, /data-ontology-view="chain"/);
   assert.match(html, /data-ontology-view="graph"/);
-  assert.match(html, /data-ontology-graph="ego"/);
-  assert.match(html, /Focused neighbourhood/);
+  assert.match(html, /data-ontology-graph="six-layer"/);
+  assert.match(html, /Six-layer knowledge graph/);
   assert.match(html, /Explicit relationships only/);
   assert.match(html, /aria-label="Choose graph focus concept"/);
+  assert.match(html, /aria-label="Six-layer knowledge graph controls"/);
+  assert.match(html, /aria-label="Zoom out"/);
+  assert.match(html, />−<\/button>/);
+  assert.match(html, /aria-label="Zoom level"[^>]*>100%<\/output>/);
+  assert.match(html, /aria-label="Zoom in"/);
+  assert.match(html, />\+<\/button>/);
+  assert.match(html, />Reset<\/button>/);
+  assert.match(html, />Expand all<\/button>/);
+  assert.match(html, />Collapse all<\/button>/);
+  assert.deepEqual(
+    [...html.matchAll(/data-knowledge-layer="([^"]+)"/g)].map((match) => match[1]),
+    ["sources", "alignment", "ontology", "corroboration", "destinations", "decision"],
+  );
+  assert.equal((html.match(/data-layer-toggle=/g) ?? []).length, 6);
+  assert.equal((html.match(/aria-expanded="true"/g) ?? []).length >= 6, true);
   assert.match(html, /data-graph-node-kind="source"/);
   assert.match(html, /data-graph-node-kind="concept"/);
   assert.match(html, /data-graph-node-kind="destination"/);
+  assert.match(html, /data-graph-node-kind="authority"/);
   assert.match(html, /Node details/);
   assert.match(html, /Direct neighbours/);
   assert.match(html, /Source truth &amp; provenance/);
+  assert.match(html, /Workflow connectors describe structure, not evidence/);
   assert.match(html, /Operational chain remains the default/);
 });
 

@@ -1,5 +1,64 @@
 # Pōneke Movement Watch — evidence ontology roadmap
 
+## Phase 29 — six-layer ontology knowledge graph controls
+
+### Goal
+
+Show the complete six-layer City Ontology architecture in the Knowledge graph
+view, with bounded zoom and accessible expand/collapse controls.
+
+### Status
+
+- [completed] Audit the existing graph projection, dashboard and rendered contracts.
+- [completed] Add failing behavior tests for six ordered layers, zoom bounds and disclosure controls.
+- [completed] Implement the graph projection, controls and responsive canvas.
+- [completed] Verify regressions and accessibility contracts.
+- [in_progress] Deploy to the existing owner-only site.
+
+### Acceptance criteria
+
+- Knowledge graph renders all six ordered layers: Sources, Alignment, Ontology,
+  Corroboration, Modules and Human decision.
+- Visible `−` and `+` controls change a bounded Zoom level; Reset returns to 100%.
+- Operators can expand or collapse every layer individually and all layers together.
+- Controls are keyboard-operable, labelled, at least 44px, and do not depend on hover or colour.
+- Workflow connectors are explicitly presentation structure, not inferred evidence.
+- Operational chain, source truth, evidence rules and human authority remain unchanged.
+
+### Assumptions and exclusions
+
+- “All 6 layer” means the six architecture layers remain visible together; detail
+  inside each layer can be progressively disclosed to prevent a 33-source hairball.
+- The selected ontology concept scopes source and relationship detail without hiding layers.
+- This is a presentation projection only. No new ontology facts, source, detector,
+  graph database, model training or external action is added.
+- No GitHub push and no change to remote `main`.
+- Browser interaction testing was not requested; rendered behavior, build and regressions
+  are the verification boundary.
+
+### File-level plan
+
+- `site/tests/integration-model.test.mjs`: pure six-layer projection and zoom bounds.
+- `site/tests/operator-console.test.mjs`: rendered controls, order and authority guardrail.
+- `site/lib/dataIntegration.mjs`: deterministic six-layer display projection and zoom helper.
+- `site/app/components/OntologyDashboard.tsx`: graph controls, disclosure and layer canvas.
+- `site/app/globals.css`: responsive six-layer graph and accessible control states.
+- `README.md`, `findings.md`, `progress.md`: record behavior and verification.
+
+### Rejected major alternatives
+
+- Do not install a force-directed graph library or render all records in one hairball.
+- Do not make pinch/scroll gestures the only zoom mechanism.
+- Do not turn visual adjacency into ontology evidence.
+
+### Errors encountered
+
+| Error | Attempt | Resolution |
+|---|---:|---|
+| Phase 29 RED build hit Windows sandbox `spawn EPERM` while Vite resolved packages. | 1 | Re-run the same read/build gate with the already approved unsandboxed npm build path; no source change required. |
+| Focused Node test runner also hit sandbox `spawn EPERM` before loading either test. | 1 | Re-run the exact focused test command outside the Windows sandbox to observe the behavioral RED. |
+| ESLint rejected `tabIndex` on the graph scroll container. | 1 | Keep the named region and its keyboard-reachable controls/nodes; remove the redundant non-interactive tab stop. |
+
 ## Phase 28 — compact operator title bars
 
 ### Goal

@@ -1,7 +1,12 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { buildOntologyEgoGraph, selectOntologyGraphNode } from "../../lib/dataIntegration.mjs";
+import { useMemo, useState, type CSSProperties } from "react";
+import {
+  buildOntologyEgoGraph,
+  buildOntologyLayerGraph,
+  selectOntologyGraphNode,
+  stepOntologyGraphZoom,
+} from "../../lib/dataIntegration.mjs";
 import { operationsTargetLabel } from "../../lib/sourceOperations.mjs";
 
 type OntologyConcept = {
@@ -73,6 +78,32 @@ type OntologyGraphSelection = {
   neighbors: OntologyGraphNode[];
 };
 
+type OntologyLayerGraphNode = {
+  id: string;
+  kind: string;
+  label: string;
+  detail: string;
+};
+
+type OntologyLayerGraph = {
+  layers: Array<{
+    id: string;
+    number: string;
+    label: string;
+    description: string;
+    nodes: OntologyLayerGraphNode[];
+  }>;
+};
+
+const ONTOLOGY_LAYER_IDS = [
+  "sources",
+  "alignment",
+  "ontology",
+  "corroboration",
+  "destinations",
+  "decision",
+];
+
 function readable(value: string) {
   return value.replaceAll("_", " ");
 }
@@ -109,6 +140,10 @@ export default function OntologyDashboard({ model }: { model: OntologyDashboardM
   const [graphConcept, setGraphConcept] = useState(defaultGraphConcept);
   const [graphNodeId, setGraphNodeId] = useState(
     defaultGraphSource ? `source:${defaultGraphSource}` : `concept:${defaultGraphConcept}`,
+  );
+  const [graphZoom, setGraphZoom] = useState(100);
+  const [expandedGraphLayers, setExpandedGraphLayers] = useState(
+    () => new Set(ONTOLOGY_LAYER_IDS),
   );
 
   const filtered = useMemo(() => model.paths.filter((path) => {
@@ -151,6 +186,10 @@ export default function OntologyDashboard({ model }: { model: OntologyDashboardM
     () => buildOntologyEgoGraph(model, graphConcept) as OntologyEgoGraph,
     [graphConcept, model],
   );
+  const layerGraph = useMemo(
+    () => buildOntologyLayerGraph(model, graphConcept) as OntologyLayerGraph,
+    [graphConcept, model],
+  );
   const graphSelection = useMemo(
     () => selectOntologyGraphNode(graph, graphNodeId) as OntologyGraphSelection | null,
     [graph, graphNodeId],
@@ -173,6 +212,19 @@ export default function OntologyDashboard({ model }: { model: OntologyDashboardM
     setGraphConcept(next);
     const firstSource = model.paths.find((path) => path.concept_id === next)?.source_id;
     setGraphNodeId(firstSource ? `source:${firstSource}` : `concept:${next}`);
+  }
+
+  function toggleGraphLayer(layerId: string) {
+    setExpandedGraphLayers((current) => {
+      const next = new Set(current);
+      if (next.has(layerId)) next.delete(layerId);
+      else next.add(layerId);
+      return next;
+    });
+  }
+
+  function selectLayerNode(nodeId: string) {
+    if (graph.nodes.some((node) => node.id === nodeId)) setGraphNodeId(nodeId);
   }
 
   return (
@@ -355,9 +407,9 @@ export default function OntologyDashboard({ model }: { model: OntologyDashboardM
       >
         <header className="ontology-graph-header">
           <div>
-            <p className="eyebrow">Focused neighbourhood</p>
-            <h3 id="ontology-graph-heading">Knowledge graph</h3>
-            <p>Select a node to reveal only its direct, registered relationships.</p>
+            <p className="eyebrow">All six architecture layers</p>
+            <h3 id="ontology-graph-heading">Six-layer knowledge graph</h3>
+            <p>Zoom the full workflow, collapse detail, or select a registered node.</p>
           </div>
           <span>Explicit relationships only</span>
         </header>
@@ -376,53 +428,112 @@ export default function OntologyDashboard({ model }: { model: OntologyDashboardM
           ))}
         </div>
 
-        <div className="ontology-graph-workspace" data-ontology-graph="ego">
-          <div className="ontology-ego-canvas" aria-label="Selected node and direct ontology neighbours">
-            <div className="ontology-graph-legend" aria-label="Knowledge graph node types">
-              <span data-kind="source">Source</span>
-              <span data-kind="concept">Concept</span>
-              <span data-kind="destination">Operator module</span>
-              <span data-kind="authority">Human authority</span>
+        <div className="ontology-graph-workspace" data-ontology-graph="six-layer">
+          <div className="ontology-layer-panel">
+            <div className="ontology-layer-toolbar" role="group" aria-label="Six-layer knowledge graph controls">
+              <div className="ontology-zoom-controls">
+                <button
+                  type="button"
+                  aria-label="Zoom out"
+                  disabled={graphZoom <= 60}
+                  onClick={() => setGraphZoom((current) => stepOntologyGraphZoom(current, -1))}
+                >−</button>
+                <output aria-label="Zoom level">{`${graphZoom}%`}</output>
+                <button
+                  type="button"
+                  aria-label="Zoom in"
+                  disabled={graphZoom >= 160}
+                  onClick={() => setGraphZoom((current) => stepOntologyGraphZoom(current, 1))}
+                >+</button>
+                <button type="button" disabled={graphZoom === 100} onClick={() => setGraphZoom(100)}>Reset</button>
+              </div>
+              <div className="ontology-disclosure-controls">
+                <button
+                  type="button"
+                  disabled={expandedGraphLayers.size === layerGraph.layers.length}
+                  onClick={() => setExpandedGraphLayers(new Set(ONTOLOGY_LAYER_IDS))}
+                >Expand all</button>
+                <button
+                  type="button"
+                  disabled={expandedGraphLayers.size === 0}
+                  onClick={() => setExpandedGraphLayers(new Set())}
+                >Collapse all</button>
+              </div>
             </div>
 
-            {graphSelection && (
-              <>
-                <article
-                  className={`ontology-ego-focus kind-${graphSelection.node.kind}`}
-                  data-graph-node-kind={graphSelection.node.kind}
-                >
-                  <span>{readable(graphSelection.node.kind)}</span>
-                  <strong>{graphSelection.node.label}</strong>
-                  <small>{graphSelection.node.description ?? graphSelection.node.ontology_role?.replaceAll("_", " ")}</small>
-                </article>
-                <div className="ontology-ego-stem" aria-hidden="true"><span>direct relations</span></div>
-                <div className="ontology-ego-neighbours" aria-label="Direct neighbours">
-                  {graphSelection.neighbors.map((node) => {
-                    const edge = graphSelection.edges.find((item) => (
-                      item.source === node.id || item.target === node.id
-                    ));
-                    const direction = edge?.source === graphSelection.node.id ? "outgoing" : "incoming";
-                    return (
-                      <button
-                        type="button"
-                        className={`ontology-ego-node kind-${node.kind}`}
-                        data-graph-node-kind={node.kind}
-                        data-graph-edge-role={edge?.relation}
-                        aria-label={`${node.label}; ${edge?.label}; ${direction} relationship`}
-                        aria-pressed={graphNodeId === node.id}
-                        aria-controls="ontology-graph-inspector"
-                        onClick={() => setGraphNodeId(node.id)}
-                        key={node.id}
+            <div className="ontology-layer-viewport" role="region" aria-label="Scrollable six-layer knowledge graph">
+              <div
+                className="ontology-layer-track"
+                style={{ "--ontology-zoom": graphZoom / 100 } as CSSProperties}
+              >
+                {layerGraph.layers.map((layer, layerIndex) => {
+                  const expanded = expandedGraphLayers.has(layer.id);
+                  return (
+                    <section
+                      className={`ontology-knowledge-layer layer-${layer.id}`}
+                      data-knowledge-layer={layer.id}
+                      aria-labelledby={`knowledge-layer-${layer.id}`}
+                      key={layer.id}
+                    >
+                      <header>
+                        <span>{layer.number}</span>
+                        <div>
+                          <h4 id={`knowledge-layer-${layer.id}`}>{layer.label}</h4>
+                          <small>{layer.description}</small>
+                        </div>
+                        <button
+                          type="button"
+                          data-layer-toggle={layer.id}
+                          aria-expanded={expanded}
+                          aria-controls={`knowledge-layer-nodes-${layer.id}`}
+                          aria-label={`${expanded ? "Collapse" : "Expand"} ${layer.label} layer`}
+                          onClick={() => toggleGraphLayer(layer.id)}
+                        >
+                          <span aria-hidden="true">{expanded ? "−" : "+"}</span>
+                          <span>{expanded ? "Collapse" : "Expand"}</span>
+                        </button>
+                      </header>
+                      <div
+                        className="ontology-layer-nodes"
+                        id={`knowledge-layer-nodes-${layer.id}`}
+                        hidden={!expanded}
                       >
-                        <span>{edge?.label}</span>
-                        <strong>{node.label}</strong>
-                        <small>{readable(node.kind)}</small>
-                      </button>
-                    );
-                  })}
-                </div>
-              </>
-            )}
+                        {layer.nodes.map((node) => {
+                          const selectable = graph.nodes.some((graphNode) => graphNode.id === node.id);
+                          const content = (
+                            <>
+                              <strong>{node.label}</strong>
+                              <small>{node.detail}</small>
+                            </>
+                          );
+                          return selectable ? (
+                            <button
+                              type="button"
+                              className={`ontology-layer-node kind-${node.kind}`}
+                              data-graph-node-kind={node.kind}
+                              aria-pressed={graphNodeId === node.id}
+                              aria-controls="ontology-graph-inspector"
+                              onClick={() => selectLayerNode(node.id)}
+                              key={node.id}
+                            >{content}</button>
+                          ) : (
+                            <article
+                              className={`ontology-layer-node kind-${node.kind}`}
+                              data-graph-node-kind={node.kind}
+                              key={node.id}
+                            >{content}</article>
+                          );
+                        })}
+                      </div>
+                      {layerIndex < layerGraph.layers.length - 1 && (
+                        <div className="ontology-layer-connector" aria-hidden="true"><span>→</span></div>
+                      )}
+                    </section>
+                  );
+                })}
+              </div>
+            </div>
+            <p className="ontology-layer-boundary"><strong>Graph boundary</strong> Workflow connectors describe structure, not evidence.</p>
           </div>
 
           <aside className="ontology-graph-inspector" id="ontology-graph-inspector" aria-live="polite">
