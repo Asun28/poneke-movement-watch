@@ -451,3 +451,21 @@
   Database/authentication schema, real commands and model training remain excluded.
 
 ---
+- 2026-08-10: Started Phase 22 for a full five-route production-demo UX polish.
+  Restored the clean local feature branch after the cancelled GitHub upload,
+  loaded the planning, TDD, public-dashboard UX, interaction-detail and Sites
+  instructions, and fixed the boundary at visual/interaction quality only.
+- 2026-08-10: Completed the deployed desktop and 375px audit across Live,
+  Alerts, Replay, Integration and Setup. Confirmed no page-level horizontal
+  overflow; selected loading truth, backtest disclosure, mobile source records,
+  label legibility and consistent interaction timing as the bounded changes.
+- 2026-08-10: TDD RED confirmed with three focused operator contracts while
+  49 existing site tests remained green. Implemented explicit busy states with
+  no provisional zeroes, collapsed April event detail, all six mobile source
+  dimensions, responsive setup steps, larger operational labels and restrained
+  120–180 ms interaction feedback.
+- 2026-08-10: Local visual verification passes at 1667×792 and 375×812: Replay's
+  playable August analyzer now starts at 412px on desktop, Integration renders
+  a 339px complete record with no horizontal scrolling, and Setup's active form
+  moves from roughly 624px to 464px on phone. Site tests are 52/52, ESLint is
+  clean and all 22 Python tests pass.

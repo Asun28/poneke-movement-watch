@@ -111,27 +111,33 @@ export default function LiveOperationsClient() {
     : null;
 
   return (
-    <section className="live-workspace" aria-label="Live emergency information workspace">
+    <section
+      className="live-workspace"
+      aria-label="Live emergency information workspace"
+      aria-busy={loading}
+    >
       <div className="live-situation-strip">
         <div>
           <span>Connected</span>
-          <strong>{liveCount}</strong>
+          <strong>{loading ? "—" : liveCount}</strong>
         </div>
         <div>
           <span>No current records</span>
-          <strong>{emptyCount}</strong>
+          <strong>{loading ? "—" : emptyCount}</strong>
           <small>Not all-clear</small>
         </div>
         <div>
           <span>Issues</span>
-          <strong>{issueCount}</strong>
+          <strong>{loading ? "—" : issueCount}</strong>
         </div>
         <div className="live-strip-actions">
           <span>{paused ? "Display paused" : "Auto refresh · 60 s"}</span>
           <strong>{snapshot ? timeLabel(snapshot.generated_at) : "—"}</strong>
           <div>
             <button type="button" onClick={() => setPaused((value) => !value)}>{paused ? "Resume display" : "Pause display"}</button>
-            <button type="button" onClick={() => void refresh()} disabled={paused}>Refresh</button>
+            <button type="button" onClick={() => void refresh()} disabled={paused || loading}>
+              {loading ? "Refreshing…" : "Refresh"}
+            </button>
           </div>
         </div>
       </div>
@@ -141,7 +147,7 @@ export default function LiveOperationsClient() {
           <header>
             <h2>Current feeds</h2>
           </header>
-          {loading && <p className="ops-state" role="status">Loading sources…</p>}
+          {loading && <p className="ops-state is-loading" role="status">Loading current feeds…</p>}
           {error && <p className="ops-state is-error" role="alert">Snapshot unavailable. Showing last data.</p>}
           <div className="live-layer-actions">
             <button type="button" onClick={() => setSelectedSources(new Set(liveSources.map((source) => source.source_id)))}>Show all</button>

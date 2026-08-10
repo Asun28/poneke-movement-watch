@@ -1,5 +1,67 @@
 # Pōneke Movement Watch — evidence ontology roadmap
 
+## Phase 22 — production-demo UX polish
+
+### Goal
+
+Make the existing five-module operator console calmer, faster to scan and smoother
+to use across desktop and mobile without changing source truth, workflow authority,
+data semantics or external side effects.
+
+### Status
+
+- [completed] Audit the deployed and local five-route experience, shared controls and responsive behavior.
+- [completed] Define a restrained civic interaction and surface system from the existing visual language.
+- [completed] Add failing observable UX/accessibility tests before implementation.
+- [completed] Implement the shared polish and route-specific usability fixes.
+- [in_progress] Verify regressions, reduced motion, responsive behavior and owner-only deployment.
+
+### Acceptance criteria
+
+- Live, Alerts, Replay, Integration and Setup share one consistent hierarchy,
+  control language, focus treatment, loading treatment and interaction timing.
+- Primary actions and selected states remain obvious without relying only on colour;
+  dense operational content stays readable at 375px and desktop widths.
+- Pointer feedback is crisp, keyboard focus remains visible and motion-sensitive
+  users receive no transform movement.
+- Loading, empty, disabled, success and error states reserve stable space and use
+  short plain-language labels suitable for routine operators.
+- Existing maps, layers, replay, case/COP, warning validation, mock boundaries and
+  API/data contracts do not change.
+- All automated regressions pass and the exact verified build is deployed to the
+  existing owner-only Sites project without recreating a GitHub feature branch.
+
+### Assumptions and exclusions
+
+- This is a cohesive polish pass, not a navigation rewrite or new design-system dependency.
+- No new data source, model, database, authentication, outbound integration or real dispatch is added.
+- Existing civic colours and compact operations layout remain the visual foundation.
+- Browser-local workflow state remains browser-local and all mock/permission/paid labels retain their meaning.
+
+### File-level plan
+
+- `site/tests/operator-console.test.mjs`, `site/tests/rendered-html.test.mjs`:
+  observable loading, navigation, focus and responsive UX contracts.
+- `site/app/globals.css`: shared tokens, interaction states, density, responsive and reduced-motion polish.
+- `site/app/components/OperatorShell.tsx`, `OperatorNavigation.tsx` and selected
+  route clients: only the minimal semantic/loading markup needed by the verified UX contract.
+- `README.md`, `findings.md`, `progress.md`: production-demo behavior and verification evidence.
+
+### Rejected major alternatives
+
+- Do not install a large component, icon or animation library.
+- Do not add decorative motion, glassmorphism, oversized marketing typography or a dashboard redesign.
+- Do not conceal evidence limitations or collapse independent Signal/Incident/Warning states into one score.
+
+### Errors encountered
+
+| Error | Attempt | Resolution |
+|---|---:|---|
+| Initial browser bootstrap called the module namespace instead of the configured runtime. | 1 | Initialized the packaged browser runtime, selected the existing in-app tab and read its control contract before inspection. |
+| Python regression temp directories were blocked by the Windows sandbox. | 2 | Ran the same 22-test suite with an explicit repository-local basetemp outside the sandbox, then removed both verified temp directories. |
+
+---
+
 ## Phase 21 — case/COP and warning operations workflow
 
 ### Goal

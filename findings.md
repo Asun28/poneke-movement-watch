@@ -1033,3 +1033,68 @@ supports spatial event-footprint resolution, never direct building-damage claims
   pure handoff builder when those fields are supplied.
 
 ---
+# Phase 22 — production-demo UX findings
+
+- The local feature branch is clean and retains the Phase 21 case/COP workflow;
+  the deleted GitHub feature branch must not be recreated and remote `main` must stay unchanged.
+- The current product already has the correct five-route information architecture.
+  This phase should improve shared hierarchy, feedback and responsive behavior
+  rather than introduce a sixth route, a new visual framework or new data semantics.
+- The interaction standard for this public-sector console is crisp and restrained:
+  exact-property CSS transitions under 300 ms, visible keyboard focus, pointer-only
+  hover treatment, subtle press feedback and transform movement removed under
+  `prefers-reduced-motion`.
+- Deployed desktop review at 1667×792 shows the shared navigation and 44px controls
+  are structurally sound and there is no viewport overflow. The main quality gap is
+  contrast between very large route titles and many 7–10px operational labels,
+  plus inconsistent hard shadows and abrupt hover/selected changes.
+- Setup is logically simple but the first viewport spends substantial height on
+  large status/step panels before the active form, while field labels are too small
+  for routine use. The best correction is tighter shared spacing and a 11–12px
+  label floor, not removing the visible status boundary.
+- Live has a strong map-first layout and correct touch sizes. During loading the
+  situation strip reports zeros without a prominent “loading” state, so zero can
+  be misread before source health arrives. The current source column does show
+  `Loading sources…`; the top strip should share one explicit busy status and stable space.
+- Alert Centre's master-detail hierarchy is demo-ready and the three independent
+  state axes are immediately visible. Its main usability debt is 7–9px labels,
+  long ticket IDs competing with titles and no semantic loading announcement
+  before the queue arrives. The design should increase label legibility and keep
+  the queue/detail dimensions, not turn it into cards or Kanban.
+- Replay clearly separates the April backtest contract from the August real replay.
+  However, the April pack occupies nearly the entire first desktop viewport and
+  postpones the playable analyzer below the fold. Progressive disclosure is a
+  better production-demo default: retain the summary and make the detailed pack
+  collapsible so `August movement replay` is reachable sooner.
+- Data Integration communicates source truth, access/cost, health and provider
+  format in one honest table. At desktop size it is scannable, but the 1120px
+  minimum table becomes a nested horizontal-scroll task on phones and much of
+  its secondary copy is 8px. A responsive stacked row projection is preferable
+  to hiding columns because all six truth dimensions matter.
+- At the real 375×812 viewport, Setup and Live have no horizontal overflow and
+  the fixed five-item navigation correctly reserves bottom space. The main mobile
+  friction is vertical: Setup uses three 84–88px step cards before the form, and
+  Live stacks a tall situation strip plus a mostly empty loading source panel
+  before the map. Compact mobile step selectors and a bounded loading/empty source
+  region will move the primary task into the first two scroll screens.
+- Alert Centre remains operable at 375px: queue search, native filters and ticket
+  selection fit the viewport, and the detail follows at 683px. Keeping the bounded
+  300px queue is preferable to showing all tickets; increasing metadata size and
+  shortening the visible candidate ID treatment will improve scan confidence.
+- Integration confirms the table issue: the page itself does not overflow, but a
+  339px viewport displays only the first two columns of the 1120px table with no
+  obvious cue that four truth dimensions are off-screen. At ≤700px each source row
+  should become a labelled six-field record with no horizontal scrolling.
+- The implemented phone registry uses a two-column labelled record with Source
+  and Provider format spanning both columns. Visual verification confirms all six
+  dimensions are present within 339px and the page remains overflow-free.
+- Collapsing the April pack moves `August movement replay` to 412px on the audited
+  desktop viewport, so the real analyzer is visible in the first screen without
+  deleting the backtest contract or its leakage warnings.
+- The selected motion system adds no keyframes, infinite animation or dependency.
+  It uses exact color/border/shadow/opacity/transform transitions at 120–180 ms;
+  pointer press scale is gated to fine pointers and removed under reduced motion.
+- The generic design-system search returned marketing typography, a red palette,
+  external fonts and scroll animation. Those recommendations are rejected. Its
+  useful operational rules are visible focus, stable loading space, 44px targets,
+  short feedback, reduced motion and responsive checks at 375/768/1024/1440.

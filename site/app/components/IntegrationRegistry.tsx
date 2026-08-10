@@ -94,7 +94,7 @@ export default function IntegrationRegistry({ contracts }: { contracts: Contract
           <tbody>
             {filtered.map((contract) => (
               <tr key={contract.source_id} data-source-contract={contract.source_id}>
-                <td>
+                <td data-label="Source">
                   <strong>{contract.name}</strong>
                   <span className={`operations-target target-${contract.operations_target}`}>
                     {contract.operations_target === "integration_only"
@@ -103,20 +103,20 @@ export default function IntegrationRegistry({ contracts }: { contracts: Contract
                   </span>
                   <code>{contract.source_id}</code>
                 </td>
-                <td>{contract.role.replaceAll("_", " ")}</td>
-                <td>
+                <td data-label="Ontology role">{contract.role.replaceAll("_", " ")}</td>
+                <td data-label="Source truth">
                   <span className={`contract-mode mode-${contract.connector_mode}`}>{connectorLabel(contract)}</span>
                   <small>{contract.truth.data_2026_status.replaceAll("_", " ")}</small>
                 </td>
-                <td>
+                <td data-label="Access & cost">
                   <strong>{accessLabel(contract)}</strong>
                   <small>{contract.licence === "not_stated" ? "Licence not stated" : contract.licence}</small>
                 </td>
-                <td>
+                <td data-label="Runtime health">
                   <span className={`runtime-state state-${contract.runtime_default}`}>{contract.runtime_default.replaceAll("_", " ")}</span>
                   <small>{contract.freshness_seconds ? `${contract.freshness_seconds}s freshness target` : "No live freshness target"}</small>
                 </td>
-                <td>
+                <td data-label="Provider format">
                   <strong>{contract.raw_format}</strong>
                   <small>{contract.endpoint ? "Official endpoint registered" : "No public endpoint called"}</small>
                 </td>

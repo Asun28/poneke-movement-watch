@@ -21,8 +21,8 @@ export default function ReplayPage() {
         <div><span>Publisher cadence</span><strong>At least monthly</strong></div>
         <div><span>Data through</span><strong>6 Aug 2026</strong></div>
       </section>
-      <section id="april-storm-backtest" className="backtest-pack" aria-labelledby="april-storm-heading">
-        <header className="backtest-header">
+      <details id="april-storm-backtest" className="backtest-pack">
+        <summary className="backtest-header">
           <div>
             <p className="eyebrow">Backtest events</p>
             <h2 id="april-storm-heading">April Storm · 18–22 Apr 2026</h2>
@@ -30,8 +30,9 @@ export default function ReplayPage() {
           <div className="backtest-header-status">
             <span>Replay Analyzer input</span>
             <span className="backtest-readiness">Inputs not yet packaged</span>
+            <span className="backtest-toggle">Event details</span>
           </div>
-        </header>
+        </summary>
 
         <div className="backtest-summary" aria-label="April storm backtest contract">
           <div><span>Window</span><strong>18–22 Apr</strong></div>
@@ -72,7 +73,7 @@ export default function ReplayPage() {
           </div>
           <a href="/cop/v4/april-storm-event-pack.json">Open event pack</a>
         </footer>
-      </section>
+      </details>
       <div className="replay-available-heading">
         <p className="eyebrow">Available real observations</p>
         <h2>August movement replay</h2>

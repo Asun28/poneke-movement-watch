@@ -58,6 +58,17 @@ test("exposes five distinct operator modules with shared navigation", async () =
   }
 });
 
+test("announces live and alert loading without presenting provisional zeroes", async () => {
+  const live = await (await request("/live")).text();
+  const alerts = await (await request("/alerts")).text();
+
+  assert.match(live, /aria-busy="true"/);
+  assert.match(live, /Loading current feeds/);
+  assert.doesNotMatch(live, /<span>Connected<\/span><strong>0<\/strong>/);
+  assert.match(alerts, /aria-label="Alert ticket queue"[^>]*aria-busy="true"/);
+  assert.match(alerts, /Loading alert queue/);
+});
+
 test("offers short safe setup paths for sources, API, MCP and A2A", async () => {
   const response = await request("/setup");
   assert.equal(response.status, 200);
@@ -106,6 +117,15 @@ test("routes backtest events to Replay Analyzer instead of Live Operations", asy
   assert.match(replay, /available_at-only policy required in v1/);
 });
 
+test("keeps the April backtest detail collapsed before the playable replay", async () => {
+  const replay = await (await request("/replay")).text();
+
+  assert.match(replay, /<details id="april-storm-backtest" class="backtest-pack">/);
+  assert.doesNotMatch(replay, /<details id="april-storm-backtest" class="backtest-pack" open/);
+  assert.match(replay, /<summary class="backtest-header">/);
+  assert.ok(replay.indexOf("April Storm · 18–22 Apr 2026") < replay.indexOf("August movement replay"));
+});
+
 test("renders truth, access and runtime health as separate integration dimensions", async () => {
   const response = await request("/integration");
   const html = await response.text();
@@ -125,6 +145,14 @@ test("renders truth, access and runtime health as separate integration dimension
   assert.match(html, /\/api\/integration\/v1\/workflow-adapters/);
   assert.match(html, /href="\/setup"/);
   assert.match(html, /Add source/);
+});
+
+test("labels every integration field for a complete phone-sized source record", async () => {
+  const html = await (await request("/integration")).text();
+  const labels = ["Source", "Ontology role", "Source truth", "Access &amp; cost", "Runtime health", "Provider format"];
+
+  for (const label of labels) assert.match(html, new RegExp(`data-label="${label}"`), label);
+  assert.equal((html.match(/data-label=/g) ?? []).length, 33 * labels.length);
 });
 
 test("defaults Replay Analyzer source layers to replay sources with explicit module filters", async () => {

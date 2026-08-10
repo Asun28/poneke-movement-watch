@@ -75,7 +75,7 @@ export default function SetupClient() {
     <section className="setup-workspace" aria-label="Easy integration setup">
       <div className="setup-status-strip">
         <div><span>Progress</span><strong>{completed}/3</strong></div>
-        <div><span>Storage</span><strong>{notice}</strong></div>
+        <div aria-live="polite"><span>Storage</span><strong>{notice}</strong></div>
         <div><span>Activation</span><strong>Needs server activation</strong></div>
         <button type="button" onClick={clearDraft} disabled={!completed}>Clear draft</button>
       </div>

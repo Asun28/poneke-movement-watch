@@ -373,7 +373,7 @@ export default function AlertCentreClient() {
 
   return (
     <section className="alert-centre-grid">
-      <aside className="alert-queue" aria-label="Alert ticket queue">
+      <aside className="alert-queue" aria-label="Alert ticket queue" aria-busy={state === "loading"}>
         <header className="alert-queue-header">
           <div><p className="eyebrow">Human review queue</p><h2>Signals</h2></div>
           <output>{filteredCandidates.length}</output>
@@ -389,7 +389,7 @@ export default function AlertCentreClient() {
           </label>
         </div>
         <div className="alert-ticket-list">
-          {state === "loading" && <p className="ops-state" role="status">Loading…</p>}
+          {state === "loading" && <p className="ops-state is-loading" role="status">Loading alert queue…</p>}
           {state === "error" && <p className="ops-state is-error" role="alert">Alert service unavailable.</p>}
           {state === "ready" && candidates.length === 0 && <div className="alert-empty-state"><strong>No current candidates</strong><p>Not an all-clear</p></div>}
           {state === "ready" && candidates.length > 0 && filteredCandidates.length === 0 && <div className="alert-empty-state"><strong>No matching tickets</strong><p>Clear search or choose another status.</p></div>}
