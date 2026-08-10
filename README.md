@@ -270,23 +270,29 @@ The five display groups are Movement & transport, Hazards & warnings, Access &
 incidents, Lifelines & response, and People & demand. These are navigation groups
 over the existing 28 exact ontology roles; they do not create new evidence or
 change the v3 graph. Operators can filter by source, concept or destination and
-see source truth, access/cost and ontology weight on every path. Signal Review is
+see source truth, access/cost and evidence weight on every path. Signal Review is
 shown only for live contracts already marked `alert_eligible`; every candidate
 remains separate from an Incident and requires human review. Models and ontology
 cannot issue a public warning. The 33 source-level paths are collapsed by default;
 selecting a concept or destination opens the matching audit detail. Integration-only
 contracts remain visible as gated context but do not become operational evidence.
 
-Operators can also switch to a **Knowledge graph** inspired by Semantica's focused
-graph explorer. It presents Sources, Alignment, Ontology, Corroboration, Modules
-and Human decision as one vertical workflow-change timeline. Every main layer stays
-visible and states what changed; second-level nodes are collapsed initially and open
-with `+`, then close with `−`. Operators can still zoom from 60% to 160%, reset to
-100%, or expand and collapse all layers together. Selecting a registered source,
-concept, module or authority node updates the direct-neighbour inspector with relation
-labels, source truth, access and evidence weight. The timeline is a workflow sequence,
-not dated change history, and visual proximity never creates evidence. Reference pattern:
-[semantica-agi/semantica](https://github.com/semantica-agi/semantica).
+Operators can also switch to the **Fusion architecture**. It presents Domain experts,
+Alignment, Ontology, Calibrated fusion, Candidate & operations and Human decision as a
+top-to-bottom architecture tree. Domain cards state whether they use a trainable detector,
+official rules, deferred labelled text, context-only records or post-event ground truth.
+Ontology remains an untrained semantic/evidence contract, consistent with the
+[W3C Web Ontology Language](https://www.w3.org/OWL/) role of representing things and their
+relations. Any future learned fusion must use
+event-blocked out-of-fold expert predictions and independent calibration; the current view is
+explicitly a prototype design with no fitted fusion weights. LLM explanation has score weight
+`0`, mock records stay excluded and every output remains a human-reviewed candidate.
+
+All six main stages stay visible; second-level nodes are collapsed initially and open with `+`,
+then close with `−`. Operators can zoom from 60% to 160%, reset to 100%, or expand and collapse
+all stages. Selecting a registered source, concept, module or authority updates the existing
+direct-neighbour inspector with relation labels, source truth, access and evidence weight.
+Visual proximity never creates evidence. The project rules are in `AGENTS.md`.
 
 Eventfinda is a first-class planned-demand contract, not observed attendance.
 Its API uses application-specific HTTP Basic credentials, so the public build

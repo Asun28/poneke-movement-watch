@@ -3,7 +3,7 @@
 import { useMemo, useState, type CSSProperties } from "react";
 import {
   buildOntologyEgoGraph,
-  buildOntologyLayerGraph,
+  buildOntologyFusionArchitecture,
   selectOntologyGraphNode,
   stepOntologyGraphZoom,
 } from "../../lib/dataIntegration.mjs";
@@ -83,6 +83,11 @@ type OntologyLayerGraphNode = {
   kind: string;
   label: string;
   detail: string;
+  badge?: string;
+  training_mode?: string;
+  fusion_role?: string;
+  score_weight?: number | null;
+  status?: string;
 };
 
 type OntologyLayerGraph = {
@@ -91,17 +96,17 @@ type OntologyLayerGraph = {
     number: string;
     label: string;
     description: string;
-    change: string;
+    boundary: string;
     nodes: OntologyLayerGraphNode[];
   }>;
 };
 
 const ONTOLOGY_LAYER_IDS = [
-  "sources",
+  "experts",
   "alignment",
   "ontology",
-  "corroboration",
-  "destinations",
+  "fusion",
+  "candidate",
   "decision",
 ];
 
@@ -188,7 +193,7 @@ export default function OntologyDashboard({ model }: { model: OntologyDashboardM
     [graphConcept, model],
   );
   const layerGraph = useMemo(
-    () => buildOntologyLayerGraph(model, graphConcept) as OntologyLayerGraph,
+    () => buildOntologyFusionArchitecture(model, graphConcept) as OntologyLayerGraph,
     [graphConcept, model],
   );
   const graphSelection = useMemo(
@@ -240,7 +245,7 @@ export default function OntologyDashboard({ model }: { model: OntologyDashboardM
 
       <div className="ontology-view-switch" role="group" aria-label="Choose ontology view">
         <button type="button" aria-pressed={view === "chain"} onClick={() => setView("chain")}>Operational chain</button>
-        <button type="button" aria-pressed={view === "graph"} onClick={() => setView("graph")}>Knowledge graph</button>
+        <button type="button" aria-pressed={view === "graph"} onClick={() => setView("graph")}>Fusion architecture</button>
       </div>
 
       <div
@@ -399,7 +404,7 @@ export default function OntologyDashboard({ model }: { model: OntologyDashboardM
         aria-labelledby="ontology-graph-heading"
       >
         <header className="ontology-graph-header">
-          <h3 id="ontology-graph-heading">Change timeline</h3>
+          <h3 id="ontology-graph-heading">Ontology-aware late fusion</h3>
           <span>6 layers</span>
         </header>
 
@@ -417,9 +422,9 @@ export default function OntologyDashboard({ model }: { model: OntologyDashboardM
           ))}
         </div>
 
-        <div className="ontology-graph-workspace" data-ontology-graph="six-layer">
+        <div className="ontology-graph-workspace" data-ontology-fusion="late-fusion">
           <div className="ontology-layer-panel">
-            <div className="ontology-layer-toolbar" role="group" aria-label="Six-layer knowledge graph controls">
+            <div className="ontology-layer-toolbar" role="group" aria-label="Six-layer fusion architecture controls">
               <div className="ontology-zoom-controls">
                 <button
                   type="button"
@@ -450,19 +455,17 @@ export default function OntologyDashboard({ model }: { model: OntologyDashboardM
               </div>
             </div>
 
-            <div className="ontology-layer-viewport" role="region" aria-label="Scrollable six-layer knowledge graph">
+            <div className="ontology-layer-viewport" role="region" aria-label="Scrollable six-layer fusion architecture">
               <div
-                className="ontology-layer-track"
-                data-knowledge-timeline="workflow-change"
+                className="ontology-fusion-track"
                 style={{ "--ontology-zoom": graphZoom / 100 } as CSSProperties}
               >
                 {layerGraph.layers.map((layer) => {
                   const expanded = expandedGraphLayers.has(layer.id);
                   return (
                     <section
-                      className={`ontology-knowledge-layer layer-${layer.id}`}
-                      data-knowledge-layer={layer.id}
-                      data-timeline-entry={layer.id}
+                      className={`ontology-fusion-stage stage-${layer.id}`}
+                      data-fusion-stage={layer.id}
                       aria-labelledby={`knowledge-layer-${layer.id}`}
                       key={layer.id}
                     >
@@ -470,7 +473,8 @@ export default function OntologyDashboard({ model }: { model: OntologyDashboardM
                         <span>{layer.number}</span>
                         <div>
                           <h4 id={`knowledge-layer-${layer.id}`}>{layer.label}</h4>
-                          <strong className="ontology-layer-change" data-timeline-change={layer.id}>{layer.change}</strong>
+                          <small>{layer.description}</small>
+                          <strong className="ontology-layer-boundary-text">{layer.boundary}</strong>
                         </div>
                         <button
                           type="button"
@@ -495,6 +499,7 @@ export default function OntologyDashboard({ model }: { model: OntologyDashboardM
                             <>
                               <strong>{node.label}</strong>
                               <small>{node.detail}</small>
+                              {node.badge && <em>{node.badge}</em>}
                             </>
                           );
                           return selectable ? (
@@ -522,8 +527,8 @@ export default function OntologyDashboard({ model }: { model: OntologyDashboardM
               </div>
             </div>
             <div className="ontology-layer-boundary">
-              <strong>Workflow structure</strong>
-              <span>No evidence asserted</span>
+              <strong>Decision support only</strong>
+              <span>No automatic incident or warning</span>
             </div>
           </div>
 
@@ -556,7 +561,7 @@ export default function OntologyDashboard({ model }: { model: OntologyDashboardM
                 <div className="ontology-graph-truth">
                   <span>{truthLabel(selectedSourcePath)}</span>
                   <span>{accessLabel(selectedSourcePath)}</span>
-                  <span>Ontology weight {selectedSourcePath.ontology_evidence_weight}</span>
+                  <span>Evidence weight {selectedSourcePath.ontology_evidence_weight}</span>
                 </div>
               ) : (
                 <span>Select source node</span>
@@ -636,7 +641,7 @@ export default function OntologyDashboard({ model }: { model: OntologyDashboardM
               <footer>
                 <span className={`ontology-tag truth-${path.demo_data_status}`}>{truthLabel(path)}</span>
                 <span className="ontology-tag">{accessLabel(path)}</span>
-                <span className="ontology-tag">Ontology weight {path.ontology_evidence_weight}</span>
+                <span className="ontology-tag">Evidence weight {path.ontology_evidence_weight}</span>
               </footer>
             </article>
           ))}

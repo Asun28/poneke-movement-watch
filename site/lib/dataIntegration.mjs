@@ -356,48 +356,119 @@ export function stepOntologyGraphZoom(current, direction) {
   return clampOntologyGraphZoom(clampOntologyGraphZoom(current) + delta);
 }
 
-export function buildOntologyLayerGraph(model, conceptId) {
+export function buildOntologyFusionArchitecture(model, conceptId) {
   const concept = model?.concepts?.find((item) => item.id === conceptId);
-  if (!concept) throw new Error(`Ontology layer graph requires concept ${conceptId}`);
+  if (!concept) throw new Error(`Ontology fusion architecture requires concept ${conceptId}`);
 
   const paths = model.paths.filter((path) => path.concept_id === concept.id);
   const destinations = new Set(paths.map((path) => path.operations_target));
   if (paths.some((path) => path.alert_eligible)) destinations.add("alert_centre");
   const roles = [...new Set(paths.map((path) => path.ontology_role))];
 
+  const experts = [
+    {
+      id: "expert:hydrology",
+      kind: "expert",
+      label: "Rain, river & water",
+      detail: "Station baselines · rate · accumulation · thresholds",
+      badge: "Train",
+      training_mode: "train_domain_model",
+      fusion_role: "eligible",
+    },
+    {
+      id: "expert:movement",
+      kind: "expert",
+      label: "Pedestrian & vehicle",
+      detail: "Weekday × hour × direction × type anomalies",
+      badge: "Train",
+      training_mode: "train_domain_model",
+      fusion_role: "eligible",
+    },
+    {
+      id: "expert:official-status",
+      kind: "expert",
+      label: "Official status",
+      detail: "Road closures · CAP · outages · Metlink alerts",
+      badge: "Rules",
+      training_mode: "rules_not_training",
+      fusion_role: "eligible",
+    },
+    {
+      id: "expert:reports",
+      kind: "expert",
+      label: "WCC tickets & text",
+      detail: "Classification · entity extraction · human review",
+      badge: "After labels",
+      training_mode: "train_after_labels",
+      fusion_role: "human_review",
+    },
+    {
+      id: "expert:planned-context",
+      kind: "context",
+      label: "Planned demand",
+      detail: "Events · flights · cruise · planned works",
+      badge: "Context only",
+      training_mode: "not_training",
+      fusion_role: "context_only",
+    },
+    {
+      id: "expert:post-event-news",
+      kind: "evaluation",
+      label: "News & reports",
+      detail: "Post-event labels and explanation · not early warning",
+      badge: "Ground truth only",
+      training_mode: "not_training",
+      fusion_role: "ground_truth_only",
+    },
+  ];
+
   const layers = [
     {
-      id: "sources",
+      id: "experts",
       number: "01",
-      label: "Sources",
-      description: "Access and source truth",
-      change: "Records enter with source truth",
-      nodes: paths.map((path) => ({
-        id: `source:${path.source_id}`,
-        kind: "source",
-        label: path.source_name,
-        detail: path.ontology_role.replaceAll("_", " "),
-      })),
+      label: "Domain experts",
+      description: "Each domain keeps its own detector or rule set",
+      boundary: "No monolithic raw-data model",
+      nodes: [
+        ...experts.filter((node) => ["eligible", "human_review"].includes(node.fusion_role)),
+        ...paths.map((path) => ({
+          id: `source:${path.source_id}`,
+          kind: "source",
+          label: path.source_name,
+          detail: path.ontology_role.replaceAll("_", " "),
+          badge: "Selected source",
+        })),
+      ],
     },
     {
       id: "alignment",
       number: "02",
       label: "Alignment",
-      description: "Normalize time and place",
-      change: "Records become comparable",
+      description: "Normalize schema, time, place and entity identity",
+      boundary: "Replay uses available_at, not hindsight",
       nodes: [
         { id: "alignment:schema", kind: "alignment", label: "Schema", detail: "Common fields and units" },
         { id: "alignment:time", kind: "alignment", label: "Time", detail: "Observed · available · valid" },
         { id: "alignment:place", kind: "alignment", label: "Place", detail: "WGS84 · area · asset" },
+        { id: "alignment:entity", kind: "alignment", label: "Entity", detail: "Source IDs resolve to city assets" },
       ],
     },
     {
       id: "ontology",
       number: "03",
       label: "Ontology",
-      description: "Entities, relations and rules",
-      change: "Records gain shared meaning",
+      description: "Entities, relations, provenance and evidence rules",
+      boundary: "Semantic contract · never trained",
       nodes: [
+        {
+          id: "ontology:semantic-contract",
+          kind: "ontology",
+          label: "City semantic contract",
+          detail: "Time · place · asset · observation · evidence",
+          badge: "Ontology · not trained",
+          training_mode: "not_trainable",
+          score_weight: null,
+        },
         { id: `concept:${concept.id}`, kind: "concept", label: concept.label, detail: concept.description },
         ...roles.map((role) => ({
           id: `role:${role}`,
@@ -405,56 +476,89 @@ export function buildOntologyLayerGraph(model, conceptId) {
           label: role.replaceAll("_", " "),
           detail: "Explicit source role",
         })),
+        { id: "evidence:supporting", kind: "evidence", label: "Supporting", detail: "Same time, place and entity" },
+        { id: "evidence:contradicting", kind: "evidence", label: "Contradicting", detail: "Disagreement stays visible" },
+        { id: "evidence:missing", kind: "evidence", label: "Missing", detail: "Absence is not contradiction" },
       ],
     },
     {
-      id: "corroboration",
+      id: "fusion",
       number: "04",
-      label: "Corroboration",
-      description: "Candidate and evidence states",
-      change: "Signals become review candidates",
+      label: "Calibrated fusion",
+      description: "Combine eligible expert outputs after ontology alignment",
+      boundary: "Prototype design · no fitted fusion weights",
       nodes: [
-        { id: "corroboration:candidate", kind: "candidate", label: "Candidate", detail: "Not a confirmed incident" },
-        { id: "corroboration:supporting", kind: "evidence", label: "Supporting", detail: "Same time and place" },
-        { id: "corroboration:contradicting", kind: "evidence", label: "Contradicting", detail: "Keep disagreement visible" },
-        { id: "corroboration:missing", kind: "evidence", label: "Missing", detail: "Absence is not contradiction" },
+        {
+          id: "model:late-fusion",
+          kind: "model",
+          label: "Calibrated late fusion",
+          detail: "Small regularised stack over eligible expert outputs",
+          badge: "Prototype · not trained",
+          training_mode: "out_of_fold_event_blocked",
+          status: "prototype_not_trained",
+        },
+        { id: "fusion:oof", kind: "model", label: "Out-of-fold only", detail: "Base predictions never come from their fit rows" },
+        { id: "fusion:time", kind: "model", label: "Event-blocked time split", detail: "No random row leakage across one event" },
+        { id: "fusion:calibration", kind: "calibration", label: "Independent calibration", detail: "Later time block · held-out test untouched" },
       ],
     },
     {
-      id: "destinations",
+      id: "candidate",
       number: "05",
-      label: "Modules",
-      description: "Live, Alerts and Replay",
-      change: "Candidates reach operator modules",
-      nodes: [...destinations].map((id) => ({
-        id: `destination:${id}`,
-        kind: "destination",
-        label: ONTOLOGY_GRAPH_DESTINATIONS[id]?.label ?? id,
-        detail: ONTOLOGY_GRAPH_DESTINATIONS[id]?.description ?? "Registered destination",
-      })),
+      label: "Candidate & operations",
+      description: "Keep inference, non-scoring context and operator destinations separate",
+      boundary: "Candidate is not an incident",
+      nodes: [
+        { id: "candidate:alert", kind: "candidate", label: "Alert candidate", detail: "Probability · consequence · urgency", badge: "Review required" },
+        {
+          id: "llm:explanation",
+          kind: "llm",
+          label: "LLM explanation",
+          detail: "Summarise evidence · surface contradictions",
+          badge: "LLM · weight 0",
+          score_weight: 0,
+          fusion_role: "explanation_only",
+        },
+        { id: "training:mock", kind: "exclusion", label: "Mock records", detail: "Never train, calibrate or score", badge: "Mock · excluded" },
+        ...experts.filter((node) => ["context_only", "ground_truth_only"].includes(node.fusion_role)),
+        ...[...destinations].map((id) => ({
+          id: `destination:${id}`,
+          kind: "destination",
+          label: ONTOLOGY_GRAPH_DESTINATIONS[id]?.label ?? id,
+          detail: ONTOLOGY_GRAPH_DESTINATIONS[id]?.description ?? "Registered destination",
+        })),
+      ],
     },
     {
       id: "decision",
       number: "06",
       label: "Human decision",
       description: "Confirmation and response",
-      change: "Staff decide and authorise response",
+      boundary: "Models and ontology propose · authorised people decide",
       nodes: [
         { id: "decision:review", kind: "decision", label: "Investigate", detail: "Review the case" },
-        { id: "authority:human_decision", kind: "authority", label: "Confirm", detail: "Set incident status" },
+        { id: "authority:human_decision", kind: "authority", label: "Confirm", detail: "Set incident status", badge: "Human review required" },
         { id: "decision:act", kind: "decision", label: "Authorise", detail: "Approve external response" },
       ],
     },
   ];
 
   return {
-    schema: "wellington-ontology-layer-graph/v1",
+    schema: "wellington-ontology-fusion-architecture/v1",
+    strategy: "ontology_aware_late_fusion",
     concept_id: concept.id,
     layers,
+    guardrails: {
+      ontology_training: "not_trainable",
+      llm_score_weight: 0,
+      mock_training: "excluded",
+      post_event_input: "ground_truth_only",
+      release_authority: "human_only",
+    },
     connections: layers.slice(0, -1).map((layer, index) => ({
       source: layer.id,
       target: layers[index + 1].id,
-      basis: "display_pipeline",
+      basis: "ontology_aware_fusion",
     })),
   };
 }

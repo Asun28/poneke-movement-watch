@@ -433,45 +433,79 @@ test("projects only explicit ontology paths into a bounded selectable ego graph"
   ]);
 });
 
-test("projects one concept through six ordered display layers without creating evidence", async () => {
+test("projects ontology-aware late fusion with fixed training and authority boundaries", async () => {
   const integration = await import("../lib/dataIntegration.mjs");
-  assert.equal(typeof integration.buildOntologyLayerGraph, "function");
+  assert.equal(typeof integration.buildOntologyFusionArchitecture, "function");
 
   const model = integration.buildOntologyDashboardModel(
     buildSourceContracts(registry, manifest),
     cityOntology,
   );
-  const graph = integration.buildOntologyLayerGraph(model, "movement_transport");
+  const graph = integration.buildOntologyFusionArchitecture(model, "movement_transport");
 
-  assert.equal(graph.schema, "wellington-ontology-layer-graph/v1");
+  assert.equal(graph.schema, "wellington-ontology-fusion-architecture/v1");
   assert.deepEqual(graph.layers.map((layer) => layer.id), [
-    "sources",
+    "experts",
     "alignment",
     "ontology",
-    "corroboration",
-    "destinations",
+    "fusion",
+    "candidate",
     "decision",
   ]);
-  assert.deepEqual(graph.layers.map((layer) => layer.change), [
-    "Records enter with source truth",
-    "Records become comparable",
-    "Records gain shared meaning",
-    "Signals become review candidates",
-    "Candidates reach operator modules",
-    "Staff decide and authorise response",
+  const experts = graph.layers[0].nodes.filter((node) => node.kind === "expert");
+  assert.deepEqual(experts.map((node) => [
+    node.id,
+    node.training_mode,
+    node.fusion_role,
+  ]), [
+    ["expert:hydrology", "train_domain_model", "eligible"],
+    ["expert:movement", "train_domain_model", "eligible"],
+    ["expert:official-status", "rules_not_training", "eligible"],
+    ["expert:reports", "train_after_labels", "human_review"],
   ]);
+  assert.ok(!graph.layers[0].nodes.some((node) => node.id === "expert:planned-context"));
+  assert.ok(!graph.layers[0].nodes.some((node) => node.id === "expert:post-event-news"));
+  assert.ok(graph.layers[0].nodes.some((node) => node.id === "source:wcc-transport-sensors"));
+  assert.ok(graph.layers[2].nodes.some((node) => (
+    node.id === "ontology:semantic-contract"
+      && node.training_mode === "not_trainable"
+      && node.score_weight === null
+  )));
+  assert.ok(graph.layers[3].nodes.some((node) => (
+    node.id === "model:late-fusion"
+      && node.training_mode === "out_of_fold_event_blocked"
+      && node.status === "prototype_not_trained"
+  )));
+  assert.ok(graph.layers[4].nodes.some((node) => (
+    node.id === "llm:explanation"
+      && node.score_weight === 0
+      && node.fusion_role === "explanation_only"
+  )));
+  assert.ok(graph.layers[4].nodes.some((node) => (
+    node.id === "expert:planned-context"
+      && node.fusion_role === "context_only"
+  )));
+  assert.ok(graph.layers[4].nodes.some((node) => (
+    node.id === "expert:post-event-news"
+      && node.fusion_role === "ground_truth_only"
+  )));
+  assert.deepEqual(graph.guardrails, {
+    ontology_training: "not_trainable",
+    llm_score_weight: 0,
+    mock_training: "excluded",
+    post_event_input: "ground_truth_only",
+    release_authority: "human_only",
+  });
   assert.deepEqual(graph.connections.map((connection) => (
     `${connection.source}|${connection.target}|${connection.basis}`
   )), [
-    "sources|alignment|display_pipeline",
-    "alignment|ontology|display_pipeline",
-    "ontology|corroboration|display_pipeline",
-    "corroboration|destinations|display_pipeline",
-    "destinations|decision|display_pipeline",
+    "experts|alignment|ontology_aware_fusion",
+    "alignment|ontology|ontology_aware_fusion",
+    "ontology|fusion|ontology_aware_fusion",
+    "fusion|candidate|ontology_aware_fusion",
+    "candidate|decision|ontology_aware_fusion",
   ]);
   assert.ok(graph.layers.every((layer) => layer.nodes.length > 0));
-  assert.ok(graph.layers[0].nodes.every((node) => node.kind === "source"));
-  assert.ok(graph.layers[0].nodes.some((node) => node.id === "source:wcc-transport-sensors"));
   assert.ok(graph.layers[2].nodes.some((node) => node.id === "concept:movement_transport"));
   assert.ok(graph.layers[5].nodes.some((node) => node.id === "authority:human_decision"));
 });

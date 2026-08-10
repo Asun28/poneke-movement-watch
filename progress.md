@@ -726,3 +726,22 @@
 - 2026-08-10: Pushed commit `3854db8` only to the private Sites source, saved
   version 36 and completed the owner-only production deployment. GitHub origin
   and remote `main` remain unchanged.
+# Phase 35 — ontology-aware fusion architecture
+
+- 2026-08-10: Started the Ontology graph replacement. Scope is fixed at a presentation/model-
+  governance update: domain experts feed ontology alignment and calibrated late fusion, while
+  ontology, LLM, mock data and post-event news remain outside learned alert scoring.
+- 2026-08-10: Audited the current page, source contracts, reference attachment and W3C OWL
+  definition. The existing operational chain remains; only the change-timeline graph is replaced.
+- 2026-08-10: TDD RED confirmed two intended failures: the fusion projection export is absent and
+  `/ontology` still renders Knowledge graph / Change timeline. The other 41 focused behaviors stayed green.
+- 2026-08-10: TDD GREEN confirmed. The second Ontology view is now a six-stage branching fusion
+  architecture with domain training policies, untrained semantic alignment, prototype late fusion,
+  LLM weight zero, mock/news exclusion and human-only release authority. All 43 focused behaviors pass.
+- 2026-08-10: Added repository-scoped `AGENTS.md` rules for domain experts, event-blocked time splits,
+  out-of-fold fusion, calibration, hard exclusions and human release gates. No model was fitted.
+- 2026-08-10: Independent review found that context/news placement could imply they entered fusion;
+  a new RED test captured the issue, then the nodes moved to a separate non-scoring branch. The
+  reduced-motion zoom transition was disabled. Re-review passed with no P0–P3 findings.
+- 2026-08-10: Final local verification passes: production build, 67/67 site behaviors, ESLint,
+  22/22 Python tests and whitespace checks. Owner-only deployment is next.

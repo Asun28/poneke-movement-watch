@@ -1,5 +1,70 @@
 # Pōneke Movement Watch — evidence ontology roadmap
 
+## Phase 35 — ontology-aware fusion architecture
+
+### Goal
+
+Replace the Ontology change timeline with a compact, interactive architecture view that
+shows how domain-specific detectors, ontology alignment and a calibrated late-fusion model
+produce a human-reviewed alert candidate.
+
+### Status
+
+- [completed] Audit the current graph, user reference, data boundaries and project instructions.
+- [completed] Add failing behavior tests for the fusion architecture and safety boundaries.
+- [completed] Implement the interactive domain-to-decision architecture and remove timeline semantics.
+- [completed] Add the durable model/ontology rules to project `AGENTS.md` and update project docs.
+- [completed] Verify build, behavior, accessibility and regressions.
+- [pending] Deploy to the existing owner-only site.
+
+### Acceptance criteria
+
+- The Knowledge graph view no longer calls itself an Ontology or Change timeline.
+- The view shows domain experts for hydro/weather, movement, official status, text reports,
+  planned context and post-event news, each with its training boundary.
+- Ontology is presented as an untrained semantic alignment and evidence-rule layer.
+- A small calibrated late-fusion model combines eligible expert outputs; it does not retrain
+  all raw feeds together and must use leakage-safe time splits / out-of-fold predictions.
+- LLM explanation has score weight `0`; mock and post-event news are excluded from training.
+- The resulting object remains a candidate requiring human review, never an automatic incident
+  confirmation or public warning.
+- Zoom, expand/collapse, focused node inspection and keyboard/touch accessibility remain.
+
+### Assumptions and exclusions
+
+- This phase changes the architecture presentation and durable engineering rules only.
+- No model is fitted, no weights are estimated and no production detector/output is changed.
+- Existing source truth, access/cost labels, evidence weights, six-layer operational chain,
+  routes, APIs and owner-only access remain unchanged.
+- The project currently has no project-level `AGENTS.md`; create one under the repository root
+  rather than changing the parent Workstation instructions.
+- No GitHub-origin push or remote-main mutation.
+
+### File-level plan
+
+- `site/tests/integration-model.test.mjs`: pure fusion-stage and domain-training contracts.
+- `site/tests/operator-console.test.mjs`: rendered architecture, controls and authority boundary.
+- `site/lib/dataIntegration.mjs`: deterministic ontology-aware fusion projection.
+- `site/app/components/OntologyDashboard.tsx`: replace timeline markup with architecture graph.
+- `site/app/globals.css`: compact tree/flow layout and responsive disclosure.
+- `AGENTS.md`, `README.md`, `findings.md`, `progress.md`: durable model rules and handoff.
+
+### Rejected major alternatives
+
+- Do not train the ontology or treat it as a learned weight layer.
+- Do not concatenate every source into one monolithic training table.
+- Do not use LLM output, mock data or post-event news as alert-score inputs.
+- Do not remove the separate operational hierarchy or source inspector.
+
+### Errors encountered
+
+| Error | Attempt | Resolution |
+|---|---:|---|
+| Recursive `AGENTS.md` search entered a protected pytest cache and failed. | 1 | Re-ran a bounded `rg --files` search with cache and dependency exclusions. |
+| First sandboxed W3C fetch returned no content. | 1 | Re-ran the same read-only Jina fetch with bounded network approval. |
+| Sandboxed Node test runner could not start its per-file workers (`EPERM`). | 1 | Re-ran the same focused RED tests outside the restricted sandbox. |
+| Sandbox denied removal of the verified pytest temp directory. | 1 | Removed only the resolved repository-local `.pytest_tmp_phase35` path with bounded approval. |
+
 ## Phase 34 — Signal Review queues and classification
 
 ### Goal

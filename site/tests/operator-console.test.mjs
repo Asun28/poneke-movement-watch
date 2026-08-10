@@ -238,19 +238,19 @@ test("shows the six-level operational evidence chain before advanced technical d
   assert.match(html, /Unknown is not open/);
 });
 
-test("offers an expandable six-layer change timeline without replacing the operational chain", async () => {
+test("offers an expandable ontology-aware fusion architecture without replacing the operational chain", async () => {
   const html = await (await request("/ontology")).text();
 
   assert.match(html, /aria-label="Choose ontology view"/);
   assert.match(html, /aria-pressed="true">Operational chain/);
-  assert.match(html, /aria-pressed="false">Knowledge graph/);
+  assert.match(html, /aria-pressed="false">Fusion architecture/);
   assert.match(html, /data-ontology-view="chain"/);
   assert.match(html, /data-ontology-view="graph"/);
-  assert.match(html, /data-ontology-graph="six-layer"/);
-  assert.match(html, /Change timeline/);
+  assert.match(html, /data-ontology-fusion="late-fusion"/);
+  assert.match(html, /Ontology-aware late fusion/);
   assert.match(html, />6 layers</);
   assert.match(html, /aria-label="Choose graph focus concept"/);
-  assert.match(html, /aria-label="Six-layer knowledge graph controls"/);
+  assert.match(html, /aria-label="Six-layer fusion architecture controls"/);
   assert.match(html, /aria-label="Zoom out"/);
   assert.match(html, />−<\/button>/);
   assert.match(html, /aria-label="Zoom level"[^>]*>100%<\/output>/);
@@ -260,25 +260,43 @@ test("offers an expandable six-layer change timeline without replacing the opera
   assert.match(html, />Expand all<\/button>/);
   assert.match(html, />Collapse all<\/button>/);
   assert.deepEqual(
-    [...html.matchAll(/data-knowledge-layer="([^"]+)"/g)].map((match) => match[1]),
-    ["sources", "alignment", "ontology", "corroboration", "destinations", "decision"],
+    [...html.matchAll(/data-fusion-stage="([^"]+)"/g)].map((match) => match[1]),
+    ["experts", "alignment", "ontology", "fusion", "candidate", "decision"],
   );
-  assert.match(html, /data-knowledge-timeline="workflow-change"/);
-  assert.equal((html.match(/data-timeline-entry=/g) ?? []).length, 6);
-  assert.equal((html.match(/data-timeline-change=/g) ?? []).length, 6);
+  assert.doesNotMatch(html, /Change timeline/);
+  assert.doesNotMatch(html, /data-knowledge-timeline=/);
+  assert.doesNotMatch(html, /data-timeline-entry=/);
+  assert.doesNotMatch(html, /data-timeline-change=/);
   assert.equal((html.match(/data-layer-toggle=/g) ?? []).length, 6);
   assert.equal((html.match(/data-layer-toggle="[^"]+" aria-expanded="false"/g) ?? []).length, 6);
-  assert.match(html, /aria-label="Expand Sources layer"/);
+  assert.match(html, /aria-label="Expand Domain experts layer"/);
   assert.match(html, /aria-hidden="true">\+<\/span><span>Expand<\/span>/);
+  for (const label of [
+    "Rain, river &amp; water",
+    "Pedestrian &amp; vehicle",
+    "Official status",
+    "WCC tickets &amp; text",
+    "Planned demand",
+    "News &amp; reports",
+  ]) assert.match(html, new RegExp(label));
+  assert.match(html, /Ontology · not trained/);
+  assert.match(html, /Calibrated late fusion/);
+  assert.match(html, /Prototype · not trained/);
+  assert.match(html, /LLM · weight 0/);
+  assert.match(html, /Mock · excluded/);
+  assert.match(html, /Human review required/);
+  assert.match(html, /data-graph-node-kind="expert"/);
   assert.match(html, /data-graph-node-kind="source"/);
   assert.match(html, /data-graph-node-kind="concept"/);
+  assert.match(html, /data-graph-node-kind="model"/);
+  assert.match(html, /data-graph-node-kind="llm"/);
   assert.match(html, /data-graph-node-kind="destination"/);
   assert.match(html, /data-graph-node-kind="authority"/);
   assert.match(html, /Node details/);
   assert.match(html, /Direct neighbours/);
   assert.match(html, /Source truth &amp; provenance/);
-  assert.match(html, /Workflow structure/);
-  assert.match(html, /No evidence asserted/);
+  assert.match(html, /Decision support only/);
+  assert.match(html, /No automatic incident or warning/);
   assert.doesNotMatch(html, /Operational chain remains the default/);
 });
 

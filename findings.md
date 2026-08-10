@@ -1390,3 +1390,32 @@ supports spatial event-footprint resolution, never direct building-damage claims
   match; these broader database results are the applicable defaults.
 - System severity, source, observed time, evidence state and authority must remain read-only.
   Review status, incident status, assignee and next review remain the staff-editable fields.
+# Phase 35 — ontology-aware fusion architecture
+
+- The current `/ontology` page has two distinct surfaces: an operational top-to-bottom chain
+  and a six-layer graph presented as a workflow-change timeline. The user asked to replace only
+  the latter; the operational chain and 33 source pathways can remain intact.
+- The user reference is a semantic hierarchy, not a dated changelog: `City → Location → Road →
+  Sensor → Observation → Evidence → Incident hypothesis`. The most useful replacement is therefore
+  a causal architecture graph with progressive disclosure rather than another timeline.
+- W3C describes OWL as a language for representing knowledge about things and their relations.
+  That supports keeping the ontology as a deterministic semantic/evidence layer, not treating it
+  as a model that is trained or assigned an alert-score weight.
+- Safe fusion boundary: domain experts may produce comparable features/scores; a small calibrated
+  late-fusion model may combine only leakage-safe out-of-fold outputs. Official status feeds remain
+  rule/state evidence; planned context and post-event news do not become incident proof; LLM score
+  weight stays zero; human review controls incident confirmation and warning issuance.
+- There is no project-level `AGENTS.md` in the repository. A new repository-scoped file is the
+  correct place for these project-specific rules; the parent Workstation `AGENTS.md` must not be edited.
+- The existing focused graph already has bounded 60–160% zoom, native buttons, per-stage disclosure,
+  an `aria-live` inspector and mobile stacking. Those behaviors can be retained while removing the
+  timeline spine, dots and timeline-specific data attributes.
+- UI guidance favours a dense operational dashboard, visible keyboard focus, sequential heading/tab
+  order, 44px controls and explicit text labels for exclusions. The existing civic palette and type
+  system are retained instead of adopting the search tool's unrelated red landing-page palette.
+- Chosen six-stage replacement: Domain experts → Alignment → Ontology → Calibrated fusion → Candidate
+  & operations → Human decision. This preserves the user's earlier six-layer requirement without
+  representing the architecture as dated history.
+- Independent review caught and closed an important visual-semantics issue: planned context and
+  post-event news now live in a non-scoring branch after fusion, not in the Stage 1 expert-input
+  path. Reduced-motion mode also disables the fusion zoom transition.
