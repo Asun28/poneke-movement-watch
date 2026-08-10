@@ -328,7 +328,7 @@ export default function LiveMap({
           setZoom((value) => Math.max(0.7, Math.min(10, value + (event.deltaY < 0 ? 0.25 : -0.25))));
         }}
       />
-      <div className="ops-map-controls" aria-label="Map controls" data-max-zoom="1000%">
+      <div className="ops-map-controls" aria-label="Map controls" data-max-zoom="1000%" data-density="compact" data-corner="bottom-right">
         <button type="button" aria-label="Zoom out" disabled={zoom <= 0.7} onClick={() => setZoom((value) => Math.max(0.7, value - 0.5))}>−</button>
         <output>{Math.round(zoom * 100)}%</output>
         <button type="button" aria-label="Zoom in" disabled={zoom >= 10} onClick={() => setZoom((value) => Math.min(10, value + 0.5))}>+</button>
