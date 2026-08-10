@@ -1152,3 +1152,21 @@ supports spatial event-footprint resolution, never direct building-damage claims
   external fonts and scroll animation. Those recommendations are rejected. Its
   useful operational rules are visible focus, stable loading space, 44px targets,
   short feedback, reduced motion and responsive checks at 375/768/1024/1440.
+# Phase 25 — operational evidence chain
+
+- The current dashboard has four levels: Sources → Ontology concepts → Relations
+  & rules → Operator modules, with three connectors and the 33-path audit collapsed.
+- The user's agreed architecture adds two distinct responsibilities that the current
+  presentation compresses away: normalization/time/place alignment before ontology,
+  and anomaly-candidate/multi-source-corroboration after ontology.
+- Human confirmation currently appears only as a small guardrail inside Relations.
+  It should become a visible terminal level so decision authority cannot be confused
+  with a model or ontology output.
+- Existing concept and destination controls can remain unchanged. The safest change
+  is presentational: add concise non-interactive pipeline levels and renumber all six.
+- The observable break to protect is collapsing or reordering any of the six levels,
+  or removing the statement that candidate anomalies require corroboration and human
+  confirmation before action.
+- The implemented hierarchy preserves the existing concept/destination filters and
+  33 collapsed audit paths. New alignment, corroboration and decision cards are
+  non-interactive explanations, so they add no competing workflow or hidden state.

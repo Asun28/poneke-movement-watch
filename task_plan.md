@@ -1,5 +1,60 @@
 # Pōneke Movement Watch — evidence ontology roadmap
 
+## Phase 25 — operational evidence chain
+
+### Goal
+
+Extend the Ontology Dashboard into the agreed six-level operational chain:
+source access, normalization/alignment, ontology evidence, anomaly corroboration,
+operator modules, and human confirmation/action.
+
+### Status
+
+- [completed] Audit the current four-level hierarchy and rendered contract.
+- [completed] Add a failing test for the six ordered levels and authority boundary.
+- [completed] Implement the two missing processing/decision levels with concise copy.
+- [in_progress] Verify regressions and deploy to the existing owner-only site.
+
+### Acceptance criteria
+
+- `/integration` renders all six levels in the user's stated top-to-bottom order.
+- Standardization visibly includes schema normalization plus time and place alignment.
+- Anomaly output is labelled as a candidate that requires multi-source corroboration.
+- Live, Alert Centre and Replay remain operator destinations, not ontology entities.
+- Human confirmation and response is the terminal authority level; the model cannot
+  silently confirm an incident or issue a warning.
+- Existing source filters, concept filters and collapsed per-source pathways remain usable.
+
+### Assumptions and exclusions
+
+- This is a clearer operational architecture view over existing contracts, not a new
+  detector, ontology version, source, model, database or external integration.
+- The six levels are one semantic chain; no step implies that mock, restricted or
+  registry-only data became operational evidence.
+- No GitHub push and no change to remote `main`.
+- Browser interaction testing is not requested; automated rendered behavior, build and
+  regression tests are the verification boundary.
+
+### File-level plan
+
+- `site/tests/operator-console.test.mjs`: ordered six-level rendered contract.
+- `site/app/components/OntologyDashboard.tsx`: six concise levels and connectors.
+- `site/app/globals.css`: readable processing/decision level styling and responsive flow.
+- `README.md`, `findings.md`, `progress.md`: architecture and validation record.
+
+### Rejected major alternatives
+
+- Do not create a second operations dashboard inside Integration.
+- Do not add a graph/chart library or duplicate the Live/Alert/Replay interfaces.
+- Do not treat an anomaly score as a confirmed Incident or issued Warning.
+
+### Errors encountered
+
+| Error | Attempt | Resolution |
+|---|---:|---|
+| Focused RED run failed at the absent alignment level. | 1 | Expected TDD failure; proceed with the minimal six-level presentation change. |
+| First GREEN run retained the old `Data sources` heading. | 1 | Align the source-level heading with the agreed access-status responsibility. |
+
 ## Phase 24 — top-to-bottom ontology hierarchy
 
 ### Goal

@@ -230,13 +230,17 @@ Data Integration joins every source contract to its matching `DataLayer` by
 `source_id` and presents a top-to-bottom hierarchy:
 
 ```text
-data sources
+data sources + access state
   ↓
-ontology concepts
+normalize schema + align time and place
   ↓
-relations and truth rules
+ontology entities + relations + evidence rules
   ↓
-Live Operations / Alert Centre / Replay Analyzer / Integration only
+anomaly candidates + multi-source corroboration
+  ↓
+Live Operations / Alert Centre / Replay Analyzer
+  ↓
+human confirmation + authorised response
 ```
 
 The five display groups are Movement & transport, Hazards & warnings, Access &
@@ -245,8 +249,10 @@ over the existing 28 exact ontology roles; they do not create new evidence or
 change the v3 graph. Operators can filter by source, concept or destination and
 see source truth, access/cost and ontology weight on every path. Alert Centre is
 shown only for live contracts already marked `alert_eligible`; every candidate
-still requires human review. The 33 source-level paths are collapsed by default;
-selecting a concept or destination opens the matching audit detail.
+remains separate from an Incident and requires human review. Models and ontology
+cannot issue a public warning. The 33 source-level paths are collapsed by default;
+selecting a concept or destination opens the matching audit detail. Integration-only
+contracts remain visible as gated context but do not become operational evidence.
 
 Eventfinda is a first-class planned-demand contract, not observed attendance.
 Its API uses application-specific HTTP Basic credentials, so the public build

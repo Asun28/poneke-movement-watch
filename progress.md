@@ -517,3 +517,16 @@
 - 2026-08-10: Saved Sites version 24 from the exact verified source and completed
   the owner-only production deployment at the existing live URL. GitHub origin
   was not pushed and its deleted feature branch was not recreated. Phase 22 is complete.
+# Phase 25 — operational evidence chain
+
+- 2026-08-10: Started the six-level Integration architecture update. Audited the
+  existing four-level ontology hierarchy and fixed the scope at presentation and
+  operator understanding only; no source, detector, model, authority or API changes.
+- 2026-08-10: TDD RED confirmed. The rendered contract fails only because the
+  current dashboard has no normalization/alignment level; all other site tests pass.
+- 2026-08-10: TDD GREEN confirmed after adding the six ordered levels, five
+  connectors and explicit candidate/human-authority boundaries. All 54 site tests
+  pass in the focused run, including the production build.
+- 2026-08-10: Full local verification passes: production build, 54/54 site tests,
+  ESLint, 22/22 Python tests and whitespace checks. The pytest temporary directory
+  was removed. Publishing to the existing owner-only site is next.
