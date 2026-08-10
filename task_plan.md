@@ -13,7 +13,7 @@ workspace that remains readable under load and works like a familiar consumer ma
 - [completed] Add failing unified-workspace, overlay and responsive behavior tests.
 - [completed] Implement the large map, compact inbox, layer picker and map detail card.
 - [completed] Verify build, accessibility, regressions and source-truth boundaries.
-- [pending] Deploy to the existing owner-only site.
+- [completed] Deploy to the existing owner-only site.
 
 ### Acceptance criteria
 

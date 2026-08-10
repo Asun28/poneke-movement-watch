@@ -22,6 +22,8 @@
 - 2026-08-11: The first source-only Sites build did not publish because the deployable app is
   intentionally nested under `site/`. Repackaged the same validated build as an explicit Sites
   archive; no application code, access policy or source truth changed.
+- 2026-08-11: Sites version 41 deployed successfully to the existing owner-only production URL.
+  Access remains one owner and no groups. GitHub origin and remote `main` remain unchanged.
 
 ## Phase 37 — selectable Replay investigations
 
