@@ -14,7 +14,7 @@ triage lifecycle with queue views and human outcome classification.
 - [completed] Implement queue grouping, workflow cues and classification guidance.
 - [completed] Rename the operator-facing module without changing technical identifiers.
 - [completed] Verify behavior, accessibility, build and regressions.
-- [pending] Deploy to the existing owner-only site.
+- [completed] Deploy to the existing owner-only site.
 
 ### Acceptance criteria
 
