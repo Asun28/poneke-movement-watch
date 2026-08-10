@@ -147,6 +147,23 @@ test("keeps replay controls out of the live module and preserves them in replay"
   assert.match(replay, /Batch replay/);
 });
 
+test("opens Replay as a map-first workspace with secondary panels collapsed", async () => {
+  const replay = await (await request("/replay")).text();
+  const mapAt = replay.indexOf('data-replay-map-first="true"');
+  const playbackAt = replay.indexOf('aria-label="History replay controls"');
+
+  assert.ok(mapAt > -1);
+  assert.ok(playbackAt > mapAt);
+  assert.match(replay, /class="replay-investigation-selector is-collapsed"[^>]*aria-label="Replay investigations"/);
+  assert.match(replay, /aria-expanded="false" aria-label="Show investigation settings"/);
+  assert.match(replay, /aria-expanded="false" aria-label="Show data source layers"/);
+  assert.match(replay, /aria-expanded="false" aria-label="Show signal evidence"/);
+  assert.match(replay, /class="replay-layer-overlay" hidden=""/);
+  assert.match(replay, /class="evidence-column replay-map-evidence-overlay"[^>]*hidden=""[^>]*aria-label="Signal evidence"/);
+  assert.match(replay, /aria-label="Replay map filters and panels"/);
+  assert.match(replay, /aria-label="Map zoom controls"/);
+});
+
 test("opens Live as one map-first workspace with readable evidence overlays", async () => {
   const live = await (await request("/live")).text();
   const review = await (await request("/alerts")).text();
@@ -198,13 +215,16 @@ test("routes backtest events to Replay Analyzer instead of Live Operations", asy
   assert.match(replay, /available_at-only policy required in v1/);
 });
 
-test("keeps the April backtest detail collapsed before the playable replay", async () => {
+test("keeps the April backtest detail collapsed after the map-first replay", async () => {
   const replay = await (await request("/replay")).text();
+  const mapAt = replay.indexOf('data-replay-map-first="true"');
+  const detailAt = replay.indexOf('<details id="april-storm-backtest"');
 
   assert.match(replay, /<details id="april-storm-backtest" class="backtest-pack">/);
   assert.doesNotMatch(replay, /<details id="april-storm-backtest" class="backtest-pack" open/);
   assert.match(replay, /<summary class="backtest-header">/);
-  assert.ok(replay.indexOf("April Storm · 18–22 Apr 2026") < replay.indexOf("August replay"));
+  assert.ok(mapAt > -1);
+  assert.ok(detailAt > mapAt);
 });
 
 test("lets an operator select April Storm or create a local Replay investigation", async () => {
@@ -214,6 +234,7 @@ test("lets an operator select April Storm or create a local Replay investigation
 
   assert.ok(selectorAt > -1);
   assert.ok(selectorAt < summaryAt);
+  assert.match(replay, /aria-expanded="false" aria-label="Show investigation settings"/);
   assert.match(replay, /<label[^>]*>.*Investigation/s);
   assert.match(replay, /name="investigation"/);
   assert.match(replay, /April Storm · 18–22 Apr 2026/);

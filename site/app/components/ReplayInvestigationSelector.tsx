@@ -60,6 +60,7 @@ export default function ReplayInvestigationSelector({ catalog }: { catalog: Inve
   const defaultId = catalog.find((item) => item.id === "august-movement-review-2026")?.id ?? catalog[0]?.id ?? "";
   const [investigations, setInvestigations] = useState(catalog);
   const [selectedId, setSelectedId] = useState(defaultId);
+  const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [title, setTitle] = useState("");
   const [sourceId, setSourceId] = useState(catalog.find((item) => item.id === defaultId)?.source_id ?? catalog[0]?.source_id ?? "");
@@ -143,46 +144,62 @@ export default function ReplayInvestigationSelector({ catalog }: { catalog: Inve
   }
 
   return (
-    <section className="replay-investigation-selector" aria-label="Replay investigations">
-      <div className="replay-investigation-primary">
-        <div className="replay-investigation-heading">
+    <section className={`replay-investigation-selector ${isPanelOpen ? "" : "is-collapsed"}`} aria-label="Replay investigations">
+      <header className="replay-investigation-compact-header">
+        <div>
           <h2>Investigation</h2>
-          <span>{selected?.scope === "local_draft" ? "Local draft" : "Packaged case"}</span>
+          <span>{selected?.title ?? "Select an investigation"}</span>
         </div>
-        <label className="replay-investigation-select">
-          <span>Investigation</span>
-          <select name="investigation" value={selectedId} onChange={(event) => setSelectedId(event.target.value)}>
-            {investigations.map((item) => (
-              <option key={item.id} value={item.id}>{item.title} · {item.data_label}</option>
-            ))}
-          </select>
-        </label>
-        <div className="replay-investigation-actions">
-          <button type="button" className="is-primary" onClick={openSelected}>Open investigation</button>
-          <button type="button" aria-expanded={isCreating} aria-controls="new-replay-investigation" onClick={() => { setIsCreating((value) => !value); setNotice(""); }}>New investigation</button>
+        <button
+          type="button"
+          aria-expanded={isPanelOpen}
+          aria-label={isPanelOpen ? "Hide investigation settings" : "Show investigation settings"}
+          aria-controls="replay-investigation-settings"
+          onClick={() => setIsPanelOpen((value) => !value)}
+        >{isPanelOpen ? "Done" : "Change"}</button>
+      </header>
+
+      <div id="replay-investigation-settings" className="replay-investigation-body" hidden={!isPanelOpen}>
+        <div className="replay-investigation-primary">
+          <div className="replay-investigation-heading">
+            <h2>Case settings</h2>
+            <span>{selected?.scope === "local_draft" ? "Local draft" : "Packaged case"}</span>
+          </div>
+          <label className="replay-investigation-select">
+            <span>Investigation</span>
+            <select name="investigation" value={selectedId} onChange={(event) => setSelectedId(event.target.value)}>
+              {investigations.map((item) => (
+                <option key={item.id} value={item.id}>{item.title} · {item.data_label}</option>
+              ))}
+            </select>
+          </label>
+          <div className="replay-investigation-actions">
+            <button type="button" className="is-primary" onClick={openSelected}>Open investigation</button>
+            <button type="button" aria-expanded={isCreating} aria-controls="new-replay-investigation" onClick={() => { setIsCreating((value) => !value); setNotice(""); }}>New investigation</button>
+          </div>
         </div>
+
+        {selected && (
+          <dl className="replay-investigation-meta">
+            <div><dt>Source</dt><dd>{sourceName(selected.source_id)}</dd></div>
+            <div><dt>Start</dt><dd>{dateLabel(selected.starts_at)}</dd></div>
+            <div><dt>Cutoff</dt><dd>{dateLabel(selected.as_of)}</dd></div>
+            <div><dt>Status</dt><dd>{selected.scope === "local_draft" ? "Local draft · not Incident/COP" : selected.truth_label}</dd></div>
+          </dl>
+        )}
+
+        <form id="new-replay-investigation" aria-label="New Replay investigation" hidden={!isCreating} onSubmit={createInvestigation}>
+          <label><span>Title</span><input required minLength={3} maxLength={120} value={title} onChange={(event) => setTitle(event.target.value)} /></label>
+          <label><span>Primary source</span><select required value={sourceId} onChange={(event) => chooseSource(event.target.value)}>{sourceWindows.map((item) => <option key={item.source_id} value={item.source_id}>{sourceName(item.source_id)} · {item.data_label}</option>)}</select></label>
+          <label><span>Start</span><input required type="datetime-local" value={startsAt} min={inputTime(selectedSourceWindow?.starts_at ?? "")} max={inputTime(selectedSourceWindow?.as_of ?? "")} onChange={(event) => setStartsAt(event.target.value)} /></label>
+          <label><span>Replay cutoff</span><input required type="datetime-local" value={asOf} min={inputTime(selectedSourceWindow?.starts_at ?? "")} max={inputTime(selectedSourceWindow?.as_of ?? "")} onChange={(event) => setAsOf(event.target.value)} /></label>
+          <div className="replay-investigation-form-actions">
+            <span>Local draft · not Incident/COP</span>
+            <button type="submit">Create &amp; open</button>
+          </div>
+          {notice && <p role={notice.startsWith("Local") ? "status" : "alert"}>{notice}</p>}
+        </form>
       </div>
-
-      {selected && (
-        <dl className="replay-investigation-meta">
-          <div><dt>Source</dt><dd>{sourceName(selected.source_id)}</dd></div>
-          <div><dt>Start</dt><dd>{dateLabel(selected.starts_at)}</dd></div>
-          <div><dt>Cutoff</dt><dd>{dateLabel(selected.as_of)}</dd></div>
-          <div><dt>Status</dt><dd>{selected.scope === "local_draft" ? "Local draft · not Incident/COP" : selected.truth_label}</dd></div>
-        </dl>
-      )}
-
-      <form id="new-replay-investigation" aria-label="New Replay investigation" hidden={!isCreating} onSubmit={createInvestigation}>
-        <label><span>Title</span><input required minLength={3} maxLength={120} value={title} onChange={(event) => setTitle(event.target.value)} /></label>
-        <label><span>Primary source</span><select required value={sourceId} onChange={(event) => chooseSource(event.target.value)}>{sourceWindows.map((item) => <option key={item.source_id} value={item.source_id}>{sourceName(item.source_id)} · {item.data_label}</option>)}</select></label>
-        <label><span>Start</span><input required type="datetime-local" value={startsAt} min={inputTime(selectedSourceWindow?.starts_at ?? "")} max={inputTime(selectedSourceWindow?.as_of ?? "")} onChange={(event) => setStartsAt(event.target.value)} /></label>
-        <label><span>Replay cutoff</span><input required type="datetime-local" value={asOf} min={inputTime(selectedSourceWindow?.starts_at ?? "")} max={inputTime(selectedSourceWindow?.as_of ?? "")} onChange={(event) => setAsOf(event.target.value)} /></label>
-        <div className="replay-investigation-form-actions">
-          <span>Local draft · not Incident/COP</span>
-          <button type="submit">Create &amp; open</button>
-        </div>
-        {notice && <p role={notice.startsWith("Local") ? "status" : "alert"}>{notice}</p>}
-      </form>
     </section>
   );
 }

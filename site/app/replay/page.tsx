@@ -26,6 +26,7 @@ export default function ReplayPage() {
         <div><span>Publisher cadence</span><strong>At least monthly</strong></div>
         <div><span>Data through</span><strong>6 Aug 2026</strong></div>
       </section>
+      <MovementCanvas />
       <details id="april-storm-backtest" className="backtest-pack">
         <summary className="backtest-header">
           <div>
@@ -90,10 +91,6 @@ export default function ReplayPage() {
           </div>
         </footer>
       </details>
-      <div className="replay-available-heading">
-        <h2>August replay</h2>
-      </div>
-      <MovementCanvas />
       <details className="operator-advanced">
         <summary>Evidence review</summary>
         <EvidenceCaseLedger />

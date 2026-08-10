@@ -924,7 +924,8 @@ export default function MovementCanvas() {
   const [tileRevision, setTileRevision] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [replayWarning, setReplayWarning] = useState<string | null>(null);
-  const [isLayerRailOpen, setIsLayerRailOpen] = useState(true);
+  const [isLayerRailOpen, setIsLayerRailOpen] = useState(false);
+  const [isEvidenceOpen, setIsEvidenceOpen] = useState(false);
   const [showBasemap, setShowBasemap] = useState(true);
   const [showCoverage, setShowCoverage] = useState(true);
   const [symbolSize, setSymbolSize] = useState(10);
@@ -1299,10 +1300,12 @@ export default function MovementCanvas() {
 
   return (
     <section
-      className={`investigation-frame ${isLayerRailOpen ? "has-layer-rail" : ""}`}
+      ref={mapStageRef}
+      className="investigation-frame replay-map-workspace"
       aria-labelledby="map-heading"
+      data-replay-map-first="true"
     >
-      {isLayerRailOpen ? (
+      <div className="replay-layer-overlay" hidden={!isLayerRailOpen}>
         <LayerWorkspace
           sources={sourceLayers}
           showBasemap={showBasemap}
@@ -1320,37 +1323,42 @@ export default function MovementCanvas() {
           onClearSources={() => { setSelectedSourceIds(new Set()); setIsPlaying(false); setMapInspection(null); }}
           onSaveSource={saveInvestigationSource}
         />
-      ) : null}
+      </div>
       <div className="map-column">
-        <button
-          type="button"
-          className="show-layer-panel"
-          aria-label="Show layer panel"
-          hidden={isLayerRailOpen}
-          onClick={() => setIsLayerRailOpen(true)}
-        >
-          Layers <span>{selectedSourceIds.size}/{sourceLayers.length}</span>
-        </button>
-        <div className="map-toolbar">
-          <div>
+        <div className="map-toolbar" aria-label="Replay map filters and panels">
+          <div className="replay-map-title-control">
             <h2 id="map-heading">Movement changes</h2>
             <span>{replayLabel}</span>
           </div>
-          <div className="filter-group" aria-label="Filter signals">
-            {(["all", "people", "vehicles"] as Filter[]).map((value) => (
-              <button
-                type="button"
-                key={value}
-                className={filter === value ? "active" : ""}
-                aria-pressed={filter === value}
-                onClick={() => { setFilter(value); setMapInspection(null); }}
-              >
-                {value === "all" ? "All" : value === "people" ? "People" : "Vehicles"}
-              </button>
-            ))}
-          </div>
+          <nav className="replay-map-toolbar-actions" aria-label="Replay map views">
+            <div className="filter-group" aria-label="Filter signals">
+              {(["all", "people", "vehicles"] as Filter[]).map((value) => (
+                <button
+                  type="button"
+                  key={value}
+                  className={filter === value ? "active" : ""}
+                  aria-pressed={filter === value}
+                  onClick={() => { setFilter(value); setMapInspection(null); }}
+                >
+                  {value === "all" ? "All" : value === "people" ? "People" : "Vehicles"}
+                </button>
+              ))}
+            </div>
+            <button
+              type="button"
+              aria-expanded={isLayerRailOpen}
+              aria-label={isLayerRailOpen ? "Hide data source layers" : "Show data source layers"}
+              onClick={() => setIsLayerRailOpen((value) => !value)}
+            >Sources <span>{selectedSourceIds.size}/{sourceLayers.length}</span></button>
+            <button
+              type="button"
+              aria-expanded={isEvidenceOpen}
+              aria-label={isEvidenceOpen ? "Hide signal evidence" : "Show signal evidence"}
+              onClick={() => setIsEvidenceOpen((value) => !value)}
+            >Evidence <span>{filteredSignals.length}</span></button>
+          </nav>
         </div>
-        <section className="replay-console" aria-labelledby="replay-heading">
+        <section className="replay-console replay-map-playback" aria-labelledby="replay-heading" aria-label="History replay controls">
           <div className="replay-console-title">
             <div>
               <span id="replay-heading">History replay</span>
@@ -1446,7 +1454,7 @@ export default function MovementCanvas() {
           />
           {replayWarning ? <p className="replay-warning" role="status">{replayWarning}</p> : null}
         </section>
-        <div className="map-stage" ref={mapStageRef}>
+        <div className="map-stage replay-map-stage">
           <canvas
             ref={canvasRef}
             role="img"
@@ -1570,7 +1578,11 @@ export default function MovementCanvas() {
         </div>
       </div>
 
-      <aside className="evidence-column" aria-label="Signal evidence">
+      <aside className="evidence-column replay-map-evidence-overlay" hidden={!isEvidenceOpen} aria-label="Signal evidence">
+        <header className="replay-map-panel-header">
+          <div><h2>Signal evidence</h2><span>{filteredSignals.length} in this view</span></div>
+          <button type="button" aria-label="Close signal evidence" onClick={() => setIsEvidenceOpen(false)}>×</button>
+        </header>
         {selected ? (
           <div className="selected-evidence">
             <div className="evidence-heading">
