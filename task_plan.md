@@ -2310,7 +2310,7 @@ source-state meaning, refresh controls and accessible detail.
 - [completed] Add a failing rendered behavior test for the compact toolbar.
 - [completed] Implement the compact labels and single-row responsive layout.
 - [completed] Run focused, full and browser verification at desktop and 375px.
-- [in_progress] Publish the validated owner-only build without changing GitHub origin or `main`.
+- [completed] Publish the validated owner-only build without changing GitHub origin or `main`.
 
 ### Acceptance criteria
 

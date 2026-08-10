@@ -917,3 +917,7 @@
   whitespace checks, desktop browser checks and 375×812 responsive interaction checks.
 - 2026-08-11: Validated source is committed locally on the feature branch. Owner-only Sites access,
   source credentials and the exact pushed commit will be verified before saving version 51.
+- 2026-08-11: Published validated commit `1bf0f75` only to the private Sites source, saved version 51
+  and completed the owner-only deployment. Production desktop and 375px checks confirm one 47px
+  status row, current source counts, 44px actions and clean browser logs. GitHub origin and remote
+  `main` remain unchanged.
