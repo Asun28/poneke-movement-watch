@@ -6,7 +6,53 @@ export const LIVE_MAP_LAYERS = Object.freeze([
   { id: "reports", label: "Reports" },
   { id: "other-live", label: "Other live" },
 ]);
+export const EVENT_SYMBOLS = Object.freeze({
+  rain: { id: "rain", label: "Rain & weather", glyph: "↓", colour: "#1e6a8d", shape: "circle" },
+  water: { id: "water", label: "Flood & water", glyph: "≈", colour: "#0c66a1", shape: "circle" },
+  earthquake: { id: "earthquake", label: "Earthquake", glyph: "⌁", colour: "#8c3f67", shape: "circle" },
+  warning: { id: "warning", label: "Official warning", glyph: "!", colour: "#c75845", shape: "triangle" },
+  road: { id: "road", label: "Road & access", glyph: "↕", colour: "#b66500", shape: "square" },
+  lifeline: { id: "lifeline", label: "Lifeline outage", glyph: "+", colour: "#7c4c00", shape: "square" },
+  transit: { id: "transit", label: "Public transport", glyph: "▣", colour: "#6554c0", shape: "square" },
+  flight: { id: "flight", label: "Flight", glyph: "✈︎", colour: "#0052cc", shape: "diamond" },
+  cruise: { id: "cruise", label: "Cruise & ferry", glyph: "⌒", colour: "#007a78", shape: "diamond" },
+  "city-event": { id: "city-event", label: "City event", glyph: "▦", colour: "#7b4d12", shape: "diamond" },
+  report: { id: "report", label: "Community report", glyph: "⚑", colour: "#7a3e65", shape: "diamond" },
+  people: { id: "people", label: "People movement", glyph: "P", colour: "#2d7a68", shape: "circle" },
+  vehicle: { id: "vehicle", label: "Vehicle movement", glyph: "V", colour: "#173f4b", shape: "square" },
+  other: { id: "other", label: "Other observation", glyph: "·", colour: "#52636b", shape: "diamond" },
+});
 const COMPACT_NUMBER_FORMAT = new Intl.NumberFormat("en-NZ", { maximumFractionDigits: 2 });
+
+export function eventSymbolFor(observation = {}, source = {}) {
+  const properties = observation.properties ?? {};
+  const signal = [
+    observation.source_id,
+    observation.kind,
+    source?.role,
+    properties.event_type,
+    properties.measurement,
+    properties.transport_class,
+  ].filter(Boolean).join(" ").toLowerCase();
+  if (/(flight|airport|aviation)/.test(signal)) return EVENT_SYMBOLS.flight;
+  if (/(cruise|ship|ferry|marine)/.test(signal)) return EVENT_SYMBOLS.cruise;
+  if (/(calendar|city.event|eventfinda|festival|concert)/.test(signal)) return EVENT_SYMBOLS["city-event"];
+  if (/(report|ticket|community)/.test(signal)) return EVENT_SYMBOLS.report;
+  if (/(bus|metlink|transit|train|rail|gtfs|public.transport)/.test(signal)) return EVENT_SYMBOLS.transit;
+  if (/(earthquake|quake|shaking|seismic)/.test(signal)) return EVENT_SYMBOLS.earthquake;
+  if (/(rain|weather|storm)/.test(signal)) return EVENT_SYMBOLS.rain;
+  if (/(sea.level|river|flow|flood|tsunami|coastal|water.height)/.test(signal)) return EVENT_SYMBOLS.water;
+  if (/(warning|alert|cap|official.hazard)/.test(signal)) return EVENT_SYMBOLS.warning;
+  if (/(electric|outage|lifeline|water.fault|telecom|grid)/.test(signal)) return EVENT_SYMBOLS.lifeline;
+  if (/(road|access|closure|traffic|camera|highway)/.test(signal)) return EVENT_SYMBOLS.road;
+  if (/(pedestrian|people)/.test(signal)) return EVENT_SYMBOLS.people;
+  if (/(vehicle|car|movement)/.test(signal)) return EVENT_SYMBOLS.vehicle;
+  return EVENT_SYMBOLS.other;
+}
+
+export function eventSymbolById(symbolId) {
+  return EVENT_SYMBOLS[symbolId] ?? EVENT_SYMBOLS.other;
+}
 
 function searchableObservation(observation, source) {
   return [

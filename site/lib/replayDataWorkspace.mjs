@@ -107,3 +107,22 @@ export function sensorReplayFrame(dataset, requestedIndex) {
 
   return { index, target_at: targetAt, readings, newly_available_count: newlyAvailableCount };
 }
+
+export function filterSensorReplayReadings(readings, {
+  visibleSeriesIds = new Set(),
+  measurementFilter = "all",
+} = {}) {
+  const selected = visibleSeriesIds instanceof Set ? visibleSeriesIds : new Set(visibleSeriesIds ?? []);
+  return (Array.isArray(readings) ? readings : []).filter((reading) => {
+    if (!selected.has(reading.series_id)) return false;
+    if (measurementFilter === "all") return true;
+    return String(reading.measurement ?? "").toLowerCase().includes(measurementFilter);
+  });
+}
+
+export function updateVisibleSensorSeries(currentIds, seriesId, checked) {
+  const next = new Set(currentIds instanceof Set ? currentIds : currentIds ?? []);
+  if (checked) next.add(seriesId);
+  else next.delete(seriesId);
+  return next;
+}

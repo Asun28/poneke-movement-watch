@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { buildLiveMapCard, buildLiveMapClusterCard, clusterMapPoints } from "../../lib/liveMapWorkspace.mjs";
+import { buildLiveMapCard, buildLiveMapClusterCard, clusterMapPoints, eventSymbolFor } from "../../lib/liveMapWorkspace.mjs";
+import EventSymbolBadge from "./EventSymbolBadge";
 
 type Coordinate = [number, number];
 type Observation = {
@@ -86,7 +87,7 @@ function drawTiles(
   const bottom = viewport.center[1] + (height / 2 - viewport.pan[1]) / viewport.worldScale;
   const tileSize = viewport.worldScale / tileCount;
   context.save();
-  context.globalAlpha = 0.8;
+  context.globalAlpha = 0.7;
   for (let y = Math.max(0, Math.floor(top * tileCount)); y <= Math.min(tileCount - 1, Math.floor(bottom * tileCount)); y += 1) {
     for (let x = Math.floor(left * tileCount); x <= Math.floor(right * tileCount); x += 1) {
       const wrappedX = ((x % tileCount) + tileCount) % tileCount;
@@ -110,21 +111,13 @@ function drawTiles(
     }
   }
   context.restore();
-  context.fillStyle = "rgba(232,240,241,.13)";
+  context.fillStyle = "rgba(246,249,250,.22)";
   context.fillRect(0, 0, width, height);
 }
 
-function markerStyle(kind: string) {
-  if (kind.includes("alert")) return { colour: "#c75845", shape: "triangle" };
-  if (kind.includes("earthquake")) return { colour: "#8c3f67", shape: "circle" };
-  if (kind.includes("access") || kind.includes("road")) return { colour: "#d78916", shape: "square" };
-  if (kind.includes("sea_level")) return { colour: "#1e6a8d", shape: "wave" };
-  return { colour: "#2d7a68", shape: "diamond" };
-}
-
-function drawMarker(context: CanvasRenderingContext2D, point: Coordinate, kind: string, selected: boolean, highlighted: boolean) {
-  const { colour, shape } = markerStyle(kind);
-  const radius = selected ? 11 : 8;
+function drawMarker(context: CanvasRenderingContext2D, point: Coordinate, observation: Observation, selected: boolean, highlighted: boolean, markerScale: number) {
+  const { colour, shape, glyph } = eventSymbolFor(observation);
+  const radius = (selected ? 11 : 8) * markerScale;
   context.save();
   context.translate(point[0], point[1]);
   if (highlighted) {
@@ -149,16 +142,11 @@ function drawMarker(context: CanvasRenderingContext2D, point: Coordinate, kind: 
   }
   context.fill();
   context.stroke();
-  context.strokeStyle = colour;
-  context.lineWidth = 2;
-  context.beginPath();
-  if (shape === "wave") {
-    context.moveTo(-5, -2); context.quadraticCurveTo(-2, -6, 1, -2); context.quadraticCurveTo(4, 2, 6, -2);
-    context.moveTo(-5, 4); context.quadraticCurveTo(-2, 0, 1, 4); context.quadraticCurveTo(4, 8, 6, 4);
-  } else {
-    context.moveTo(-3, 0); context.lineTo(3, 0);
-  }
-  context.stroke();
+  context.fillStyle = colour;
+  context.font = `800 ${Math.max(10, radius + 2)}px "Segoe UI Symbol", system-ui, sans-serif`;
+  context.textAlign = "center";
+  context.textBaseline = "middle";
+  context.fillText(glyph, 0, shape === "triangle" ? 2 : 0);
   context.restore();
   return radius;
 }
@@ -209,12 +197,16 @@ export default function LiveMap({
   sources = [],
   selectedId,
   highlightedIds = EMPTY_IDS,
+  showBasemap = true,
+  markerScale = 1,
   onSelect,
 }: {
   observations: Observation[];
   sources?: MapSource[];
   selectedId: string | null;
   highlightedIds?: Set<string>;
+  showBasemap?: boolean;
+  markerScale?: number;
   onSelect: (id: string) => void;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -234,6 +226,14 @@ export default function LiveMap({
       ? buildLiveMapClusterCard(hovered.observations, sources)
       : buildLiveMapCard(hovered.observation, sourceById.get(hovered.observation.source_id))
     : null;
+  const visibleSymbols = useMemo(() => {
+    const symbols = new Map<string, ReturnType<typeof eventSymbolFor>>();
+    for (const observation of plottable) {
+      const symbol = eventSymbolFor(observation, sourceById.get(observation.source_id));
+      symbols.set(symbol.id, symbol);
+    }
+    return [...symbols.values()];
+  }, [plottable, sourceById]);
 
   useEffect(() => {
     const updateFullscreen = () => setIsFullscreen(Boolean(document.fullscreenElement));
@@ -255,7 +255,11 @@ export default function LiveMap({
       context.scale(ratio, ratio);
       context.clearRect(0, 0, rect.width, rect.height);
       const viewport = createViewport(rect.width, rect.height, zoom, pan);
-      drawTiles(context, rect.width, rect.height, viewport, () => setRevision((value) => value + 1));
+      if (showBasemap) drawTiles(context, rect.width, rect.height, viewport, () => setRevision((value) => value + 1));
+      else {
+        context.fillStyle = "#dce9eb";
+        context.fillRect(0, 0, rect.width, rect.height);
+      }
       const mapPoints = plottable.flatMap((observation) => {
         const anchor = observationAnchor(observation);
         if (!anchor) return [];
@@ -268,7 +272,7 @@ export default function LiveMap({
         const highlighted = cluster.points.some((point) => highlightedIds.has(point.observation.id));
         const radius = cluster.count > 1
           ? drawCluster(context, [cluster.x, cluster.y], cluster.count, highlighted)
-          : drawMarker(context, [cluster.x, cluster.y], observation.kind, selected, highlighted);
+          : drawMarker(context, [cluster.x, cluster.y], observation, selected, highlighted, markerScale);
         return {
           observation,
           observations: cluster.points.map((point) => point.observation),
@@ -283,7 +287,7 @@ export default function LiveMap({
     const observer = new ResizeObserver(draw);
     observer.observe(canvas);
     return () => observer.disconnect();
-  }, [highlightedIds, pan, plottable, revision, selectedId, zoom]);
+  }, [highlightedIds, markerScale, pan, plottable, revision, selectedId, showBasemap, zoom]);
 
   function localPoint(event: React.PointerEvent): Coordinate {
     const rect = event.currentTarget.getBoundingClientRect();
@@ -413,10 +417,7 @@ export default function LiveMap({
         </div>
       )}
       <div className="ops-map-legend" aria-label="Map symbol legend">
-        <span><i className="alert" /> Alert</span>
-        <span><i className="access" /> Access</span>
-        <span><i className="hazard" /> Hazard</span>
-        <span><i className="context" /> Context</span>
+        {visibleSymbols.map((symbol) => <span key={symbol.id}><EventSymbolBadge symbolId={symbol.id} decorative />{symbol.label}</span>)}
       </div>
       <a className="ops-map-attribution" data-corner="bottom-left" href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© OpenStreetMap contributors</a>
       {fullscreenError && <p className="ops-map-error" role="status">{fullscreenError}</p>}

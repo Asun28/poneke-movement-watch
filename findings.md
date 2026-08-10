@@ -1561,3 +1561,30 @@ supports spatial event-footprint resolution, never direct building-damage claims
   region, binds the sensor dataset, and leaves the event-detail card collapsed with no page overflow.
 - Landscape QA keeps the page width bounded; the dense one-line Replay toolbar scrolls inside its
   own control surface instead of forcing horizontal page overflow.
+# Phase 41 — Replay layers and event symbols
+
+- Current Replay capabilities are inconsistent by dataset. August movement already has a hidden-
+  by-default source workspace with basemap, coverage and source selection, while the April sensor
+  map has no equivalent layer-adjustment control. The new control should be shared in behavior but
+  expose only layers compatible with the active dataset.
+- The current application has no icon dependency and uses hand-drawn/CSS/canvas symbols. Adding a
+  large icon package is unnecessary; a small shared semantic symbol projection plus CSS/vector-like
+  glyph treatment can preserve bundle size and the existing visual language.
+- UX guidance confirms the reported overlap is a fixed-layering problem: avoid stacking multiple
+  floating controls, collapse secondary panels by default, keep 44px labelled controls, and encode
+  event family with both symbol shape/glyph and accessible text rather than colour alone.
+- Existing source contracts already distinguish road events, warnings/hazards, sensors/weather,
+  reports, city events, flights and cruises. Friendly icons can map those known kinds/roles without
+  changing ontology truth or inventing observations in Replay.
+- Deployed April Replay confirms the missing control: the map exposes only All/Rain/Flow in the
+  playback toolbar and a generic Alert/Access/Hazard/Context legend. It has no Layers button, no
+  per-series switches and the generic legend does not describe the three visible sensor series.
+- `LiveMap` owns one global marker-style function, so both Live and sensor Replay inherit the same
+  five coarse shapes. A shared exported event-symbol classifier is the smallest behavior boundary:
+  it can drive canvas glyphs, legends, layer rows and accessible labels consistently.
+- Browser interaction found a React-specific failure that pure filtering tests alone could not:
+  reading `event.currentTarget.checked` inside a functional state updater can occur after React has
+  released the event. Checkbox values must be captured synchronously before entering the updater.
+- A bottom-anchored map layout is unsafe beside the fixed 65px mobile operator navigation because
+  the map can extend below the current viewport. On narrow screens the stable arrangement is a
+  top stack: toolbar, attribution/zoom, legend, then horizontally scrollable sensor readings.

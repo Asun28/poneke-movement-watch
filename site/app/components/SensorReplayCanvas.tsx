@@ -2,8 +2,10 @@
 
 import { useEffect, useMemo, useState } from "react";
 import hilltopPack from "../../public/cop/v4/april-storm-hilltop-observations.json";
-import { buildSensorReplayDataset, sensorReplayFrame } from "../../lib/replayDataWorkspace.mjs";
+import { buildSensorReplayDataset, filterSensorReplayReadings, sensorReplayFrame, updateVisibleSensorSeries } from "../../lib/replayDataWorkspace.mjs";
+import { eventSymbolFor } from "../../lib/liveMapWorkspace.mjs";
 import { replayIntervalMs } from "../layerModel.mjs";
+import EventSymbolBadge from "./EventSymbolBadge";
 import LiveMap from "./LiveMap";
 
 type Investigation = {
@@ -47,6 +49,12 @@ export default function SensorReplayCanvas({ investigation }: { investigation: I
   const [playing, setPlaying] = useState(false);
   const [filter, setFilter] = useState<SensorFilter>("all");
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [layersOpen, setLayersOpen] = useState(false);
+  const [showBasemap, setShowBasemap] = useState(true);
+  const [markerScale, setMarkerScale] = useState(1);
+  const [visibleSeriesIds, setVisibleSeriesIds] = useState<Set<string>>(
+    () => new Set(dataset.series.map((series: { id: string }) => series.id)),
+  );
   const frame = useMemo(() => sensorReplayFrame(dataset, slotIndex), [dataset, slotIndex]);
   const replayDates = useMemo(
     () => [...new Set(dataset.slots.map((time: string) => time.slice(0, 10)))],
@@ -54,11 +62,11 @@ export default function SensorReplayCanvas({ investigation }: { investigation: I
   );
   const selectedDate = frame.target_at?.slice(0, 10) ?? replayDates[0] ?? "";
   const dateSlots = dataset.slots.filter((time: string) => time.startsWith(selectedDate));
-  const observations = frame.readings
-    .filter((reading: { measurement: string }) => {
-      const measurement = reading.measurement.toLowerCase();
-      return filter === "all" || (filter === "rain" ? measurement.includes("rain") : measurement.includes("flow"));
-    })
+  const visibleReadings = filterSensorReplayReadings(frame.readings, {
+    visibleSeriesIds,
+    measurementFilter: filter,
+  });
+  const observations = visibleReadings
     .map((reading: {
       id: string;
       site: string;
@@ -121,6 +129,8 @@ export default function SensorReplayCanvas({ investigation }: { investigation: I
         observations={observations}
         sources={[{ source_id: investigation.source_id, name: "Greater Wellington Hilltop" }]}
         selectedId={selectedId}
+        showBasemap={showBasemap}
+        markerScale={markerScale}
         onSelect={setSelectedId}
       />
       <div className="replay-compact-bar" aria-label="Replay controls">
@@ -135,6 +145,11 @@ export default function SensorReplayCanvas({ investigation }: { investigation: I
             </button>
           ))}
         </div>
+        <div className="replay-compact-actions">
+          <button type="button" aria-expanded={layersOpen} aria-label={layersOpen ? "Hide sensor layers" : "Show sensor layers"} onClick={() => setLayersOpen((value) => !value)}>
+            Layers <span>{visibleSeriesIds.size}/{dataset.series.length}</span>
+          </button>
+        </div>
         <div className="replay-compact-inputs">
           <label><span>Date</span><input type="date" aria-label="Replay date" value={selectedDate} min={replayDates[0]} max={replayDates.at(-1)} onChange={(event) => selectDate(event.currentTarget.value)} /></label>
           <label><span>Time</span><select aria-label="Replay time" value={frame.target_at ?? ""} onChange={(event) => selectTime(event.currentTarget.value)}>{dateSlots.map((time: string) => <option key={time} value={time}>{time.slice(11, 16)}</option>)}</select></label>
@@ -148,6 +163,24 @@ export default function SensorReplayCanvas({ investigation }: { investigation: I
         <output className="replay-compact-count" aria-live="polite">{dataset.playable_record_count.toLocaleString("en-NZ")} / {dataset.total_record_count.toLocaleString("en-NZ")} records</output>
         <input className="replay-compact-scrubber" type="range" aria-label="Replay timeline" min={0} max={Math.max(0, dataset.slots.length - 1)} value={slotIndex} onChange={(event) => { setSlotIndex(Number(event.currentTarget.value)); setPlaying(false); }} />
       </div>
+      <aside className="sensor-layer-overlay" aria-label="Sensor map layers" hidden={!layersOpen}>
+        <header><h2>Layers</h2><button type="button" aria-label="Close sensor layers" onClick={() => setLayersOpen(false)}>×</button></header>
+        <label className="sensor-core-layer"><input type="checkbox" checked={showBasemap} onChange={(event) => setShowBasemap(event.currentTarget.checked)} /><span>Street basemap</span></label>
+        <label className="sensor-symbol-size"><span>Symbol size <output>{Math.round(markerScale * 100)}%</output></span><input type="range" aria-label="Sensor symbol size" min="0.8" max="1.6" step="0.1" value={markerScale} onChange={(event) => setMarkerScale(Number(event.currentTarget.value))} /></label>
+        <div className="sensor-layer-actions"><button type="button" onClick={() => setVisibleSeriesIds(new Set(dataset.series.map((series: { id: string }) => series.id)))}>Show all</button><button type="button" onClick={() => setVisibleSeriesIds(new Set())}>Hide all</button></div>
+        <div className="sensor-series-list" aria-label={`${dataset.series.length} sensor series`}>
+          {dataset.series.map((series: { id: string; site: string; measurement: string }) => {
+            const symbol = eventSymbolFor({ source_id: investigation.source_id, kind: series.measurement, properties: { measurement: series.measurement } });
+            return (
+              <label key={series.id}>
+                <input type="checkbox" checked={visibleSeriesIds.has(series.id)} onChange={(event) => { const checked = event.currentTarget.checked; setVisibleSeriesIds((current) => updateVisibleSensorSeries(current, series.id, checked)); }} />
+                <EventSymbolBadge symbolId={symbol.id} decorative />
+                <span><strong>{series.site}</strong><small>{series.measurement}</small></span>
+              </label>
+            );
+          })}
+        </div>
+      </aside>
       <div className="sensor-reading-strip" aria-label="Current sensor values">
         {observations.map((observation) => (
           <button key={observation.id} type="button" onClick={() => setSelectedId(observation.id)}>

@@ -854,3 +854,24 @@
   replay loads 1,677 cutoff-safe records, switching to August replaces the active map immediately,
   and Live search finds 38 current records by the displayed `offline` status. GitHub origin and
   remote `main` remain unchanged.
+# Phase 41 — Replay layer controls and event symbols
+
+- 2026-08-11: Started deployed Replay overlap/layer audit. Scope now includes a compact compatible-
+  layer picker and consistent accessible symbols for operational event families; no new data source
+  or evidence semantics are introduced.
+- 2026-08-11: TDD RED verified the intended gaps: no event-family symbol projection and no immutable
+  sensor-layer filter exist yet. The focused suite failed only those two new behaviors (28/30 passed).
+- 2026-08-11: Added the requested lighter basemap tone to the same map pass so street labels remain
+  readable while operational symbols receive more contrast.
+- 2026-08-11: TDD GREEN and regression verification pass. Replay series filtering is immutable,
+  nine tested event families resolve to distinct labelled symbols, the production build passes all
+  84 site behaviors, ESLint passes and whitespace checks are clean. Browser layout QA is next.
+- 2026-08-11: Browser interaction exposed and fixed a React event-lifetime crash when a sensor
+  series was unchecked. A pure selection helper now captures the checkbox value before the state
+  update; hide one, Hide all and Show all correctly render 2, 0 and 3 sensor readings.
+- 2026-08-11: Desktop, 375px mobile and 812×375 landscape QA pass with no horizontal overflow.
+  Replay toolbar, zoom, attribution, sensor legend, readings and fixed mobile navigation have no
+  intersecting rectangles. Live opens with Inbox and Layers collapsed and renders distinct rain,
+  water, earthquake, warning, road, report, flight, cruise and city-event symbols.
+- 2026-08-11: Final production build, 86/86 behavior tests and ESLint pass. Owner-only deployment
+  remains; GitHub origin and remote `main` have not been changed.

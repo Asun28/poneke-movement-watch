@@ -1,5 +1,61 @@
 # Pōneke Movement Watch — evidence ontology roadmap
 
+## Phase 41 — Replay layer controls and event symbols
+
+### Goal
+
+Make the Replay map open without obstructive overlays, restore adjustable data layers, and give
+each operational event family a consistent, readable map symbol.
+
+### Status
+
+- [completed] Inspect deployed Replay overlap, current symbols, and existing layer contracts.
+- [completed] Add failing behavior tests for default panel state, layer adjustment, and symbol mapping.
+- [completed] Implement compact layer controls and a consistent non-emoji event symbol system.
+- [completed] Verify Replay switching, keyboard/touch access, mobile/landscape layout, and regressions.
+- [in_progress] Deploy to the existing owner-only site.
+
+### Acceptance criteria
+
+- Replay opens map-first: optional panels are collapsed and neither the toolbar nor map controls
+  cover the default focal markers.
+- A single compact Layers control can independently show/hide the dataset's compatible layers;
+  hidden layers are excluded from both map markers and keyboard-accessible records.
+- Weather/sensor, flood/water, earthquake, warning, road/access, transit, flight, cruise, city event,
+  report and movement families have distinct, consistent vector/text symbols with accessible names.
+- Icons remain legible without relying on colour alone and do not claim a source or event type that
+  is absent from the active dataset.
+- Existing source truth, cutoff rules, search, playback and investigation switching do not regress.
+
+### Assumptions and exclusions
+
+- “Default overlaps” means controls/panels obscure map content at initial load; the base map itself
+  remains OpenStreetMap.
+- Icons identify event families, not severity or confirmation. Mock/context sources keep their
+  existing truth labels and zero evidence weight.
+- No new data source, evidence score, model, schema, external write or GitHub-origin push is added.
+
+### File-level plan
+
+- Replay map components and shared map helpers: layer state, compatible layer projection and symbols.
+- `site/app/globals.css`: compact layer picker, marker tokens and responsive placement.
+- `site/tests/*`: observable layer filtering, symbol semantics and rendered accessibility contracts.
+
+### Rejected major alternatives
+
+- Do not load every source into every investigation or invent unavailable flight/event observations.
+- Do not use emoji, colour-only distinctions, permanently open panels, or overlapping floating cards.
+
+### Errors encountered
+
+| Error | Attempt | Resolution |
+|---|---:|---|
+| Existing controlled-tab list was empty after the previous task finalized it. | 1 | Claimed the user-visible Replay tab instead of opening a duplicate. |
+| Browser element screenshot helper required coordinates rather than a locator. | 1 | Continue with the complete DOM plus later viewport QA; do not repeat the unsupported locator call. |
+| Direct Node test runner could not spawn a worker inside the restricted sandbox. | 1 | Re-run the same read-only test with the approved test permission outside the sandbox. |
+| A sensor checkbox read `event.currentTarget` inside the deferred React state updater and crashed after the event was released. | 1 | Capture `checked` synchronously, pass it through a pure immutable selection helper, and add a regression test. |
+| Bottom-anchored sensor legend/readings crossed the fixed mobile navigation before the map was fully scrolled into view. | 1 | Anchor mobile attribution, zoom, legend and readings in one non-overlapping top stack; verify their rectangles at 375px. |
+
 ## Phase 40 — reliable Replay/Live data binding and compact controls
 
 ### Goal

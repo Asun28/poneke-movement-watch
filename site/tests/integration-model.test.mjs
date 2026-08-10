@@ -138,6 +138,31 @@ test("searches the operational values shown on Live evidence cards", () => {
   assert.deepEqual(filter("42.1 mm"), ["rain:1"]);
 });
 
+test("maps operational event families to distinct accessible symbols", () => {
+  assert.equal(typeof liveMapWorkspace.eventSymbolFor, "function");
+  const symbolFor = liveMapWorkspace.eventSymbolFor;
+  const examples = [
+    [{ source_id: "gwrc-hilltop", kind: "rainfall_measurement", properties: {} }, "rain"],
+    [{ source_id: "geonet-tilde-wlgt", kind: "sea_level_measurement", properties: {} }, "water"],
+    [{ source_id: "geonet-quakes", kind: "earthquake_observation", properties: {} }, "earthquake"],
+    [{ source_id: "nzta-road-events", kind: "road_event_observation", properties: {} }, "road"],
+    [{ source_id: "metlink-gtfs-rt", kind: "bus_delay", properties: {} }, "transit"],
+    [{ source_id: "wellington-airport-flights", kind: "flight_status", properties: {} }, "flight"],
+    [{ source_id: "centreport-cruise-schedule", kind: "cruise_call", properties: {} }, "cruise"],
+    [{ source_id: "wcc-event-calendar", kind: "city_event", properties: {} }, "city-event"],
+    [{ source_id: "wcc-ticket", kind: "community_report", properties: {} }, "report"],
+  ];
+
+  const symbols = examples.map(([observation, expectedId]) => {
+    const symbol = symbolFor(observation);
+    assert.equal(symbol.id, expectedId);
+    assert.ok(symbol.label.length > 2);
+    assert.ok(symbol.glyph.length > 0);
+    return symbol;
+  });
+  assert.equal(new Set(symbols.map(({ id }) => id)).size, examples.length);
+});
+
 test("builds an available-at-safe April sensor replay for the selected investigation", async () => {
   assert.equal(typeof replayDataWorkspace.buildSensorReplayDataset, "function");
   assert.equal(typeof replayDataWorkspace.sensorReplayFrame, "function");
@@ -166,6 +191,46 @@ test("builds an available-at-safe April sensor replay for the selected investiga
   assert.equal(frame.target_at, dataset.available_from);
   assert.ok(frame.readings.length >= 1);
   assert.ok(frame.readings.every((reading) => new Date(reading.available_at) <= new Date(frame.target_at)));
+});
+
+test("filters Replay sensor layers without changing the source frame", () => {
+  assert.equal(typeof replayDataWorkspace.filterSensorReplayReadings, "function");
+  const readings = [
+    { id: "rain:berhampore:1", series_id: "rain:berhampore", measurement: "Rainfall" },
+    { id: "rain:newtown:1", series_id: "rain:newtown", measurement: "Rainfall" },
+    { id: "flow:hutt:1", series_id: "flow:hutt", measurement: "Flow" },
+  ];
+  const visible = replayDataWorkspace.filterSensorReplayReadings(readings, {
+    visibleSeriesIds: new Set(["rain:berhampore", "flow:hutt"]),
+    measurementFilter: "all",
+  });
+
+  assert.deepEqual(visible.map(({ id }) => id), ["rain:berhampore:1", "flow:hutt:1"]);
+  assert.equal(readings.length, 3);
+  assert.deepEqual(replayDataWorkspace.filterSensorReplayReadings(readings, {
+    visibleSeriesIds: new Set(readings.map(({ series_id }) => series_id)),
+    measurementFilter: "flow",
+  }).map(({ id }) => id), ["flow:hutt:1"]);
+});
+
+test("updates a Replay sensor selection from a captured checkbox value", () => {
+  assert.equal(typeof replayDataWorkspace.updateVisibleSensorSeries, "function");
+  const original = new Set(["rain:berhampore", "flow:hutt"]);
+  const hidden = replayDataWorkspace.updateVisibleSensorSeries(original, "flow:hutt", false);
+  const restored = replayDataWorkspace.updateVisibleSensorSeries(hidden, "flow:hutt", true);
+
+  assert.deepEqual([...hidden], ["rain:berhampore"]);
+  assert.deepEqual([...restored], ["rain:berhampore", "flow:hutt"]);
+  assert.deepEqual([...original], ["rain:berhampore", "flow:hutt"]);
+});
+
+test("keeps mobile Replay controls clear of the fixed operator navigation", async () => {
+  const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+
+  assert.match(css, /\.sensor-replay-workspace \.ops-map-controls \{ top: 88px; right: 8px; bottom: auto; \}/);
+  assert.match(css, /\.sensor-reading-strip \{ top: 282px; right: 8px; bottom: auto; \}/);
+  assert.match(css, /\.sensor-replay-workspace \.ops-map-legend \{ top: 239px; right: auto; bottom: auto;/);
+  assert.match(css, /\.sensor-replay-workspace \.ops-map-attribution \{ top: 88px; right: auto; bottom: auto; left: 8px;/);
 });
 
 test("clusters overlapping evidence only at broad map zoom", () => {

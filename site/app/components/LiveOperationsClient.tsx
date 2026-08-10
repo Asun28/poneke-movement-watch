@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { buildLiveMapCard, filterLiveMapObservations, LIVE_MAP_LAYERS } from "../../lib/liveMapWorkspace.mjs";
+import EventSymbolBadge from "./EventSymbolBadge";
 import LiveMap from "./LiveMap";
 
 type SourceState = {
@@ -77,6 +78,19 @@ const FALLBACK_MONITORING: MonitoringGroup[] = [
   { id: "community_reports", label: "Reports", record_count: 0, fresh_count: 0, source_count: 0 },
   { id: "access_context", label: "Access context", record_count: 0, fresh_count: 0, source_count: 0 },
 ];
+const LIVE_LAYER_SYMBOLS: Record<string, string> = {
+  "review-evidence": "report",
+  "sensors-weather": "rain",
+  "warnings-hazards": "warning",
+  "access-impacts": "road",
+  reports: "report",
+  "other-live": "other",
+};
+const CONTEXT_SYMBOLS: Record<string, string> = {
+  "wcc-event-calendar": "city-event",
+  "wellington-airport-flights": "flight",
+  "centreport-cruise-schedule": "cruise",
+};
 
 function timeLabel(value: string | null) {
   if (!value) return "unknown";
@@ -265,7 +279,7 @@ export default function LiveOperationsClient() {
               aria-pressed={activeLayers.has(layer.id)}
               data-live-layer-toggle={layer.id}
               onClick={() => toggleLayer(layer.id)}
-            >{layer.label}</button>
+            ><EventSymbolBadge symbolId={LIVE_LAYER_SYMBOLS[layer.id]} decorative />{layer.label}</button>
           ))}
           <button type="button" aria-expanded={layersOpen} onClick={() => setLayersOpen((value) => !value)}>Layers</button>
           <button type="button" aria-expanded={contextOpen} onClick={() => setContextOpen((value) => !value)}>City context</button>
@@ -315,7 +329,7 @@ export default function LiveOperationsClient() {
           </div>
           <div className="live-domain-layer-list">
             {LIVE_MAP_LAYERS.map((layer) => (
-              <label key={layer.id}><input type="checkbox" checked={activeLayers.has(layer.id)} onChange={() => toggleLayer(layer.id)} /><span>{layer.label}</span></label>
+              <label key={layer.id}><input type="checkbox" checked={activeLayers.has(layer.id)} onChange={() => toggleLayer(layer.id)} /><EventSymbolBadge symbolId={LIVE_LAYER_SYMBOLS[layer.id]} decorative /><span>{layer.label}</span></label>
             ))}
           </div>
           <details>
@@ -343,7 +357,7 @@ export default function LiveOperationsClient() {
           <header><h2>City context</h2><button type="button" aria-label="Close city context" onClick={() => setContextOpen(false)}><CloseIcon /></button></header>
           {contextCards.map((card) => (
             <article key={card.source_id}>
-              <div><h3>{card.label}</h3><span>{card.runtime_state.replaceAll("_", " ")}</span></div>
+              <div><h3><EventSymbolBadge symbolId={CONTEXT_SYMBOLS[card.source_id] ?? "other"} decorative />{card.label}</h3><span>{card.runtime_state.replaceAll("_", " ")}</span></div>
               <p>{card.summary}</p>
               <footer><strong>{card.truth_label}</strong><span>{card.access_status.replaceAll("_", " ")}</span></footer>
             </article>

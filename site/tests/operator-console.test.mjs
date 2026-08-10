@@ -189,6 +189,13 @@ test("opens Live as one map-first workspace with readable evidence overlays", as
   assert.match(live, /City events/);
   assert.match(live, /Flights in &amp; out/);
   assert.match(live, /Cruise calls/);
+  assert.match(live, /data-event-symbol="city-event"/);
+  assert.match(live, /data-event-symbol="flight"/);
+  assert.match(live, /data-event-symbol="cruise"/);
+  assert.match(live, /data-event-symbol="rain"/);
+  assert.match(live, /data-event-symbol="warning"/);
+  assert.match(live, /data-event-symbol="road"/);
+  assert.match(live, /data-event-symbol="report"/);
   assert.match(live, /Mock · zero evidence/);
   assert.match(live, /aria-label="Map controls"[^>]*data-max-zoom="1000%"[^>]*data-style="google-vertical"[^>]*data-corner="bottom-right"/);
   assert.match(live, /aria-label="Map zoom controls"[^>]*>[\s\S]*?aria-label="Zoom in"[\s\S]*?aria-label="Zoom out"/);
