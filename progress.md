@@ -18,6 +18,10 @@
 - 2026-08-10: Full local verification passes: production build, 58/58 site tests,
   ESLint, 22/22 Python tests and whitespace checks. The temporary pytest directory
   was removed. Publishing to the existing owner-only site is next.
+- 2026-08-10: Pushed the exact validated commit only to the private Sites source,
+  saved version 30 and completed the owner-only production deployment. The compact
+  title bar is live across all six pages; GitHub origin and remote `main` remain
+  unchanged. Phase 28 is complete.
 
 ## Phase 27 — dedicated Ontology module
 

@@ -13,7 +13,7 @@ operator pages, and reduce the Live status strip so routine work starts higher.
 - [completed] Add failing rendered behavior tests for the compact shared header.
 - [completed] Implement the title bar and Live status-density changes.
 - [completed] Verify regressions.
-- [in_progress] Deploy to the existing owner-only site.
+- [completed] Deploy to the existing owner-only site.
 
 ### Acceptance criteria
 
