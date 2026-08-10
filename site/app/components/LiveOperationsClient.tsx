@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { filterLiveMapObservations, LIVE_MAP_LAYERS } from "../../lib/liveMapWorkspace.mjs";
+import { buildLiveMapCard, filterLiveMapObservations, LIVE_MAP_LAYERS } from "../../lib/liveMapWorkspace.mjs";
 import LiveMap from "./LiveMap";
 
 type SourceState = {
@@ -184,6 +184,7 @@ export default function LiveOperationsClient() {
   }) as Observation[], [activeLayers, candidateEvidenceIds, query, selectedSources, snapshot]);
   const selected = visibleObservations.find((observation) => observation.id === selectedObservation) ?? null;
   const selectedSource = selected ? snapshot?.sources.find((source) => source.source_id === selected.source_id) : null;
+  const selectedCard = selected ? buildLiveMapCard(selected, selectedSource) : null;
   const contextCards = inbox?.context_cards?.length ? inbox.context_cards : CONTEXT_PLACEHOLDERS;
 
   function showCandidate(candidate: EvidenceCandidate) {
@@ -223,6 +224,7 @@ export default function LiveOperationsClient() {
       <section className="live-map-workspace" aria-label="Unified Live map workspace" data-live-map-first="true">
         <LiveMap
           observations={visibleObservations}
+          sources={snapshot?.sources ?? []}
           selectedId={selectedObservation}
           highlightedIds={activeLayers.has("review-evidence") ? candidateEvidenceIds : undefined}
           onSelect={setSelectedObservation}
@@ -329,15 +331,15 @@ export default function LiveOperationsClient() {
           ))}
         </aside>
 
-        {selected && (
+        {selected && selectedCard && (
           <aside className="live-map-detail-overlay" aria-label="Selected evidence details" aria-live="polite">
-            <header><span className="truth-chip">Official live record</span><button type="button" aria-label="Close selected evidence" onClick={() => setSelectedObservation(null)}><CloseIcon /></button></header>
-            <h2>{observationTitle(selected)}</h2>
+            <header><div className="live-map-detail-status"><span className="truth-chip">Official live record</span><strong className={`state-${selectedCard.state.toLowerCase().replaceAll(" ", "-")}`}>{selectedCard.state}</strong></div><button type="button" aria-label="Close selected evidence" onClick={() => setSelectedObservation(null)}><CloseIcon /></button></header>
+            <h2>{selectedCard.title}</h2>
             <dl>
-              <div><dt>Source</dt><dd>{selectedSource?.name ?? selected.source_id}</dd></div>
-              <div><dt>Observed</dt><dd>{timeLabel(selected.observed_at)}</dd></div>
-              <div><dt>Freshness</dt><dd>{selected.freshness_state}</dd></div>
-              <div><dt>Weight</dt><dd>{selected.evidence_weight}</dd></div>
+              <div><dt>Value</dt><dd>{selectedCard.value}</dd></div>
+              <div><dt>Observed</dt><dd>{timeLabel(selectedCard.observed_at)}</dd></div>
+              <div><dt>Source</dt><dd>{selectedCard.source}</dd></div>
+              <div><dt>Evidence</dt><dd>{selectedCard.evidence}</dd></div>
             </dl>
             <details className="record-raw"><summary>Raw record</summary><pre>{JSON.stringify(selected.properties, null, 2)}</pre></details>
             <a href="/alerts">Open Signal Review</a>

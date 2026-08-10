@@ -110,6 +110,51 @@ test("clusters overlapping evidence only at broad map zoom", () => {
   assert.deepEqual(liveMapWorkspace.clusterMapPoints(points, 4).map(({ count }) => count), [1, 1, 1]);
 });
 
+test("projects every live map record into a compact label and value card", () => {
+  assert.equal(typeof liveMapWorkspace.buildLiveMapCard, "function");
+  const card = liveMapWorkspace.buildLiveMapCard({
+    id: "rain:karori:1",
+    source_id: "gwrc-hilltop",
+    kind: "hazard_measurement_observation",
+    observed_at: "2026-08-10T08:20:00.000Z",
+    freshness_state: "fresh",
+    evidence_weight: 2,
+    properties: {
+      site_id: "Karori Reservoir",
+      latest_rainfall: 7.4,
+      rainfall_6h: 42.1,
+      unit: "mm",
+    },
+  }, { name: "Greater Wellington rainfall" });
+
+  assert.deepEqual(card, {
+    title: "Karori Reservoir",
+    state: "Fresh",
+    value: "7.4 mm now · 42.1 mm / 6h",
+    source: "Greater Wellington rainfall",
+    observed_at: "2026-08-10T08:20:00.000Z",
+    evidence: "Weight 2",
+  });
+});
+
+test("summarises overlapping live records with tidy values", () => {
+  assert.equal(typeof liveMapWorkspace.buildLiveMapClusterCard, "function");
+  const card = liveMapWorkspace.buildLiveMapClusterCard([
+    { id: "quake:1", source_id: "geonet-quakes", kind: "earthquake_observation", properties: { locality: "Cook Strait", magnitude: 4.2, depth_km: 18 } },
+    { id: "sea:1", source_id: "geonet-tilde-wlgt", kind: "sea_level_measurement", properties: { value: 0.31, unit: "m" } },
+    { id: "road:1", source_id: "nzta-road-events", kind: "road_event_observation", properties: { name: "SH2 Petone", status: "Open", impact: "Caution" } },
+    { id: "rain:1", source_id: "gwrc-hilltop", kind: "hazard_measurement_observation", properties: { site_id: "Karori", latest_rainfall: 3, unit: "mm" } },
+  ]);
+
+  assert.equal(card.title, "4 nearby records");
+  assert.deepEqual(card.items, [
+    { title: "Cook Strait", value: "M4.2 · 18 km deep", source: "geonet quakes" },
+    { title: "sea level measurement", value: "0.31 m", source: "geonet tilde wlgt" },
+    { title: "SH2 Petone", value: "Open · Caution", source: "nzta road events" },
+  ]);
+  assert.equal(card.remaining, 1);
+});
+
 test("keeps Signal, Incident and Warning states independently human-controlled", async () => {
   const { createCaseWorkflow } = await import("../lib/caseWorkflow.mjs");
   const workflow = createCaseWorkflow({

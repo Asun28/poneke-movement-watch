@@ -6,6 +6,7 @@ export const LIVE_MAP_LAYERS = Object.freeze([
   { id: "reports", label: "Reports" },
   { id: "other-live", label: "Other live" },
 ]);
+const COMPACT_NUMBER_FORMAT = new Intl.NumberFormat("en-NZ", { maximumFractionDigits: 2 });
 
 function searchableObservation(observation, source) {
   return [
@@ -19,6 +20,84 @@ function searchableObservation(observation, source) {
     observation.properties?.site_id,
     observation.properties?.locality,
   ].filter(Boolean).join(" ").toLowerCase();
+}
+
+function humanise(value) {
+  return String(value ?? "").replaceAll("-", " ").replaceAll("_", " ").trim();
+}
+
+function capitalise(value) {
+  const label = humanise(value);
+  return label ? `${label[0].toUpperCase()}${label.slice(1)}` : "Unknown";
+}
+
+function hasValue(value) {
+  return value !== null && value !== undefined && value !== "";
+}
+
+function compactNumber(value) {
+  const number = Number(value);
+  return Number.isFinite(number) ? COMPACT_NUMBER_FORMAT.format(number) : String(value);
+}
+
+function liveObservationTitle(observation) {
+  return String(
+    observation.properties?.headline
+      ?? observation.properties?.name
+      ?? observation.properties?.site_id
+      ?? observation.properties?.locality
+      ?? humanise(observation.kind),
+  );
+}
+
+function liveObservationValue(observation) {
+  const properties = observation.properties ?? {};
+  const unit = hasValue(properties.unit) ? ` ${properties.unit}` : "";
+  if (hasValue(properties.latest_rainfall)) {
+    const latest = `${compactNumber(properties.latest_rainfall)}${unit}`;
+    return hasValue(properties.rainfall_6h)
+      ? `${latest} now · ${compactNumber(properties.rainfall_6h)}${unit} / 6h`
+      : latest;
+  }
+  if (hasValue(properties.value)) return `${compactNumber(properties.value)}${unit}`;
+  if (hasValue(properties.magnitude)) {
+    return hasValue(properties.depth_km)
+      ? `M${compactNumber(properties.magnitude)} · ${compactNumber(properties.depth_km)} km deep`
+      : `M${compactNumber(properties.magnitude)}`;
+  }
+  if (hasValue(properties.status) || hasValue(properties.impact)) {
+    return [properties.status, properties.impact].filter(hasValue).map(capitalise).join(" · ");
+  }
+  if (hasValue(properties.severity) || hasValue(properties.urgency)) {
+    return [properties.severity, properties.urgency].filter(hasValue).map(capitalise).join(" · ");
+  }
+  if (hasValue(properties.event_type)) return capitalise(properties.event_type);
+  if (hasValue(properties.direction)) return capitalise(properties.direction);
+  if (typeof properties.offline === "boolean") return properties.offline ? "Offline" : "Online";
+  return capitalise(observation.kind);
+}
+
+export function buildLiveMapCard(observation, source) {
+  return {
+    title: liveObservationTitle(observation),
+    state: capitalise(observation.freshness_state),
+    value: liveObservationValue(observation),
+    source: String(source?.name ?? humanise(observation.source_id)),
+    observed_at: observation.observed_at ?? null,
+    evidence: `Weight ${hasValue(observation.evidence_weight) ? observation.evidence_weight : "—"}`,
+  };
+}
+
+export function buildLiveMapClusterCard(observations, sources = []) {
+  const sourceById = new Map(sources.map((source) => [source.source_id, source]));
+  return {
+    title: `${observations.length} nearby records`,
+    items: observations.slice(0, 3).map((observation) => {
+      const card = buildLiveMapCard(observation, sourceById.get(observation.source_id));
+      return { title: card.title, value: card.value, source: card.source };
+    }),
+    remaining: Math.max(0, observations.length - 3),
+  };
 }
 
 export function classifyLiveObservationLayers(observation, source, candidateEvidenceIds = new Set()) {

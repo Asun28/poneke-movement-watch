@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { clusterMapPoints } from "../../lib/liveMapWorkspace.mjs";
+import { buildLiveMapCard, buildLiveMapClusterCard, clusterMapPoints } from "../../lib/liveMapWorkspace.mjs";
 
 type Coordinate = [number, number];
 type Observation = {
@@ -9,10 +9,14 @@ type Observation = {
   source_id: string;
   kind: string;
   observed_at: string | null;
+  freshness_state?: string;
+  evidence_weight?: number;
   geometry: { type: string; coordinates: unknown } | null;
   properties: Record<string, unknown>;
 };
-type Hit = { observation: Observation; x: number; y: number; radius: number; count: number };
+type MapSource = { source_id: string; name: string };
+type Hit = { observation: Observation; observations: Observation[]; x: number; y: number; radius: number; count: number };
+type HoveredHit = Hit & { horizontal: "left" | "right"; vertical: "above" | "below" };
 const EMPTY_IDS = new Set<string>();
 
 const TILE_SIZE = 256;
@@ -186,23 +190,29 @@ function drawCluster(context: CanvasRenderingContext2D, point: Coordinate, count
   return radius;
 }
 
-function observationLabel(observation: Observation) {
-  return String(
-    observation.properties.headline
-      ?? observation.properties.name
-      ?? observation.properties.site_id
-      ?? observation.properties.locality
-      ?? observation.kind.replaceAll("_", " "),
-  );
+function compactTimeLabel(value: string | null) {
+  if (!value) return "Unknown";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "Unknown";
+  return new Intl.DateTimeFormat("en-NZ", {
+    day: "numeric",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+    timeZone: "Pacific/Auckland",
+  }).format(date);
 }
 
 export default function LiveMap({
   observations,
+  sources = [],
   selectedId,
   highlightedIds = EMPTY_IDS,
   onSelect,
 }: {
   observations: Observation[];
+  sources?: MapSource[];
   selectedId: string | null;
   highlightedIds?: Set<string>;
   onSelect: (id: string) => void;
@@ -214,10 +224,16 @@ export default function LiveMap({
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState<Coordinate>([0, 0]);
   const [revision, setRevision] = useState(0);
-  const [hovered, setHovered] = useState<Hit | null>(null);
+  const [hovered, setHovered] = useState<HoveredHit | null>(null);
   const [fullscreenError, setFullscreenError] = useState("");
   const [isFullscreen, setIsFullscreen] = useState(false);
   const plottable = useMemo(() => observations.filter(observationAnchor), [observations]);
+  const sourceById = useMemo(() => new Map(sources.map((source) => [source.source_id, source])), [sources]);
+  const hoverCard = hovered
+    ? hovered.count > 1
+      ? buildLiveMapClusterCard(hovered.observations, sources)
+      : buildLiveMapCard(hovered.observation, sourceById.get(hovered.observation.source_id))
+    : null;
 
   useEffect(() => {
     const updateFullscreen = () => setIsFullscreen(Boolean(document.fullscreenElement));
@@ -253,7 +269,14 @@ export default function LiveMap({
         const radius = cluster.count > 1
           ? drawCluster(context, [cluster.x, cluster.y], cluster.count, highlighted)
           : drawMarker(context, [cluster.x, cluster.y], observation.kind, selected, highlighted);
-        return { observation, x: cluster.x, y: cluster.y, radius: radius + 7, count: cluster.count };
+        return {
+          observation,
+          observations: cluster.points.map((point) => point.observation),
+          x: cluster.x,
+          y: cluster.y,
+          radius: radius + 7,
+          count: cluster.count,
+        };
       });
     };
     draw();
@@ -282,10 +305,28 @@ export default function LiveMap({
       const dy = point[1] - drag.last[1];
       drag.last = point;
       drag.moved ||= Math.hypot(dx, dy) > 2;
+      setHovered(null);
       setPan(([x, y]) => [x + dx, y + dy]);
       return;
     }
-    setHovered(nearest(point));
+    const hit = nearest(point);
+    if (!hit) {
+      setHovered((current) => current ? null : current);
+      return;
+    }
+    const next: HoveredHit = {
+      ...hit,
+      horizontal: point[0] > event.currentTarget.clientWidth / 2 ? "left" : "right",
+      vertical: point[1] > event.currentTarget.clientHeight / 2 ? "above" : "below",
+    };
+    setHovered((current) => (
+      current?.observation.id === next.observation.id
+      && current.count === next.count
+      && current.horizontal === next.horizontal
+      && current.vertical === next.vertical
+        ? current
+        : next
+    ));
   }
 
   async function toggleFullscreen() {
@@ -309,6 +350,7 @@ export default function LiveMap({
         aria-hidden="true"
         onPointerDown={(event) => {
           event.currentTarget.setPointerCapture(event.pointerId);
+          setHovered(null);
           dragRef.current = { pointerId: event.pointerId, last: localPoint(event), moved: false };
         }}
         onPointerMove={handlePointerMove}
@@ -337,10 +379,37 @@ export default function LiveMap({
           <span className="ops-map-fullscreen-glyph" aria-hidden="true" />
         </button>
       </div>
-      {hovered && (
-        <div className="ops-map-hover" style={{ left: Math.min(hovered.x + 14, 520), top: Math.max(16, hovered.y - 32) }}>
-          <strong>{hovered.count > 1 ? `${hovered.count} nearby records` : observationLabel(hovered.observation)}</strong>
-          <span>{hovered.count > 1 ? "Select to zoom in" : hovered.observation.source_id.replaceAll("-", " ")}</span>
+      {hovered && hoverCard && (
+        <div
+          className={`ops-map-hover is-${hovered.horizontal} is-${hovered.vertical} ${hovered.count > 1 ? "is-cluster" : "is-record"}`}
+          data-live-hover-card="compact-values"
+          aria-hidden="true"
+          style={{ left: hovered.x, top: hovered.y }}
+        >
+          {hovered.count > 1 ? (
+            <>
+              <header><strong>{hoverCard.title}</strong><span>{hovered.count}</span></header>
+              <ul>
+                {hoverCard.items.map((item: { title: string; value: string; source: string }, index: number) => (
+                  <li key={`${index}:${item.source}:${item.title}`}>
+                    <span><strong>{item.title}</strong><small>{item.source}</small></span>
+                    <b>{item.value}</b>
+                  </li>
+                ))}
+              </ul>
+              {hoverCard.remaining > 0 && <footer>+{hoverCard.remaining}</footer>}
+            </>
+          ) : (
+            <>
+              <header><span className={`state-${hoverCard.state.toLowerCase().replaceAll(" ", "-")}`}>{hoverCard.state}</span><small>{hoverCard.evidence}</small></header>
+              <strong className="ops-map-hover-title">{hoverCard.title}</strong>
+              <dl>
+                <div><dt>Value</dt><dd>{hoverCard.value}</dd></div>
+                <div><dt>Source</dt><dd>{hoverCard.source}</dd></div>
+                <div><dt>Observed</dt><dd>{compactTimeLabel(hoverCard.observed_at)}</dd></div>
+              </dl>
+            </>
+          )}
         </div>
       )}
       <div className="ops-map-legend" aria-label="Map symbol legend">
