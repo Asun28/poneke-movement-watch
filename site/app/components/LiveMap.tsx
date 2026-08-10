@@ -348,7 +348,7 @@ export default function LiveMap({
         <span><i className="hazard" /> Hazard</span>
         <span><i className="context" /> Context</span>
       </div>
-      <a className="ops-map-attribution" href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© OpenStreetMap contributors</a>
+      <a className="ops-map-attribution" data-corner="bottom-left" href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© OpenStreetMap contributors</a>
       {fullscreenError && <p className="ops-map-error" role="status">{fullscreenError}</p>}
     </div>
   );

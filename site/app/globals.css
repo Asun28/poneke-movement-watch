@@ -2485,7 +2485,7 @@ h1, h2, h3, h4, h5 { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-seri
   white-space: nowrap;
 }
 .live-map-workspace .ops-map-legend { display: none; }
-.live-map-workspace .ops-map-attribution { right: 50%; bottom: 8px; transform: translateX(50%); border: 0; }
+.live-map-workspace .ops-map-attribution { right: auto; bottom: 8px; left: 8px; transform: none; border: 0; }
 .live-map-workspace .ops-map-hover { border-color: rgba(9,30,66,.2); border-radius: 8px; box-shadow: 0 3px 12px rgba(9,30,66,.18); }
 
 @media (max-width: 1180px) {
@@ -2503,7 +2503,6 @@ h1, h2, h3, h4, h5 { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-seri
   .live-map-context-overlay { top: 122px; right: 8px; left: 8px; width: auto; max-height: 520px; }
   .live-map-detail-overlay { right: 8px; bottom: 174px; left: 8px; width: auto; max-height: 42%; }
   .live-map-workspace .ops-map-controls { top: auto; right: 8px; bottom: 42px; }
-  .live-map-workspace .ops-map-attribution { right: 8px; transform: none; }
 }
 
 @media (max-width: 520px) {
