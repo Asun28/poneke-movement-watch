@@ -115,6 +115,24 @@ test("makes model authority and mock alert exclusion explicit", async () => {
   assert.match(html, /Context/);
 });
 
+test("provides a focused editable review ticket without changing system truth", async () => {
+  const response = await request("/alerts");
+  assert.equal(response.status, 200);
+  const html = await response.text();
+
+  assert.match(html, /aria-label="Alert ticket queue"/);
+  assert.match(html, /Search tickets/);
+  assert.match(html, /Filter by review status/);
+  assert.match(html, /Review status/);
+  assert.match(html, /Assigned to/);
+  assert.match(html, /Review note/);
+  assert.match(html, /Save local draft/);
+  assert.match(html, /This browser only/);
+  assert.match(html, /System severity/);
+  assert.match(html, /Observed/);
+  assert.doesNotMatch(html, /name="severity"/);
+});
+
 test("keeps routine screens concise and moves guidance into closed help", async () => {
   for (const path of ["/live", "/alerts", "/replay", "/integration", "/setup"]) {
     const html = await (await request(path)).text();

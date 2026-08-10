@@ -323,3 +323,11 @@
   Data Integration.
 - Verified the six-route production build, 32 site tests, lint and 22 Python
   regression tests.
+# Phase 16 — compact alert review queue
+
+- 2026-08-10: Audited the alert contract, current review component, CSS and rendered behavior tests.
+- 2026-08-10: Set the safe boundary: editable status, assignee and note are device-local review drafts; model severity, evidence and source truth remain read-only.
+- 2026-08-10: TDD RED confirmed the old Alert Centre lacked the compact ticket queue and editable review controls.
+- 2026-08-10: Implemented queue search/status filters, focused ticket selection, browser-local review drafts and compact read-only evidence cards.
+- 2026-08-10: Focused production build and all 10 operator-console behaviors pass.
+- 2026-08-10: Final verification passes: production build, 36 site tests, ESLint, 22 Python tests and whitespace checks. Textarea focus, 44px controls, mock zero-weight and read-only system truth remain explicit.

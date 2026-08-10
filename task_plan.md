@@ -1,5 +1,59 @@
 # Pōneke Movement Watch — evidence ontology roadmap
 
+## Phase 16 — compact human review ticket workbench
+
+### Goal
+
+Turn Alert Centre into a focused Jira-style review queue for routine emergency
+operations while keeping model evidence, source truth and severity immutable.
+
+### Status
+
+- [completed] Audit the alert candidate contract, current queue UI and persistence boundary.
+- [completed] Add failing rendered-behavior tests for compact triage and editable review drafts.
+- [completed] Implement search/filter, queue selection and editable status, assignee and note fields.
+- [completed] Replace the oversized alert layout with a dense responsive ticket workbench.
+- [completed] Verify accessibility, truth-state boundaries and full site regressions.
+
+### Acceptance criteria
+
+- Operators can scan a compact queue, search by ticket text and filter by review state.
+- Selecting a row opens one focused ticket with title, source, observed time, severity and evidence first.
+- Review status, assignee and note are editable and can be saved as a clearly local browser draft.
+- System severity, source, epistemic state and evidence remain visually and semantically read-only.
+- Mock preview remains labelled zero evidence and cannot become a confirmed alert.
+- Controls remain keyboard reachable, visibly labelled and at least 44px high; mobile avoids horizontal overflow.
+
+### Assumptions and exclusions
+
+- Browser storage is appropriate only for an explicit device-local review draft; it is not shared persistence.
+- No D1 schema, authentication, API mutation, dispatch, notification or alert-confirmation workflow is added.
+- Review status is an operator draft separate from the source candidate's read-only review state.
+- Existing civic palette, source contract, model policy and owner-only deployment access remain unchanged.
+
+### File-level plan
+
+- `site/tests/operator-console.test.mjs`: rendered behavior for ticket controls and truth boundary.
+- `site/app/components/AlertCentreClient.tsx`: compact queue, selection, filtering and local draft form.
+- `site/app/globals.css`: dense two-pane ticket layout, focus, feedback and responsive treatment.
+- `README.md`, `findings.md`, `progress.md`: persistence and verification boundary.
+
+### Rejected major alternatives
+
+- Do not make severity, evidence or source fields editable.
+- Do not add a database or pretend browser-local notes are shared with other reviewers.
+- Do not introduce drag-and-drop boards; a queue/detail workflow better fits fast review and keyboard use.
+
+### Errors encountered
+
+| Error | Attempt | Resolution |
+|---|---:|---|
+| A combined six-skill read exceeded the tool output limit. | 1 | Re-read every selected skill and required reference separately before acting. |
+| The first hosting metadata read used the repository root instead of the site root. | 1 | Use `site/.openai/hosting.json`; no project file was changed. |
+| The first specialised UX database query returned no match. | 1 | Retry with broader list-detail and form terms, then use the documented general UX rules if still unmatched. |
+
+---
+
 ## Phase 15 — concise day-to-day operator mode
 
 ### Goal

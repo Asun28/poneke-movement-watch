@@ -794,3 +794,13 @@ supports spatial event-footprint resolution, never direct building-damage claims
 - A public browser form must not accept or persist credential values. The setup
   page records only a server-side secret reference and leaves evidence weight at
   zero until activation is approved.
+# Phase 16 — alert ticket workbench findings
+
+- The alert endpoint is read-only and the current hosting contract has no review-record persistence surface; a truthful device-local draft is the smallest safe editable workflow.
+- Candidate severity, source, observed time, epistemic state and evidence are system facts. Operators should edit only disposition, assignment and notes.
+- The current `300px + detail` structure is usable but oversized: a 680px forced height, 28–44px headings and 145px evidence cards reduce queue scan speed.
+- A master-detail queue is a better fit than a Kanban board: it keeps one case in focus, preserves keyboard selection and avoids drag-only interaction.
+- Existing mock candidate data must remain visibly synthetic and zero-weight even when its local review draft is edited.
+- The specialised incident-queue UX query had no database match. The applicable built-in defaults are visible form labels, read-only distinction, 44px controls, inline success feedback, preserved loading space and no reliance on drag or hover.
+- The site uses React 19/vinext and has no D1 or R2 binding. Existing Setup code already establishes the browser-only draft convention to reuse without adding infrastructure.
+- The broader UX search matched keyboard navigation, visible focus, submit feedback and a useful no-results recovery. Product guidance favours a data-dense drill-down layout, consistent with the selected queue/detail design.

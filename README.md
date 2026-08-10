@@ -82,7 +82,7 @@ flowchart LR
 | Route | Module | Purpose |
 |---|---|---|
 | `/live` | Live Operations | Map current permitted observations and distinguish live, empty, stale and unavailable sources. |
-| `/alerts` | Alert Centre | Review deterministic candidates with supporting, contradicting, missing and context evidence. |
+| `/alerts` | Alert Centre | Search a compact ticket queue, assign local review drafts and inspect read-only evidence. |
 | `/replay` | Replay Analyzer | Reconstruct the 2026 WCC sensor history with date/hour/speed and matched-hour trends. |
 | `/integration` | Data Integration | Inspect all 33 provider contracts, access/cost state, raw format and runtime policy. |
 | `/setup` | Easy setup | Prepare a data source, API/MCP/A2A connection or operator defaults as a safe local draft. |
@@ -90,6 +90,12 @@ flowchart LR
 Routine screens are task-first: select a source, marker, candidate or setup
 section. Page guidance is closed under **Help**. Technical APIs, ontology and
 full replay evidence are closed under **Advanced** or **Evidence review**.
+
+Alert Centre uses a queue-and-ticket workflow. Operators can edit review status,
+assignee and notes, then save a draft on the current browser. Severity, source,
+observation time and evidence remain read-only. These drafts are not shared
+records; a production multi-user queue still requires authenticated server-side
+storage and audit history.
 
 ### Easy setup
 
