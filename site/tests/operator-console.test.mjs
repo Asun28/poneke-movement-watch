@@ -102,6 +102,33 @@ test("keeps every operator route task-first without tutorial copy", async () => 
   assert.match(html, /Call 111 for immediate danger/);
 });
 
+test("uses concise production workflows across review, integration, ontology and setup", async () => {
+  const review = await (await request("/alerts")).text();
+  const integration = await (await request("/integration")).text();
+  const ontology = await (await request("/ontology")).text();
+  const setup = await (await request("/setup")).text();
+
+  assert.match(review, /data-operator-workflow="signal-master-detail"/);
+  assert.match(review, /data-review-surface="queue"/);
+  assert.match(review, /data-review-surface="evidence-workspace"/);
+  assert.match(review, /role="tab" aria-selected="true"[^>]*>Evidence<\/button>/);
+
+  assert.match(integration, /data-operator-workflow="source-master-detail"/);
+  assert.match(integration, /aria-label="Source list"/);
+  assert.match(integration, /aria-label="Selected source details"/);
+  assert.equal((integration.match(/data-source-list-item=/g) ?? []).length, 33);
+
+  assert.match(ontology, /data-operator-workflow="ontology-step-inspector"/);
+  assert.match(ontology, /aria-label="Six ontology steps"/);
+  assert.equal((ontology.match(/data-ontology-step=/g) ?? []).length, 6);
+  assert.match(ontology, /data-ontology-step-panel="sources"/);
+
+  assert.match(setup, /data-operator-workflow="guided-setup"/);
+  assert.match(setup, /data-setup-progress="0\/3"/);
+  assert.match(setup, />Save and continue<\/button>/);
+  assert.doesNotMatch(setup, /class="setup-boundary"/);
+});
+
 test("announces live and alert loading without presenting provisional zeroes", async () => {
   const live = await (await request("/live")).text();
   const alerts = await (await request("/alerts")).text();
@@ -422,12 +449,13 @@ test("offers an expandable ontology-aware fusion architecture without replacing 
   assert.doesNotMatch(html, /Operational chain remains the default/);
 });
 
-test("labels every integration field for a complete phone-sized source record", async () => {
+test("keeps every source reachable while showing one phone-sized source detail", async () => {
   const html = await (await request("/integration")).text();
-  const labels = ["Source", "Ontology role", "Source truth", "Access &amp; cost", "Runtime health", "Provider format"];
+  const labels = ["Used in", "Ontology role", "Source truth", "Access &amp; cost", "Runtime health", "Provider format"];
 
-  for (const label of labels) assert.match(html, new RegExp(`data-label="${label}"`), label);
-  assert.equal((html.match(/data-label=/g) ?? []).length, 33 * labels.length);
+  for (const label of labels) assert.match(html, new RegExp(`data-detail-label="${label}"`), label);
+  assert.equal((html.match(/data-source-list-item=/g) ?? []).length, 33);
+  assert.doesNotMatch(html, /class="integration-table"/);
 });
 
 test("provides a friendly Replay investigation source workspace", async () => {

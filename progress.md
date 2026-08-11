@@ -1,5 +1,29 @@
 # Progress — Phase 2 ontology and sources
 
+## Phase 52 — Production operator workflow refactor
+
+- Audited the four deployed operator pages, shared shell, CSS overrides, behavior tests and current
+  data/authority boundaries. Scope is fixed to information architecture and interaction polish.
+- UI guidance confirms a low-variance, low-motion, high-density public-sector workspace. The
+  implementation will reuse the existing civic tokens and Phosphor icons rather than add a library.
+- Acceptance and file scope are recorded. TDD RED is next; no data, model, ontology or API mutation
+  is authorised.
+- TDD RED is verified: the production build succeeds and 100/102 existing behaviors remain green;
+  only the two new workflow contracts fail because the old table/document layouts lack the new
+  master-detail, step-inspector and guided-setup surfaces.
+- A direct focused Node rerun hit the known sandbox child-process `EPERM`; the authoritative full
+  `npm test` run already produced the expected RED result, so implementation proceeds from that
+  evidence rather than retrying the same blocked invocation.
+- TDD GREEN is complete. Signal Review now uses an evidence-first queue/ticket workspace; Data
+  Integration uses a searchable 33-source list and selected contract; Ontology uses a six-step
+  inspector while preserving its advanced graph; Setup uses a guided three-step draft flow.
+- The final production build and all 102 tests pass. ESLint passes. Browser checks at 1440×900,
+  375×812 and 812×375 found no page-level overflow or clipped controls on any of the four pages.
+- Interaction checks passed for source selection/search, ontology step selection, Setup
+  Save-and-continue and Signal Review tab state. A temporary Setup QA draft was cleared afterward.
+- Final owner-only Sites publication is the remaining step. GitHub origin and remote `main` remain
+  outside scope.
+
 ## Phase 51 — April movement evidence detail and history
 
 - Audited the packaged April movement outcome file: all 2,903 candidates contain real

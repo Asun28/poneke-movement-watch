@@ -124,6 +124,13 @@ remain compact and visible. Every module uses the same title bar, spacing and pa
 hierarchy; technical APIs, the raw graph and replay evidence stay under **Advanced**
 or **Evidence review**.
 
+The four administration workspaces use one consistent operating pattern:
+**Signal Review** is an evidence-first queue and ticket view; **Data Integration** is a
+searchable source list with one selected contract; **City Ontology** is a six-step rail
+with one focused evidence panel; and **Easy setup** is a three-step draft flow with
+visible progress and **Save and continue**. These layouts change presentation only and
+do not activate sources, change evidence weight or grant warning authority.
+
 Signal Review uses a compact issue-details workflow: investigation content stays in
 the main column while status, assignment, timing and read-only signal facts stay in
 a tidy detail rail. It keeps three independent states: **Signal**, **Incident** and
@@ -178,10 +185,12 @@ audit logging and approval workflow.
 ### Easy setup
 
 Open **Setup** from the left navigation or **Add source** in Data
-Integration. Complete only the visible fields and save each section. Drafts stay
-in that browser. Enter a secret reference such as `METLINK_API_KEY`, never the
-secret value. A saved draft has zero evidence weight until a server-side adapter,
-credential, connection test and human approval are complete.
+Integration. Follow the three visible steps—data source, connection and operations
+settings. **Save and continue** advances the draft while the progress strip shows
+what remains. Drafts stay in that browser. Enter a secret reference such as
+`METLINK_API_KEY`, never the secret value. A saved draft has zero evidence weight
+until a server-side adapter, credential, connection test and human approval are
+complete.
 
 For a specific investigation, open **Replay → Layers → Add source**. This shorter
 form manages the case's source basket and module assignment without modifying the

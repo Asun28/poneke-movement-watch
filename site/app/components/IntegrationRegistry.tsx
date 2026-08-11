@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { Database, MagnifyingGlass, Plus } from "@phosphor-icons/react";
 import { operationsTargetLabel } from "../../lib/sourceOperations.mjs";
 
 type Contract = {
@@ -45,22 +46,39 @@ function accessLabel(contract: Contract) {
 export default function IntegrationRegistry({ contracts }: { contracts: Contract[] }) {
   const [query, setQuery] = useState("");
   const [target, setTarget] = useState("all");
+  const [selectedId, setSelectedId] = useState(contracts[0]?.source_id ?? "");
   const filtered = useMemo(() => contracts.filter((contract) => {
     const matchesTarget = target === "all" || contract.operations_target === target;
     const haystack = `${contract.name} ${contract.source_id} ${contract.role} ${operationsTargetLabel(contract.operations_target)}`.toLowerCase();
     return matchesTarget && haystack.includes(query.toLowerCase());
   }), [contracts, target, query]);
+  const selected = filtered.find((contract) => contract.source_id === selectedId) ?? filtered[0] ?? null;
+  const summary = useMemo(() => ({
+    live: contracts.filter((contract) => contract.connector_mode === "live").length,
+    replay: contracts.filter((contract) => contract.connector_mode === "batch").length,
+    mock: contracts.filter((contract) => contract.connector_mode === "mock").length,
+  }), [contracts]);
 
   return (
-    <section className="integration-registry" aria-labelledby="integration-registry-heading">
+    <section
+      className="integration-registry"
+      aria-labelledby="integration-registry-heading"
+      data-operator-workflow="source-master-detail"
+    >
       <div className="integration-toolbar">
-        <div>
+        <div className="integration-heading">
+          <Database size={20} weight="duotone" aria-hidden="true" />
           <h2 id="integration-registry-heading">33 source contracts</h2>
+          <dl className="integration-summary" aria-label="Source contract summary">
+            <div><dt>Live</dt><dd>{summary.live}</dd></div>
+            <div><dt>Replay</dt><dd>{summary.replay}</dd></div>
+            <div><dt>Mock</dt><dd>{summary.mock}</dd></div>
+          </dl>
         </div>
         <div className="integration-filters">
           <label>
-            <span>Search sources</span>
-            <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Name, role or ID" />
+            <span><MagnifyingGlass size={14} aria-hidden="true" /> Search</span>
+            <input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Name, role or ID" />
           </label>
           <label>
             <span>Used in</span>
@@ -75,57 +93,68 @@ export default function IntegrationRegistry({ contracts }: { contracts: Contract
               <option value="integration_only">Integration only</option>
             </select>
           </label>
-          <a className="integration-setup-link" href="/setup">Add source</a>
+          <a className="integration-setup-link" href="/setup"><Plus size={16} aria-hidden="true" /> Add source</a>
         </div>
       </div>
 
-      <div className="integration-table-wrap">
-        <table className="integration-table">
-          <thead>
-            <tr>
-              <th>Source</th>
-              <th>Ontology role</th>
-              <th>Source truth</th>
-              <th>Access &amp; cost</th>
-              <th>Runtime health</th>
-              <th>Provider format</th>
-            </tr>
-          </thead>
-          <tbody>
+      <div className="integration-master-detail">
+        <aside className="integration-source-list" aria-label="Source list">
+          <header><strong>{filtered.length} sources</strong><span>{target === "all" ? "All modules" : operationsTargetLabel(target)}</span></header>
+          <div>
             {filtered.map((contract) => (
-              <tr key={contract.source_id} data-source-contract={contract.source_id}>
-                <td data-label="Source">
+              <button
+                type="button"
+                key={contract.source_id}
+                data-source-list-item={contract.source_id}
+                data-source-contract={contract.source_id}
+                aria-pressed={selected?.source_id === contract.source_id}
+                onClick={() => setSelectedId(contract.source_id)}
+              >
+                <span className={`source-mode-dot mode-${contract.connector_mode}`} aria-hidden="true" />
+                <span className="integration-source-name">
                   <strong>{contract.name}</strong>
-                  <span className={`operations-target target-${contract.operations_target}`}>
-                    {contract.operations_target === "integration_only"
-                      ? operationsTargetLabel(contract.operations_target)
-                      : `${operationsTargetLabel(contract.operations_target)} source`}
-                  </span>
-                  <code>{contract.source_id}</code>
-                </td>
-                <td data-label="Ontology role">{contract.role.replaceAll("_", " ")}</td>
-                <td data-label="Source truth">
-                  <span className={`contract-mode mode-${contract.connector_mode}`}>{connectorLabel(contract)}</span>
-                  <small>{contract.truth.data_2026_status.replaceAll("_", " ")}</small>
-                </td>
-                <td data-label="Access & cost">
-                  <strong>{accessLabel(contract)}</strong>
-                  <small>{contract.licence === "not_stated" ? "Licence not stated" : contract.licence}</small>
-                </td>
-                <td data-label="Runtime health">
-                  <span className={`runtime-state state-${contract.runtime_default}`}>{contract.runtime_default.replaceAll("_", " ")}</span>
-                  <small>{contract.freshness_seconds ? `${contract.freshness_seconds}s freshness target` : "No live freshness target"}</small>
-                </td>
-                <td data-label="Provider format">
-                  <strong>{contract.raw_format}</strong>
-                  <small>{contract.endpoint ? "Official endpoint registered" : "No public endpoint called"}</small>
-                </td>
-              </tr>
+                  <small>{contract.source_id} · {contract.operations_target === "integration_only" ? operationsTargetLabel(contract.operations_target) : `${operationsTargetLabel(contract.operations_target)} source`}</small>
+                </span>
+                <span className={`contract-mode mode-${contract.connector_mode}`}>{connectorLabel(contract)}</span>
+              </button>
             ))}
-          </tbody>
-        </table>
+          </div>
+          {!filtered.length && <p className="ops-state">No matching sources.</p>}
+        </aside>
+
+        <article className="integration-source-detail" aria-label="Selected source details" aria-live="polite">
+          {selected ? (
+            <>
+              <header>
+                <div><span>Source contract</span><h3>{selected.name}</h3><code>{selected.source_id}</code></div>
+                <div className="integration-detail-status">
+                  <span className={`contract-mode mode-${selected.connector_mode}`}>{connectorLabel(selected)}</span>
+                  <span className={`runtime-state state-${selected.runtime_default}`}>{selected.runtime_default.replaceAll("_", " ")}</span>
+                </div>
+              </header>
+              <dl className="integration-detail-grid">
+                <div data-detail-label="Used in"><dt>Used in</dt><dd>{selected.operations_target === "integration_only" ? operationsTargetLabel(selected.operations_target) : `${operationsTargetLabel(selected.operations_target)} source`}</dd></div>
+                <div data-detail-label="Ontology role"><dt>Ontology role</dt><dd>{selected.role.replaceAll("_", " ")}</dd></div>
+                <div data-detail-label="Source truth"><dt>Source truth</dt><dd><strong>{selected.truth.data_2026_status.replaceAll("_", " ")}</strong><span>Evidence weight {selected.evidence_weight}</span></dd></div>
+                <div data-detail-label="Access &amp; cost"><dt>Access &amp; cost</dt><dd><strong>{accessLabel(selected)}</strong><span>{selected.licence === "not_stated" ? "Licence not stated" : selected.licence}</span></dd></div>
+                <div data-detail-label="Runtime health"><dt>Runtime health</dt><dd><strong>{selected.runtime_default.replaceAll("_", " ")}</strong><span>{selected.freshness_seconds ? `${selected.freshness_seconds}s freshness target` : "No live freshness target"}</span></dd></div>
+                <div data-detail-label="Provider format"><dt>Provider format</dt><dd><strong>{selected.raw_format}</strong><span>{selected.endpoint ? "Official endpoint registered" : "No public endpoint called"}</span></dd></div>
+              </dl>
+              {(selected.notes || selected.endpoint) && (
+                <details className="integration-technical-detail">
+                  <summary>Technical details</summary>
+                  {selected.notes && <p>{selected.notes}</p>}
+                  {selected.endpoint && <code>{selected.endpoint}</code>}
+                </details>
+              )}
+              <footer>
+                <span>{selected.alert_eligible ? "Eligible for human review" : "Not alert eligible"}</span>
+                <a href="/setup">Configure source</a>
+              </footer>
+            </>
+          ) : <div className="integration-empty-detail"><strong>No source selected</strong><span>Change the filters to view a contract.</span></div>}
+        </article>
       </div>
-      {!filtered.length && <p className="ops-state">No source contracts match these filters.</p>}
     </section>
   );
 }

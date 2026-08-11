@@ -1840,3 +1840,29 @@ supports spatial event-footprint resolution, never direct building-damage claims
 - 2026-08-11: The final contract keeps `role: retrospective_outcome_only` unchanged and adds only
   `presentation_role: primary_investigation_subject`. This avoids turning visual priority into a new
   evidence class while still making movement first in the ordered layer list.
+# Phase 52 — Production operator workflow refactor
+
+- The four requested pages already share `OperatorShell`, civic tokens, Segoe UI and Phosphor icons,
+  but their inner information architectures diverge: Signal Review is master-detail, Integration is
+  a 1,120px table, Ontology is a long six-card document, and Setup is a three-tab form with a separate
+  status and boundary stack.
+- Current behavior contracts are strong and must be preserved: Evidence is already the first Signal
+  Review tab; all 33 source contracts expose truth/access/runtime separately; Ontology keeps six
+  layers, zoom and human-authority boundaries; Setup stores only browser-local drafts.
+- The highest-confidence production pattern is one shared task-first language: compact command bar,
+  list or step rail, one focused detail surface, and progressive disclosure for technical data.
+- Public-sector operations guidance favours low variance, subtle motion, high density, 44px targets,
+  visible labels, inline status, no colour-only state and no decorative animation. The existing
+  Atlassian-like civic palette is a better fit than the design search's marketing-oriented oversized
+  typography recommendation.
+- Data Integration's horizontal table is the clearest usability defect. A searchable source list
+  with a selected-source inspector removes horizontal scanning while keeping every contract field.
+- Ontology's six levels should remain top-to-bottom as requested, but only one level needs expanded
+  operational detail at a time. The fusion architecture remains the advanced zoomable graph.
+- Setup needs workflow continuity, not more help text: Save and continue, compact progress and one
+  local/activation status line are sufficient while retaining visible labels and advanced fields.
+- The refactor fits without a new design dependency. Existing state and APIs can project directly
+  into the four focused workflows, which avoids schema, evidence, model and authority changes.
+- Final responsive checks confirm the same information hierarchy works on desktop, phone and
+  landscape without horizontal overflow. Selected state uses text/shape as well as colour, visible
+  controls retain 44px targets, and reduced-motion rules disable the new micro-transitions.

@@ -1509,6 +1509,68 @@ data semantics or external side effects.
 | Python regression temp directories were blocked by the Windows sandbox. | 2 | Ran the same 22-test suite with an explicit repository-local basetemp outside the sandbox, then removed both verified temp directories. |
 
 ---
+
+## Phase 52 — Production operator workflow refactor
+
+### Goal
+
+Refactor Signal Review, Data Integration, City Ontology and Easy Setup into one concise,
+task-first operator experience that is smooth on desktop and mobile without changing evidence,
+model, ontology, API or human-authority contracts.
+
+### Status
+
+- [completed] Audit current page structure, responsive rules, tests and shared visual system.
+- [completed] Add failing rendered behavior contracts for the four production workflows.
+- [completed] Implement the shared master-detail, step-inspector and guided-setup layouts.
+- [completed] Run focused and full regression, accessibility and responsive browser checks.
+- [in_progress] Publish the exact validated build to the existing owner-only deployment.
+
+### Acceptance criteria
+
+- Signal Review keeps Evidence first and presents one compact queue, signal header, workflow and
+  editable detail surface without hiding truth, authority or Mock state.
+- Data Integration replaces the six-column horizontal table with a searchable source list and one
+  readable selected-source detail panel; all 33 contracts remain reachable.
+- City Ontology presents all six operational layers as a compact step rail with one focused detail
+  surface, while retaining the expandable fusion graph, zoom, provenance inspector and source paths.
+- Setup behaves as one three-step guided flow with compact progress, visible field labels, clear
+  browser-only activation state and a primary Save-and-continue action.
+- Desktop, 375px mobile and landscape layouts have no page-level horizontal overflow; focus,
+  selected and disabled states do not rely on colour alone; interactive targets remain 44px.
+
+### Assumptions and exclusions
+
+- Current civic palette, Segoe UI typography, Phosphor icon family and operator navigation remain.
+- This phase changes information architecture and presentation only. No source activation, durable
+  storage, authentication, external write, warning issue, evidence weight or training is added.
+- Mock, permission, paid, stale and browser-local boundaries remain visible at the point of action.
+- GitHub origin and remote `main` remain unchanged.
+
+### File-level implementation plan
+
+- `site/app/components/AlertCentreClient.tsx`: compact queue, signal identity and detail hierarchy.
+- `site/app/components/IntegrationRegistry.tsx`: accessible master-detail source workspace.
+- `site/app/components/OntologyDashboard.tsx`: six-step operational inspector plus existing graph.
+- `site/app/components/SetupClient.tsx`: guided steps and save/continue workflow.
+- `site/app/globals.css`: shared production workspace rhythm and responsive states.
+- `site/tests/operator-console.test.mjs`: rendered behavior contracts for all four workflows.
+- `findings.md`, `progress.md`, `README.md`: record UX decisions, limits and verification.
+
+### Rejected major alternatives
+
+- Do not adopt or recreate a second design system. The existing civic interface already has the
+  required tokens, icon family and accessibility conventions.
+- Do not hide truth, access, evidence or authority fields merely to make a page shorter; move
+  secondary technical content behind explicit progressive disclosure instead.
+
+### Errors encountered
+
+| Error | Attempt | Resolution |
+|---|---:|---|
+| Focused `node --test` could not spawn its worker in the sandbox (`EPERM`) | 1 | Use the completed full `npm test` RED run and do not repeat the blocked direct invocation. |
+
+---
 ## Phase 44 — Mobile Live map decluttering
 
 ### Goal

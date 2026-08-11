@@ -399,8 +399,8 @@ export default function AlertCentreClient() {
   }
 
   return (
-    <section className="alert-centre-grid">
-      <aside className="alert-queue" aria-label="Signal review queue" aria-busy={state === "loading"}>
+    <section className="alert-centre-grid" data-operator-workflow="signal-master-detail">
+      <aside className="alert-queue" data-review-surface="queue" aria-label="Signal review queue" aria-busy={state === "loading"}>
         <header className="alert-queue-header">
           <h2>Review queue</h2>
           <output>{queueCounts[activeQueue]}</output>
@@ -435,7 +435,7 @@ export default function AlertCentreClient() {
         </div>
       </aside>
 
-      <article className="alert-review-panel" aria-labelledby="alert-ticket-title">
+      <article className="alert-review-panel" data-review-surface="evidence-workspace" aria-labelledby="alert-ticket-title">
         <header className="alert-ticket-header">
           <div className="alert-ticket-identity">
             <span className={selected ? "truth-chip" : "mock-chip"}>{selected ? "Evidence candidate · unreviewed" : "Mock · not a live alert"}</span>
@@ -563,14 +563,14 @@ export default function AlertCentreClient() {
                 <label><span>Next review</span><input type="datetime-local" value={activeCase.nextReview} onChange={(event) => changeCase({ nextReview: event.target.value })} /></label>
                 <label><span>Classification <small>Human outcome</small></span><select name="classification" value={activeReview.classification} onChange={(event) => changeReview({ classification: event.target.value as ReviewClassification })}>{REVIEW_CLASSIFICATIONS.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}</select></label>
               </fieldset>
-              <section className="alert-classification-guidance" aria-label="Classification guidance" aria-live="polite">
-                <strong>{classification.label}</strong>
+              <details className="alert-classification-guidance">
+                <summary><strong>{classification.label}</strong><span>Guidance</span></summary>
                 <dl>
                   <div><dt>Meaning</dt><dd>{classification.meaning}</dd></div>
                   <div><dt>Next step</dt><dd>{classification.next_step}</dd></div>
                 </dl>
-                <span>{classification.training_use === "review_candidate" ? "Governed review candidate" : "Excluded from model feedback"} · Not trained automatically</span>
-              </section>
+                <p>{classification.training_use === "review_candidate" ? "Governed review candidate" : "Excluded from model feedback"} · Not trained automatically</p>
+              </details>
               <div className="alert-detail-actions"><button type="submit">Update details</button><span aria-live="polite">{notice || (activeCase.updatedAt ? "Saved locally" : "This browser only")}</span></div>
             </form>
 

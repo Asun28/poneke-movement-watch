@@ -35,7 +35,7 @@ export default function SetupClient() {
   const [active, setActive] = useState<SetupSection>("source");
   const [connectionKind, setConnectionKind] = useState<ConnectionKind>("api");
   const [saved, setSaved] = useState<SavedDraft>({});
-  const [notice, setNotice] = useState("Draft not saved");
+  const [notice, setNotice] = useState("Not saved");
   const [sourceIconMode, setSourceIconMode] = useState<SourceIconMode>("auto");
   const [sourceCustomIcon, setSourceCustomIcon] = useState<string | null>(null);
 
@@ -56,10 +56,10 @@ export default function SetupClient() {
           }, "Car", "");
           setSourceIconMode(storedMode === "custom" && !descriptor.custom_icon_data_url ? "auto" : storedMode);
           setSourceCustomIcon(descriptor.custom_icon_data_url);
-          setNotice("Saved on this browser");
+          setNotice("Saved locally");
         }
       } catch {
-        setNotice("Browser storage unavailable");
+        setNotice("Storage unavailable");
       }
     }, 0);
     return () => window.clearTimeout(timer);
@@ -75,7 +75,9 @@ export default function SetupClient() {
     try {
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
       setSaved(next);
-      setNotice("Saved on this browser");
+      setNotice("Saved locally");
+      const currentIndex = sections.findIndex((item) => item.id === section);
+      if (currentIndex >= 0 && currentIndex < sections.length - 1) setActive(sections[currentIndex + 1].id);
     } catch {
       setNotice("Could not save this draft");
     }
@@ -93,14 +95,18 @@ export default function SetupClient() {
   const completed = sections.filter((section) => saved[section.id]).length;
 
   return (
-    <section className="setup-workspace" aria-label="Easy integration setup">
-      <div className="setup-status-strip">
-        <div><span>Progress</span><strong>{completed}/3</strong></div>
-        <div aria-live="polite"><span>Storage</span><strong>{notice}</strong></div>
-        <div><span>Activation</span><strong>Needs server activation</strong></div>
+    <section
+      className="setup-workspace"
+      aria-label="Easy integration setup"
+      data-operator-workflow="guided-setup"
+      data-setup-progress={`${completed}/3`}
+    >
+      <div className="setup-status-strip" aria-label="Setup draft status">
+        <div className="setup-progress"><span>Progress</span><strong>{completed}/3</strong></div>
+        <div className="setup-draft-state" aria-live="polite"><strong>{notice}</strong><span>Browser draft</span></div>
+        <div className="setup-activation-state"><span>No secrets stored</span><strong>Needs server activation</strong></div>
         <button type="button" onClick={clearDraft} disabled={!completed}>Clear draft</button>
       </div>
-      <SetupBoundary />
 
       <div className="setup-step-nav" aria-label="Setup sections">
         {sections.map((section) => (
@@ -151,7 +157,7 @@ export default function SetupClient() {
               <label className="setup-check"><input type="checkbox" name="alertEligible" /><span>May support alert review</span></label>
             </div>
           </details>
-          <button className="setup-primary-action" type="submit">Save source draft</button>
+          <button className="setup-primary-action" type="submit">Save and continue</button>
         </form>
       </section>
 
@@ -173,7 +179,7 @@ export default function SetupClient() {
             <label><span>Authentication</span><select name="auth" defaultValue="none"><option value="none">None</option><option value="api_key">API key</option><option value="oauth2">OAuth 2</option><option value="bearer">Bearer token</option><option value="from_agent_card">From Agent Card</option></select></label>
             <label><span>Secret reference</span><input name="secretReference" placeholder="e.g. METLINK_API_KEY" autoComplete="off" /></label>
           </div>
-          <button className="setup-primary-action" type="submit">Save connection draft</button>
+          <button className="setup-primary-action" type="submit">Save and continue</button>
         </form>
       </section>
 
@@ -194,14 +200,5 @@ export default function SetupClient() {
         </form>
       </section>
     </section>
-  );
-}
-
-function SetupBoundary() {
-  return (
-    <aside className="setup-boundary" aria-label="Activation boundary">
-      <strong>No secrets stored</strong>
-      <span>Browser draft · human approval</span>
-    </aside>
   );
 }

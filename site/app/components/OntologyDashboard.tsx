@@ -110,6 +110,16 @@ const ONTOLOGY_LAYER_IDS = [
   "decision",
 ];
 
+const ONTOLOGY_CHAIN_STEPS = [
+  { id: "sources", number: "01", label: "Data sources" },
+  { id: "alignment", number: "02", label: "Alignment" },
+  { id: "concepts", number: "03", label: "Ontology" },
+  { id: "corroboration", number: "04", label: "Corroboration" },
+  { id: "destinations", number: "05", label: "Operator tools" },
+  { id: "decision", number: "06", label: "Human decision" },
+] as const;
+type OntologyChainStep = typeof ONTOLOGY_CHAIN_STEPS[number]["id"];
+
 function readable(value: string) {
   return value.replaceAll("_", " ");
 }
@@ -143,6 +153,7 @@ export default function OntologyDashboard({ model }: { model: OntologyDashboardM
   const [target, setTarget] = useState("all");
   const [pathsOpen, setPathsOpen] = useState(false);
   const [view, setView] = useState<"chain" | "graph">("chain");
+  const [activeChainStep, setActiveChainStep] = useState<OntologyChainStep>("sources");
   const [graphConcept, setGraphConcept] = useState(defaultGraphConcept);
   const [graphNodeId, setGraphNodeId] = useState(
     defaultGraphSource ? `source:${defaultGraphSource}` : `concept:${defaultGraphConcept}`,
@@ -234,7 +245,7 @@ export default function OntologyDashboard({ model }: { model: OntologyDashboardM
   }
 
   return (
-    <section className="ontology-dashboard" aria-label="Ontology workspace">
+    <section className="ontology-dashboard" aria-label="Ontology workspace" data-operator-workflow="ontology-step-inspector">
       <header className="ontology-dashboard-header">
         <dl aria-label="Ontology dashboard totals">
           <div><dt>Sources</dt><dd>{model.summary.sources}</dd></div>
@@ -254,7 +265,34 @@ export default function OntologyDashboard({ model }: { model: OntologyDashboardM
         data-ontology-view="chain"
         hidden={view !== "chain"}
       >
-        <section className="ontology-level" data-ontology-level="sources" aria-labelledby="ontology-level-sources">
+        <nav className="ontology-step-rail" aria-label="Six ontology steps">
+          {ONTOLOGY_CHAIN_STEPS.map((step, index) => (
+            <div className="ontology-step-rail-item" key={step.id}>
+              <button
+                type="button"
+                data-ontology-step={step.id}
+                data-ontology-level={step.id}
+                aria-pressed={activeChainStep === step.id}
+                aria-controls={`ontology-step-panel-${step.id}`}
+                onClick={() => setActiveChainStep(step.id)}
+              >
+                <span>{step.number}</span><strong>{step.label}</strong>
+              </button>
+              {index < ONTOLOGY_CHAIN_STEPS.length - 1 && (
+                <span data-hierarchy-connector={`${step.id}-to-${ONTOLOGY_CHAIN_STEPS[index + 1].id}`} aria-hidden="true">↓</span>
+              )}
+            </div>
+          ))}
+        </nav>
+
+        <div className="ontology-step-inspector" aria-live="polite">
+        <section
+          id="ontology-step-panel-sources"
+          className="ontology-level"
+          data-ontology-step-panel="sources"
+          hidden={activeChainStep !== "sources"}
+          aria-labelledby="ontology-level-sources"
+        >
           <header className="ontology-level-heading">
             <span>01</span>
             <h3 id="ontology-level-sources">Data sources &amp; access</h3>
@@ -266,11 +304,13 @@ export default function OntologyDashboard({ model }: { model: OntologyDashboardM
           </div>
         </section>
 
-        <div className="ontology-hierarchy-connector" data-hierarchy-connector="source-to-alignment" aria-hidden="true">
-          <span>↓</span>
-        </div>
-
-        <section className="ontology-level" data-ontology-level="alignment" aria-labelledby="ontology-level-alignment">
+        <section
+          id="ontology-step-panel-alignment"
+          className="ontology-level"
+          data-ontology-step-panel="alignment"
+          hidden={activeChainStep !== "alignment"}
+          aria-labelledby="ontology-level-alignment"
+        >
           <header className="ontology-level-heading">
             <span>02</span>
             <h3 id="ontology-level-alignment">Normalize, align time &amp; place</h3>
@@ -282,11 +322,13 @@ export default function OntologyDashboard({ model }: { model: OntologyDashboardM
           </div>
         </section>
 
-        <div className="ontology-hierarchy-connector" data-hierarchy-connector="alignment-to-ontology" aria-hidden="true">
-          <span>↓</span>
-        </div>
-
-        <section className="ontology-level" data-ontology-level="concepts" aria-labelledby="ontology-level-concepts">
+        <section
+          id="ontology-step-panel-concepts"
+          className="ontology-level"
+          data-ontology-step-panel="concepts"
+          hidden={activeChainStep !== "concepts"}
+          aria-labelledby="ontology-level-concepts"
+        >
           <header className="ontology-level-heading">
             <span>03</span>
             <h3 id="ontology-level-concepts">Ontology entities, relations &amp; evidence rules</h3>
@@ -337,11 +379,13 @@ export default function OntologyDashboard({ model }: { model: OntologyDashboardM
           </div>
         </section>
 
-        <div className="ontology-hierarchy-connector" data-hierarchy-connector="ontology-to-corroboration" aria-hidden="true">
-          <span>↓</span>
-        </div>
-
-        <section className="ontology-level" data-ontology-level="corroboration" aria-labelledby="ontology-level-corroboration">
+        <section
+          id="ontology-step-panel-corroboration"
+          className="ontology-level"
+          data-ontology-step-panel="corroboration"
+          hidden={activeChainStep !== "corroboration"}
+          aria-labelledby="ontology-level-corroboration"
+        >
           <header className="ontology-level-heading">
             <span>04</span>
             <h3 id="ontology-level-corroboration">Anomaly candidates &amp; corroboration</h3>
@@ -355,11 +399,13 @@ export default function OntologyDashboard({ model }: { model: OntologyDashboardM
           <div className="ontology-stage-note"><strong>Candidate · not incident</strong></div>
         </section>
 
-        <div className="ontology-hierarchy-connector" data-hierarchy-connector="corroboration-to-destination" aria-hidden="true">
-          <span>↓</span>
-        </div>
-
-        <section className="ontology-level" data-ontology-level="destinations" aria-labelledby="ontology-level-destinations">
+        <section
+          id="ontology-step-panel-destinations"
+          className="ontology-level"
+          data-ontology-step-panel="destinations"
+          hidden={activeChainStep !== "destinations"}
+          aria-labelledby="ontology-level-destinations"
+        >
           <header className="ontology-level-heading">
             <span>05</span>
             <h3 id="ontology-level-destinations">Live · Signal Review · Replay</h3>
@@ -379,11 +425,13 @@ export default function OntologyDashboard({ model }: { model: OntologyDashboardM
           </div>
         </section>
 
-        <div className="ontology-hierarchy-connector" data-hierarchy-connector="destination-to-decision" aria-hidden="true">
-          <span>↓</span>
-        </div>
-
-        <section className="ontology-level ontology-decision-level" data-ontology-level="decision" aria-labelledby="ontology-level-decision">
+        <section
+          id="ontology-step-panel-decision"
+          className="ontology-level ontology-decision-level"
+          data-ontology-step-panel="decision"
+          hidden={activeChainStep !== "decision"}
+          aria-labelledby="ontology-level-decision"
+        >
           <header className="ontology-level-heading">
             <span>06</span>
             <h3 id="ontology-level-decision">Human confirmation &amp; response</h3>
@@ -395,6 +443,7 @@ export default function OntologyDashboard({ model }: { model: OntologyDashboardM
           </div>
           <div className="ontology-stage-note is-authority"><strong>Human approval required</strong><span>Not automated</span></div>
         </section>
+        </div>
       </div>
 
       <section
