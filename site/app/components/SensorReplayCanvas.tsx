@@ -363,17 +363,21 @@ export default function SensorReplayCanvas({ investigation }: { investigation: I
           </div>
         </div>
         <nav className="replay-filter-subbar replay-compact-actions" aria-label="Replay filters and layers">
-          <div className="filter-group" aria-label="Replay evidence filters">
-            <button type="button" className={showMovementOutcomes ? "active" : ""} aria-pressed={showMovementOutcomes} onClick={toggleMovementOutcomes}>
-              Movement
-            </button>
-            {(["all", "rain", "flow", "anomaly"] as Exclude<SensorFilter, null>[]).map((value) => (
-              <button key={value} type="button" className={filter === value ? "active" : ""} aria-pressed={filter === value} onClick={() => setFilter((current) => toggleSensorEvidenceFilter(current, value) as SensorFilter)}>
-                {value === "all" ? "Weather" : value === "rain" ? "Rain" : value === "flow" ? "Flow" : "Hydro candidates"}
+          <div className="replay-primary-filters" data-replay-filter-zone="primary">
+            <div className="filter-group" aria-label="Replay evidence filters">
+              <button type="button" className={showMovementOutcomes ? "active" : ""} aria-pressed={showMovementOutcomes} onClick={toggleMovementOutcomes}>
+                Movement
               </button>
-            ))}
+              {(["all", "rain", "flow", "anomaly"] as Exclude<SensorFilter, null>[]).map((value) => (
+                <button key={value} type="button" className={filter === value ? "active" : ""} aria-pressed={filter === value} onClick={() => setFilter((current) => toggleSensorEvidenceFilter(current, value) as SensorFilter)}>
+                  {value === "all" ? "Weather" : value === "rain" ? "Rain" : value === "flow" ? "Flow" : "Hydro candidates"}
+                </button>
+              ))}
+            </div>
           </div>
-          <InvestigationLayersButton open={layersOpen} selectedCount={selectedLayerCount} totalCount={4} onToggle={() => setLayersOpen((value) => !value)} />
+          <div className="replay-primary-actions" data-replay-action-zone="always-visible">
+            <InvestigationLayersButton open={layersOpen} selectedCount={selectedLayerCount} totalCount={4} onToggle={() => setLayersOpen((value) => !value)} />
+          </div>
         </nav>
       </div>
       <InvestigationLayersPanel open={layersOpen} onClose={() => setLayersOpen(false)}>

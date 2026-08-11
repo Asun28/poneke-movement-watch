@@ -70,7 +70,8 @@ test("keeps the ontology dashboard on one dedicated top-level page", async () =>
   const integration = await integrationResponse.text();
   assert.match(ontology, /href="\/ontology" aria-current="page"/);
   assert.match(ontology, /data-ontology-view="chain"/);
-  assert.match(ontology, /data-ontology-view="graph"/);
+  assert.match(ontology, /data-deferred-view="ontology-fusion"/);
+  assert.doesNotMatch(ontology, /data-ontology-view="graph"/);
   assert.doesNotMatch(integration, /City ontology explorer/);
   assert.match(integration, /33 source contracts/);
 });
@@ -216,7 +217,7 @@ test("opens Live as one map-first workspace with readable evidence overlays", as
   assert.match(live, /aria-label="Live map overlays"/);
   assert.match(live, /class="live-mobile-filter-toggle"[^>]*aria-expanded="false"[^>]*aria-controls="live-map-overlay-filters"[^>]*aria-label="Show map filters"/);
   assert.match(live, /class="live-mobile-inbox-toggle"[^>]*aria-expanded="false"[^>]*aria-controls="live-evidence-inbox"[^>]*aria-label="Show Evidence Inbox"/);
-  assert.match(live, /id="live-map-overlay-filters" class="live-map-overlay-bar"/);
+  assert.match(live, /id="live-map-overlay-filters" class="live-map-overlay-bar"[^>]*data-live-filter-layout="wrapped"/);
   assert.match(live, /data-live-layer-toggle="review-evidence"/);
   assert.match(live, /data-live-layer-toggle="sensors-weather"/);
   assert.match(live, /data-live-layer-toggle="warnings-hazards"/);
@@ -240,8 +241,12 @@ test("opens Live as one map-first workspace with readable evidence overlays", as
   assert.match(live, /data-event-symbol="road"/);
   assert.match(live, /data-event-symbol="report"/);
   assert.match(live, /Mock · zero evidence/);
+  assert.match(live, /class="live-inbox-truth">Zero candidates ≠ all-clear<\/span>/);
   assert.match(live, /aria-label="Map controls"[^>]*data-max-zoom="1000%"[^>]*data-style="google-vertical"[^>]*data-corner="bottom-right"/);
   assert.match(live, /aria-label="Map zoom controls"[^>]*>[\s\S]*?aria-label="Zoom in"[\s\S]*?aria-label="Zoom out"/);
+  assert.match(live, /role="application"[^>]*tabindex="0"[^>]*aria-label="Interactive evidence map"[^>]*aria-keyshortcuts="ArrowUp ArrowDown ArrowLeft ArrowRight Enter Escape"/i);
+  assert.match(live, /data-wheel-zoom="modifier-required"/);
+  assert.match(live, /aria-label="Map evidence markers"/);
   assert.doesNotMatch(live, /aria-label="Map zoom level"/);
   assert.doesNotMatch(live, /aria-label="Reset map view"/);
   assert.match(live, /class="ops-map-fullscreen"[^>]*aria-label="Show map fullscreen"/);
@@ -349,7 +354,7 @@ test("shows the six-level operational evidence chain before advanced technical d
   const corroborationAt = html.indexOf('data-ontology-level="corroboration"');
   const destinationsAt = html.indexOf('data-ontology-level="destinations"');
   const decisionAt = html.indexOf('data-ontology-level="decision"');
-  const pathwaysAt = html.indexOf('<details class="ontology-pathways">');
+  const pathwaysAt = html.indexOf('<details class="ontology-pathways"');
 
   assert.ok(dashboardAt > -1);
   assert.ok(advancedAt > dashboardAt);
@@ -371,19 +376,20 @@ test("shows the six-level operational evidence chain before advanced technical d
   assert.match(html, /Human confirmation &amp; response/);
   assert.match(html, /Candidate · not incident/);
   assert.match(html, /Human approval required/);
+  assert.match(html, /data-deferred-content="source-paths"/);
   assert.match(html, /Source paths/);
-  assert.match(html, /aria-label="Filter ontology pathways by concept"/);
-  assert.match(html, /aria-label="Filter ontology pathways by operator module"/);
-  assert.equal((html.match(/data-ontology-path=/g) ?? []).length, 33);
+  assert.doesNotMatch(html, /aria-label="Filter ontology pathways by concept"/);
+  assert.doesNotMatch(html, /aria-label="Filter ontology pathways by operator module"/);
+  assert.equal((html.match(/data-ontology-path=/g) ?? []).length, 0);
   assert.match(html, /Movement &amp; transport/);
   assert.match(html, /Hazards &amp; warnings/);
   assert.match(html, /Access &amp; incidents/);
   assert.match(html, /Lifelines &amp; response/);
   assert.match(html, /People &amp; demand/);
   assert.match(html, /Real replay/);
-  assert.match(html, /Mock · zero weight/);
-  assert.match(html, /Permission required/);
-  assert.match(html, /Paid API/);
+  assert.doesNotMatch(html, /Mock · zero weight/);
+  assert.match(html, /permission required/);
+  assert.match(html, /Paid · mock only/);
   assert.match(html, /Unknown is not open/);
 });
 
@@ -392,60 +398,17 @@ test("offers an expandable ontology-aware fusion architecture without replacing 
 
   assert.match(html, /aria-label="Choose ontology view"/);
   assert.match(html, /aria-pressed="true">Operational chain/);
-  assert.match(html, /aria-pressed="false">Fusion architecture/);
+  assert.match(html, /aria-pressed="false"[^>]*aria-controls="ontology-fusion-region"[^>]*data-deferred-view="ontology-fusion">Fusion architecture/);
   assert.match(html, /data-ontology-view="chain"/);
-  assert.match(html, /data-ontology-view="graph"/);
-  assert.match(html, /data-ontology-fusion="late-fusion"/);
-  assert.match(html, /Ontology-aware late fusion/);
-  assert.match(html, />6 layers</);
-  assert.match(html, /aria-label="Choose graph focus concept"/);
-  assert.match(html, /aria-label="Six-layer fusion architecture controls"/);
-  assert.match(html, /aria-label="Zoom out"/);
-  assert.match(html, />−<\/button>/);
-  assert.match(html, /aria-label="Zoom level"[^>]*>100%<\/output>/);
-  assert.match(html, /aria-label="Zoom in"/);
-  assert.match(html, />\+<\/button>/);
-  assert.match(html, />Reset<\/button>/);
-  assert.match(html, />Expand all<\/button>/);
-  assert.match(html, />Collapse all<\/button>/);
-  assert.deepEqual(
-    [...html.matchAll(/data-fusion-stage="([^"]+)"/g)].map((match) => match[1]),
-    ["experts", "alignment", "ontology", "fusion", "candidate", "decision"],
-  );
+  assert.doesNotMatch(html, /data-ontology-view="graph"/);
+  assert.doesNotMatch(html, /id="ontology-fusion-region"/);
+  assert.doesNotMatch(html, /data-ontology-fusion="late-fusion"/);
+  assert.doesNotMatch(html, /data-fusion-stage=/);
+  assert.doesNotMatch(html, /aria-label="Six-layer fusion architecture controls"/);
   assert.doesNotMatch(html, /Change timeline/);
   assert.doesNotMatch(html, /data-knowledge-timeline=/);
   assert.doesNotMatch(html, /data-timeline-entry=/);
   assert.doesNotMatch(html, /data-timeline-change=/);
-  assert.equal((html.match(/data-layer-toggle=/g) ?? []).length, 6);
-  assert.equal((html.match(/data-layer-toggle="[^"]+" aria-expanded="false"/g) ?? []).length, 6);
-  assert.match(html, /aria-label="Expand Domain experts layer"/);
-  assert.match(html, /aria-hidden="true">\+<\/span><span>Expand<\/span>/);
-  for (const label of [
-    "Rain, river &amp; water",
-    "Pedestrian &amp; vehicle",
-    "Official status",
-    "WCC tickets &amp; text",
-    "Planned demand",
-    "News &amp; reports",
-  ]) assert.match(html, new RegExp(label));
-  assert.match(html, /Ontology · not trained/);
-  assert.match(html, /Calibrated late fusion/);
-  assert.match(html, /Prototype · not trained/);
-  assert.match(html, /LLM · weight 0/);
-  assert.match(html, /Mock · excluded/);
-  assert.match(html, /Human review required/);
-  assert.match(html, /data-graph-node-kind="expert"/);
-  assert.match(html, /data-graph-node-kind="source"/);
-  assert.match(html, /data-graph-node-kind="concept"/);
-  assert.match(html, /data-graph-node-kind="model"/);
-  assert.match(html, /data-graph-node-kind="llm"/);
-  assert.match(html, /data-graph-node-kind="destination"/);
-  assert.match(html, /data-graph-node-kind="authority"/);
-  assert.match(html, /Node details/);
-  assert.match(html, /Direct neighbours/);
-  assert.match(html, /Source truth &amp; provenance/);
-  assert.match(html, /Decision support only/);
-  assert.match(html, /No automatic incident or warning/);
   assert.doesNotMatch(html, /Operational chain remains the default/);
 });
 
@@ -700,11 +663,19 @@ test("keeps the compact Live status bar operationally complete", async () => {
   assert.match(status, /data-live-metric="issues"[^>]*><span>Issues<\/span><strong>/);
   assert.match(status, /class="live-status-time"/);
   assert.match(status, /class="sr-only">No current records\. Not all-clear\.<\/span>/);
+  assert.match(status, /class="live-inbox-truth">Zero candidates ≠ all-clear<\/span>/);
   assert.match(status, /class="sr-only">Auto refresh every 60 seconds\.<\/span>/);
   assert.match(status, /type="button">Pause<\/button>/);
   assert.match(status, /type="button" disabled="">Refreshing…<\/button>/);
   assert.doesNotMatch(status, />Pause display</);
   assert.doesNotMatch(status, /<small>Not all-clear<\/small>/);
+});
+
+test("publishes a readable operator type floor", async () => {
+  for (const path of ["/live", "/replay", "/integration", "/ontology"]) {
+    const html = await (await request(path)).text();
+    assert.match(html, /class="operator-console"[^>]*data-operator-type-floor="13px"/, path);
+  }
 });
 
 test("hides advanced architecture and replay evidence until requested", async () => {

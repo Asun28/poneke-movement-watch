@@ -11,7 +11,7 @@ type Props = {
 
 export default function OperatorShell({ active, title, modeLabel, children }: Props) {
   return (
-    <div className="operator-console">
+    <div className="operator-console" data-operator-type-floor="13px">
       <OperatorNavigation active={active} />
       <div className="operator-main-column">
         <main id="main-content" className="operator-content" tabIndex={-1}>

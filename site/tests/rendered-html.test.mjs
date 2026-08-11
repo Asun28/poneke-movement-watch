@@ -213,6 +213,8 @@ test("separates Replay playback from layers and renders an operable timeline", a
   assert.match(html, /data-replay-toolbar-layout="two-tier"/);
   assert.match(html, /aria-label="Playback header"/);
   assert.match(html, /aria-label="Replay filters and layers"/);
+  assert.match(html, /data-replay-filter-zone="primary"/);
+  assert.match(html, /data-replay-action-zone="always-visible"[\s\S]*?Investigation Layers[\s\S]*?signal evidence/);
   assert.match(html, /class="replay-timeline"/);
   assert.match(html, /aria-label="Replay timeline ticks"/);
   assert.match(html, /data-replay-clustering="screen-space"/);

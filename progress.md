@@ -1,5 +1,25 @@
 # Progress — Phase 2 ontology and sources
 
+## Phase 53 — Operator readability and first-viewport controls
+
+- Reproduced all five reported defects in the deployed site and fixed scope at presentation,
+  discoverability and deferred rendering only.
+- Acceptance, exclusions and file-level implementation are recorded. TDD RED is next.
+- Component inspection confirms one shared root cause for both Replay variants and isolated seams
+  for Live filters, Live empty truth and conditional Ontology graph mounting.
+- Reconciled two attached audits against local evidence: the current cold clone/build is healthy,
+  while map keyboard access and sub-13px operator text remain valid UX blockers.
+- TDD RED is confirmed: the production build succeeds and 97/102 contracts pass; only the five new
+  Replay, Live, Ontology and readable-type behavior contracts fail.
+- TDD GREEN is complete. Replay keeps Layers and Evidence in a fixed first-viewport action zone;
+  Live wraps every desktop filter and visibly states that zero candidates is not an all-clear;
+  operator text has a scoped 13px floor; Ontology mounts advanced graph/path content only on demand.
+- Live map access now has a named keyboard surface, geographic arrow navigation, 46 focusable marker
+  alternatives, Enter selection, Escape return and modifier-only wheel capture.
+- Final validation passes: production build, 103/103 behavior/render tests, ESLint and whitespace.
+  Browser checks at 1440px, 375×812 and 812×375 found no clipped core controls or page overflow;
+  Ontology's default DOM fell from about 1,600 nodes to 627.
+
 ## Phase 52 — Production operator workflow refactor
 
 - Audited the four deployed operator pages, shared shell, CSS overrides, behavior tests and current

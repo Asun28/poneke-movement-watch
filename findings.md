@@ -1866,3 +1866,51 @@ supports spatial event-footprint resolution, never direct building-damage claims
 - Final responsive checks confirm the same information hierarchy works on desktop, phone and
   landscape without horizontal overflow. Selected state uses text/shape as well as colour, visible
   controls retain 44px targets, and reduced-motion rules disable the new micro-transitions.
+
+# Phase 53 — Operator readability and first-viewport controls
+
+- Deployed 375px Replay keeps page width stable but places `Layers 3/35` and `Evidence 12` to the
+  right of the first viewport inside a horizontal filter strip. They are technically scrollable but
+  not discoverable as primary actions.
+- Desktop Live has the same first-viewport problem at the category level: `City context` begins
+  beyond the visible right edge even at 1440px. This is a control-group layout issue, not page-level
+  overflow.
+- Integration, Replay and Ontology contain many visible 8–11px metadata rules. The correction should
+  raise operator-facing labels/values without inflating legal attribution, graph indices or chart-axis text.
+- Ontology's default route mounts about 1,600 DOM nodes because the advanced fusion architecture is
+  rendered and merely hidden. Conditional mounting can remove that cost without deleting any graph data.
+- Live already carries `Not all-clear` in assistive text and in the opened Inbox empty state, but the
+  default collapsed map does not visibly expose it. A compact persistent zero-candidate status is required.
+- Existing behavior contracts already protect evidence/source truth. This phase can remain a UI and
+  rendering change with no data, API, ontology or alert-policy mutation.
+- Both Replay implementations use one horizontally scrollable `.replay-filter-subbar`; movement
+  Replay appends Sensor coverage, Layers and Evidence after the type filters, while April Replay
+  appends Layers after five evidence filters. The stable fix is a separate non-scrolling action row,
+  not wider chips or a hidden overflow menu.
+- Live's filter nav deliberately sets `overflow-x: auto` between a 380px search area and the right
+  map tools. A wrapping two-row desktop grid can expose every category while the existing mobile
+  drawer behavior remains intact.
+- `OntologyDashboard` currently computes both ego and fusion graphs and mounts the complete graph
+  section even when `view === "chain"`; `hidden` removes paint but not DOM. Conditional graph state
+  and render are sufficient to remove the default DOM cost without changing the graph model.
+- The clearest typography seam is a final scoped readability layer. Existing 8–11px rules are spread
+  across legacy phases, so targeted Integration/Replay/Ontology overrides are safer than rewriting
+  hundreds of unrelated declarations.
+- Two external audits conflict on repository completeness. The later cold-clone audit actually ran
+  27 Python tests, the 102 Node/build tests and lint successfully, so the earlier “repo does not run”
+  claim is stale for the current private repository and must not drive destructive packaging work.
+- The accessibility concern is current and reproducible: `LiveMap` hides both canvas and pointer
+  interaction layer, exposes no focus target or key handler, and always suppresses wheel scrolling.
+  The canvas should remain decorative, while the interaction surface and marker mirror become semantic.
+- The audit's 13px floor supersedes the earlier 12px threshold for operator-facing text. Legal map
+  attribution, decorative indices and chart axes remain explicit exceptions.
+- Final 375px Replay checks place Layers and Evidence fully inside the first viewport with no
+  horizontal overflow; the April variant keeps its unified Layers action equally visible.
+- Final 1440px Live checks show all eight category controls across two compact rows. At 375px the
+  status strip remains within the viewport and preserves Connected, Empty, Issues and refresh actions.
+- The scoped computed-style audit found no visible sub-13px operator labels in Integration or
+  Ontology; Replay's only smaller visible text is the required OpenStreetMap attribution.
+- Ontology now mounts 627 default DOM nodes, zero fusion stages and zero source paths. Opening Source
+  paths mounts 33 paths; choosing Fusion architecture mounts its six stages without changing data.
+- A real 375×812 browser run confirmed 46 focusable Live markers, no page overflow, no console errors,
+  Enter-selected native detail dialog and Escape returning focus to the named map surface.

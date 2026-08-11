@@ -1639,44 +1639,48 @@ export default function MovementCanvas({ investigation }: {
             </div>
           </div>
           <nav className="replay-filter-subbar replay-compact-actions" aria-label="Replay filters and layers">
-            <div className="filter-group" aria-label="Filter signals">
-              {(["all", "people", "vehicles"] as Filter[]).map((value) => (
-                <button
-                  type="button"
-                  key={value}
-                  className={filter === value ? "active" : ""}
-                  aria-pressed={filter === value}
-                  onClick={() => { setFilter(value); setMapInspection(null); }}
-                >
-                  {value === "people" ? (
-                    <span className="movement-filter-icon" data-movement-icon="people" aria-hidden="true">
-                      <PersonSimpleWalk size={17} weight="bold" />
-                    </span>
-                  ) : null}
-                  {value === "vehicles" ? (
-                    <span className="movement-filter-icon" data-movement-icon="vehicle" aria-hidden="true">
-                      <CarProfile size={17} weight="bold" />
-                    </span>
-                  ) : null}
-                  {value === "all" ? "All" : value === "people" ? "People" : "Vehicles"}
-                </button>
-              ))}
+            <div className="replay-primary-filters" data-replay-filter-zone="primary">
+              <div className="filter-group" aria-label="Filter signals">
+                {(["all", "people", "vehicles"] as Filter[]).map((value) => (
+                  <button
+                    type="button"
+                    key={value}
+                    className={filter === value ? "active" : ""}
+                    aria-pressed={filter === value}
+                    onClick={() => { setFilter(value); setMapInspection(null); }}
+                  >
+                    {value === "people" ? (
+                      <span className="movement-filter-icon" data-movement-icon="people" aria-hidden="true">
+                        <PersonSimpleWalk size={17} weight="bold" />
+                      </span>
+                    ) : null}
+                    {value === "vehicles" ? (
+                      <span className="movement-filter-icon" data-movement-icon="vehicle" aria-hidden="true">
+                        <CarProfile size={17} weight="bold" />
+                      </span>
+                    ) : null}
+                    {value === "all" ? "All" : value === "people" ? "People" : "Vehicles"}
+                  </button>
+                ))}
+              </div>
+              <button type="button" className={showCoverage ? "active" : ""} aria-pressed={showCoverage} onClick={() => setShowCoverage((value) => !value)}>
+                Sensor coverage
+              </button>
             </div>
-            <button type="button" className={showCoverage ? "active" : ""} aria-pressed={showCoverage} onClick={() => setShowCoverage((value) => !value)}>
-              Sensor coverage
-            </button>
-            <InvestigationLayersButton
-              open={isLayerRailOpen}
-              selectedCount={selectedSourceIds.size + Number(showBasemap) + Number(showCoverage)}
-              totalCount={sourceLayers.length + 2}
-              onToggle={() => setIsLayerRailOpen((value) => !value)}
-            />
-            <button
-              type="button"
-              aria-expanded={isEvidenceOpen}
-              aria-label={isEvidenceOpen ? "Hide signal evidence" : "Show signal evidence"}
-              onClick={() => setIsEvidenceOpen((value) => !value)}
-            >Evidence <span>{filteredSignals.length}</span></button>
+            <div className="replay-primary-actions" data-replay-action-zone="always-visible">
+              <InvestigationLayersButton
+                open={isLayerRailOpen}
+                selectedCount={selectedSourceIds.size + Number(showBasemap) + Number(showCoverage)}
+                totalCount={sourceLayers.length + 2}
+                onToggle={() => setIsLayerRailOpen((value) => !value)}
+              />
+              <button
+                type="button"
+                aria-expanded={isEvidenceOpen}
+                aria-label={isEvidenceOpen ? "Hide signal evidence" : "Show signal evidence"}
+                onClick={() => setIsEvidenceOpen((value) => !value)}
+              >Evidence <span>{filteredSignals.length}</span></button>
+            </div>
           </nav>
           {replayWarning ? <p className="replay-warning" role="status">{replayWarning}</p> : null}
         </div>

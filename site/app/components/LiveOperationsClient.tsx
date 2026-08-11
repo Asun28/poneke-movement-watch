@@ -105,16 +105,6 @@ function timeLabel(value: string | null) {
   }).format(new Date(value));
 }
 
-function observationTitle(observation: Observation) {
-  return String(
-    observation.properties.headline
-      ?? observation.properties.name
-      ?? observation.properties.site_id
-      ?? observation.properties.locality
-      ?? observation.kind.replaceAll("_", " "),
-  );
-}
-
 function CloseIcon() {
   return <X aria-hidden="true" size={18} weight="regular" />;
 }
@@ -123,7 +113,7 @@ type LiveMapPanel = "filters" | "inbox" | "layers" | "context" | null;
 
 export default function LiveOperationsClient() {
   const sourceSelectionInitialized = useRef(false);
-  const detailRef = useRef<HTMLElement>(null);
+  const detailRef = useRef<HTMLDialogElement>(null);
   const [snapshot, setSnapshot] = useState<Snapshot | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
@@ -217,6 +207,13 @@ export default function LiveOperationsClient() {
     setSelectedObservation(observationId);
   }
 
+  function closeSelectedObservation() {
+    setSelectedObservation(null);
+    window.requestAnimationFrame(() => {
+      document.querySelector<HTMLElement>('[aria-label="Interactive evidence map"]')?.focus();
+    });
+  }
+
   function showCandidate(candidate: EvidenceCandidate) {
     const observationId = candidate.evidence.supporting[0];
     const observation = snapshot?.observations.find((item) => item.id === observationId);
@@ -244,6 +241,7 @@ export default function LiveOperationsClient() {
           <span className="sr-only">No current records. Not all-clear.</span>
         </div>
         <div data-live-metric="issues"><span>Issues</span><strong>{loading ? "—" : issueCount}</strong></div>
+        <span className="live-inbox-truth">Zero candidates ≠ all-clear</span>
         <div className="live-strip-actions">
           <span className="sr-only">{paused ? "Display paused." : "Auto refresh every 60 seconds."}</span>
           <time className="live-status-time" dateTime={snapshot?.generated_at}>{snapshot ? timeLabel(snapshot.generated_at) : "—"}</time>
@@ -303,7 +301,7 @@ export default function LiveOperationsClient() {
           </div>
         )}
 
-        <nav id="live-map-overlay-filters" className={`live-map-overlay-bar${filtersOpen ? " is-mobile-open" : ""}`} aria-label="Live map overlays">
+        <nav id="live-map-overlay-filters" className={`live-map-overlay-bar${filtersOpen ? " is-mobile-open" : ""}`} aria-label="Live map overlays" data-live-filter-layout="wrapped">
           {LIVE_MAP_LAYERS.map((layer) => (
             <button
               key={layer.id}
@@ -398,8 +396,8 @@ export default function LiveOperationsClient() {
         </aside>
 
         {selected && selectedCard && (
-          <aside ref={detailRef} tabIndex={-1} className="live-map-detail-overlay" role="dialog" aria-modal="false" aria-label="Selected evidence details" aria-live="polite" data-mobile-surface="bottom-sheet">
-            <header><div className="live-map-detail-status"><span className="truth-chip">Official live record</span><strong className={`state-${selectedCard.state.toLowerCase().replaceAll(" ", "-")}`}>{selectedCard.state}</strong></div><button type="button" aria-label="Close selected evidence" onClick={() => setSelectedObservation(null)}><CloseIcon /></button></header>
+          <dialog open ref={detailRef} tabIndex={-1} className="live-map-detail-overlay" aria-modal="false" aria-label="Selected evidence details" aria-live="polite" data-mobile-surface="bottom-sheet" data-escape-returns-map="true" onKeyDown={(event) => { if (event.key === "Escape") closeSelectedObservation(); }}>
+            <header><div className="live-map-detail-status"><span className="truth-chip">Official live record</span><strong className={`state-${selectedCard.state.toLowerCase().replaceAll(" ", "-")}`}>{selectedCard.state}</strong></div><button type="button" aria-label="Close selected evidence" onClick={closeSelectedObservation}><CloseIcon /></button></header>
             <h2>{selectedCard.title}</h2>
             <dl>
               <div><dt>Value</dt><dd>{selectedCard.value}</dd></div>
@@ -409,14 +407,9 @@ export default function LiveOperationsClient() {
             </dl>
             <details className="record-raw"><summary>Raw record</summary><pre>{JSON.stringify(selected.properties, null, 2)}</pre></details>
             <a href="/alerts">Open Signal Review</a>
-          </aside>
+          </dialog>
         )}
 
-        <ul className="sr-only" aria-label="Keyboard-accessible live observation list">
-          {visibleObservations.map((observation) => (
-            <li key={observation.id}><button type="button" onClick={() => selectObservation(observation.id)}>{observationTitle(observation)} · {observation.source_id}</button></li>
-          ))}
-        </ul>
       </section>
     </section>
   );

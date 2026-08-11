@@ -256,7 +256,7 @@ export default function OntologyDashboard({ model }: { model: OntologyDashboardM
 
       <div className="ontology-view-switch" role="group" aria-label="Choose ontology view">
         <button type="button" aria-pressed={view === "chain"} onClick={() => setView("chain")}>Operational chain</button>
-        <button type="button" aria-pressed={view === "graph"} onClick={() => setView("graph")}>Fusion architecture</button>
+        <button type="button" aria-pressed={view === "graph"} aria-controls="ontology-fusion-region" data-deferred-view="ontology-fusion" onClick={() => setView("graph")}>Fusion architecture</button>
       </div>
 
       <div
@@ -446,10 +446,10 @@ export default function OntologyDashboard({ model }: { model: OntologyDashboardM
         </div>
       </div>
 
-      <section
+      {view === "graph" && <section
+        id="ontology-fusion-region"
         className="ontology-graph-view"
         data-ontology-view="graph"
-        hidden={view !== "graph"}
         aria-labelledby="ontology-graph-heading"
       >
         <header className="ontology-graph-header">
@@ -620,10 +620,11 @@ export default function OntologyDashboard({ model }: { model: OntologyDashboardM
             <div className="ontology-graph-guardrail"><strong>No inferred evidence</strong></div>
           </aside>
         </div>
-      </section>
+      </section>}
 
       <details
         className="ontology-pathways"
+        data-deferred-content="source-paths"
         open={pathsOpen}
         onToggle={(event) => setPathsOpen(event.currentTarget.open)}
       >
@@ -631,6 +632,7 @@ export default function OntologyDashboard({ model }: { model: OntologyDashboardM
           <div><strong>Source paths</strong></div>
           <small>Showing {filtered.length}</small>
         </summary>
+        {pathsOpen && <>
         <div className="ontology-toolbar">
           <label>
             <span>Search</span>
@@ -696,6 +698,7 @@ export default function OntologyDashboard({ model }: { model: OntologyDashboardM
           ))}
         </div>
         {!filtered.length && <p className="ops-state">No ontology pathways match these filters.</p>}
+        </>}
       </details>
     </section>
   );

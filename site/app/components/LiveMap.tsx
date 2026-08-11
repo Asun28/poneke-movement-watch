@@ -1,4 +1,5 @@
 "use client";
+/* eslint-disable jsx-a11y/no-noninteractive-element-interactions, jsx-a11y/no-noninteractive-tabindex -- The named WAI-ARIA application surface owns keyboard map navigation. */
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { buildLiveMapCard, buildLiveMapClusterCard, clusterMapPoints, eventSymbolFor, liveMapHitRadius } from "../../lib/liveMapWorkspace.mjs";
@@ -211,6 +212,8 @@ export default function LiveMap({
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
+  const interactionRef = useRef<HTMLDivElement>(null);
+  const markerButtonRefs = useRef(new Map<string, HTMLButtonElement>());
   const hitsRef = useRef<Hit[]>([]);
   const dragRef = useRef<{ pointerId: number; last: Coordinate; moved: boolean } | null>(null);
   const [zoom, setZoom] = useState(1);
@@ -219,8 +222,14 @@ export default function LiveMap({
   const [hovered, setHovered] = useState<HoveredHit | null>(null);
   const [fullscreenError, setFullscreenError] = useState("");
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [keyboardIndex, setKeyboardIndex] = useState(0);
   const plottable = useMemo(() => observations.filter(observationAnchor), [observations]);
   const sourceById = useMemo(() => new Map(sources.map((source) => [source.source_id, source])), [sources]);
+  const keyboardObservations = useMemo(() => [...plottable].sort((left, right) => {
+    const [leftLongitude, leftLatitude] = observationAnchor(left) ?? [0, 0];
+    const [rightLongitude, rightLatitude] = observationAnchor(right) ?? [0, 0];
+    return rightLatitude - leftLatitude || leftLongitude - rightLongitude || left.id.localeCompare(right.id);
+  }), [plottable]);
   const hoverCard = hovered
     ? hovered.count > 1
       ? buildLiveMapClusterCard(hovered.observations, sources)
@@ -333,6 +342,34 @@ export default function LiveMap({
     ));
   }
 
+  function focusKeyboardMarker(index: number) {
+    if (!keyboardObservations.length) return;
+    const nextIndex = (index + keyboardObservations.length) % keyboardObservations.length;
+    const next = keyboardObservations[nextIndex];
+    setKeyboardIndex(nextIndex);
+    markerButtonRefs.current.get(next.id)?.focus();
+  }
+
+  function handleMapKeyDown(event: React.KeyboardEvent<HTMLElement>) {
+    if (["ArrowDown", "ArrowRight"].includes(event.key)) {
+      event.preventDefault();
+      focusKeyboardMarker(keyboardIndex + 1);
+    } else if (["ArrowUp", "ArrowLeft"].includes(event.key)) {
+      event.preventDefault();
+      focusKeyboardMarker(keyboardIndex - 1);
+    } else if (event.key === "Enter") {
+      const current = keyboardObservations[keyboardIndex];
+      if (current) {
+        event.preventDefault();
+        onSelect(current.id);
+      }
+    } else if (event.key === "Escape") {
+      event.preventDefault();
+      setHovered(null);
+      interactionRef.current?.focus();
+    }
+  }
+
   async function toggleFullscreen() {
     try {
       setFullscreenError("");
@@ -350,8 +387,13 @@ export default function LiveMap({
     <div className="ops-map-stage" ref={stageRef}>
       <canvas ref={canvasRef} aria-hidden="true" />
       <div
+        ref={interactionRef}
         className="ops-map-interaction"
-        aria-hidden="true"
+        role="application"
+        tabIndex={0}
+        aria-label="Interactive evidence map"
+        aria-keyshortcuts="ArrowUp ArrowDown ArrowLeft ArrowRight Enter Escape"
+        data-wheel-zoom="modifier-required"
         onPointerDown={(event) => {
           event.currentTarget.setPointerCapture(event.pointerId);
           setHovered(null);
@@ -369,11 +411,36 @@ export default function LiveMap({
         }}
         onPointerCancel={() => { dragRef.current = null; }}
         onPointerLeave={() => setHovered(null)}
+        onKeyDown={handleMapKeyDown}
         onWheel={(event) => {
+          if (!event.ctrlKey && !event.metaKey) return;
           event.preventDefault();
           setZoom((value) => Math.max(0.7, Math.min(10, value + (event.deltaY < 0 ? 0.25 : -0.25))));
         }}
       />
+      <ul className="ops-map-marker-list" aria-label="Map evidence markers">
+        {keyboardObservations.map((observation, index) => {
+          const card = buildLiveMapCard(observation, sourceById.get(observation.source_id));
+          return (
+            <li key={observation.id}>
+              <button
+                ref={(element) => {
+                  if (element) markerButtonRefs.current.set(observation.id, element);
+                  else markerButtonRefs.current.delete(observation.id);
+                }}
+                type="button"
+                data-map-marker-id={observation.id}
+                tabIndex={index === keyboardIndex ? 0 : -1}
+                aria-current={selectedId === observation.id ? "true" : undefined}
+                aria-label={`${card.title}. ${card.value}. ${card.source}.`}
+                onFocus={() => setKeyboardIndex(index)}
+                onKeyDown={handleMapKeyDown}
+                onClick={() => onSelect(observation.id)}
+              >{card.title}<span>{card.value}</span></button>
+            </li>
+          );
+        })}
+      </ul>
       <div className="ops-map-controls" aria-label="Map controls" data-max-zoom="1000%" data-style="google-vertical" data-corner="bottom-right">
         <div className="ops-map-zoom-controls" role="group" aria-label="Map zoom controls">
           <button type="button" aria-label="Zoom in" disabled={zoom >= 10} onClick={() => setZoom((value) => Math.min(10, value + 0.5))}>+</button>

@@ -395,7 +395,9 @@ test("keeps Live mobile map details in one clear bottom sheet", async () => {
   ]);
 
   assert.match(component, /data-mobile-surface="bottom-sheet"/);
-  assert.match(component, /tabIndex=\{-1\} className="live-map-detail-overlay" role="dialog" aria-modal="false" aria-label="Selected evidence details"/);
+  assert.match(component, /data-escape-returns-map="true"/);
+  assert.match(component, /event\.key === "Escape"/);
+  assert.match(component, /<dialog open ref=\{detailRef\} tabIndex=\{-1\} className="live-map-detail-overlay" aria-modal="false" aria-label="Selected evidence details"/);
   assert.ok(css.includes(".live-map-inbox-overlay.is-collapsed { display: none; }"));
   assert.ok(css.includes("border-radius: 16px 16px 0 0;"));
   assert.ok(css.includes(".live-map-workspace .ops-map-controls { top: auto; right: 8px; bottom: 82px; }"));

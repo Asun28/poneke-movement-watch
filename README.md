@@ -35,6 +35,10 @@ stale records stay held or in zero-weight context. Human staff decide whether to
 City context has no earned geometry, so it appears as a compact overlay and is never placed at a
 fabricated map location.
 
+Core filters wrap instead of leaving the viewport, and zero promoted candidates is visibly labelled
+as uncertainty rather than an all-clear. The Live map supports geographic arrow-key navigation,
+Enter selection and Escape return; advanced Ontology graphs and source paths mount only when opened.
+
 ## Historical replay
 
 Replay opens with an **Investigation** selector. **April Storm · 18–22 Apr 2026** is a
@@ -58,6 +62,9 @@ its local display/routing settings and assign it to Replay Analyzer, Live
 Operations or Signal Review. Drafts remain in that browser. Registry truth,
 access state and the packaged replay stay locked; adding a source does not make
 it connected, playable or eligible evidence.
+
+On small screens, Layers and Evidence remain fixed in the first viewport rather than moving into a
+horizontal chip strip. Operational labels use a 13px minimum, excluding legal attribution and axes.
 
 Pause the replay and move the pointer near a visible marker to open a brief
 inspection card with its place, class, travel direction, increase/decrease,

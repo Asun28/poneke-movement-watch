@@ -49,6 +49,7 @@ including the real matched-hour history and a compact trend chart for the select
 
 | Error | Attempt | Resolution |
 |---|---:|---|
+| One broad test patch did not match the longer existing Ontology assertion block | 1 | Split the RED edit into small exact-context patches after reading the complete block. |
 | Session catch-up was first called from the obsolete `.codex` skill path | 1 | Re-ran the same read-only helper from the installed `.agents` skill path. |
 | One broad inspection command produced truncated output and a PowerShell range type error | 1 | Re-ran bounded, file-specific reads; no files were changed. |
 | A sandboxed parallel rebuild could not start Vite's helper process | 1 | Stopped the bounded preview server and reran the same build with approved process permission. |
@@ -1507,6 +1508,72 @@ data semantics or external side effects.
 |---|---:|---|
 | Initial browser bootstrap called the module namespace instead of the configured runtime. | 1 | Initialized the packaged browser runtime, selected the existing in-app tab and read its control contract before inspection. |
 | Python regression temp directories were blocked by the Windows sandbox. | 2 | Ran the same 22-test suite with an explicit repository-local basetemp outside the sandbox, then removed both verified temp directories. |
+
+---
+
+## Phase 53 — Operator readability and first-viewport controls
+
+### Goal
+
+Remove the five verified UX defects from Replay, Live, Integration and Ontology while preserving
+all data, evidence, model and human-authority contracts.
+
+### Status
+
+- [completed] Reproduce the deployed desktop/mobile defects and identify their component seams.
+- [completed] Add failing behavior contracts for fixed Replay actions, visible Live empty truth and lazy Ontology graph mounting.
+- [completed] Implement readable typography, non-scrolling primary controls and deferred advanced graph rendering.
+- [completed] Run full regression, lint, desktop/mobile/landscape browser verification and a DOM/readability audit.
+- [pending] Publish the exact validated build to the existing owner-only Sites deployment.
+
+### Acceptance criteria
+
+- At 375px, Replay shows `Layers` and `Evidence` in the first viewport without horizontal scrolling;
+  People, Vehicles and Sensor coverage remain directly selectable.
+- At 1440px, every Live category control is fully visible without a hidden horizontal chip strip.
+- Operational labels and values in Integration, Replay and Ontology render at 13px or larger;
+  legal attribution and non-critical decorative/axis text may remain smaller.
+- Live's map has a named keyboard interaction surface, geographic marker navigation, Enter to
+  select, Escape to release, real focusable marker items, and modifier-only wheel zoom.
+- The Ontology fusion graph is not mounted in the default operational-chain DOM and mounts only
+  after `Fusion architecture` is selected; zoom, expand/collapse and provenance remain unchanged.
+- Live visibly states `No promoted candidates · Not an all-clear` whenever the current candidate
+  count is zero; the Mock preview remains clearly synthetic.
+- No API, source, replay data, ontology schema, evidence weight, alert policy or authority changes.
+
+### File-level implementation plan
+
+- `site/tests/operator-console.test.mjs` and `site/tests/rendered-html.test.mjs`: add behavior-first RED contracts.
+- `site/app/MovementCanvas.tsx` and `site/app/components/SensorReplayCanvas.tsx`: separate primary filters from always-visible Layers/Evidence actions.
+- `site/app/components/LiveOperationsClient.tsx`: expose the zero-candidate truth and group desktop filters without hiding controls.
+- `site/app/components/LiveMap.tsx`: add the verified keyboard and screen-reader marker path without
+  making the visual canvas itself semantic.
+- `site/app/components/OntologyDashboard.tsx`: conditionally mount the advanced graph only when selected.
+- `site/app/globals.css`: enforce readable scoped type and responsive fixed-action layouts.
+- `findings.md`, `progress.md`, `README.md`: record the UX boundary and verification.
+
+### Assumptions and exclusions
+
+- “13px minimum” applies to operational labels and values, not map attribution, decorative step numbers or chart-axis microcopy.
+- Lazy loading means deferred React/DOM mounting, not a new route, network request or ontology schema.
+- Empty candidate state is uncertainty, not evidence that the city is safe.
+- The original GitHub `origin` remains untouched; any later GitHub publication goes only to the user's `private-origin` when explicitly requested.
+
+### Rejected major alternatives
+
+- Do not hide Layers or Evidence behind a generic overflow menu; both are high-frequency investigation actions.
+- Do not remove ontology nodes or source contracts to reduce DOM size; defer the advanced view instead.
+- Do not increase every map annotation to 13px because legal attribution and dense map-axis text have different roles.
+
+### Errors encountered
+
+| Error | Attempt | Resolution |
+|---|---:|---|
+| One broad test patch did not match the longer Ontology contract. | 1 | Split the patch at exact test boundaries. |
+| First `rg` expression lost its quoted `role` pattern in PowerShell. | 1 | Re-ran with a single-quoted expression. |
+| Authoritative RED run failed five new UX contracts while 97 existing contracts passed. | 1 | Expected TDD RED; proceed to implementation only for those verified gaps. |
+| ESLint rejected an Escape handler on a role-based detail overlay. | 1 | Use the native open `dialog` element and retain the same non-modal, focus-return behavior. |
+| The first final-test process handle expired after context compaction. | 1 | Re-ran the complete build, 103 tests, lint and whitespace gate from source. |
 
 ---
 
