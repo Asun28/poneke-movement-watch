@@ -21,8 +21,8 @@
   375×812 and 812×375 found no page-level overflow or clipped controls on any of the four pages.
 - Interaction checks passed for source selection/search, ontology step selection, Setup
   Save-and-continue and Signal Review tab state. A temporary Setup QA draft was cleared afterward.
-- Final owner-only Sites publication is the remaining step. GitHub origin and remote `main` remain
-  outside scope.
+- Published the exact validated feature commit as private Sites version 61 and verified all four
+  workflows on the production URL. GitHub origin and remote `main` remain unchanged.
 
 ## Phase 51 — April movement evidence detail and history
 

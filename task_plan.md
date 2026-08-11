@@ -1524,7 +1524,7 @@ model, ontology, API or human-authority contracts.
 - [completed] Add failing rendered behavior contracts for the four production workflows.
 - [completed] Implement the shared master-detail, step-inspector and guided-setup layouts.
 - [completed] Run focused and full regression, accessibility and responsive browser checks.
-- [in_progress] Publish the exact validated build to the existing owner-only deployment.
+- [completed] Publish the exact validated build to the existing owner-only deployment.
 
 ### Acceptance criteria
 
@@ -1569,6 +1569,8 @@ model, ontology, API or human-authority contracts.
 | Error | Attempt | Resolution |
 |---|---:|---|
 | Focused `node --test` could not spawn its worker in the sandbox (`EPERM`) | 1 | Use the completed full `npm test` RED run and do not repeat the blocked direct invocation. |
+| `bash` was not on PowerShell `PATH` and Windows archive paths were parsed as remote tar targets | 2 | Use the installed Git Bash executable and convert both arguments to `/c/...` paths. |
+| Sites rejected the abbreviated commit ID | 1 | Retry once with the exact full commit SHA required by the version contract. |
 
 ---
 ## Phase 44 — Mobile Live map decluttering
