@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import hilltopPack from "../../public/cop/v4/april-storm-hilltop-observations.json";
 import detectorPack from "../../public/cop/v4/april-storm-hydro-detector.json";
 import eventPack from "../../public/cop/v4/april-storm-event-pack.json";
-import { buildSensorReplayDataset, filterSensorReplayReadings, sensorReplayFrame, updateVisibleSensorSeries } from "../../lib/replayDataWorkspace.mjs";
+import { buildSensorReplayDataset, defaultSensorReplayLayers, filterSensorReplayReadings, sensorReplayFrame, updateVisibleSensorSeries } from "../../lib/replayDataWorkspace.mjs";
 import { eventSymbolFor } from "../../lib/liveMapWorkspace.mjs";
 import { replayIntervalMs } from "../layerModel.mjs";
 import EventSymbolBadge from "./EventSymbolBadge";
@@ -60,6 +60,7 @@ function compactValue(value: number, unit: string) {
 }
 
 export default function SensorReplayCanvas({ investigation }: { investigation: Investigation }) {
+  const defaultLayers = defaultSensorReplayLayers();
   const dataset = useMemo(
     () => buildSensorReplayDataset(hilltopPack, investigation, detectorPack),
     [investigation],
@@ -75,13 +76,17 @@ export default function SensorReplayCanvas({ investigation }: { investigation: I
   const [layersOpen, setLayersOpen] = useState(false);
   const [showBasemap, setShowBasemap] = useState(true);
   const [markerScale, setMarkerScale] = useState(1);
-  const [showMovementOutcomes, setShowMovementOutcomes] = useState(false);
-  const [showImpactEvidence, setShowImpactEvidence] = useState(false);
+  const [showMovementOutcomes, setShowMovementOutcomes] = useState(defaultLayers.movement_outcomes);
+  const [showImpactEvidence, setShowImpactEvidence] = useState(defaultLayers.official_impacts);
   const [movementOutcomePack, setMovementOutcomePack] = useState<MovementOutcomePack | null>(null);
   const [movementCoverage, setMovementCoverage] = useState<MovementCoverage | null>(null);
-  const [movementLoadState, setMovementLoadState] = useState<"idle" | "loading" | "ready" | "error">("idle");
+  const [movementLoadState, setMovementLoadState] = useState<"idle" | "loading" | "ready" | "error">(
+    defaultLayers.movement_outcomes ? "loading" : "idle",
+  );
   const [visibleSeriesIds, setVisibleSeriesIds] = useState<Set<string>>(
-    () => new Set(dataset.series.map((series: { id: string }) => series.id)),
+    () => new Set(defaultLayers.hilltop_observations
+      ? dataset.series.map((series: { id: string }) => series.id)
+      : []),
   );
   const frame = useMemo(() => sensorReplayFrame(dataset, slotIndex), [dataset, slotIndex]);
   const replayDates = useMemo(
@@ -165,6 +170,29 @@ export default function SensorReplayCanvas({ investigation }: { investigation: I
   }, [frame.target_at, movementCoverage, movementOutcomePack, showMovementOutcomes]);
 
   useEffect(() => {
+    if (!showMovementOutcomes || movementOutcomePack || movementLoadState !== "loading") return;
+    let active = true;
+    Promise.all([
+      fetch("/cop/v4/april-storm-movement-outcomes.json").then((response) => {
+        if (!response.ok) throw new Error("movement outcomes unavailable");
+        return response.json() as Promise<MovementOutcomePack>;
+      }),
+      fetch("/cop/v1/countline-coverage.geojson").then((response) => {
+        if (!response.ok) throw new Error("movement coverage unavailable");
+        return response.json() as Promise<MovementCoverage>;
+      }),
+    ]).then(([outcomes, coverage]) => {
+      if (!active) return;
+      setMovementOutcomePack(outcomes);
+      setMovementCoverage(coverage);
+      setMovementLoadState("ready");
+    }).catch(() => {
+      if (active) setMovementLoadState("error");
+    });
+    return () => { active = false; };
+  }, [movementLoadState, movementOutcomePack, showMovementOutcomes]);
+
+  useEffect(() => {
     if (!playing || dataset.slots.length < 2) return;
     const timer = window.setInterval(() => {
       setSlotIndex((current) => {
@@ -178,31 +206,13 @@ export default function SensorReplayCanvas({ investigation }: { investigation: I
     return () => window.clearInterval(timer);
   }, [dataset.slots.length, playing, speed]);
 
-  async function toggleMovementOutcomes() {
+  function toggleMovementOutcomes() {
     if (showMovementOutcomes) {
       setShowMovementOutcomes(false);
       return;
     }
     setShowMovementOutcomes(true);
-    if (movementOutcomePack || movementLoadState === "loading") return;
-    setMovementLoadState("loading");
-    try {
-      const [outcomes, coverage] = await Promise.all([
-      fetch("/cop/v4/april-storm-movement-outcomes.json").then((response) => {
-        if (!response.ok) throw new Error("movement outcomes unavailable");
-        return response.json() as Promise<MovementOutcomePack>;
-      }),
-      fetch("/cop/v1/countline-coverage.geojson").then((response) => {
-        if (!response.ok) throw new Error("movement coverage unavailable");
-        return response.json() as Promise<MovementCoverage>;
-      }),
-      ]);
-      setMovementOutcomePack(outcomes);
-      setMovementCoverage(coverage);
-      setMovementLoadState("ready");
-    } catch {
-      setMovementLoadState("error");
-    }
+    if (!movementOutcomePack && movementLoadState !== "loading") setMovementLoadState("loading");
   }
 
   function selectDate(date: string) {
@@ -220,7 +230,7 @@ export default function SensorReplayCanvas({ investigation }: { investigation: I
   }
 
   return (
-    <section id="replay-map" className="replay-map-workspace sensor-replay-workspace" data-replay-map-first="true" data-replay-dataset="sensor" aria-label="April sensor replay">
+    <section id="replay-map" className="replay-map-workspace sensor-replay-workspace" data-replay-map-first="true" data-replay-dataset="sensor" data-primary-layer="movement-outcomes" aria-label="April movement impact replay">
       <LiveMap
         observations={[...observations, ...movementOutcomeObservations]}
         sources={[
@@ -237,10 +247,13 @@ export default function SensorReplayCanvas({ investigation }: { investigation: I
           <h2>{investigation.title}</h2>
           <span>{timeLabel(frame.target_at)}</span>
         </div>
-        <div className="filter-group" aria-label="Filter sensor series">
+        <div className="filter-group" aria-label="Replay evidence filters">
+          <button type="button" className={showMovementOutcomes ? "active" : ""} aria-pressed={showMovementOutcomes} onClick={toggleMovementOutcomes}>
+            Movement
+          </button>
           {(["all", "rain", "flow", "anomaly"] as SensorFilter[]).map((value) => (
             <button key={value} type="button" className={filter === value ? "active" : ""} aria-pressed={filter === value} onClick={() => setFilter(value)}>
-              {value === "all" ? "All" : value === "rain" ? "Rain" : value === "flow" ? "Flow" : "Candidates"}
+              {value === "all" ? "Weather" : value === "rain" ? "Rain" : value === "flow" ? "Flow" : "Hydro candidates"}
             </button>
           ))}
         </div>
@@ -266,14 +279,17 @@ export default function SensorReplayCanvas({ investigation }: { investigation: I
         <header><h2>Layers</h2><button type="button" aria-label="Close sensor layers" onClick={() => setLayersOpen(false)}>×</button></header>
         <label className="sensor-core-layer"><input type="checkbox" checked={showBasemap} onChange={(event) => setShowBasemap(event.currentTarget.checked)} /><span>Street basemap</span></label>
         <div className="sensor-evidence-layer-summary" aria-label="April evidence layers">
+          <span className="sensor-layer-role">Primary · city movement</span>
+          <button className="sensor-primary-layer" type="button" aria-pressed={showMovementOutcomes} onClick={toggleMovementOutcomes}>
+            <span>Movement outcomes</span><strong>{movementLoadState === "loading" ? "…" : movementOutcomeObservations.length || "Off"}</strong>
+          </button>
+          <small>Retrospective only · event-time weight 0</small>
+          <span className="sensor-layer-role">Supporting · weather and river</span>
           {dataset.layer_groups.map((group: { id: string; label: string; series_count: number }) => (
             <button key={group.id} type="button" onClick={() => setFilter(group.id === "rainfall" ? "rain" : group.id === "river-flow" ? "flow" : "anomaly")}>
               <span>{group.label}</span><strong>{group.series_count}</strong>
             </button>
           ))}
-          <button type="button" aria-pressed={showMovementOutcomes} onClick={() => void toggleMovementOutcomes()}>
-            <span>Movement outcomes</span><strong>{movementLoadState === "loading" ? "…" : movementOutcomeObservations.length || "Off"}</strong>
-          </button>
           <button type="button" aria-label="Toggle official impact evidence" aria-pressed={showImpactEvidence} onClick={() => setShowImpactEvidence((value) => !value)}>
             <span>Official impacts</span><strong>{eventPack.ground_truth.length}</strong>
           </button>

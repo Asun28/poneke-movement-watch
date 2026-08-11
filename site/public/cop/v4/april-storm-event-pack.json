@@ -183,6 +183,13 @@
   },
   "evidence_layers": [
     {
+      "id": "movement-outcomes",
+      "label": "Movement outcomes",
+      "records": 209334,
+      "role": "retrospective_outcome_only",
+      "presentation_role": "primary_investigation_subject"
+    },
+    {
       "id": "rainfall-observations",
       "label": "Rainfall",
       "series": 12,
@@ -202,12 +209,6 @@
       "episodes": 99,
       "role": "derived_investigation_only",
       "automatic_incident": false
-    },
-    {
-      "id": "movement-outcomes",
-      "label": "Movement outcomes",
-      "records": 209334,
-      "role": "retrospective_outcome_only"
     },
     {
       "id": "official-impact-ground-truth",

@@ -1,5 +1,57 @@
 # Pōneke Movement Watch — evidence ontology roadmap
 
+## Phase 46 — movement-first April Replay
+
+### Goal
+
+Restore the product's primary city-movement purpose in the April investigation: WCC pedestrian
+and vehicle anomaly outputs are the first replay layer, while weather, river and post-event impact
+records remain clearly separated supporting evidence.
+
+### Status
+
+- [completed] Audit the current April layer defaults, hierarchy, labels and truth boundaries.
+- [completed] Add failing behavior tests for a default-on movement layer and movement-first evidence order.
+- [completed] Implement automatic movement-layer loading, concise primary/supporting labels and page hierarchy.
+- [in_progress] Run regressions, build and owner-only deployment.
+
+### Acceptance criteria
+
+- April Replay opens with movement outcomes selected and loads the packaged WCC movement model output
+  without requiring the operator to discover it in Layers.
+- The compact map controls and event details identify city movement as primary; rainfall, river flow
+  and the hydro detector are supporting evidence, and post-event impacts remain withheld ground truth.
+- The movement layer appears first in machine-readable and visible evidence-layer order.
+- The UI states that 209,334 WCC source rows produced 2,903 movement candidates, while preserving
+  `retrospective_outcome_only`, `event_time_evidence: false` and zero event-time evidence weight.
+- Existing investigation switching, map controls, playback, source filtering and owner-only access do not regress.
+
+### Assumptions and exclusions
+
+- “Primary” means primary investigation subject and model output, not a claim that monthly WCC data
+  was available during the storm.
+- Hydro observations remain valid event-time supporting evidence and are not removed.
+- No model retraining, new data source, fusion weight, automatic case/alert or GitHub-origin push.
+
+### File-level plan
+
+- `site/tests/*`: movement-first order, default visibility, wording and truth-boundary contracts.
+- `site/app/components/SensorReplayCanvas.tsx`: default movement load and compact layer hierarchy.
+- `site/app/replay/page.tsx`, `site/lib/replayInvestigations.mjs`: movement-first investigation copy.
+- `site/public/cop/v4/april-storm-event-pack.json`: evidence presentation order only.
+- `findings.md`, `progress.md`: decisions, verification and deployment evidence.
+
+### Rejected major alternatives
+
+- Do not hide the weather evidence or make movement outputs look event-time live.
+- Do not merge movement and hydro values into one score or retrain the ontology.
+
+### Errors encountered
+
+| Error | Attempt | Resolution |
+|---|---:|---|
+| A standalone Windows build was blocked by sandbox child-process `EPERM` | 1 | Re-run the same scoped build outside the restricted process sandbox; it completed, then the full approved test workflow passed. |
+
 ## Phase 45 — April hydro-weather evidence enrichment
 
 ### Goal

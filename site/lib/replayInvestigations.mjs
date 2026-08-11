@@ -21,24 +21,27 @@ function localId(title, startsAt) {
 }
 
 export function buildReplayInvestigationCatalog({ movementReplay, aprilStorm, hilltopPack }) {
+  const aprilMovementCandidates = Number(aprilStorm?.replay_inputs?.retrospective_outcomes?.[0]?.candidate_signals) || 0;
   return [
     {
       id: cleanText(aprilStorm?.event_id, "wellington-april-storm-2026"),
       case_id: cleanText(aprilStorm?.event_id, "wellington-april-storm-2026"),
-      title: "April Storm · 18–22 Apr 2026",
+      title: "April Storm · movement impacts · 18–22 Apr 2026",
       mode: cleanText(aprilStorm?.mode, "retrospective_case_study"),
       scope: "packaged",
       editable: false,
       source_id: cleanText(hilltopPack?.source_id, "gwrc-hilltop"),
+      primary_source_id: "wcc-transport-sensors",
+      supporting_source_ids: [cleanText(hilltopPack?.source_id, "gwrc-hilltop")],
       starts_at: cleanText(aprilStorm?.window?.start_at),
       as_of: cleanText(aprilStorm?.window?.end_at),
       default_target_at: "2026-04-20T20:00:00+12:00",
       target_hash: "april-storm-backtest",
       record_count: Number(hilltopPack?.record_count) || 0,
-      data_label: `${Number(hilltopPack?.record_count || 0).toLocaleString("en-NZ")} sensor records`,
-      truth_label: hilltopPack?.truth === "official_historical_observations"
-        ? "Official historical sensors"
-        : "Historical sensor pack",
+      data_label: aprilMovementCandidates
+        ? `${aprilMovementCandidates.toLocaleString("en-NZ")} movement candidates`
+        : `${Number(hilltopPack?.record_count || 0).toLocaleString("en-NZ")} supporting sensor records`,
+      truth_label: "Movement outcomes · retrospective only",
       incident_created: false,
       external_effect: "none",
     },

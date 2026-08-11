@@ -3128,6 +3128,11 @@ h1, h2, h3, h4, h5 { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-seri
 .sensor-evidence-layer-summary button { min-width: 0; min-height: 42px; display: grid; place-items: center; gap: 2px; padding: 5px; border: 1px solid var(--hairline); border-radius: 7px; color: #344563; background: #f7f8f9; cursor: pointer; }
 .sensor-evidence-layer-summary span { overflow: hidden; font-size: 8px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
 .sensor-evidence-layer-summary strong { color: #0747a6; font: 800 11px/1 Consolas, monospace; }
+.sensor-evidence-layer-summary .sensor-layer-role,
+.sensor-evidence-layer-summary > small { grid-column: 1 / -1; }
+.sensor-evidence-layer-summary .sensor-layer-role { color: #44546f; font-size: 8px; letter-spacing: .04em; text-transform: uppercase; }
+.sensor-evidence-layer-summary > small { color: var(--muted-ink); font-size: 8px; line-height: 1.35; }
+.sensor-evidence-layer-summary .sensor-primary-layer { grid-column: 1 / -1; border-color: rgba(12,102,228,.32); background: #e9f2ff; }
 .sensor-layer-error { margin: 0; padding: 7px 12px; border-bottom: 1px solid var(--hairline); color: #ae2e24; font-size: 9px; font-weight: 700; }
 .sensor-impact-evidence[hidden] { display: none; }
 .sensor-impact-evidence { border-bottom: 1px solid var(--hairline); background: #fff8e7; }

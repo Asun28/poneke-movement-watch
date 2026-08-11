@@ -14,6 +14,8 @@ type Investigation = {
   scope: "packaged" | "local_draft";
   editable: boolean;
   source_id: string;
+  primary_source_id?: string;
+  supporting_source_ids?: string[];
   starts_at: string;
   as_of: string;
   target_hash: string;
@@ -198,7 +200,8 @@ export default function ReplayInvestigationSelector({
 
         {selected && (
           <dl className="replay-investigation-meta">
-            <div><dt>Source</dt><dd>{sourceName(selected.source_id)}</dd></div>
+            <div><dt>Primary</dt><dd>{sourceName(selected.primary_source_id ?? selected.source_id)}</dd></div>
+            {selected.supporting_source_ids?.length ? <div><dt>Support</dt><dd>{selected.supporting_source_ids.map(sourceName).join(", ")}</dd></div> : null}
             <div><dt>Start</dt><dd>{dateLabel(selected.starts_at)}</dd></div>
             <div><dt>Cutoff</dt><dd>{dateLabel(selected.as_of)}</dd></div>
             <div><dt>Status</dt><dd>{selected.scope === "local_draft" ? "Local draft · not Incident/COP" : selected.truth_label}</dd></div>

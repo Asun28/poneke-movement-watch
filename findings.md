@@ -1732,3 +1732,14 @@ supports spatial event-footprint resolution, never direct building-damage claims
 - April history crosses the 5 April 2026 daylight-saving rollback. WCC rows contain local date/hour
   without offsets, so the repeated 02:00 hour is normalized to the NZ standard-time occurrence
   (`+12:00`) and that assumption is preserved in the movement outcome pack.
+# Phase 46 — movement-first April Replay
+
+- 2026-08-11: The current April workspace defaults `showMovementOutcomes` to false and lists
+  Rainfall/River/Detector before movement, so the hydro enrichment unintentionally displaced the
+  product's core pedestrian/vehicle anomaly task.
+- 2026-08-11: The correction is presentation and loading priority, not evidence inflation. The
+  movement pack remains retrospective, event-time weight zero and unavailable for April live scoring;
+  eligible Hilltop observations remain supporting evidence.
+- 2026-08-11: The final contract keeps `role: retrospective_outcome_only` unchanged and adds only
+  `presentation_role: primary_investigation_subject`. This avoids turning visual priority into a new
+  evidence class while still making movement first in the ordered layer list.

@@ -14,6 +14,8 @@ type Investigation = {
   scope: "packaged" | "local_draft";
   editable: boolean;
   source_id: string;
+  primary_source_id?: string;
+  supporting_source_ids?: string[];
   starts_at: string;
   as_of: string;
   target_hash: string;

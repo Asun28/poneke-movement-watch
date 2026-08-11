@@ -266,18 +266,22 @@ test("renders the April storm as a leakage-safe retrospective case study", async
 
   assert.match(html, /id="april-storm-backtest"/);
   assert.match(html, /Replay Analyzer input/);
-  assert.match(html, /April Storm · 18–22 Apr 2026/);
-  assert.match(html, /18(?:<!-- -->)? sensor series loaded/);
+  assert.match(html, /April Storm · movement impacts · 18–22 Apr 2026/);
+  assert.match(html, /Primary · city movement/);
+  assert.match(html, /2,903 movement candidates/);
+  assert.match(html, /209,334 count records/);
+  assert.match(html, /Supporting · weather and river/);
+  assert.match(html, /18 gauges · 10,098 readings/);
   assert.match(html, /10,098/);
   assert.match(html, /12 rain gauges/);
   assert.match(html, /6 river gauges/);
-  assert.match(html, /Detector candidates/);
+  assert.match(html, /Hydro detector/);
   assert.match(html, /Investigation only/);
   assert.match(html, /Movement outcomes/);
   assert.match(html, /Retrospective only/);
   assert.match(html, /Official impact evidence/);
   assert.match(html, /Post-event · withheld/);
-  assert.match(html, /209,334(?:<!-- -->)? records · Retrospective only/);
+  assert.match(html, /event-time weight 0/);
   assert.match(html, /Train before 18 Apr/);
   assert.match(html, /5 or 15 min/);
   assert.match(html, /source_claimed_time/);
@@ -314,12 +318,14 @@ test("ships a machine-readable April storm pack without invented replay observat
   assert.equal(eventPack.replay_inputs.status, "packaged");
   assert.equal(eventPack.replay_inputs.observations[0].records, 10098);
   assert.deepEqual(eventPack.evidence_layers.map(({ id }) => id), [
+    "movement-outcomes",
     "rainfall-observations",
     "river-flow-observations",
     "hydro-detector-candidates",
-    "movement-outcomes",
     "official-impact-ground-truth",
   ]);
+  assert.equal(eventPack.evidence_layers[0].role, "retrospective_outcome_only");
+  assert.equal(eventPack.evidence_layers[0].presentation_role, "primary_investigation_subject");
   assert.equal(eventPack.evidence_layers.at(-1).role, "withheld_ground_truth");
   assert.equal(eventPack.coverage.wcc_transport_countlines.window_record_count, 209334);
   assert.equal(eventPack.coverage.wcc_transport_countlines.availability_role, "retrospective_outcome_only");

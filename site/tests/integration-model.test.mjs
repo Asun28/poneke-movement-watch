@@ -238,6 +238,13 @@ test("updates a Replay sensor selection from a captured checkbox value", () => {
 });
 
 test("keeps April movement and official-impact layers operator-controlled", async () => {
+  assert.equal(typeof replayDataWorkspace.defaultSensorReplayLayers, "function");
+  assert.deepEqual(replayDataWorkspace.defaultSensorReplayLayers(), {
+    movement_outcomes: true,
+    hilltop_observations: true,
+    official_impacts: false,
+  });
+
   const component = await readFile(
     new URL("../app/components/SensorReplayCanvas.tsx", import.meta.url),
     "utf8",
@@ -503,8 +510,10 @@ test("builds selectable packaged Replay investigations with an auditable April c
     "august-movement-review-2026",
   ]);
   const april = catalog[0];
-  assert.equal(april.title, "April Storm · 18–22 Apr 2026");
+  assert.equal(april.title, "April Storm · movement impacts · 18–22 Apr 2026");
   assert.equal(april.source_id, "gwrc-hilltop");
+  assert.equal(april.primary_source_id, "wcc-transport-sensors");
+  assert.deepEqual(april.supporting_source_ids, ["gwrc-hilltop"]);
   assert.equal(april.record_count, 1683);
   assert.equal(april.scope, "packaged");
   assert.equal(april.editable, false);

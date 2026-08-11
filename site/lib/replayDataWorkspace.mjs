@@ -18,6 +18,14 @@ export function replayDatasetKind(investigation) {
   return investigation?.source_id === "gwrc-hilltop" ? "sensor" : "movement";
 }
 
+export function defaultSensorReplayLayers() {
+  return {
+    movement_outcomes: true,
+    hilltop_observations: true,
+    official_impacts: false,
+  };
+}
+
 export function buildSensorReplayDataset(pack, investigation, detectorPack = null) {
   const startsAt = epoch(investigation?.starts_at);
   const asOf = epoch(investigation?.as_of);

@@ -9,6 +9,8 @@ import OperatorShell from "../components/OperatorShell";
 
 export default function ReplayPage() {
   const investigations = buildReplayInvestigationCatalog({ movementReplay, aprilStorm, hilltopPack });
+  const movementCandidates = aprilStorm.replay_inputs.retrospective_outcomes[0].candidate_signals;
+  const movementRecords = aprilStorm.coverage.wcc_transport_countlines.window_record_count;
 
   return (
     <OperatorShell
@@ -20,23 +22,51 @@ export default function ReplayPage() {
       <details id="april-storm-backtest" className="backtest-pack">
         <summary className="backtest-header">
           <div>
-            <h2 id="april-storm-heading">April Storm · 18–22 Apr 2026</h2>
+            <h2 id="april-storm-heading">April Storm · movement impacts · 18–22 Apr 2026</h2>
           </div>
           <div className="backtest-header-status">
             <span>Replay Analyzer input</span>
-            <span className="backtest-readiness">{hilltopPack.series_count} sensor series loaded</span>
+            <span className="backtest-readiness">{movementCandidates.toLocaleString("en-NZ")} movement candidates</span>
             <span className="backtest-toggle">Event details</span>
           </div>
         </summary>
 
         <div className="backtest-summary" aria-label="April storm backtest contract">
+          <div><span>Movement candidates</span><strong>{movementCandidates.toLocaleString("en-NZ")}</strong></div>
+          <div><span>WCC count records</span><strong>{movementRecords.toLocaleString("en-NZ")}</strong></div>
+          <div><span>Supporting gauges</span><strong>{hilltopPack.series_count}</strong></div>
           <div><span>Window</span><strong>18–22 Apr</strong></div>
-          <div><span>Training cutoff</span><strong>Train before 18 Apr</strong></div>
-          <div><span>Replay step</span><strong>5 or 15 min</strong></div>
-          <div><span>Sensor records</span><strong>{hilltopPack.record_count.toLocaleString("en-NZ")}</strong></div>
         </div>
 
         <div className="backtest-grid">
+          <article>
+            <h3>Primary · city movement</h3>
+            <dl className="backtest-rules">
+              <div><dt>Input</dt><dd>{`${movementRecords.toLocaleString("en-NZ")} count records`}</dd></div>
+              <div><dt>Model</dt><dd>Movement seasonal MAD v1</dd></div>
+              <div><dt>Output</dt><dd>{`${movementCandidates.toLocaleString("en-NZ")} movement candidates`}</dd></div>
+              <div><dt>Availability</dt><dd>Retrospective only · event-time weight 0</dd></div>
+            </dl>
+          </article>
+          <article>
+            <h3>Supporting · weather and river</h3>
+            <dl className="backtest-rules">
+              <div><dt>Coverage</dt><dd>{`${hilltopPack.series_count} gauges · ${hilltopPack.record_count.toLocaleString("en-NZ")} readings`}</dd></div>
+              <div><dt>Rainfall</dt><dd>12 rain gauges</dd></div>
+              <div><dt>River flow</dt><dd>6 river gauges</dd></div>
+              <div><dt>Hydro detector</dt><dd>{detectorPack.episode_count} episodes · Investigation only</dd></div>
+            </dl>
+          </article>
+          <article>
+            <h3>Evaluation guardrails</h3>
+            <dl className="backtest-rules">
+              <div><dt>Training cutoff</dt><dd>Train before 18 Apr</dd></div>
+              <div><dt>Replay step</dt><dd>5 or 15 min</dd></div>
+              <div><dt>Replay input</dt><dd><code>available_at</code> ≤ replay step</dd></div>
+              <div><dt>Exclude</dt><dd>Mock, news, final reports and damage</dd></div>
+              <div><dt>Score</dt><dd>Lead time · precision/recall · false alerts · Brier</dd></div>
+            </dl>
+          </article>
           <article>
             <h3>Official impact evidence</h3>
             <p className="backtest-evidence-state">Post-event · withheld</p>
@@ -45,25 +75,6 @@ export default function ReplayPage() {
               <li><time dateTime="2026-04-20">20 Apr</time><span>Berhampore 85.9 mm/h; Hutt River peaks near 475 m³/s.</span></li>
               <li><time dateTime="2026-04-21">21–22 Apr</time><span>SH2 Remutaka washout closure and reopening.</span></li>
             </ol>
-          </article>
-          <article>
-            <h3>Evaluation</h3>
-            <dl className="backtest-rules">
-              <div><dt>Input</dt><dd><code>available_at</code> ≤ replay step</dd></div>
-              <div><dt>Detector</dt><dd>Hydro robust v1 · uncalibrated</dd></div>
-              <div><dt>Exclude</dt><dd>Mock, news, final reports and damage</dd></div>
-              <div><dt>Score</dt><dd>Lead time · precision/recall · false alerts · Brier</dd></div>
-            </dl>
-          </article>
-          <article>
-            <h3>Replay inputs</h3>
-            <dl className="backtest-rules">
-              <div><dt>Rainfall</dt><dd>12 rain gauges</dd></div>
-              <div><dt>River flow</dt><dd>6 river gauges</dd></div>
-              <div><dt>Detector candidates</dt><dd>{detectorPack.episode_count} episodes · Investigation only</dd></div>
-              <div><dt>Movement outcomes</dt><dd>{aprilStorm.coverage.wcc_transport_countlines.window_record_count.toLocaleString("en-NZ")} records · Retrospective only</dd></div>
-              <div><dt>Availability</dt><dd>Derived cadence bound</dd></div>
-            </dl>
           </article>
         </div>
 

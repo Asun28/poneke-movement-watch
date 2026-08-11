@@ -1022,3 +1022,14 @@
 - 2026-08-11: Published validated feature commit `938aeda` only to the private Sites source, saved
   version 54 and completed the owner-only production deployment at the existing URL. The temporary
   archive was removed; GitHub `origin` and remote `main` were not changed.
+# Phase 46 — movement-first April Replay
+
+- 2026-08-11: Started the movement-first correction after operator feedback. Acceptance is fixed:
+  default-on WCC movement outcomes, movement-first layer order and concise primary/supporting labels,
+  while preserving retrospective-only availability and zero event-time evidence weight.
+- 2026-08-11: TDD RED confirmed five intended gaps: no default movement-layer policy, the catalogue
+  and page still use the hydro-first title, movement is fourth in the evidence contract, and the
+  rendered case has no explicit primary-movement/supporting-weather hierarchy. The other 88 tests pass.
+- 2026-08-11: TDD GREEN and final validation pass. April automatically loads the movement layer,
+  lists it before hydro evidence, exposes WCC as the primary source in case settings, and keeps the
+  retrospective/event-time-zero boundary. Production build, 93/93 tests, ESLint and whitespace checks pass.
