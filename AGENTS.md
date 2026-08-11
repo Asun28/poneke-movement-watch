@@ -86,9 +86,10 @@ observation or inference, never an incident decision.
 
 ## Agent execution
 
+- The canonical GitHub repository is `https://github.com/Asun28/poneke-movement-watch.git`.
+  Keep `origin` pointed there and do not add, fetch from or push to any previous community remote.
 - Bounded independent audits and verification may run in parallel when useful.
 - Coordinate shared-file edits through the primary agent and preserve user changes.
 - Do not train an intermediate or production model merely because parallel compute is available;
   the data, label, split, governance and acceptance rules above still apply.
 - Do not push the GitHub origin or change remote `main` unless the user explicitly requests it.
-

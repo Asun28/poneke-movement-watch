@@ -167,8 +167,8 @@ export default function ReplayInvestigationSelector({
     <section className={`replay-investigation-selector ${isPanelOpen ? "" : "is-collapsed"}`} aria-label="Replay investigations">
       <header className="replay-investigation-compact-header">
         <div>
-          <h2>Investigation</h2>
-          <span>{selected ? `${selected.title} · ${selected.data_label}` : "Select an investigation"}</span>
+          <h2>{selected?.title ?? "Select an investigation"}</h2>
+          <span>{selected?.data_label ?? "No case selected"}</span>
         </div>
         <button
           type="button"

@@ -1226,3 +1226,25 @@
   case switching and measurement-specific drawers, and a 375x812 mobile drawer with no horizontal overflow.
 - 2026-08-12: Published exact validated product commit `307c53d` only to the owner-only Sites source, saved version 67
   and completed the private production deployment. GitHub remotes and remote `main` were not changed.
+
+# Phase 57 - Unified Replay command bar
+
+- 2026-08-12: Started the Replay hierarchy refactor from the supplied screenshot. Scope is fixed at one command-bar
+  container with case/change, playback, timeline, filters and layer/evidence actions; no replay truth or data changes.
+- 2026-08-12: Code audit found one reusable seam: render the existing selector's compact trigger inside either Replay
+  toolbar while keeping its detailed settings panel as progressive disclosure. Both canvases already share the same
+  command-bar structure, so no new state owner or design-system dependency is required.
+- 2026-08-12: TDD RED confirmed four intended failures: the selector is still outside the map, the unified command-bar
+  marker is absent and the old duplicate identity remains. The other 51 focused rendering/operator tests pass.
+- 2026-08-12: GREEN implemented one embedded case/change control in both Replay canvases, removed the duplicated
+  playback identity and retained the case editor as a full-width dropdown from the same command surface. Production
+  build, all 113 tests and lint pass.
+- 2026-08-12: Removed the `claudecommunity-nz` Git remote, renamed the Asun28 remote to the sole `origin`, and added
+  the canonical-repository boundary to `AGENTS.md` for future work.
+- 2026-08-12: Desktop and 375x812 browser QA confirm one Replay command surface, an operational case-settings dropdown,
+  visible Layers/Evidence actions and no horizontal overflow. Shortened the mobile movement filter to `Sensors` while
+  preserving its full accessible label.
+- 2026-08-12: Rebuilt and reloaded the production server after the density refinement. Final 812x375 landscape QA
+  confirms the complete unified command bar remains readable and the map starts directly below it.
+- 2026-08-12: Final case-switch QA confirms April uses the same unified surface with its own 5-minute timeline,
+  sensor filters and layer count. At 375x812 it has no horizontal overflow; browser console has zero errors/warnings.

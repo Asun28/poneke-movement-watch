@@ -1510,6 +1510,61 @@ data semantics or external side effects.
 | Python regression temp directories were blocked by the Windows sandbox. | 2 | Ran the same 22-test suite with an explicit repository-local basetemp outside the sandbox, then removed both verified temp directories. |
 
 ---
+## Phase 57 — Unified Replay command bar
+
+### Goal
+
+Combine the separate Investigation summary and Replay controls into one concise, case-aware command
+bar without changing replay data, case truth, layer behavior or evidence authority.
+
+### Status
+
+- [completed] Audit the duplicated case and playback surfaces plus existing responsive contracts.
+- [completed] Add a failing rendered contract for one unified command-bar container.
+- [completed] Implement the shared case/change slot in both August and April Replay toolbars.
+- [completed] Run focused, full, lint and desktop/mobile browser verification.
+- [in_progress] Publish the validated private Sites build and push the requested GitHub branch.
+
+### Acceptance criteria
+
+- One visible Replay command-bar container owns case identity, Change, date/time/speed, playback,
+  timeline, filters, Layers and Evidence where available.
+- The old standalone collapsed Investigation strip and the duplicated toolbar title are removed.
+- Change still opens the existing case selector/editor; switching cases retains the current URL and data behavior.
+- Desktop remains compact; 375px and landscape layouts wrap by function with no page-level horizontal overflow.
+- All controls remain keyboard accessible, at least 44px, and keep their existing accessible names.
+
+### Assumptions and exclusions
+
+- This is a Replay presentation refactor only; no data, source, model, ontology, score or alert-policy changes.
+- The detailed case editor remains progressive disclosure below/within the command surface when opened.
+- Do not merge Layers or Evidence drawers into the toolbar body; only their launch actions belong in the bar.
+
+### File-level implementation plan
+
+- `site/app/components/ReplayInvestigationSelector.tsx`: expose a compact case/change trigger and keep the editor.
+- `site/app/components/ReplayWorkspaceClient.tsx`: compose the selector with the active Replay canvas.
+- `site/app/MovementCanvas.tsx`, `site/app/components/SensorReplayCanvas.tsx`: accept and render the shared case slot.
+- `site/app/globals.css`: one responsive command-bar hierarchy with stable 44px controls.
+- `site/tests/operator-console.test.mjs`, `site/tests/rendered-html.test.mjs`: prove a single container and no duplicate title.
+
+### Rejected major alternatives
+
+- Do not overlay a second floating card or hide Change inside Layers.
+- Do not place every control in one unwrapped desktop row; preserve functional rows inside one container.
+
+### Errors encountered
+
+| Error | Attempt | Resolution |
+|---|---:|---|
+| GitHub CLI keyring token is invalid and direct Git DNS lookup failed. | 1 | Finish the requested UI commit first; use the authenticated GitHub connector or request re-authentication only if the final branch push still cannot be completed. |
+| Focused Node test workers could not spawn in the filesystem sandbox. | 1 | Re-ran with the existing scoped `node --test` approval; four tests failed only at the intended unified-bar contract. |
+| First GREEN rerun read the previous production build. | 1 | Rebuilt before testing through the normal full test command; the unified contracts then passed. |
+| A Playwright `eval` command was split by shell quoting. | 1 | Use short selector-based evaluations separately; the screenshot and semantic snapshot were unaffected. |
+| The first restarted preview reused a log file held by the old process. | 1 | Restarted with unique timestamped logs and verified the new production listener before browser QA. |
+| The browser helper command is named `select`, not `select-option`. | 1 | Used the documented `select` command and verified the April case transition. |
+
+---
 ## Phase 55 - Operator home dashboard
 
 ### Goal

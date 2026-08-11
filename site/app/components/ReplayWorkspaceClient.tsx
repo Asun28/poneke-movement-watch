@@ -34,14 +34,16 @@ export default function ReplayWorkspaceClient({ catalog, aprilSummary }: { catal
   const selectInvestigation = useCallback((investigation: Investigation) => setActive(investigation), []);
   if (!active) return null;
   const datasetKind = replayDatasetKind(active);
+  const investigationControl = (
+    <ReplayInvestigationSelector catalog={catalog} activeId={active.id} onSelect={selectInvestigation} />
+  );
 
   return (
     <div className="replay-bound-workspace" data-investigation-switches-dataset="true" data-active-investigation={active.id}>
-      <ReplayInvestigationSelector catalog={catalog} activeId={active.id} onSelect={selectInvestigation} />
       <ReplayCaseContext investigation={active} />
       {datasetKind === "sensor"
-        ? <SensorReplayCanvas key={active.id} investigation={active} />
-        : <MovementCanvas key={active.id} investigation={active} />}
+        ? <SensorReplayCanvas key={active.id} investigation={active} investigationControl={investigationControl} />
+        : <MovementCanvas key={active.id} investigation={active} investigationControl={investigationControl} />}
       {active.id === "wellington-april-storm-2026" ? <AprilBacktestDetails summary={aprilSummary} /> : null}
     </div>
   );

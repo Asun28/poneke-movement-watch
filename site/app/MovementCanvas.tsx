@@ -1,6 +1,6 @@
 "use client";
 
-import { CSSProperties, FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { CSSProperties, FormEvent, ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { ArrowCounterClockwise, CarProfile, CornersIn, CornersOut, PersonSimpleWalk } from "@phosphor-icons/react";
 import registryData from "../public/cop/v2/source-registry.json";
 import { SOURCE_MANIFEST } from "../lib/sourceManifest.mjs";
@@ -224,19 +224,6 @@ function movementEvidenceRecord(feature: LineFeature) {
     freshness_state: "real replay",
     properties: feature.properties,
   };
-}
-
-function formatReplayTime(value: string) {
-  return new Intl.DateTimeFormat("en-NZ", {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-    timeZone: "Pacific/Auckland",
-  }).format(new Date(value)).replace(",", " ·");
 }
 
 function formatTimelineTick(value: string | undefined) {
@@ -1077,8 +1064,9 @@ function LayerWorkspace({
   );
 }
 
-export default function MovementCanvas({ investigation }: {
+export default function MovementCanvas({ investigation, investigationControl }: {
   investigation?: { id: string; title: string; starts_at: string; as_of: string; default_target_at?: string };
+  investigationControl?: ReactNode;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const mapStageRef = useRef<HTMLDivElement>(null);
@@ -1310,9 +1298,6 @@ export default function MovementCanvas({ investigation }: {
     setSelectedSignalKey(null);
     setIsEvidenceOpen(false);
   };
-  const replayLabel = currentSlot
-    ? formatReplayTime(currentSlot.target_at)
-    : "12:00 · Thursday 6 August 2026";
   const replayMaxIndex = Math.max(0, (replay?.slots.length ?? 1) - 1);
   const replayProgress = replayMaxIndex > 0 ? (slotIndex / replayMaxIndex) * 100 : 0;
   const replayEnabled = Boolean(replay && replaySourceSelected);
@@ -1560,7 +1545,7 @@ export default function MovementCanvas({ investigation }: {
       id="replay-map"
       ref={mapStageRef}
       className="investigation-frame replay-map-workspace"
-      aria-labelledby="map-heading"
+      aria-label={`${investigation?.title ?? "Movement changes"} replay map`}
       data-replay-map-first="true"
       data-replay-dataset="movement"
       data-delta-encoding="signed-centre-bar"
@@ -1585,12 +1570,9 @@ export default function MovementCanvas({ investigation }: {
         />
       </InvestigationLayersPanel>
       <div className="map-column">
-        <div className="replay-compact-bar movement-replay-compact" aria-label="Replay controls" data-replay-toolbar-layout="two-tier" data-replay-density="compact">
+        <div className="replay-compact-bar movement-replay-compact" aria-label="Replay controls" data-replay-command-bar="unified" data-replay-toolbar-layout="two-tier" data-replay-density="compact">
           <div className="replay-playback-header" aria-label="Playback header">
-            <div className="replay-compact-identity">
-              <h2 id="map-heading">{investigation?.title ?? "Movement changes"}</h2>
-              <span>{replayLabel}</span>
-            </div>
+            {investigationControl}
             <div className="replay-compact-inputs">
               <label>
                 <span>Date</span>
@@ -1709,8 +1691,8 @@ export default function MovementCanvas({ investigation }: {
                   </button>
                 ))}
               </div>
-              <button type="button" className={showCoverage ? "active" : ""} aria-pressed={showCoverage} onClick={() => setShowCoverage((value) => !value)}>
-                Sensor coverage
+              <button type="button" className={showCoverage ? "active" : ""} aria-label="Sensor coverage" aria-pressed={showCoverage} onClick={() => setShowCoverage((value) => !value)}>
+                Sensors
               </button>
             </div>
             <div className="replay-primary-actions" data-replay-action-zone="always-visible">

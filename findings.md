@@ -1980,3 +1980,37 @@ supports spatial event-footprint resolution, never direct building-damage claims
   flow show measurement-specific fields without movement labels, and April movement retains matched-hour history.
 - Advancing the replay frame clears the open evidence drawer. At 375x812 the drawer remains within the viewport
   (`347px` wide inside a `375px` viewport), the document has no horizontal overflow and the browser console is clean.
+
+# Phase 57 - Unified Replay command bar
+
+- The screenshot exposes hierarchy duplication, not missing functionality: `ReplayInvestigationSelector` renders a
+  standalone collapsed summary, while each Replay canvas repeats the active title in its playback header.
+- The correct grouping is one surface with internal functional rows: case/change and playback first, timeline second,
+  filters plus Layers/Evidence third. This preserves scan order without forcing every control into one line.
+- The existing selector/editor must remain case-aware and progressive. Removing it would break custom investigations;
+  moving only its compact trigger into the toolbar preserves that workflow.
+- UI guidance supports one responsive container, no horizontal page scroll, 44px controls, keyboard-first semantics
+  and stable wrapping. A new component library or decorative redesign would add inconsistency without solving density.
+- `ReplayWorkspaceClient` currently places the selector immediately before the active canvas. Both canvas components
+  own their toolbar, so the smallest stable seam is to have the selector provide a compact case slot plus its settings
+  panel and pass that slot into the active canvas rather than duplicating playback state in the selector.
+- Both canvases already share the same playback-header, timeline and filter/action class contract. The case slot can
+  replace `replay-compact-identity`; the existing time/count output remains next to playback without another title.
+- Existing tests explicitly require the selector before the map, so the correct RED mutation is to require the map and
+  unified Replay bar first, then the selector inside that bar. This catches any regression back to a standalone strip.
+- Current responsive CSS already turns playback inputs into functional rows below 700px. The refactor should reuse
+  that behavior and only restyle the embedded selector, not create another breakpoint-specific component.
+- The final Phase 54 cascade owns current Replay overlay heights, so unified-bar sizing must be appended after it;
+  editing earlier legacy rules alone would be overridden and create inconsistent desktop/mobile placement.
+- A `ReactNode` case-control prop is sufficient for both canvases. It preserves the selector as the single owner of
+  local drafts, URL replacement and editor state while relocating only its rendered position.
+- The user revoked the old community repository connection. Local Git now has exactly one remote, `origin`, pointing
+  to `Asun28/poneke-movement-watch`; the project agent rules record this as the only canonical GitHub destination.
+- Desktop browser inspection confirms the requested visual hierarchy: one white command surface contains the case,
+  Change, time controls, playback, signal/gap count, timeline, filters, Layers and Evidence. The former standalone
+  Investigation card is gone and the map begins immediately below the one 132px control surface.
+- At 375x812 the unified bar has no document overflow and keeps Change, Layers and Evidence visible. The only remaining
+  density issue was the movement filter text, so the visible `Sensor coverage` label is shortened to `Sensors` while
+  retaining the full accessible name.
+- At 812x375 the final production build keeps the case, playback, timeline, four movement filters, Layers and Evidence
+  in one compact surface without obscuring the map; the shorter `Sensors` label removes the prior filter collision.

@@ -1,6 +1,6 @@
 "use client";
 
-import { CSSProperties, useEffect, useMemo, useState } from "react";
+import { CSSProperties, ReactNode, useEffect, useMemo, useState } from "react";
 import hilltopPack from "../../public/cop/v4/april-storm-hilltop-observations.json";
 import detectorPack from "../../public/cop/v4/april-storm-hydro-detector.json";
 import eventPack from "../../public/cop/v4/april-storm-event-pack.json";
@@ -49,19 +49,6 @@ type MovementCoverageFeature = {
   properties: { countline_id: string };
 };
 type MovementCoverage = { features: MovementCoverageFeature[] };
-
-function timeLabel(value: string | null) {
-  if (!value) return "No replay time";
-  return new Intl.DateTimeFormat("en-NZ", {
-    weekday: "short",
-    day: "numeric",
-    month: "short",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-    timeZone: "Pacific/Auckland",
-  }).format(new Date(value));
-}
 
 function timelineTick(value: string | null | undefined) {
   if (!value) return "—";
@@ -132,7 +119,7 @@ function MovementHistoryChart({ detail }: { detail: MovementEvidenceDetail }) {
   );
 }
 
-export default function SensorReplayCanvas({ investigation }: { investigation: Investigation }) {
+export default function SensorReplayCanvas({ investigation, investigationControl }: { investigation: Investigation; investigationControl?: ReactNode }) {
   const defaultLayers = defaultSensorReplayLayers();
   const dataset = useMemo(
     () => buildSensorReplayDataset(hilltopPack, investigation, detectorPack),
@@ -351,12 +338,9 @@ export default function SensorReplayCanvas({ investigation }: { investigation: I
         onSelect={setSelectedId}
         adaptiveEvidenceContext={{ case_id: investigation.id, truth_label: "Historical replay" }}
       />
-      <div className="replay-compact-bar" aria-label="Replay controls" data-replay-toolbar-layout="two-tier" data-replay-density="compact">
+      <div className="replay-compact-bar" aria-label="Replay controls" data-replay-command-bar="unified" data-replay-toolbar-layout="two-tier" data-replay-density="compact">
         <div className="replay-playback-header" aria-label="Playback header">
-          <div className="replay-compact-identity">
-            <h2>{investigation.title}</h2>
-            <span>{timeLabel(frame.target_at)}</span>
-          </div>
+          {investigationControl}
           <div className="replay-compact-inputs">
             <label><span>Date</span><input type="date" aria-label="Replay date" value={selectedDate} min={replayDates[0]} max={replayDates.at(-1)} onChange={(event) => selectDate(event.currentTarget.value)} /></label>
             <label><span>Time</span><select aria-label="Replay time" value={frame.target_at ?? ""} onChange={(event) => selectTime(event.currentTarget.value)}>{dateSlots.map((time: string) => <option key={time} value={time}>{time.slice(11, 16)}</option>)}</select></label>

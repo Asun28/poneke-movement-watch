@@ -217,9 +217,12 @@ test("opens Replay as a map-first workspace with secondary panels collapsed", as
   const replay = await (await request("/replay")).text();
   const mapAt = replay.indexOf('data-replay-map-first="true"');
   const playbackAt = replay.indexOf('aria-label="Replay controls"');
+  const selectorAt = replay.indexOf('aria-label="Replay investigations"');
 
   assert.ok(mapAt > -1);
   assert.ok(playbackAt > mapAt);
+  assert.ok(selectorAt > playbackAt);
+  assert.match(replay, /data-replay-command-bar="unified"/);
   assert.match(replay, /class="replay-investigation-selector is-collapsed"[^>]*aria-label="Replay investigations"/);
   assert.match(replay, /aria-expanded="false" aria-label="Show investigation settings"/);
   assert.match(replay, /aria-expanded="false" aria-label="Show Investigation Layers"/);
@@ -328,9 +331,11 @@ test("lets an operator select April Storm or create a local Replay investigation
   const replay = await (await request("/replay")).text();
   const selectorAt = replay.indexOf('aria-label="Replay investigations"');
   const mapAt = replay.indexOf('data-replay-map-first="true"');
+  const commandBarAt = replay.indexOf('data-replay-command-bar="unified"');
 
   assert.ok(selectorAt > -1);
-  assert.ok(selectorAt < mapAt);
+  assert.ok(commandBarAt > mapAt);
+  assert.ok(selectorAt > commandBarAt);
   assert.match(replay, /aria-expanded="false" aria-label="Show investigation settings"/);
   assert.match(replay, /<label[^>]*>.*Investigation/s);
   assert.match(replay, /name="investigation"/);
@@ -353,7 +358,9 @@ test("switches Replay datasets immediately and keeps playback in one compact con
   const replay = await (await request("/replay")).text();
 
   assert.match(replay, /data-investigation-switches-dataset="true"/);
+  assert.match(replay, /data-replay-command-bar="unified"/);
   assert.match(replay, /aria-label="Replay controls"/);
+  assert.doesNotMatch(replay, /class="replay-compact-identity"/);
   assert.doesNotMatch(replay, /aria-label="History replay controls"/);
   assert.doesNotMatch(replay, />Open investigation</);
   assert.doesNotMatch(replay, /Paused · hover markers/);
