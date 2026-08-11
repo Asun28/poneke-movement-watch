@@ -168,7 +168,7 @@ export default function ReplayInvestigationSelector({
       <header className="replay-investigation-compact-header">
         <div>
           <h2>Investigation</h2>
-          <span>{selected?.title ?? "Select an investigation"}</span>
+          <span>{selected ? `${selected.title} · ${selected.data_label}` : "Select an investigation"}</span>
         </div>
         <button
           type="button"

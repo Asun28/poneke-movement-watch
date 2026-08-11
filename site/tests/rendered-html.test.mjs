@@ -422,6 +422,19 @@ test("ships internally consistent COP artifacts with WGS84 line geometry", async
     ["Wellington City Council Transport Sensors"],
   );
   assert.equal(replay.schema, "movement-replay/v1");
+  assert.equal(replay.model.id, "movement-seasonal-mad-v1");
+  assert.equal(replay.input_observation_count, 284556);
+  assert.equal(replay.candidate_count, 929);
+  assert.equal(replay.input_role, "canonical_sensor_observations");
+  assert.equal(replay.output_role, "movement_anomaly_candidates");
+  assert.equal(
+    replay.slots.reduce((total, slot) => total + slot.observed_groups, 0),
+    replay.input_observation_count,
+  );
+  assert.equal(
+    replay.slots.reduce((total, slot) => total + slot.candidate_count, 0),
+    replay.candidate_count,
+  );
   assert.ok(replay.slots.length > 1);
   assert.ok(replay.available_from < replay.available_to);
   assert.ok(

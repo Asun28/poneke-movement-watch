@@ -90,5 +90,10 @@ def test_cli_builds_cop_geojson_health_and_coverage_from_parquet(tmp_path):
     assert replay["default_target_at"] == "2026-08-06T08:00:00"
     assert replay["available_from"] == "2026-08-06T08:00:00"
     assert replay["available_to"] == "2026-08-06T08:00:00"
+    assert replay["model"]["id"] == "movement-seasonal-mad-v1"
+    assert replay["input_observation_count"] == 1
+    assert replay["candidate_count"] == 1
+    assert replay["input_role"] == "canonical_sensor_observations"
+    assert replay["output_role"] == "movement_anomaly_candidates"
     assert replay["slots"][0]["signals"][0]["name"] == "Luxford St road upper"
     assert len(replay["slots"][0]["signals"][0]["matched_history"]) == 12

@@ -1,5 +1,20 @@
 # Findings — Phase 2 ontology and sources
 
+## Phase 47 — August model-output Replay
+
+- The April figures `209,334 source rows → 2,903 candidates` cannot be reused for the August
+  investigation. The complete packaged August window is 1–6 August 2026 and contains 284,556
+  canonical detector observations across 144 hourly slots.
+- The unchanged `movement-seasonal-mad-v1` detector produces 929 candidate signals for that
+  August window. Slot totals reconcile exactly to both top-level counts.
+- Replay already maps `slot.signals`, not every source observation. Raw observed values are kept
+  only inside a selected candidate beside its expected baseline and matched history.
+- The generated pack previously omitted its model and input/output roles, while the investigation
+  selector reduced the dataset to “144 time slots”. Explicit metadata and a “929 model candidates”
+  label fix this presentation gap without retraining or changing thresholds.
+- Every packaged candidate still uses matched history earlier than its observation time. The model
+  remains candidate-generation only, is not an incident classifier and cannot issue an alert.
+
 ## Phase 38 — unified map-first Live workspace
 
 - The supplied Google Maps reference is valuable for interaction hierarchy, not provider

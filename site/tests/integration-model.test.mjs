@@ -487,6 +487,9 @@ test("builds selectable packaged Replay investigations with an auditable April c
       available_from: "2026-08-01T00:00:00+12:00",
       available_to: "2026-08-06T23:00:00+12:00",
       data_as_of: "2026-08-06T23:00:00+12:00",
+      model: { id: "movement-seasonal-mad-v1" },
+      input_observation_count: 284556,
+      candidate_count: 929,
       slots: Array.from({ length: 144 }),
     },
     aprilStorm: {
@@ -518,6 +521,12 @@ test("builds selectable packaged Replay investigations with an auditable April c
   assert.equal(april.scope, "packaged");
   assert.equal(april.editable, false);
   assert.equal(april.as_of, "2026-04-22T23:59:59+12:00");
+  const august = catalog[1];
+  assert.equal(august.record_count, 284556);
+  assert.equal(august.candidate_count, 929);
+  assert.equal(august.model_id, "movement-seasonal-mad-v1");
+  assert.equal(august.data_label, "929 model candidates");
+  assert.equal(august.truth_label, "Model output · real batch replay");
   assert.equal(
     investigationModel.buildReplayInvestigationUrl(april),
     "/replay?investigation=wellington-april-storm-2026&case=wellington-april-storm-2026&source=gwrc-hilltop&from=2026-04-18T00%3A00%3A00%2B12%3A00&as_of=2026-04-22T23%3A59%3A59%2B12%3A00#april-storm-backtest",

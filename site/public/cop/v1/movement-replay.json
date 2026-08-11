@@ -8,6 +8,19 @@
   "publisher_mode": "batch replay",
   "publisher_cadence": "at least monthly",
   "source": "Wellington City Council Transport Sensors",
+  "model": {
+    "id": "movement-seasonal-mad-v1",
+    "type": "matched_weekday_hour_median_mad",
+    "lookback_weeks": 12,
+    "decision_role": "candidate_generation_only",
+    "calibration_status": "not_an_incident_classifier"
+  },
+  "input_observation_count": 284556,
+  "candidate_count": 929,
+  "input_role": "canonical_sensor_observations",
+  "output_role": "movement_anomaly_candidates",
+  "automatic_incident": false,
+  "automatic_warning": false,
   "trend_basis": "prior 12 matched weekday and hour observations",
   "limitations": [
     "Fixed sensors do not represent every city journey.",

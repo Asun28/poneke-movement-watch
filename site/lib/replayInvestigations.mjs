@@ -22,6 +22,14 @@ function localId(title, startsAt) {
 
 export function buildReplayInvestigationCatalog({ movementReplay, aprilStorm, hilltopPack }) {
   const aprilMovementCandidates = Number(aprilStorm?.replay_inputs?.retrospective_outcomes?.[0]?.candidate_signals) || 0;
+  const augustInputObservations = Number(movementReplay?.input_observation_count)
+    || (Array.isArray(movementReplay?.slots)
+      ? movementReplay.slots.reduce((total, slot) => total + (Number(slot?.observed_groups) || 0), 0)
+      : 0);
+  const augustCandidates = Number(movementReplay?.candidate_count)
+    || (Array.isArray(movementReplay?.slots)
+      ? movementReplay.slots.reduce((total, slot) => total + (Number(slot?.candidate_count) || 0), 0)
+      : 0);
   return [
     {
       id: cleanText(aprilStorm?.event_id, "wellington-april-storm-2026"),
@@ -57,9 +65,11 @@ export function buildReplayInvestigationCatalog({ movementReplay, aprilStorm, hi
       as_of: cleanText(movementReplay?.data_as_of ?? movementReplay?.available_to),
       default_target_at: cleanText(movementReplay?.default_target_at),
       target_hash: "history-replay",
-      record_count: Array.isArray(movementReplay?.slots) ? movementReplay.slots.length : 0,
-      data_label: `${Array.isArray(movementReplay?.slots) ? movementReplay.slots.length : 0} time slots`,
-      truth_label: "Real publisher replay",
+      record_count: augustInputObservations,
+      candidate_count: augustCandidates,
+      model_id: cleanText(movementReplay?.model?.id, "movement-seasonal-mad-v1"),
+      data_label: `${augustCandidates.toLocaleString("en-NZ")} model candidates`,
+      truth_label: "Model output · real batch replay",
       incident_created: false,
       external_effect: "none",
     },

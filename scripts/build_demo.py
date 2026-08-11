@@ -108,7 +108,11 @@ def main() -> None:
     }
     coverage = coverage_feature_collection(metadata)
     replay = to_replay_collection(
-        replay_analysis, metadata, data_as_of, default_target_at=args.target_at
+        replay_analysis,
+        metadata,
+        data_as_of,
+        default_target_at=args.target_at,
+        lookback_weeks=args.lookback_weeks,
     )
 
     args.output_dir.mkdir(parents=True, exist_ok=True)

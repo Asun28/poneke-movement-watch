@@ -1,5 +1,50 @@
 # Pōneke Movement Watch — evidence ontology roadmap
 
+## Phase 47 — August model-output Replay
+
+### Goal
+
+Make the 1–6 August WCC Transport Sensors investigation explicitly model-output first: source
+observations are processed by the existing movement detector, and Replay operates on candidates
+rather than presenting raw rows as map signals.
+
+### Status
+
+- [completed] Audit August source totals, candidate totals, model output and current Replay binding.
+- [completed] Add failing contracts for explicit model metadata and accurate investigation counts.
+- [completed] Update the replay generator, packaged artifact and concise investigation label.
+- [in_progress] Run regressions, build and owner-only deployment.
+
+### Acceptance criteria
+
+- The August pack declares `movement-seasonal-mad-v1`, 284,556 input observations and 929
+  candidate outputs for 1–6 August 2026.
+- The August investigation label shows the model-output count, not 144 slots or the April
+  209,334 → 2,903 figures.
+- Replay map features come only from candidate signals; raw observed counts remain available only
+  as candidate-level observed-versus-expected evidence.
+- Model and UI truthfully retain batch publisher cadence and do not imply incident classification,
+  live availability or general emergency accuracy.
+
+### Assumptions and exclusions
+
+- `observed_groups` are the detector input observations after canonical grouping and are not a
+  unique-person count.
+- No retraining, candidate recursion, fusion weight, new source, automatic alert/case or GitHub push.
+
+### File-level plan
+
+- `site/tests/*`, `tests/*`: model-output artifact and investigation-label contracts.
+- `src/movement_anomaly/contract.py`: stable replay model/input/output metadata.
+- `site/public/cop/v1/movement-replay.json`: regenerated/updated packaged August artifact.
+- `site/lib/replayInvestigations.mjs`: accurate model-output investigation summary.
+- `findings.md`, `progress.md`: decision and verification evidence.
+
+### Rejected major alternatives
+
+- Do not relabel April totals as August totals.
+- Do not feed candidates back into the same detector or render every raw row on the map.
+
 ## Phase 46 — movement-first April Replay
 
 ### Goal

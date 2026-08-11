@@ -93,7 +93,11 @@ def to_feature_collection(
 
 
 def to_replay_collection(
-    replay: dict, metadata: pd.DataFrame, data_as_of: str, default_target_at: str
+    replay: dict,
+    metadata: pd.DataFrame,
+    data_as_of: str,
+    default_target_at: str,
+    lookback_weeks: int = 12,
 ) -> dict:
     meta = metadata.copy()
     meta["COUNTLINE_ID"] = meta["COUNTLINE_ID"].astype(str)
@@ -119,6 +123,8 @@ def to_replay_collection(
             )
         slots.append({**slot, "candidate_count": len(signals), "signals": signals})
 
+    input_observation_count = sum(int(slot["observed_groups"]) for slot in slots)
+    candidate_count = sum(int(slot["candidate_count"]) for slot in slots)
     return {
         "schema": "movement-replay/v1",
         "available_from": replay["available_from"],
@@ -129,7 +135,20 @@ def to_replay_collection(
         "publisher_mode": "batch replay",
         "publisher_cadence": "at least monthly",
         "source": "Wellington City Council Transport Sensors",
-        "trend_basis": "prior 12 matched weekday and hour observations",
+        "model": {
+            "id": "movement-seasonal-mad-v1",
+            "type": "matched_weekday_hour_median_mad",
+            "lookback_weeks": int(lookback_weeks),
+            "decision_role": "candidate_generation_only",
+            "calibration_status": "not_an_incident_classifier",
+        },
+        "input_observation_count": input_observation_count,
+        "candidate_count": candidate_count,
+        "input_role": "canonical_sensor_observations",
+        "output_role": "movement_anomaly_candidates",
+        "automatic_incident": False,
+        "automatic_warning": False,
+        "trend_basis": f"prior {int(lookback_weeks)} matched weekday and hour observations",
         "limitations": LIMITATIONS,
         "slots": slots,
     }

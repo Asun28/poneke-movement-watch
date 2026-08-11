@@ -1,5 +1,16 @@
 # Progress — Phase 2 ontology and sources
 
+## Phase 47 — August model-output Replay
+
+- Audited the full WCC August pack: 284,556 canonical observations, 144 hourly slots and 929
+  movement anomaly candidates; no candidate contains future matched-history points.
+- Added RED contracts for model metadata, exact input/output reconciliation and the August
+  investigation label, then updated the generator and regenerated the packaged artifact.
+- The compact investigation header and selector now identify “929 model candidates”; April keeps
+  its separate 209,334 → 2,903 retrospective result.
+- Verification: Python 27/27 pass; site 93/93 pass with production build; ESLint pass;
+  `git diff --check` pass apart from expected Windows line-ending notices.
+
 ## Phase 38 — unified map-first Live workspace
 
 - 2026-08-11: Started the Live map-first redesign. Fixed the scope at one large OpenStreetMap
