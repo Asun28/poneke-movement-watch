@@ -1248,3 +1248,5 @@
   confirms the complete unified command bar remains readable and the map starts directly below it.
 - 2026-08-12: Final case-switch QA confirms April uses the same unified surface with its own 5-minute timeline,
   sensor filters and layer count. At 375x812 it has no horizontal overflow; browser console has zero errors/warnings.
+- 2026-08-12: Committed the verified UI as `fdf47d5`, pushed only to
+  `Asun28/poneke-movement-watch` on `codex/movement-anomaly-prototype`, and published owner-only Sites version 68.

@@ -1523,7 +1523,7 @@ bar without changing replay data, case truth, layer behavior or evidence authori
 - [completed] Add a failing rendered contract for one unified command-bar container.
 - [completed] Implement the shared case/change slot in both August and April Replay toolbars.
 - [completed] Run focused, full, lint and desktop/mobile browser verification.
-- [in_progress] Publish the validated private Sites build and push the requested GitHub branch.
+- [completed] Publish the validated private Sites build and push the requested GitHub branch.
 
 ### Acceptance criteria
 
