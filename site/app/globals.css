@@ -4319,3 +4319,55 @@ h1, h2, h3, h4, h5 { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-seri
 @media (max-width: 520px) {
   .replay-bound-workspace .replay-map-workspace { --replay-overlay-top: 276px; }
 }
+
+/* Phase 56: one predictable Replay evidence shell with record-specific fields. */
+.adaptive-evidence-preview {
+  width: min(286px, calc(100vw - 32px));
+  overflow: hidden;
+  border: 1px solid rgba(9,30,66,.22);
+  border-radius: 10px;
+  background: rgba(255,255,255,.98);
+  box-shadow: 0 6px 20px rgba(9,30,66,.18);
+  color: var(--civic-ink);
+  pointer-events: none;
+}
+.adaptive-evidence-preview.map-hover-card { padding: 0; border-color: rgba(9,30,66,.22); box-shadow: 0 6px 20px rgba(9,30,66,.18); }
+.adaptive-evidence-preview > header { min-height: 34px; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 7px 10px; border-bottom: 1px solid #ebecf0; }
+.adaptive-evidence-preview > header time { margin: 0; color: #44546f; font-size: 12px; font-weight: 650; }
+.adaptive-evidence-preview > strong { display: block; margin: 0; padding: 9px 10px 2px; font-size: 15px; line-height: 1.2; }
+.adaptive-evidence-preview > p { margin: 0; padding: 0 10px 7px; color: #44546f; font-size: 13px; line-height: 1.25; }
+.adaptive-evidence-preview > dl { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 0; padding: 0 10px 8px; border: 0; }
+.adaptive-evidence-preview > dl > div { min-width: 0; display: block; padding: 7px 6px; border-top: 1px solid #ebecf0; }
+.adaptive-evidence-preview > dl > div + div { padding-left: 7px; border-left: 1px solid #ebecf0; }
+.adaptive-evidence-preview dt { color: #44546f; font-size: 11px; font-weight: 650; letter-spacing: .02em; text-transform: none; }
+.adaptive-evidence-preview dd { margin: 3px 0 0; overflow: hidden; font: 750 14px/1.2 Consolas, monospace; text-overflow: ellipsis; white-space: nowrap; }
+.adaptive-evidence-preview > small { display: block; margin: 0; padding: 6px 10px 8px; border-top: 1px solid #f1f2f4; color: #44546f; font-size: 11px; line-height: 1.25; }
+.adaptive-evidence-badge { display: inline-flex; align-items: center; min-height: 22px; padding: 3px 7px; border-radius: 999px; background: #e9f2ff; color: #0055cc; font-size: 11px; font-weight: 750; line-height: 1; }
+.adaptive-evidence-badge.is-decrease { background: #ffebe6; color: #ae2e24; }
+.adaptive-evidence-badge.is-candidate { background: #fff7d6; color: #7f5f01; }
+.adaptive-evidence-badge.is-rainfall, .adaptive-evidence-badge.is-river_flow { background: #dcfff1; color: #216e4e; }
+.adaptive-evidence-cluster-groups { display: grid; gap: 1px; background: #ebecf0; }
+.adaptive-evidence-cluster-groups span { min-height: 36px; display: flex; align-items: center; gap: 7px; padding: 7px 10px; background: #fff; font-size: 13px; }
+.adaptive-evidence-cluster-groups b { min-width: 24px; color: #0055cc; font: 750 14px/1 Consolas, monospace; }
+
+.adaptive-evidence-drawer { width: min(390px, calc(100% - 32px)); }
+.adaptive-evidence-record { padding: 10px 12px; border-bottom: 1px solid var(--hairline); }
+.adaptive-evidence-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: #44546f; font-size: 12px; }
+.adaptive-evidence-record h3 { margin: 8px 0 2px; font-size: 20px; line-height: 1.15; }
+.adaptive-evidence-record > p:not(.adaptive-evidence-boundary) { margin: 0; color: #44546f; font-size: 13px; }
+.adaptive-evidence-fields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 9px 0 0; border-block: 1px solid #dfe1e6; }
+.adaptive-evidence-fields > div { min-width: 0; padding: 8px 6px; }
+.adaptive-evidence-fields > div + div { border-left: 1px solid #dfe1e6; }
+.adaptive-evidence-fields dt { color: #44546f; font-size: 12px; font-weight: 650; }
+.adaptive-evidence-fields dd { margin: 4px 0 0; overflow-wrap: anywhere; font: 750 15px/1.2 Consolas, monospace; }
+.adaptive-evidence-boundary { margin: 8px 0 0; padding: 7px 8px; border-radius: 6px; background: #f1f2f4; color: #172b4d; font-size: 13px; line-height: 1.35; }
+.adaptive-evidence-drawer .replay-map-panel-header button { min-width: 44px; min-height: 44px; display: grid; place-items: center; }
+
+@media (max-width: 700px) {
+  .adaptive-evidence-preview.map-hover-card { display: none; }
+  .adaptive-evidence-drawer { right: 8px; left: 8px; width: auto; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .adaptive-evidence-preview, .adaptive-evidence-drawer { transition: none; }
+}

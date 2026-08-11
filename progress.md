@@ -1211,3 +1211,16 @@
   `Not an all-clear` when there are no promoted candidates.
 - 2026-08-12: Published exact validated product commit `e094531` only to the owner-only Sites source, saved version 66
   and verified `/dashboard` in production. GitHub remotes and remote `main` were not changed.
+
+# Phase 56 - Adaptive Replay evidence surfaces
+
+- 2026-08-12: Started the adaptive Replay evidence change after comparing both deployed cases. Locked the design at
+  one predictable preview/drawer shell with movement-, rain- and flow-specific projections; no source truth, model,
+  case data or evidence authority changes are permitted.
+- 2026-08-12: RED confirmed after a successful production build: 109/113 tests pass and the four intentional failures
+  are exactly the missing movement/rain/flow/cluster projections and shared adaptive evidence shell.
+- 2026-08-12: Implemented one shared adaptive preview/drawer contract across August movement and April movement,
+  rainfall and river-flow evidence. Case, layer, filter, source and time changes now clear incompatible selections;
+  April-only backtest detail is isolated from the August workspace.
+- 2026-08-12: Verification passed: production build plus 113/113 tests, lint, zero browser console errors, desktop
+  case switching and measurement-specific drawers, and a 375x812 mobile drawer with no horizontal overflow.

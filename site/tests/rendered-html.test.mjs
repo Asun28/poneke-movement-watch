@@ -225,10 +225,28 @@ test("separates Replay playback from layers and renders an operable timeline", a
 test("keeps April movement truth accessible without repeating model-weight copy in the detail card", async () => {
   const source = await readFile(new URL("../app/components/SensorReplayCanvas.tsx", import.meta.url), "utf8");
 
-  assert.match(source, /aria-label="Selected April movement evidence"/);
+  assert.match(source, /"Selected April movement evidence"/);
   assert.match(source, /Retrospective analysis; not event-time evidence/);
   assert.doesNotMatch(source, /<h2>Movement evidence<\/h2>/);
   assert.doesNotMatch(source, /Retrospective · weight 0/);
+});
+
+test("uses one adaptive evidence shell for August and April Replay records", async () => {
+  const [movement, sensor, liveMap, shell] = await Promise.all([
+    readFile(new URL("../app/MovementCanvas.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/SensorReplayCanvas.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/LiveMap.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/AdaptiveEvidence.tsx", import.meta.url), "utf8"),
+  ]);
+
+  assert.match(movement, /<AdaptiveEvidencePreview/);
+  assert.match(movement, /<AdaptiveEvidenceDrawer/);
+  assert.match(sensor, /<AdaptiveEvidenceDrawer/);
+  assert.match(liveMap, /adaptiveEvidenceContext/);
+  assert.match(liveMap, /<AdaptiveEvidencePreview/);
+  assert.match(shell, /data-adaptive-evidence="preview"/);
+  assert.match(shell, /data-adaptive-evidence="drawer"/);
+  assert.match(shell, /aria-label="Close evidence details"/);
 });
 
 test("keeps the travel-direction legend concise", async () => {
@@ -295,37 +313,39 @@ test("renders the April storm as a leakage-safe retrospective case study", async
   const response = await render("/replay");
   assert.equal(response.status, 200);
   const html = await response.text();
+  const [details, workspace] = await Promise.all([
+    readFile(new URL("../app/components/AprilBacktestDetails.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/ReplayWorkspaceClient.tsx", import.meta.url), "utf8"),
+  ]);
 
-  assert.match(html, /id="april-storm-backtest"/);
-  assert.match(html, /Replay Analyzer input/);
-  assert.match(html, /April Storm · movement impacts · 18–22 Apr 2026/);
-  assert.match(html, /Primary · city movement/);
-  assert.match(html, /2,903 movement candidates/);
-  assert.match(html, /209,334 count records/);
-  assert.match(html, /Supporting · weather and river/);
-  assert.match(html, /18 gauges · 10,098 readings/);
-  assert.match(html, /10,098/);
-  assert.match(html, /12 rain gauges/);
-  assert.match(html, /6 river gauges/);
-  assert.match(html, /Hydro detector/);
-  assert.match(html, /Investigation only/);
-  assert.match(html, /Movement outcomes/);
-  assert.match(html, /Retrospective only/);
-  assert.match(html, /Official impact evidence/);
-  assert.match(html, /Post-event · withheld/);
-  assert.match(html, /event-time weight 0/);
-  assert.match(html, /Train before 18 Apr/);
-  assert.match(html, /5 or 15 min/);
-  assert.match(html, /source_claimed_time/);
-  assert.match(html, /normalized_event_time/);
-  assert.match(html, /correction_note/);
-  assert.match(html, /available_at/);
-  assert.match(html, /Mock excluded/);
-  assert.match(html, /One event cannot establish general accuracy/);
-  assert.match(html, /\/cop\/v4\/april-storm-event-pack\.json/);
-  assert.match(html, /\/cop\/v4\/april-storm-hilltop-observations\.json/);
-  assert.match(html, /\/cop\/v4\/april-storm-hydro-detector\.json/);
-  assert.match(html, /\/cop\/v4\/april-storm-movement-outcomes\.json/);
+  assert.doesNotMatch(html, /id="april-storm-backtest"/);
+  assert.match(workspace, /active\.id === "wellington-april-storm-2026"/);
+  assert.match(details, /id="april-storm-backtest"/);
+  assert.match(details, /Replay Analyzer input/);
+  assert.match(details, /April Storm · movement impacts · 18–22 Apr 2026/);
+  assert.match(details, /Primary · city movement/);
+  assert.match(details, /Supporting · weather and river/);
+  assert.match(details, /12 rain gauges/);
+  assert.match(details, /6 river gauges/);
+  assert.match(details, /Hydro detector/);
+  assert.match(details, /Investigation only/);
+  assert.match(details, /Movement outcomes/);
+  assert.match(details, /Retrospective only/);
+  assert.match(details, /Official impact evidence/);
+  assert.match(details, /Post-event · withheld/);
+  assert.match(details, /event-time weight 0/);
+  assert.match(details, /Train before 18 Apr/);
+  assert.match(details, /5 or 15 min/);
+  assert.match(details, /source_claimed_time/);
+  assert.match(details, /normalized_event_time/);
+  assert.match(details, /correction_note/);
+  assert.match(details, /available_at/);
+  assert.match(details, /Mock excluded/);
+  assert.match(details, /One event cannot establish general accuracy/);
+  assert.match(details, /\/cop\/v4\/april-storm-event-pack\.json/);
+  assert.match(details, /\/cop\/v4\/april-storm-hilltop-observations\.json/);
+  assert.match(details, /\/cop\/v4\/april-storm-hydro-detector\.json/);
+  assert.match(details, /\/cop\/v4\/april-storm-movement-outcomes\.json/);
 });
 
 test("ships a machine-readable April storm pack without invented replay observations", async () => {

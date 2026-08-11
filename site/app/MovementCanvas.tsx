@@ -5,6 +5,7 @@ import { ArrowCounterClockwise, CarProfile, CornersIn, CornersOut, PersonSimpleW
 import registryData from "../public/cop/v2/source-registry.json";
 import { SOURCE_MANIFEST } from "../lib/sourceManifest.mjs";
 import { operationsTargetForConnectorMode } from "../lib/sourceOperations.mjs";
+import { buildAdaptiveEvidenceClusterModel, buildAdaptiveEvidenceModel } from "../lib/adaptiveEvidence.mjs";
 import {
   INVESTIGATION_MODULES,
   mergeInvestigationSources,
@@ -31,6 +32,7 @@ import {
 import InvestigationLayersPanel, { InvestigationLayersButton } from "./components/InvestigationLayersPanel";
 import MovementDelta from "./components/MovementDelta";
 import SourceIconPicker, { SourceIconMode, SourceIconPreview } from "./components/SourceIconPicker";
+import { AdaptiveEvidenceDrawer, AdaptiveEvidencePreview } from "./components/AdaptiveEvidence";
 
 type Coordinate = [number, number];
 type LineFeature = {
@@ -211,6 +213,17 @@ function replaySignalFeature(
     geometry: coverageFeature.geometry,
     properties: signal,
   } as LineFeature & { type: "Feature" };
+}
+
+function movementEvidenceRecord(feature: LineFeature) {
+  return {
+    id: String(feature.id),
+    source_id: MOVEMENT_REPLAY_SOURCE_ID,
+    kind: "movement_outcome",
+    observed_at: String(feature.properties.observed_at ?? ""),
+    freshness_state: "real replay",
+    properties: feature.properties,
+  };
 }
 
 function formatReplayTime(value: string) {
@@ -1242,6 +1255,25 @@ export default function MovementCanvas({ investigation }: {
   const selected = filteredSignals.find(
     (feature) => signalKey(feature) === selectedSignalKey,
   ) ?? filteredSignals[0];
+  const selectedEvidence = selected
+    ? buildAdaptiveEvidenceModel(movementEvidenceRecord(selected), {
+      case_id: "august-movement-review-2026",
+      source_label: "WCC Transport Sensors",
+      truth_label: "Batch replay",
+    })
+    : null;
+  const inspectionEvidence = mapInspection?.count === 1
+    ? buildAdaptiveEvidenceModel(movementEvidenceRecord(mapInspection.feature), {
+      case_id: "august-movement-review-2026",
+      source_label: "WCC Transport Sensors",
+      truth_label: "Batch replay",
+    })
+    : null;
+  const inspectionCluster = mapInspection?.count && mapInspection.count > 1
+    ? buildAdaptiveEvidenceClusterModel(mapInspection.features.map(movementEvidenceRecord), {
+      case_id: "august-movement-review-2026",
+    })
+    : null;
 
   useEffect(() => {
     if (!isPlaying || !replay || !replaySourceSelected) return;
@@ -1275,19 +1307,22 @@ export default function MovementCanvas({ investigation }: {
     else if (firstOnDate >= 0) setSlotIndex(firstOnDate);
     setIsPlaying(false);
     setMapInspection(null);
+    setSelectedSignalKey(null);
+    setIsEvidenceOpen(false);
   };
   const replayLabel = currentSlot
     ? formatReplayTime(currentSlot.target_at)
     : "12:00 · Thursday 6 August 2026";
   const replayMaxIndex = Math.max(0, (replay?.slots.length ?? 1) - 1);
   const replayProgress = replayMaxIndex > 0 ? (slotIndex / replayMaxIndex) * 100 : 0;
-  const confidence = selected?.properties.signal_confidence as SignalConfidence | undefined;
   const replayEnabled = Boolean(replay && replaySourceSelected);
   const toggleSource = (sourceId: string) => {
     if (sourceId === MOVEMENT_REPLAY_SOURCE_ID && selectedSourceIds.has(sourceId)) {
       setIsPlaying(false);
     }
     setMapInspection(null);
+    setSelectedSignalKey(null);
+    setIsEvidenceOpen(false);
     setSelectedSourceIds((current) => toggleSourceSelection(current, sourceId));
   };
   const saveInvestigationSource = (draft: InvestigationSourceDraft) => {
@@ -1543,9 +1578,9 @@ export default function MovementCanvas({ investigation }: {
           onSetCoverage={setShowCoverage}
           onSetSymbolSize={setSymbolSize}
           onToggleSource={toggleSource}
-          onSelectAllSources={() => { setSelectedSourceIds(new Set(sourceLayers.map((source) => source.id))); setMapInspection(null); }}
-          onReplayOnly={() => { setSelectedSourceIds(new Set([MOVEMENT_REPLAY_SOURCE_ID])); setMapInspection(null); }}
-          onClearSources={() => { setSelectedSourceIds(new Set()); setIsPlaying(false); setMapInspection(null); }}
+          onSelectAllSources={() => { setSelectedSourceIds(new Set(sourceLayers.map((source) => source.id))); setMapInspection(null); setSelectedSignalKey(null); setIsEvidenceOpen(false); }}
+          onReplayOnly={() => { setSelectedSourceIds(new Set([MOVEMENT_REPLAY_SOURCE_ID])); setMapInspection(null); setSelectedSignalKey(null); setIsEvidenceOpen(false); }}
+          onClearSources={() => { setSelectedSourceIds(new Set()); setIsPlaying(false); setMapInspection(null); setSelectedSignalKey(null); setIsEvidenceOpen(false); }}
           onSaveSource={saveInvestigationSource}
         />
       </InvestigationLayersPanel>
@@ -1601,7 +1636,7 @@ export default function MovementCanvas({ investigation }: {
                   type="button"
                   aria-label="Previous replay hour"
                   disabled={!replayEnabled || slotIndex === 0}
-                  onClick={() => { setSlotIndex((value) => Math.max(0, value - 1)); setIsPlaying(false); setMapInspection(null); }}
+                  onClick={() => { setSlotIndex((value) => Math.max(0, value - 1)); setIsPlaying(false); setMapInspection(null); setSelectedSignalKey(null); setIsEvidenceOpen(false); }}
                 >←</button>
                 <button
                   type="button"
@@ -1612,13 +1647,15 @@ export default function MovementCanvas({ investigation }: {
                   onClick={() => {
                     if (!isPlaying) setMapInspection(null);
                     setIsPlaying(!isPlaying);
+                    setSelectedSignalKey(null);
+                    setIsEvidenceOpen(false);
                   }}
                 >{isPlaying ? "Pause" : "Play"}</button>
                 <button
                   type="button"
                   aria-label="Next replay hour"
                   disabled={!replayEnabled || slotIndex >= (replay?.slots.length ?? 1) - 1}
-                  onClick={() => { setSlotIndex((value) => Math.min((replay?.slots.length ?? 1) - 1, value + 1)); setIsPlaying(false); setMapInspection(null); }}
+                  onClick={() => { setSlotIndex((value) => Math.min((replay?.slots.length ?? 1) - 1, value + 1)); setIsPlaying(false); setMapInspection(null); setSelectedSignalKey(null); setIsEvidenceOpen(false); }}
                 >→</button>
               </div>
             </div>
@@ -1639,7 +1676,7 @@ export default function MovementCanvas({ investigation }: {
               max={replayMaxIndex}
               value={slotIndex}
               disabled={!replayEnabled}
-              onChange={(event) => { setSlotIndex(Number(event.currentTarget.value)); setIsPlaying(false); setMapInspection(null); }}
+              onChange={(event) => { setSlotIndex(Number(event.currentTarget.value)); setIsPlaying(false); setMapInspection(null); setSelectedSignalKey(null); setIsEvidenceOpen(false); }}
             />
             <div className="replay-timeline-ticks" aria-label="Replay timeline ticks">
               <span>{formatTimelineTick(replay?.slots[0]?.target_at)}</span>
@@ -1656,7 +1693,7 @@ export default function MovementCanvas({ investigation }: {
                     key={value}
                     className={filter === value ? "active" : ""}
                     aria-pressed={filter === value}
-                    onClick={() => { setFilter(value); setMapInspection(null); }}
+                    onClick={() => { setFilter(value); setMapInspection(null); setSelectedSignalKey(null); setIsEvidenceOpen(false); }}
                   >
                     {value === "people" ? (
                       <span className="movement-filter-icon" data-movement-icon="people" aria-hidden="true">
@@ -1725,39 +1762,12 @@ export default function MovementCanvas({ investigation }: {
           </span>
           <span className="sr-only">Inspection is off during playback. The signal list remains available for keyboard inspection.</span>
           {mapInspection ? (
-            <aside
-              className={`map-hover-card${mapInspection.count > 1 ? " is-cluster" : ""}`}
-              role="status"
+            <AdaptiveEvidencePreview
+              model={inspectionEvidence}
+              cluster={inspectionCluster}
+              className="map-hover-card"
               style={{ left: mapInspection.left, top: mapInspection.top }}
-            >
-              {mapInspection.count > 1 ? (
-                <>
-                  <div><span>Nearby movement signals</span><em>{mapInspection.count}</em></div>
-                  <strong>{mapInspection.count} signals in this area</strong>
-                  <p>Click the cluster to zoom in and inspect individual sensors.</p>
-                  <small>WCC Transport Sensors · display cluster</small>
-                </>
-              ) : (
-                <>
-                  <div>
-                    <span>Paused inspection</span>
-                    <em className={String(mapInspection.feature.properties.change_direction)}>
-                      {String(mapInspection.feature.properties.change_direction)}
-                    </em>
-                  </div>
-                  <strong>{String(mapInspection.feature.properties.name)}</strong>
-                  <p>
-                    {String(mapInspection.feature.properties.transport_class)} · {String(mapInspection.feature.properties.direction)} travel
-                  </p>
-                  <dl>
-                    <div><dt>Observed</dt><dd>{Number(mapInspection.feature.properties.observed_count).toLocaleString("en-NZ")}</dd></div>
-                    <div><dt>Expected</dt><dd>{Number(mapInspection.feature.properties.expected_count).toLocaleString("en-NZ", { maximumFractionDigits: 1 })}</dd></div>
-                  </dl>
-                  <time>{formatReplayTime(String(mapInspection.feature.properties.observed_at))}</time>
-                  <small>WCC Transport Sensors · real replay</small>
-                </>
-              )}
-            </aside>
+            />
           ) : null}
           <div className="map-controls replay-google-map-controls" aria-label="Map controls" data-max-zoom="2000%" data-style="google-vertical">
             <div className="map-zoom-buttons" role="group" aria-label="Map zoom controls">
@@ -1812,40 +1822,13 @@ export default function MovementCanvas({ investigation }: {
         </div>
       </div>
 
-      <aside className="evidence-column replay-map-evidence-overlay" hidden={!isEvidenceOpen} aria-label="Signal evidence">
-        <header className="replay-map-panel-header">
-          <div><h2>Signal evidence</h2><span>{filteredSignals.length} in this view</span></div>
-          <button type="button" aria-label="Close signal evidence" onClick={() => setIsEvidenceOpen(false)}>×</button>
-        </header>
-        {selected ? (
-          <div className="selected-evidence">
-            <div className="evidence-heading">
-              <span className={`direction-chip ${selected.properties.change_direction}`}>
-                {String(selected.properties.change_direction)}
-              </span>
-              <span>Investigate</span>
-            </div>
-            <h3>{String(selected.properties.name)}</h3>
-            <p>{String(selected.properties.transport_class)} · {String(selected.properties.direction)}</p>
-            <div className="count-comparison">
-              <div><span>Observed</span><strong>{Number(selected.properties.observed_count).toLocaleString("en-NZ")}</strong></div>
-              <div><span>Expected</span><strong>{Number(selected.properties.expected_count).toLocaleString("en-NZ")}</strong></div>
-              <div className="movement-delta-cell"><span>Change</span><MovementDelta observed={Number(selected.properties.observed_count)} expected={Number(selected.properties.expected_count)} /></div>
-            </div>
-            <dl className="evidence-metrics">
-              <div><dt>Robust score</dt><dd>{Number(selected.properties.robust_z).toFixed(1)} z</dd></div>
-              <div><dt>History</dt><dd>{confidence?.history_samples ?? 0} matched hours</dd></div>
-              <div><dt>Baseline strength</dt><dd>{confidence?.level ?? "unknown"}</dd></div>
-            </dl>
-          </div>
-        ) : (
-          <p className="empty-evidence">
-            {replaySourceSelected
-              ? "Select a signal"
-              : "Select a movement source"}
-          </p>
-        )}
-
+      <AdaptiveEvidenceDrawer
+        model={selectedEvidence}
+        open={isEvidenceOpen}
+        onClose={() => setIsEvidenceOpen(false)}
+        title="Signal evidence"
+        className="evidence-column"
+      >
         <TrendView signal={selected} visible={isEvidenceOpen} />
 
         <div className="signal-list" aria-label={`${filteredSignals.length} filtered signals`}>
@@ -1874,7 +1857,7 @@ export default function MovementCanvas({ investigation }: {
             </p>
           ) : null}
         </div>
-      </aside>
+      </AdaptiveEvidenceDrawer>
     </section>
   );
 }

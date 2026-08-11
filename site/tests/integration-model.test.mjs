@@ -25,6 +25,13 @@ try {
   // The contract tests stay readable during the initial RED step.
 }
 
+let adaptiveEvidence = {};
+try {
+  adaptiveEvidence = await import("../lib/adaptiveEvidence.mjs");
+} catch {
+  // The contract tests stay readable during the initial RED step.
+}
+
 let operatorDashboard = {};
 try {
   operatorDashboard = await import("../lib/operatorDashboard.mjs");
@@ -294,6 +301,116 @@ test("projects an April movement candidate into truthful selected evidence and o
   assert.match(detail.boundary, /No cause inferred/);
 });
 
+test("projects movement records into one concise adaptive preview and a richer drawer", () => {
+  assert.equal(typeof adaptiveEvidence.buildAdaptiveEvidenceModel, "function");
+  const evidence = adaptiveEvidence.buildAdaptiveEvidenceModel({
+    id: "movement:401:Car:S:2026-04-20T12:00:00+12:00",
+    source_id: "wcc-transport-sensors",
+    kind: "movement_outcome",
+    observed_at: "2026-04-20T12:00:00+12:00",
+    freshness_state: "retrospective only",
+    properties: {
+      name: "Cuba St road",
+      transport_class: "Car",
+      direction: "S",
+      observed_count: 20,
+      expected_count: 0,
+      change_direction: "increase",
+      robust_z: 20,
+      history_samples: 12,
+      signal_confidence: { level: "high", history_samples: 12 },
+    },
+  }, { case_id: "wellington-april-storm-2026", source_label: "WCC Transport Sensors" });
+
+  assert.equal(evidence.entity_type, "movement");
+  assert.equal(evidence.title, "Cuba St road");
+  assert.equal(evidence.subtitle, "Car · S");
+  assert.deepEqual(evidence.badge, { label: "Increase", tone: "increase" });
+  assert.deepEqual(evidence.preview_fields, [
+    { label: "Observed", value: "20" },
+    { label: "Expected", value: "0" },
+    { label: "Change", value: "+20" },
+  ]);
+  assert.deepEqual(evidence.drawer_fields.slice(-3), [
+    { label: "Robust score", value: "20.0 z" },
+    { label: "History", value: "12 matched hours" },
+    { label: "Baseline", value: "high" },
+  ]);
+  assert.match(evidence.boundary, /No cause inferred/);
+});
+
+test("adapts the same evidence contract to rainfall and river flow without movement fields", () => {
+  assert.equal(typeof adaptiveEvidence.buildAdaptiveEvidenceModel, "function");
+  const rainfall = adaptiveEvidence.buildAdaptiveEvidenceModel({
+    id: "rain:berhampore:2026-04-20T12:00:00+12:00",
+    source_id: "gwrc-hilltop",
+    kind: "sensor_anomaly",
+    observed_at: "2026-04-20T12:00:00+12:00",
+    freshness_state: "historical replay",
+    properties: {
+      name: "Berhampore at Nursery",
+      measurement: "Rainfall",
+      value: 85.9,
+      unit: "mm/h",
+      change: 48.2,
+      detector_candidate: true,
+      detector_threshold: 30,
+      available_at: "2026-04-20T12:05:00+12:00",
+    },
+  }, { case_id: "wellington-april-storm-2026", source_label: "Greater Wellington Hilltop" });
+  const flow = adaptiveEvidence.buildAdaptiveEvidenceModel({
+    id: "flow:hutt:2026-04-20T20:00:00+12:00",
+    source_id: "gwrc-hilltop",
+    kind: "river_flow_measurement",
+    observed_at: "2026-04-20T20:00:00+12:00",
+    freshness_state: "historical replay",
+    properties: {
+      name: "Hutt River at Taita Gorge",
+      measurement: "Flow",
+      value: 475,
+      unit: "m³/s",
+      change: 61,
+      detector_candidate: false,
+      detector_threshold: 500,
+      available_at: "2026-04-20T20:05:00+12:00",
+    },
+  }, { case_id: "wellington-april-storm-2026", source_label: "Greater Wellington Hilltop" });
+
+  assert.equal(rainfall.entity_type, "rainfall");
+  assert.equal(rainfall.subtitle, "Rainfall");
+  assert.deepEqual(rainfall.preview_fields, [
+    { label: "Reading", value: "85.9 mm/h" },
+    { label: "Change", value: "+48.2 mm/h" },
+    { label: "Detector", value: "Candidate" },
+  ]);
+  assert.deepEqual(rainfall.drawer_fields.slice(-2), [
+    { label: "Threshold", value: "30 mm/h" },
+    { label: "Available", value: "20 Apr, 12:05" },
+  ]);
+  assert.equal(flow.entity_type, "river_flow");
+  assert.equal(flow.subtitle, "River flow");
+  assert.equal(flow.preview_fields[0].value, "475 m³/s");
+  assert.equal(flow.preview_fields[2].value, "Reading");
+  assert.ok([...rainfall.preview_fields, ...flow.preview_fields].every((field) => field.label !== "Expected"));
+});
+
+test("summarises mixed map clusters by evidence type instead of showing a fixed movement card", () => {
+  assert.equal(typeof adaptiveEvidence.buildAdaptiveEvidenceClusterModel, "function");
+  const cluster = adaptiveEvidence.buildAdaptiveEvidenceClusterModel([
+    { id: "m1", kind: "movement_outcome", properties: { name: "A", transport_class: "Pedestrian", observed_count: 9, expected_count: 3 } },
+    { id: "r1", kind: "sensor_anomaly", properties: { name: "B", measurement: "Rainfall", value: 20, unit: "mm", detector_candidate: true } },
+    { id: "f1", kind: "river_flow_measurement", properties: { name: "C", measurement: "Flow", value: 80, unit: "m³/s" } },
+  ], { case_id: "wellington-april-storm-2026" });
+
+  assert.equal(cluster.title, "3 evidence records");
+  assert.deepEqual(cluster.groups, [
+    { entity_type: "movement", label: "Movement", count: 1 },
+    { entity_type: "rainfall", label: "Rain", count: 1 },
+    { entity_type: "river_flow", label: "River flow", count: 1 },
+  ]);
+  assert.equal(cluster.action, "Zoom in to inspect");
+});
+
 test("does not fabricate missing April movement history or confidence", () => {
   const detail = replayDataWorkspace.buildMovementEvidenceDetail({
     observed_count: 7,
@@ -403,9 +520,9 @@ test("keeps April movement and official-impact layers operator-controlled", asyn
   assert.match(component, /wellingtonCityWeatherReadings\(visibleReadings\)/);
   assert.match(component, /fetch\("\/cop\/v4\/april-storm-movement-outcomes\.json"\)/);
   assert.match(component, /evidence_weight: 0/);
-  assert.match(component, /aria-label="Selected April movement evidence"/);
+  assert.match(component, /"Selected April movement evidence"/);
   assert.match(component, /aria-label="Matched-hour movement history"/);
-  assert.match(component, /No cause inferred/);
+  assert.match(component, /<AdaptiveEvidenceDrawer/);
 });
 
 test("keeps mobile Replay controls clear of the fixed operator navigation", async () => {

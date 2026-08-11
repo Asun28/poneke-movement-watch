@@ -3079,3 +3079,61 @@ that source from the map without opening another control.
 | First build found an unclosed icon span | 1 | Corrected it to a self-closing decorative span, then rebuilt successfully. |
 
 ---
+## Phase 56 — Adaptive Replay evidence surfaces
+
+### Goal
+
+Give every Replay case one predictable preview/drawer interaction while keeping the evidence fields
+strictly adaptive to the active case, selected layer, entity type and record.
+
+### Status
+
+- [completed] Audit August/April preview, drawer, case-switch and responsive behavior.
+- [completed] Add failing projection, rendered and case-isolation contracts.
+- [completed] Implement shared adaptive evidence projections and shells for both Replay canvases.
+- [completed] Run focused, full, lint and desktop/mobile browser verification.
+- [in_progress] Publish the exact owner-only build without changing GitHub remotes.
+
+### Acceptance criteria
+
+- August movement hover shows direction, observed, expected and signed change in a compact preview;
+  click/keyboard opens the full movement drawer with trend and signal list.
+- April movement hover and drawer retain retrospective movement metrics and matched-hour history.
+- April rain and flow hover/drawer show measurement-specific values, units, observation time and detector state;
+  they never inherit movement fields.
+- Preview and drawer use one shared visual/semantic shell, but their content is selected by the active
+  case and entity type rather than a fixed global field list.
+- Switching case, layer or replay time clears an incompatible selection. Mobile uses tap/keyboard for
+  primary access and never depends on hover.
+- April-specific backtest detail is not shown as part of the August case workspace.
+
+### Assumptions and exclusions
+
+- The change is Replay-only; existing Live Operations evidence behavior remains unchanged.
+- Existing source truth, retrospective status, event-time weight, values and trend data are preserved.
+- No new model, score, dataset, ontology rule, alert policy or evidence weight is added.
+
+### File-level implementation plan
+
+- `site/lib/adaptiveEvidence.mjs`: pure case/type-specific preview and drawer projections.
+- `site/app/components/AdaptiveEvidence.tsx`: shared compact preview and drawer shell.
+- `site/app/MovementCanvas.tsx`: August projection, hover preview and drawer selection.
+- `site/app/components/SensorReplayCanvas.tsx` and `LiveMap.tsx`: April movement/rain/flow projection and selection.
+- `site/app/components/ReplayWorkspaceClient.tsx`, `site/app/replay/page.tsx`: active-case isolation for April-only detail.
+- `site/app/globals.css`, `site/tests/*`: responsive shell styling and behavior contracts.
+
+### Rejected major alternatives
+
+- Do not force every source into movement fields or one universal record schema.
+- Do not keep two unrelated popup shells with matching colours only.
+- Do not rely on hover for touch or keyboard access.
+
+### Errors encountered
+
+| Error | Attempt | Resolution |
+|---|---:|---|
+| Combined skill read exceeded the output budget. | 1 | Re-read the selected UI and testing references separately before implementation. |
+| A PowerShell `rg` call used a Unix-style wildcard path. | 1 | Re-ran the audit with `-g '*.mjs'` and bounded file reads. |
+| Browser helper rejected one malformed wait expression. | 1 | Used the normal interaction command and verified the resulting frame directly. |
+
+---

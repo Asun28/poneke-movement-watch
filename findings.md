@@ -1949,3 +1949,34 @@ supports spatial event-footprint resolution, never direct building-damage claims
 - Desktop, 375x812 portrait and 812x375 landscape checks confirm the current picture, core actions and five-item
   mobile navigation remain visible without horizontal scrolling. Advanced Integration and Ontology stay available
   from Dashboard quick links rather than competing for bottom-navigation space.
+
+# Phase 56 - Adaptive Replay evidence surfaces
+
+- August uses `MovementCanvas`: paused pointer inspection creates a movement-only hover card, while a separately
+  toggled Signal evidence rail owns full detail, trend and the selectable signal list.
+- April uses `SensorReplayCanvas` plus `LiveMap`: generic observation hover is internal to `LiveMap`, and only a
+  selected retrospective movement record opens the persistent April detail. Selected rain/flow currently has no
+  equivalent persistent detail.
+- The shared CSS class does not create a shared interaction contract. August and April construct unrelated markup,
+  open through different actions and expose different close/selection behavior.
+- The correct seam is a shared preview/drawer shell backed by case/type-specific pure projections. Movement, rain and
+  flow retain distinct fields; source/time/truth and accessibility behavior form the stable envelope.
+- `ReplayPage` renders the April backtest block unconditionally below the active workspace, so it remains visible
+  under the August case and can be mistaken for active-case content.
+- UI guidance confirms hover cannot be the primary interaction, z-index must remain on the existing scale, touch
+  targets stay at least 44px and reduced-motion must avoid decorative transitions.
+- April normalizes Hilltop readings and retrospective movement outputs into the same `LiveMap` observation envelope.
+  Rain/flow expose `measurement`, `value`, `unit`, `change`, `available_at`, detector state and threshold; movement
+  exposes observed/expected counts, direction, robust score and matched history.
+- `LiveMap` is also used by Live Operations, so the adaptive Replay preview must be opt-in through a Replay context
+  rather than silently changing the production Live hover contract.
+- August clusters already retain every member feature, so cluster preview can use the same adapter to summarize entity
+  counts without losing the existing zoom-on-click behavior. Single marker click already updates the selected signal.
+- Existing tests protect map-first layout, collapsed panels, movement truth and April leakage guards. New tests should
+  assert pure literal projections plus rendered shared-shell semantics; they must not merely grep a renamed CSS class.
+- The RED contract will cover movement, rainfall, river flow and mixed clusters in one pure projection module. Both
+  Replay canvases must consume that module so a shared shell cannot drift back into source-specific field markup.
+- Browser verification confirms the implemented contract: August opens movement metrics and trend, April rain and
+  flow show measurement-specific fields without movement labels, and April movement retains matched-hour history.
+- Advancing the replay frame clears the open evidence drawer. At 375x812 the drawer remains within the viewport
+  (`347px` wide inside a `375px` viewport), the document has no horizontal overflow and the browser console is clean.

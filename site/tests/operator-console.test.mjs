@@ -227,7 +227,7 @@ test("opens Replay as a map-first workspace with secondary panels collapsed", as
   assert.match(replay, /class="replay-layer-overlay" hidden=""/);
   assert.match(replay, /aria-label="Investigation Layers"/);
   assert.match(replay, />Investigation Layers</);
-  assert.match(replay, /class="evidence-column replay-map-evidence-overlay"[^>]*hidden=""[^>]*aria-label="Signal evidence"/);
+  assert.match(replay, /class="replay-map-evidence-overlay adaptive-evidence-drawer evidence-column"[^>]*data-adaptive-evidence="drawer"[^>]*hidden=""[^>]*aria-label="Signal evidence"/);
   assert.match(replay, /data-replay-dataset="movement"/);
   assert.match(replay, /aria-label="Map zoom controls"/);
 });
@@ -301,11 +301,13 @@ test("opens Live as one map-first workspace with readable evidence overlays", as
 test("routes backtest events to Replay Analyzer instead of Live Operations", async () => {
   const live = await (await request("/live")).text();
   const replay = await (await request("/replay")).text();
+  const workspace = readFileSync(new URL("../app/components/ReplayWorkspaceClient.tsx", import.meta.url), "utf8");
 
   assert.doesNotMatch(live, /April Storm backtest/);
   assert.doesNotMatch(live, /回测/);
-  assert.match(replay, /Replay Analyzer input/);
-  assert.match(replay, /id="april-storm-backtest"/);
+  assert.doesNotMatch(replay, /id="april-storm-backtest"/);
+  assert.match(workspace, /active\.id === "wellington-april-storm-2026"/);
+  assert.match(workspace, /<AprilBacktestDetails/);
   assert.doesNotMatch(replay, /回测/);
   assert.match(replay, /Case handoff/);
   assert.match(replay, /available_at-only policy required in v1/);
@@ -313,14 +315,13 @@ test("routes backtest events to Replay Analyzer instead of Live Operations", asy
 
 test("keeps the April backtest detail collapsed after the map-first replay", async () => {
   const replay = await (await request("/replay")).text();
-  const mapAt = replay.indexOf('data-replay-map-first="true"');
-  const detailAt = replay.indexOf('<details id="april-storm-backtest"');
+  const details = readFileSync(new URL("../app/components/AprilBacktestDetails.tsx", import.meta.url), "utf8");
 
-  assert.match(replay, /<details id="april-storm-backtest" class="backtest-pack">/);
-  assert.doesNotMatch(replay, /<details id="april-storm-backtest" class="backtest-pack" open/);
-  assert.match(replay, /<summary class="backtest-header">/);
-  assert.ok(mapAt > -1);
-  assert.ok(detailAt > mapAt);
+  assert.match(replay, /data-replay-map-first="true"/);
+  assert.doesNotMatch(replay, /id="april-storm-backtest"/);
+  assert.match(details, /<details id="april-storm-backtest" className="backtest-pack">/);
+  assert.doesNotMatch(details, /<details id="april-storm-backtest" className="backtest-pack" open/);
+  assert.match(details, /<summary className="backtest-header">/);
 });
 
 test("lets an operator select April Storm or create a local Replay investigation", async () => {

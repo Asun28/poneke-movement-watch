@@ -4,14 +4,14 @@ import { CSSProperties, useEffect, useMemo, useState } from "react";
 import hilltopPack from "../../public/cop/v4/april-storm-hilltop-observations.json";
 import detectorPack from "../../public/cop/v4/april-storm-hydro-detector.json";
 import eventPack from "../../public/cop/v4/april-storm-event-pack.json";
+import { buildAdaptiveEvidenceModel } from "../../lib/adaptiveEvidence.mjs";
 import { buildMovementEvidenceDetail, buildSensorReplayDataset, defaultSensorReplayLayers, filterSensorReplayReadings, sensorReplayFrame, toggleSensorEvidenceFilter, updateVisibleSensorSeries, wellingtonCityWeatherReadings } from "../../lib/replayDataWorkspace.mjs";
 import { eventSymbolFor } from "../../lib/liveMapWorkspace.mjs";
 import { replayIntervalMs } from "../layerModel.mjs";
-import { X } from "@phosphor-icons/react";
+import { AdaptiveEvidenceDrawer } from "./AdaptiveEvidence";
 import EventSymbolBadge from "./EventSymbolBadge";
 import LiveMap from "./LiveMap";
 import InvestigationLayersPanel, { InvestigationLayersButton } from "./InvestigationLayersPanel";
-import MovementDelta from "./MovementDelta";
 
 type Investigation = {
   id: string;
@@ -259,6 +259,19 @@ export default function SensorReplayCanvas({ investigation }: { investigation: I
     () => selectedMovementSignal ? buildMovementEvidenceDetail(selectedMovementSignal) : null,
     [selectedMovementSignal],
   );
+  const replayObservations = [...observations, ...movementOutcomeObservations];
+  const selectedObservation = replayObservations.find((observation) => observation.id === selectedId) ?? null;
+  const selectedEvidence = selectedObservation
+    ? buildAdaptiveEvidenceModel(selectedObservation, {
+      case_id: investigation.id,
+      source_label: selectedObservation.source_id === "wcc-transport-sensors"
+        ? "WCC Transport Sensors"
+        : "Greater Wellington Hilltop",
+      truth_label: selectedObservation.kind === "movement_outcome"
+        ? "Retrospective analysis"
+        : "Historical replay",
+    })
+    : null;
 
   useEffect(() => {
     if (!showMovementOutcomes || movementOutcomePack || movementLoadState !== "loading") return;
@@ -327,7 +340,7 @@ export default function SensorReplayCanvas({ investigation }: { investigation: I
   return (
     <section id="replay-map" className="replay-map-workspace sensor-replay-workspace" data-replay-map-first="true" data-replay-dataset="sensor" data-primary-layer="movement-outcomes" data-delta-encoding="signed-centre-bar" aria-label="April movement impact replay">
       <LiveMap
-        observations={[...observations, ...movementOutcomeObservations]}
+        observations={replayObservations}
         sources={[
           { source_id: investigation.source_id, name: "Greater Wellington Hilltop" },
           { source_id: "wcc-transport-sensors", name: "WCC Transport Sensors" },
@@ -336,6 +349,7 @@ export default function SensorReplayCanvas({ investigation }: { investigation: I
         showBasemap={showBasemap}
         markerScale={markerScale}
         onSelect={setSelectedId}
+        adaptiveEvidenceContext={{ case_id: investigation.id, truth_label: "Historical replay" }}
       />
       <div className="replay-compact-bar" aria-label="Replay controls" data-replay-toolbar-layout="two-tier" data-replay-density="compact">
         <div className="replay-playback-header" aria-label="Playback header">
@@ -348,15 +362,15 @@ export default function SensorReplayCanvas({ investigation }: { investigation: I
             <label><span>Time</span><select aria-label="Replay time" value={frame.target_at ?? ""} onChange={(event) => selectTime(event.currentTarget.value)}>{dateSlots.map((time: string) => <option key={time} value={time}>{time.slice(11, 16)}</option>)}</select></label>
             <label><span>Speed</span><select aria-label="Replay speed" value={speed} onChange={(event) => setSpeed(Number(event.currentTarget.value) as ReplaySpeed)}><option value={0.5}>0.5×</option><option value={1}>1×</option><option value={2}>2×</option><option value={4}>4×</option></select></label>
             <div className="replay-buttons">
-              <button type="button" aria-label="Previous replay step" disabled={slotIndex === 0} onClick={() => { setSlotIndex((value) => Math.max(0, value - 1)); setPlaying(false); }}>←</button>
-              <button type="button" className="play-button" aria-label={playing ? "Pause replay" : "Play replay"} aria-pressed={playing} onClick={() => setPlaying((value) => !value)}>{playing ? "Pause" : "Play"}</button>
-              <button type="button" aria-label="Next replay step" disabled={slotIndex >= dataset.slots.length - 1} onClick={() => { setSlotIndex((value) => Math.min(dataset.slots.length - 1, value + 1)); setPlaying(false); }}>→</button>
+              <button type="button" aria-label="Previous replay step" disabled={slotIndex === 0} onClick={() => { setSlotIndex((value) => Math.max(0, value - 1)); setPlaying(false); setSelectedId(null); }}>←</button>
+              <button type="button" className="play-button" aria-label={playing ? "Pause replay" : "Play replay"} aria-pressed={playing} onClick={() => { setPlaying((value) => !value); setSelectedId(null); }}>{playing ? "Pause" : "Play"}</button>
+              <button type="button" aria-label="Next replay step" disabled={slotIndex >= dataset.slots.length - 1} onClick={() => { setSlotIndex((value) => Math.min(dataset.slots.length - 1, value + 1)); setPlaying(false); setSelectedId(null); }}>→</button>
             </div>
           </div>
           <output className="replay-compact-count" aria-live="polite">{dataset.playable_record_count.toLocaleString("en-NZ")} / {dataset.total_record_count.toLocaleString("en-NZ")} records</output>
         </div>
         <div className="replay-timeline" style={{ "--replay-progress": `${replayProgress}%` } as CSSProperties}>
-          <input className="replay-compact-scrubber" type="range" aria-label="Replay timeline" min={0} max={replayMaxIndex} value={slotIndex} onChange={(event) => { setSlotIndex(Number(event.currentTarget.value)); setPlaying(false); }} />
+          <input className="replay-compact-scrubber" type="range" aria-label="Replay timeline" min={0} max={replayMaxIndex} value={slotIndex} onChange={(event) => { setSlotIndex(Number(event.currentTarget.value)); setPlaying(false); setSelectedId(null); }} />
           <div className="replay-timeline-ticks" aria-label="Replay timeline ticks">
             <span>{timelineTick(dataset.slots[0])}</span>
             <strong>{timelineTick(frame.target_at)}</strong>
@@ -370,7 +384,7 @@ export default function SensorReplayCanvas({ investigation }: { investigation: I
                 Movement
               </button>
               {(["all", "rain", "flow", "anomaly"] as Exclude<SensorFilter, null>[]).map((value) => (
-                <button key={value} type="button" className={filter === value ? "active" : ""} aria-pressed={filter === value} onClick={() => setFilter((current) => toggleSensorEvidenceFilter(current, value) as SensorFilter)}>
+                <button key={value} type="button" className={filter === value ? "active" : ""} aria-pressed={filter === value} onClick={() => { setFilter((current) => toggleSensorEvidenceFilter(current, value) as SensorFilter); setSelectedId(null); }}>
                   {value === "all" ? "Weather" : value === "rain" ? "Rain" : value === "flow" ? "Flow" : "Hydro candidates"}
                 </button>
               ))}
@@ -393,7 +407,7 @@ export default function SensorReplayCanvas({ investigation }: { investigation: I
           {dataset.layer_groups.map((group: { id: string; label: string; series_count: number }) => {
             const groupFilter: Exclude<SensorFilter, null> = group.id === "rainfall" ? "rain" : group.id === "river-flow" ? "flow" : "anomaly";
             return (
-              <button key={group.id} type="button" aria-pressed={filter === groupFilter} onClick={() => setFilter((current) => toggleSensorEvidenceFilter(current, groupFilter) as SensorFilter)}>
+              <button key={group.id} type="button" aria-pressed={filter === groupFilter} onClick={() => { setFilter((current) => toggleSensorEvidenceFilter(current, groupFilter) as SensorFilter); setSelectedId(null); }}>
                 <span>{group.label}</span><strong>{group.series_count}</strong>
               </button>
             );
@@ -410,13 +424,13 @@ export default function SensorReplayCanvas({ investigation }: { investigation: I
           </ul>
         </section>
         <label className="sensor-symbol-size"><span>Symbol size <output>{Math.round(markerScale * 100)}%</output></span><input type="range" aria-label="Sensor symbol size" min="0.8" max="1.6" step="0.1" value={markerScale} onChange={(event) => setMarkerScale(Number(event.currentTarget.value))} /></label>
-        <div className="sensor-layer-actions"><button type="button" onClick={() => setVisibleSeriesIds(new Set(dataset.series.map((series: { id: string }) => series.id)))}>Show all</button><button type="button" onClick={() => setVisibleSeriesIds(new Set())}>Hide all</button></div>
+        <div className="sensor-layer-actions"><button type="button" onClick={() => { setVisibleSeriesIds(new Set(dataset.series.map((series: { id: string }) => series.id))); setSelectedId(null); }}>Show all</button><button type="button" onClick={() => { setVisibleSeriesIds(new Set()); setSelectedId(null); }}>Hide all</button></div>
         <div className="sensor-series-list" aria-label={`${dataset.series.length} sensor series`}>
           {dataset.series.map((series: { id: string; site: string; measurement: string; detector_episode_count: number }) => {
             const symbol = eventSymbolFor({ source_id: investigation.source_id, kind: series.measurement, properties: { measurement: series.measurement } });
             return (
               <label key={series.id}>
-                <input type="checkbox" checked={visibleSeriesIds.has(series.id)} onChange={(event) => { const checked = event.currentTarget.checked; setVisibleSeriesIds((current) => updateVisibleSensorSeries(current, series.id, checked)); }} />
+                <input type="checkbox" checked={visibleSeriesIds.has(series.id)} onChange={(event) => { const checked = event.currentTarget.checked; setVisibleSeriesIds((current) => updateVisibleSensorSeries(current, series.id, checked)); setSelectedId(null); }} />
                 <EventSymbolBadge symbolId={symbol.id} decorative />
                 <span><strong>{series.site}</strong><small>{series.measurement}{series.detector_episode_count ? ` · ${series.detector_episode_count} candidates` : ""}</small></span>
               </label>
@@ -425,36 +439,16 @@ export default function SensorReplayCanvas({ investigation }: { investigation: I
         </div>
         </div>
       </InvestigationLayersPanel>
-      <aside className="replay-map-evidence-overlay april-movement-evidence" hidden={!selectedMovementDetail} aria-label="Selected April movement evidence">
-        <header className="replay-map-panel-header">
-          <div><h2>Movement change</h2><span className="sr-only">Retrospective analysis; not event-time evidence.</span></div>
-          <button type="button" aria-label="Close movement evidence" onClick={() => setSelectedId(null)}><X size={18} aria-hidden="true" /></button>
-        </header>
-        {selectedMovementDetail ? (
-          <>
-            <section className="selected-evidence">
-              <div className="evidence-heading">
-                <span className={`direction-chip ${selectedMovementDetail.change_direction}`}>{selectedMovementDetail.change_direction}</span>
-                <span>Investigate</span>
-              </div>
-              <h3>{selectedMovementDetail.name}</h3>
-              <p>{selectedMovementDetail.transport_label}</p>
-              <div className="count-comparison april-count-comparison">
-                <div><span>Observed</span><strong>{movementCount(selectedMovementDetail.observed)}</strong></div>
-                <div><span>Expected</span><strong>{movementCount(selectedMovementDetail.expected)}</strong></div>
-                <div className="movement-delta-cell"><span>Change</span><MovementDelta observed={selectedMovementDetail.observed} expected={selectedMovementDetail.expected} /></div>
-              </div>
-              <dl className="evidence-metrics">
-                <div><dt>Robust score</dt><dd>{selectedMovementDetail.robust_z.toFixed(1)} z</dd></div>
-                <div><dt>History</dt><dd>{selectedMovementDetail.history_count} matched hours</dd></div>
-                <div><dt>Baseline confidence</dt><dd>{selectedMovementDetail.baseline_confidence}</dd></div>
-              </dl>
-              <p className="evidence-note">No cause inferred. Check operational context before acting.</p>
-            </section>
-            <MovementHistoryChart detail={selectedMovementDetail} />
-          </>
-        ) : null}
-      </aside>
+      <AdaptiveEvidenceDrawer
+        model={selectedEvidence}
+        open={Boolean(selectedEvidence)}
+        onClose={() => setSelectedId(null)}
+        title={selectedEvidence?.entity_type === "movement" ? "Selected April movement evidence" : "Selected April sensor evidence"}
+        className="april-movement-evidence"
+      >
+        <span className="sr-only">Retrospective analysis; not event-time evidence.</span>
+        {selectedMovementDetail ? <MovementHistoryChart detail={selectedMovementDetail} /> : null}
+      </AdaptiveEvidenceDrawer>
       <div className="sensor-reading-strip" aria-label="Current sensor values" data-weather-overview={filter === "all" ? "wellington-city" : "detail"}>
         {observations.map((observation) => (
           <button key={observation.id} type="button" onClick={() => setSelectedId(observation.id)}>

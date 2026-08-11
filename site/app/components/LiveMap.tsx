@@ -2,7 +2,9 @@
 /* eslint-disable jsx-a11y/no-noninteractive-element-interactions, jsx-a11y/no-noninteractive-tabindex -- The named WAI-ARIA application surface owns keyboard map navigation. */
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { buildAdaptiveEvidenceClusterModel, buildAdaptiveEvidenceModel } from "../../lib/adaptiveEvidence.mjs";
 import { buildLiveMapCard, buildLiveMapClusterCard, clusterMapPoints, eventSymbolFor, liveMapHitRadius } from "../../lib/liveMapWorkspace.mjs";
+import { AdaptiveEvidencePreview } from "./AdaptiveEvidence";
 import EventSymbolBadge from "./EventSymbolBadge";
 
 type Coordinate = [number, number];
@@ -201,6 +203,7 @@ export default function LiveMap({
   showBasemap = true,
   markerScale = 1,
   onSelect,
+  adaptiveEvidenceContext,
 }: {
   observations: Observation[];
   sources?: MapSource[];
@@ -209,6 +212,7 @@ export default function LiveMap({
   showBasemap?: boolean;
   markerScale?: number;
   onSelect: (id: string) => void;
+  adaptiveEvidenceContext?: { case_id: string; truth_label?: string };
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
@@ -234,6 +238,15 @@ export default function LiveMap({
     ? hovered.count > 1
       ? buildLiveMapClusterCard(hovered.observations, sources)
       : buildLiveMapCard(hovered.observation, sourceById.get(hovered.observation.source_id))
+    : null;
+  const adaptiveHoverModel = hovered && adaptiveEvidenceContext && hovered.count === 1
+    ? buildAdaptiveEvidenceModel(hovered.observation, {
+      ...adaptiveEvidenceContext,
+      source_label: sourceById.get(hovered.observation.source_id)?.name,
+    })
+    : null;
+  const adaptiveHoverCluster = hovered && adaptiveEvidenceContext && hovered.count > 1
+    ? buildAdaptiveEvidenceClusterModel(hovered.observations, adaptiveEvidenceContext)
     : null;
   const visibleSymbols = useMemo(() => {
     const symbols = new Map<string, ReturnType<typeof eventSymbolFor>>();
@@ -420,7 +433,15 @@ export default function LiveMap({
       />
       <ul className="ops-map-marker-list" aria-label="Map evidence markers">
         {keyboardObservations.map((observation, index) => {
-          const card = buildLiveMapCard(observation, sourceById.get(observation.source_id));
+          const card = adaptiveEvidenceContext
+            ? buildAdaptiveEvidenceModel(observation, {
+              ...adaptiveEvidenceContext,
+              source_label: sourceById.get(observation.source_id)?.name,
+            })
+            : buildLiveMapCard(observation, sourceById.get(observation.source_id));
+          const markerLabel = adaptiveEvidenceContext
+            ? `${card.title}. ${card.preview_fields.map((field: { label: string; value: string }) => `${field.label} ${field.value}`).join(". ")}. ${card.source_label}.`
+            : `${card.title}. ${card.value}. ${card.source}.`;
           return (
             <li key={observation.id}>
               <button
@@ -432,11 +453,11 @@ export default function LiveMap({
                 data-map-marker-id={observation.id}
                 tabIndex={index === keyboardIndex ? 0 : -1}
                 aria-current={selectedId === observation.id ? "true" : undefined}
-                aria-label={`${card.title}. ${card.value}. ${card.source}.`}
+                aria-label={markerLabel}
                 onFocus={() => setKeyboardIndex(index)}
                 onKeyDown={handleMapKeyDown}
                 onClick={() => onSelect(observation.id)}
-              >{card.title}<span>{card.value}</span></button>
+              >{card.title}<span>{adaptiveEvidenceContext ? card.preview_fields[0]?.value : card.value}</span></button>
             </li>
           );
         })}
@@ -450,7 +471,14 @@ export default function LiveMap({
           <span className="ops-map-fullscreen-glyph" aria-hidden="true" />
         </button>
       </div>
-      {hovered && hoverCard && (
+      {hovered && adaptiveEvidenceContext ? (
+        <AdaptiveEvidencePreview
+          model={adaptiveHoverModel}
+          cluster={adaptiveHoverCluster}
+          className={`ops-map-hover is-${hovered.horizontal} is-${hovered.vertical} ${hovered.count > 1 ? "is-cluster" : "is-record"}`}
+          style={{ left: hovered.x, top: hovered.y }}
+        />
+      ) : hovered && hoverCard ? (
         <div
           className={`ops-map-hover is-${hovered.horizontal} is-${hovered.vertical} ${hovered.count > 1 ? "is-cluster" : "is-record"}`}
           data-live-hover-card="compact-values"
@@ -482,7 +510,7 @@ export default function LiveMap({
             </>
           )}
         </div>
-      )}
+      ) : null}
       <div className="ops-map-legend" aria-label="Map symbol legend">
         {visibleSymbols.map((symbol) => <span key={symbol.id}><EventSymbolBadge symbolId={symbol.id} decorative />{symbol.label}</span>)}
       </div>

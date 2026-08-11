@@ -6,6 +6,7 @@ import { replayDatasetKind } from "../../lib/replayDataWorkspace.mjs";
 import ReplayCaseContext from "./ReplayCaseContext";
 import ReplayInvestigationSelector from "./ReplayInvestigationSelector";
 import SensorReplayCanvas from "./SensorReplayCanvas";
+import AprilBacktestDetails, { AprilBacktestSummary } from "./AprilBacktestDetails";
 
 type Investigation = {
   id: string;
@@ -27,7 +28,7 @@ type Investigation = {
   default_target_at?: string;
 };
 
-export default function ReplayWorkspaceClient({ catalog }: { catalog: Investigation[] }) {
+export default function ReplayWorkspaceClient({ catalog, aprilSummary }: { catalog: Investigation[]; aprilSummary: AprilBacktestSummary }) {
   const defaultInvestigation = catalog.find((item) => item.id === "august-movement-review-2026") ?? catalog[0];
   const [active, setActive] = useState(defaultInvestigation);
   const selectInvestigation = useCallback((investigation: Investigation) => setActive(investigation), []);
@@ -41,6 +42,7 @@ export default function ReplayWorkspaceClient({ catalog }: { catalog: Investigat
       {datasetKind === "sensor"
         ? <SensorReplayCanvas key={active.id} investigation={active} />
         : <MovementCanvas key={active.id} investigation={active} />}
+      {active.id === "wellington-april-storm-2026" ? <AprilBacktestDetails summary={aprilSummary} /> : null}
     </div>
   );
 }
