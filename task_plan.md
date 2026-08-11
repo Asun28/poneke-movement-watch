@@ -1,5 +1,59 @@
 # Pōneke Movement Watch — evidence ontology roadmap
 
+## Phase 51 — April movement evidence detail and history
+
+### Goal
+
+Restore the packaged April movement model detail that is currently dropped by the map projection,
+including the real matched-hour history and a compact trend chart for the selected movement signal.
+
+### Status
+
+- [completed] Audit the April outcome pack and selection path.
+- [completed] Add failing model and UI contracts.
+- [completed] Implement selected movement detail and the matched-history chart.
+- [in_progress] Run regressions, production build and owner-only deployment.
+
+### Acceptance criteria
+
+- Selecting an April movement marker shows increase/decrease, Investigate, site, class, direction,
+  observed, expected, signed change, robust z, history count and baseline confidence.
+- A compact time chart plots only the selected signal's real `matched_history`, plus the current
+  observed value and expected-baseline reference; changing the selected signal refreshes it.
+- The detail states that no cause is inferred and keeps the retrospective event-time weight at zero.
+- Missing history is shown as unavailable; no values, confidence or cause are fabricated.
+- Weather and river selections retain their generic source detail and never inherit movement fields.
+- No detector retraining, new dataset, ontology/evidence-weight, case workflow or GitHub-origin change.
+
+### Assumptions and exclusions
+
+- The packaged 18–22 April movement outputs are retrospective investigation context only.
+- Matched history is descriptive detector evidence, not causal evidence about the April storm.
+- The existing Atlassian/Jira-style evidence overlay remains the visual system.
+
+### File-level plan
+
+- `site/lib/replayDataWorkspace.mjs`: pure movement-detail projection and ordered history contract.
+- `site/app/components/SensorReplayCanvas.tsx`: retain packaged fields and render selected detail/chart.
+- `site/app/globals.css`: compact responsive evidence overlay and chart styling.
+- `site/tests/*`: model truth, selection and rendered-contract coverage.
+- `findings.md`, `progress.md`: audit, verification and deployment evidence.
+
+### Rejected major alternatives
+
+- Do not rebuild or retrain the movement detector.
+- Do not synthesize missing history or infer the storm caused a movement change.
+- Do not make every sensor hover card carry the full movement evidence panel.
+
+### Errors encountered
+
+| Error | Attempt | Resolution |
+|---|---:|---|
+| Session catch-up was first called from the obsolete `.codex` skill path | 1 | Re-ran the same read-only helper from the installed `.agents` skill path. |
+| One broad inspection command produced truncated output and a PowerShell range type error | 1 | Re-ran bounded, file-specific reads; no files were changed. |
+| A sandboxed parallel rebuild could not start Vite's helper process | 1 | Stopped the bounded preview server and reran the same build with approved process permission. |
+| Browser label matching treated `Replay time` as a prefix for the timeline controls | 1 | Retried with the exact accessible label; the interaction passed. |
+
 ## Phase 50 — Replay control hierarchy and map clustering
 
 ### Goal

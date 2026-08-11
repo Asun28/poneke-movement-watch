@@ -137,6 +137,59 @@ export function sensorReplayFrame(dataset, requestedIndex) {
   return { index, target_at: targetAt, readings, newly_available_count: newlyAvailableCount };
 }
 
+function finiteNumber(value, fallback = 0) {
+  const number = Number(value);
+  return Number.isFinite(number) ? number : fallback;
+}
+
+function signedCount(value) {
+  const number = finiteNumber(value);
+  const formatted = new Intl.NumberFormat("en-NZ", { maximumFractionDigits: 1 }).format(Math.abs(number));
+  if (number > 0) return `+${formatted}`;
+  if (number < 0) return `−${formatted}`;
+  return "0";
+}
+
+export function buildMovementEvidenceDetail(signal) {
+  const observed = finiteNumber(signal?.observed_count);
+  const expected = finiteNumber(signal?.expected_count);
+  const observedAt = epoch(signal?.observed_at);
+  const history = (Array.isArray(signal?.matched_history) ? signal.matched_history : [])
+    .map((point) => ({
+      observed_at: cleanText(point?.observed_at),
+      observed_count: finiteNumber(point?.observed_count),
+    }))
+    .filter((point) => {
+      const pointAt = epoch(point.observed_at);
+      return pointAt !== null && (observedAt === null || pointAt < observedAt);
+    })
+    .toSorted((first, second) => epoch(first.observed_at) - epoch(second.observed_at));
+  const confidence = cleanText(signal?.signal_confidence?.level, "unknown").toLowerCase();
+  const change = observed - expected;
+
+  return {
+    id: cleanText(signal?.id, "movement-signal"),
+    name: cleanText(signal?.name, "Unnamed countline"),
+    transport_label: [cleanText(signal?.transport_class), cleanText(signal?.direction)]
+      .filter(Boolean)
+      .join(" · "),
+    change_direction: cleanText(signal?.change_direction, change < 0 ? "decrease" : "increase").toLowerCase(),
+    observed,
+    expected,
+    change,
+    change_label: signedCount(change),
+    robust_z: finiteNumber(signal?.robust_z),
+    observed_at: cleanText(signal?.observed_at),
+    history,
+    history_count: history.length,
+    history_available: history.length > 0,
+    baseline_confidence: confidence,
+    confidence_basis: cleanText(signal?.signal_confidence?.basis),
+    cause: null,
+    boundary: "No cause inferred. Check operational context before acting.",
+  };
+}
+
 export function filterSensorReplayReadings(readings, {
   visibleSeriesIds = new Set(),
   measurementFilter = "all",

@@ -200,6 +200,57 @@ test("builds an available-at-safe April sensor replay for the selected investiga
   assert.ok(frame.readings.every((reading) => new Date(reading.available_at) <= new Date(frame.target_at)));
 });
 
+test("projects an April movement candidate into truthful selected evidence and ordered history", () => {
+  assert.equal(typeof replayDataWorkspace.buildMovementEvidenceDetail, "function");
+  const signal = {
+    id: "movement:401:Car:S:2026-04-20T12:00:00+12:00",
+    name: "Cuba St road",
+    transport_class: "Car",
+    direction: "S",
+    change_direction: "increase",
+    observed_count: 20,
+    expected_count: 0,
+    robust_z: 20,
+    observed_at: "2026-04-20T12:00:00+12:00",
+    history_samples: 2,
+    matched_history: [
+      { observed_at: "2026-04-13T12:00:00+12:00", observed_count: 4 },
+      { observed_at: "2026-04-06T12:00:00+12:00", observed_count: 2 },
+    ],
+    signal_confidence: { level: "high", history_samples: 2, basis: "matched weekday and hour" },
+  };
+
+  const detail = replayDataWorkspace.buildMovementEvidenceDetail(signal);
+  assert.equal(detail.name, "Cuba St road");
+  assert.equal(detail.transport_label, "Car · S");
+  assert.equal(detail.change_direction, "increase");
+  assert.equal(detail.observed, 20);
+  assert.equal(detail.expected, 0);
+  assert.equal(detail.change, 20);
+  assert.equal(detail.change_label, "+20");
+  assert.equal(detail.robust_z, 20);
+  assert.equal(detail.history_count, 2);
+  assert.equal(detail.baseline_confidence, "high");
+  assert.deepEqual(detail.history.map(({ observed_count }) => observed_count), [2, 4]);
+  assert.ok(detail.history.every((point) => point.observed_at < signal.observed_at));
+  assert.equal(detail.cause, null);
+  assert.match(detail.boundary, /No cause inferred/);
+});
+
+test("does not fabricate missing April movement history or confidence", () => {
+  const detail = replayDataWorkspace.buildMovementEvidenceDetail({
+    observed_count: 7,
+    expected_count: 9,
+    matched_history: [],
+  });
+
+  assert.equal(detail.change, -2);
+  assert.deepEqual(detail.history, []);
+  assert.equal(detail.history_count, 0);
+  assert.equal(detail.baseline_confidence, "unknown");
+  assert.equal(detail.history_available, false);
+});
+
 test("filters Replay sensor layers without changing the source frame", () => {
   assert.equal(typeof replayDataWorkspace.filterSensorReplayReadings, "function");
   const readings = [
@@ -295,6 +346,9 @@ test("keeps April movement and official-impact layers operator-controlled", asyn
   assert.match(component, /wellingtonCityWeatherReadings\(visibleReadings\)/);
   assert.match(component, /fetch\("\/cop\/v4\/april-storm-movement-outcomes\.json"\)/);
   assert.match(component, /evidence_weight: 0/);
+  assert.match(component, /aria-label="Selected April movement evidence"/);
+  assert.match(component, /aria-label="Matched-hour movement history"/);
+  assert.match(component, /No cause inferred/);
 });
 
 test("keeps mobile Replay controls clear of the fixed operator navigation", async () => {

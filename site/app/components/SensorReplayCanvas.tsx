@@ -4,9 +4,10 @@ import { CSSProperties, useEffect, useMemo, useState } from "react";
 import hilltopPack from "../../public/cop/v4/april-storm-hilltop-observations.json";
 import detectorPack from "../../public/cop/v4/april-storm-hydro-detector.json";
 import eventPack from "../../public/cop/v4/april-storm-event-pack.json";
-import { buildSensorReplayDataset, defaultSensorReplayLayers, filterSensorReplayReadings, sensorReplayFrame, toggleSensorEvidenceFilter, updateVisibleSensorSeries, wellingtonCityWeatherReadings } from "../../lib/replayDataWorkspace.mjs";
+import { buildMovementEvidenceDetail, buildSensorReplayDataset, defaultSensorReplayLayers, filterSensorReplayReadings, sensorReplayFrame, toggleSensorEvidenceFilter, updateVisibleSensorSeries, wellingtonCityWeatherReadings } from "../../lib/replayDataWorkspace.mjs";
 import { eventSymbolFor } from "../../lib/liveMapWorkspace.mjs";
 import { replayIntervalMs } from "../layerModel.mjs";
+import { X } from "@phosphor-icons/react";
 import EventSymbolBadge from "./EventSymbolBadge";
 import LiveMap from "./LiveMap";
 import InvestigationLayersPanel, { InvestigationLayersButton } from "./InvestigationLayersPanel";
@@ -22,6 +23,8 @@ type Investigation = {
 type ReplaySpeed = 0.5 | 1 | 2 | 4;
 type SensorFilter = "all" | "rain" | "flow" | "anomaly" | null;
 type MapGeometry = { type: string; coordinates: unknown };
+type MovementHistoryPoint = { observed_at: string; observed_count: number };
+type SignalConfidence = { level: string; history_samples: number; basis: string };
 type MovementOutcomeSignal = {
   id: string;
   countline_id: string;
@@ -33,6 +36,9 @@ type MovementOutcomeSignal = {
   change_direction: string;
   robust_z: number;
   observed_at: string;
+  history_samples: number;
+  matched_history: MovementHistoryPoint[];
+  signal_confidence: SignalConfidence;
 };
 type MovementOutcomePack = {
   slots: Array<{ target_at: string; signals: MovementOutcomeSignal[] }>;
@@ -70,6 +76,59 @@ function timelineTick(value: string | null | undefined) {
 
 function compactValue(value: number, unit: string) {
   return `${new Intl.NumberFormat("en-NZ", { maximumFractionDigits: 2 }).format(value)} ${unit}`.trim();
+}
+
+type MovementEvidenceDetail = ReturnType<typeof buildMovementEvidenceDetail>;
+
+function movementCount(value: number) {
+  return new Intl.NumberFormat("en-NZ", { maximumFractionDigits: 1 }).format(value);
+}
+
+function shortDate(value: string) {
+  return new Intl.DateTimeFormat("en-NZ", {
+    day: "numeric",
+    month: "short",
+    timeZone: "Pacific/Auckland",
+  }).format(new Date(value));
+}
+
+function MovementHistoryChart({ detail }: { detail: MovementEvidenceDetail }) {
+  const points = [
+    ...detail.history,
+    { observed_at: detail.observed_at, observed_count: detail.observed },
+  ].filter((point) => point.observed_at);
+  const width = 300;
+  const height = 112;
+  const padding = { left: 28, right: 8, top: 10, bottom: 24 };
+  const maxValue = Math.max(detail.expected, ...points.map((point) => point.observed_count), 1);
+  const chartWidth = width - padding.left - padding.right;
+  const chartHeight = height - padding.top - padding.bottom;
+  const x = (index: number) => padding.left + (index / Math.max(1, points.length - 1)) * chartWidth;
+  const y = (value: number) => padding.top + chartHeight - (value / maxValue) * chartHeight;
+  const linePoints = points.map((point, index) => `${x(index)},${y(point.observed_count)}`).join(" ");
+  const colour = detail.change_direction === "decrease" ? "#c75845" : "#d78916";
+
+  return (
+    <section className="april-movement-history" aria-label="Matched-hour movement history">
+      <header>
+        <div><strong>Matched-hour history</strong><span>{detail.history_count} prior hours</span></div>
+        <div className="april-history-legend"><span><i style={{ background: colour }} />Observed</span><span><i className="baseline" />Expected</span></div>
+      </header>
+      {detail.history_available ? (
+        <>
+          <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label={`Historical observed counts for ${detail.name}; current ${movementCount(detail.observed)}, expected ${movementCount(detail.expected)}.`}>
+            {[0, 0.5, 1].map((step) => <line key={step} x1={padding.left} x2={width - padding.right} y1={padding.top + chartHeight * step} y2={padding.top + chartHeight * step} className="grid" />)}
+            <text x="2" y={padding.top + 4}>{movementCount(maxValue)}</text>
+            <text x="18" y={padding.top + chartHeight + 3}>0</text>
+            <line x1={padding.left} x2={width - padding.right} y1={y(detail.expected)} y2={y(detail.expected)} className="expected" />
+            <polyline points={linePoints} fill="none" stroke={colour} className="observed" />
+            {points.map((point, index) => <circle key={`${point.observed_at}:${index}`} cx={x(index)} cy={y(point.observed_count)} r={index === points.length - 1 ? 4 : 2.5} fill={index === points.length - 1 ? "#102a33" : colour} />)}
+          </svg>
+          <div className="april-history-range"><span>{shortDate(points[0].observed_at)}</span><strong>Selected hour</strong><span>{shortDate(points.at(-1)!.observed_at)}</span></div>
+        </>
+      ) : <p>History unavailable</p>}
+    </section>
+  );
 }
 
 export default function SensorReplayCanvas({ investigation }: { investigation: Investigation }) {
@@ -154,17 +213,20 @@ export default function SensorReplayCanvas({ investigation }: { investigation: I
         model: reading.detector_candidate ? "Hydro robust v1 · investigation only" : null,
       },
     }));
-  const movementOutcomeObservations = useMemo(() => {
-    if (!showMovementOutcomes || !movementOutcomePack || !movementCoverage || !frame.target_at) return [];
+  const movementOutcomeSignals = useMemo(() => {
+    if (!showMovementOutcomes || !movementOutcomePack || !frame.target_at) return [];
     const target = new Date(frame.target_at).getTime();
     const slot = [...(movementOutcomePack.slots ?? [])]
       .filter((item) => new Date(item.target_at).getTime() <= target)
       .at(-1);
-    if (!slot) return [];
+    return slot?.signals ?? [];
+  }, [frame.target_at, movementOutcomePack, showMovementOutcomes]);
+  const movementOutcomeObservations = useMemo(() => {
+    if (!movementCoverage) return [];
     const geometryByCountline = new Map<string, MovementCoverageFeature>(
       movementCoverage.features.map((feature) => [String(feature.properties.countline_id), feature]),
     );
-    return slot.signals.map((signal) => {
+    return movementOutcomeSignals.map((signal) => {
       const feature = geometryByCountline.get(String(signal.countline_id));
       return {
         id: `april-outcome:${signal.id}`,
@@ -182,12 +244,20 @@ export default function SensorReplayCanvas({ investigation }: { investigation: I
           expected_count: signal.expected_count,
           change_direction: signal.change_direction,
           robust_z: signal.robust_z,
+          history_samples: signal.history_samples,
+          matched_history: signal.matched_history,
+          signal_confidence: signal.signal_confidence,
           model: "Movement seasonal MAD v1",
           availability: "Retrospective only",
         },
       };
     });
-  }, [frame.target_at, movementCoverage, movementOutcomePack, showMovementOutcomes]);
+  }, [movementCoverage, movementOutcomeSignals]);
+  const selectedMovementSignal = movementOutcomeSignals.find((signal) => `april-outcome:${signal.id}` === selectedId) ?? null;
+  const selectedMovementDetail = useMemo(
+    () => selectedMovementSignal ? buildMovementEvidenceDetail(selectedMovementSignal) : null,
+    [selectedMovementSignal],
+  );
 
   useEffect(() => {
     if (!showMovementOutcomes || movementOutcomePack || movementLoadState !== "loading") return;
@@ -229,6 +299,7 @@ export default function SensorReplayCanvas({ investigation }: { investigation: I
   function toggleMovementOutcomes() {
     if (showMovementOutcomes) {
       setShowMovementOutcomes(false);
+      if (selectedId?.startsWith("april-outcome:")) setSelectedId(null);
       return;
     }
     setShowMovementOutcomes(true);
@@ -350,6 +421,36 @@ export default function SensorReplayCanvas({ investigation }: { investigation: I
         </div>
         </div>
       </InvestigationLayersPanel>
+      <aside className="replay-map-evidence-overlay april-movement-evidence" hidden={!selectedMovementDetail} aria-label="Selected April movement evidence">
+        <header className="replay-map-panel-header">
+          <div><h2>Movement evidence</h2><span>Retrospective · weight 0</span></div>
+          <button type="button" aria-label="Close movement evidence" onClick={() => setSelectedId(null)}><X size={18} aria-hidden="true" /></button>
+        </header>
+        {selectedMovementDetail ? (
+          <>
+            <section className="selected-evidence">
+              <div className="evidence-heading">
+                <span className={`direction-chip ${selectedMovementDetail.change_direction}`}>{selectedMovementDetail.change_direction}</span>
+                <span>Investigate</span>
+              </div>
+              <h3>{selectedMovementDetail.name}</h3>
+              <p>{selectedMovementDetail.transport_label}</p>
+              <div className="count-comparison april-count-comparison">
+                <div><span>Observed</span><strong>{movementCount(selectedMovementDetail.observed)}</strong></div>
+                <div><span>Expected</span><strong>{movementCount(selectedMovementDetail.expected)}</strong></div>
+                <div><span>Change</span><strong>{selectedMovementDetail.change_label}</strong></div>
+              </div>
+              <dl className="evidence-metrics">
+                <div><dt>Robust score</dt><dd>{selectedMovementDetail.robust_z.toFixed(1)} z</dd></div>
+                <div><dt>History</dt><dd>{selectedMovementDetail.history_count} matched hours</dd></div>
+                <div><dt>Baseline confidence</dt><dd>{selectedMovementDetail.baseline_confidence}</dd></div>
+              </dl>
+              <p className="evidence-note">No cause inferred. Check operational context before acting.</p>
+            </section>
+            <MovementHistoryChart detail={selectedMovementDetail} />
+          </>
+        ) : null}
+      </aside>
       <div className="sensor-reading-strip" aria-label="Current sensor values" data-weather-overview={filter === "all" ? "wellington-city" : "detail"}>
         {observations.map((observation) => (
           <button key={observation.id} type="button" onClick={() => setSelectedId(observation.id)}>

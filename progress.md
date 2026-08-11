@@ -1,5 +1,22 @@
 # Progress — Phase 2 ontology and sources
 
+## Phase 51 — April movement evidence detail and history
+
+- Audited the packaged April movement outcome file: all 2,903 candidates contain real
+  `matched_history` and `signal_confidence` fields, with up to 12 prior matched weekday/hour values.
+- Found the display defect: `SensorReplayCanvas` keeps only observed/expected/z when projecting the
+  pack into map observations, so the selected generic card cannot render history or confidence.
+- Scope is fixed at a movement-only detail overlay and real matched-hour chart; no retraining,
+  causal inference, new source, evidence weight or GitHub-origin change.
+- TDD RED confirmed the missing detail projector and absent April evidence panel. GREEN now retains
+  the packaged confidence/history fields and renders observed, expected, signed change, robust z,
+  matched-hour count, confidence, an explicit no-cause boundary and a real history/baseline chart.
+- Browser verification selected a real 20 April vehicle record and confirmed 23 observed, 84
+  expected, −61 change, −6.6 z, 12 matched hours and high confidence. Closing the panel and changing
+  replay time both remove stale evidence; no browser errors were reported.
+- Final production build, 101/101 site tests, ESLint and `git diff --check` pass. Owner-only
+  publishing is next.
+
 ## Phase 50 — Replay control hierarchy and map clustering
 
 - Audited both Replay datasets, navigation, map controls and the existing LiveMap clustering seam.

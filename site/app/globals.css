@@ -3276,6 +3276,39 @@ h1, h2, h3, h4, h5 { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-seri
 .sensor-reading-strip .event-symbol-token { grid-row: 1 / 3; width: 20px; height: 20px; align-self: center; border-width: 1.5px; font-size: 10px; }
 .sensor-reading-strip button > span:not(.event-symbol-token) { grid-column: 2; max-width: 170px; overflow: hidden; font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
 .sensor-reading-strip strong { grid-column: 2; color: #0b6656; font: 800 12px/1.1 Consolas, monospace; }
+.april-movement-evidence { display: block; width: min(360px, calc(100% - 32px)); }
+.april-movement-evidence .selected-evidence { padding: 14px; }
+.april-movement-evidence .selected-evidence h3 { margin: 12px 0 3px; font-size: 22px; }
+.april-movement-evidence .selected-evidence > p:not(.evidence-note) { margin: 0; font-size: 11px; }
+.april-movement-evidence .april-count-comparison { grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 13px 0; }
+.april-movement-evidence .april-count-comparison div { min-width: 0; padding: 10px 7px 10px 0; }
+.april-movement-evidence .april-count-comparison div + div { padding-left: 9px; }
+.april-movement-evidence .april-count-comparison strong { overflow: hidden; font-size: 22px; text-overflow: ellipsis; }
+.april-movement-evidence .evidence-metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-bottom: 1px dashed var(--hairline); }
+.april-movement-evidence .evidence-metrics div { min-width: 0; display: grid; align-content: start; justify-content: initial; gap: 4px; padding: 8px 7px; border-bottom: 0; }
+.april-movement-evidence .evidence-metrics div + div { border-left: 1px dashed var(--hairline); }
+.april-movement-evidence .evidence-metrics dt { color: var(--muted-ink); font-size: 8px; line-height: 1.2; text-transform: uppercase; }
+.april-movement-evidence .evidence-metrics dd { overflow: hidden; font-size: 10px; line-height: 1.2; text-overflow: ellipsis; }
+.april-movement-evidence .evidence-note { margin: 11px 0 0; padding: 8px 9px; border-radius: 6px; font-size: 10px; }
+.april-movement-history { padding: 13px 14px 14px; background: #f7f8f9; }
+.april-movement-history > header { display: flex; align-items: start; justify-content: space-between; gap: 12px; }
+.april-movement-history > header strong,
+.april-movement-history > header span { display: block; }
+.april-movement-history > header strong { font-size: 13px; }
+.april-movement-history > header > div:first-child span { margin-top: 3px; color: var(--muted-ink); font-size: 9px; }
+.april-history-legend { display: grid; gap: 4px; color: var(--muted-ink); font-size: 8px; }
+.april-history-legend span { display: flex; align-items: center; gap: 5px; }
+.april-history-legend i { width: 14px; height: 0; border-top: 2px solid; }
+.april-history-legend i.baseline { border-top-color: #1e6a8d; border-top-style: dashed; }
+.april-movement-history svg { display: block; width: 100%; height: 132px; margin-top: 9px; border: 1px solid var(--hairline); background: #ffffff; }
+.april-movement-history svg .grid { stroke: rgba(16,42,51,.12); stroke-width: 1; }
+.april-movement-history svg .expected { stroke: #1e6a8d; stroke-width: 1.5; stroke-dasharray: 5 4; }
+.april-movement-history svg .observed { stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+.april-movement-history svg text { fill: #526b73; font: 8px Consolas, monospace; }
+.april-history-range { display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; margin-top: 6px; color: var(--muted-ink); font: 8px/1 Consolas, monospace; }
+.april-history-range strong { color: var(--civic-ink); text-align: center; text-transform: uppercase; }
+.april-history-range span:last-child { text-align: right; }
+.april-movement-history > p { min-height: 92px; display: grid; place-items: center; margin: 9px 0 0; border: 1px dashed var(--hairline); color: var(--muted-ink); font-size: 10px; }
 
 @media (max-width: 700px) {
   .replay-bound-workspace .replay-map-workspace { --replay-overlay-top: 224px; height: 780px; min-height: 780px; margin-inline: 6px; }
@@ -3290,6 +3323,8 @@ h1, h2, h3, h4, h5 { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-seri
   .sensor-reading-strip { top: 282px; right: 8px; bottom: auto; }
   .sensor-replay-workspace .ops-map-legend { top: auto; right: 66px; bottom: 12px; left: 8px; max-width: calc(100% - 82px); }
   .sensor-replay-workspace .ops-map-attribution { top: auto; right: auto; bottom: 70px; left: 8px; max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .april-movement-evidence { right: 8px; bottom: 68px; left: 8px; width: auto; max-height: calc(100% - var(--replay-overlay-top) - 76px); }
+  .april-movement-history svg { height: 118px; }
 }
 
 @media (max-width: 520px) {

@@ -404,6 +404,11 @@ test("ships April movement-model outputs only as retrospective investigation con
   assert.equal(pack.automatic_incident, false);
   assert.equal(pack.slots.length, 120);
   assert.ok(pack.slots.reduce((total, slot) => total + slot.candidate_count, 0) > 0);
+  const signals = pack.slots.flatMap((slot) => slot.signals);
+  assert.equal(signals.length, 2903);
+  assert.ok(signals.every((signal) => Array.isArray(signal.matched_history) && signal.matched_history.length > 0));
+  assert.ok(signals.every((signal) => signal.signal_confidence?.history_samples === signal.matched_history.length));
+  assert.ok(signals.every((signal) => signal.matched_history.every((point) => point.observed_at < signal.observed_at)));
 });
 
 test("ships internally consistent COP artifacts with WGS84 line geometry", async () => {

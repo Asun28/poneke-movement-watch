@@ -1,5 +1,21 @@
 # Findings — Phase 2 ontology and sources
 
+## Phase 51 — April movement evidence detail and history
+
+- `april-storm-movement-outcomes.json` already contains the requested evidence. Every one of its
+  2,903 candidates has `matched_history` and `signal_confidence`; the maximum matched-history length
+  is 12, and the history timestamps precede each selected observation.
+- The loss occurs only in `SensorReplayCanvas`: the map observation projection omits history,
+  confidence and history sample count, while `LiveMap` intentionally renders a generic source card.
+- The safe seam is a separate selected movement evidence overlay derived from the original signal.
+  Weather/river records stay in the generic map detail, and the chart must never imply causation.
+- A compact three-column metric row leaves the historical line visible without removing any
+  decision field. The expected baseline is dashed, historical/current observations are a continuous
+  line, and the selected hour is visually distinct.
+- Changing the 5-minute sensor frame can change the latest eligible hourly movement slot. Clearing
+  selection on an explicit time change prevents a detail card from silently representing the prior
+  replay moment.
+
 ## Phase 50 — Replay control hierarchy and map clustering
 
 - Both Replay datasets shared one compact control class but placed title, filters, layers, evidence,
