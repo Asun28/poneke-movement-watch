@@ -205,6 +205,16 @@ test("offers compact Google-style map controls without a zoom slider", async () 
   assert.match(html, /aria-label="Show map fullscreen"/);
 });
 
+test("uses compact Replay panel icons and places attribution beside map controls", async () => {
+  const augustResponse = await render("/replay");
+  assert.equal(augustResponse.status, 200);
+  const august = await augustResponse.text();
+
+  assert.match(august, /data-replay-action="layers"[^>]*data-icon-only="true"/);
+  assert.match(august, /data-replay-action="evidence"[^>]*data-icon-only="true"/);
+  assert.match(august, /class="map-attribution"[^>]*data-corner="bottom-right-before-controls"/);
+});
+
 test("separates Replay playback from layers and renders an operable timeline", async () => {
   const response = await render();
   assert.equal(response.status, 200);

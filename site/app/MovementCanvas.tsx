@@ -1,7 +1,7 @@
 "use client";
 
 import { CSSProperties, FormEvent, ReactNode, useEffect, useMemo, useRef, useState } from "react";
-import { ArrowCounterClockwise, CarProfile, CornersIn, CornersOut, PersonSimpleWalk } from "@phosphor-icons/react";
+import { ArrowCounterClockwise, CarProfile, CornersIn, CornersOut, PersonSimpleWalk, SidebarSimple } from "@phosphor-icons/react";
 import registryData from "../public/cop/v2/source-registry.json";
 import { SOURCE_MANIFEST } from "../lib/sourceManifest.mjs";
 import { operationsTargetForConnectorMode } from "../lib/sourceOperations.mjs";
@@ -1704,10 +1704,16 @@ export default function MovementCanvas({ investigation, investigationControl }: 
               />
               <button
                 type="button"
+                data-replay-action="evidence"
+                data-icon-only="true"
                 aria-expanded={isEvidenceOpen}
                 aria-label={isEvidenceOpen ? "Hide signal evidence" : "Show signal evidence"}
+                title={`Evidence · ${filteredSignals.length}`}
                 onClick={() => setIsEvidenceOpen((value) => !value)}
-              >Evidence <span>{filteredSignals.length}</span></button>
+              >
+                <SidebarSimple size={20} weight="regular" aria-hidden="true" />
+                <span className="sr-only">{filteredSignals.length} signals</span>
+              </button>
             </div>
           </nav>
           {replayWarning ? <p className="replay-warning" role="status">{replayWarning}</p> : null}
@@ -1793,7 +1799,7 @@ export default function MovementCanvas({ investigation, investigationControl }: 
             {showCoverage ? <span><i className="coverage" />Sensor coverage</span> : null}
           </div>
           {showBasemap ? (
-            <div className="map-attribution">
+            <div className="map-attribution" data-corner="bottom-right-before-controls">
               <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">
                 © OpenStreetMap contributors
               </a>

@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { StackSimple } from "@phosphor-icons/react";
 
 export function InvestigationLayersButton({
   open,
@@ -16,10 +17,16 @@ export function InvestigationLayersButton({
   return (
     <button
       type="button"
+      data-replay-action="layers"
+      data-icon-only="true"
       aria-expanded={open}
       aria-label={open ? "Hide Investigation Layers" : "Show Investigation Layers"}
+      title={`Layers · ${selectedCount}/${totalCount}`}
       onClick={onToggle}
-    >Layers <span>{selectedCount}/{totalCount}</span></button>
+    >
+      <StackSimple size={20} weight="regular" aria-hidden="true" />
+      <span className="sr-only">{selectedCount} of {totalCount} layers selected</span>
+    </button>
   );
 }
 

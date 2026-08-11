@@ -4450,3 +4450,45 @@ h1, h2, h3, h4, h5 { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-seri
   .replay-compact-bar[data-replay-command-bar="unified"] .replay-investigation-compact-header span { display: none; }
   .replay-bound-workspace .replay-map-workspace { --replay-overlay-top: 300px; }
 }
+
+/* Phase 58: compact Replay map actions and one clear bottom action row. */
+.replay-primary-actions > button[data-icon-only="true"] {
+  width: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+}
+.replay-primary-actions > button[data-icon-only="true"] svg { display: block; }
+.replay-map-workspace .map-key { bottom: 16px; max-width: calc(100% - 260px); }
+.replay-map-workspace .map-attribution {
+  right: 68px;
+  bottom: 16px;
+  left: auto;
+  max-width: calc(100% - 92px);
+  overflow: hidden;
+  border-radius: 5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sensor-replay-workspace .ops-map-legend { right: auto; bottom: 68px; left: 8px; max-width: calc(100% - 16px); }
+.sensor-replay-workspace .ops-map-attribution {
+  right: 64px;
+  bottom: 12px;
+  left: auto;
+  max-width: calc(100% - 88px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 700px) {
+  .replay-primary-actions { display: flex; justify-content: flex-end; }
+  .replay-primary-actions > button[data-icon-only="true"] { width: 44px; }
+  .replay-map-workspace .map-key { right: 8px; bottom: 72px; left: 8px; max-width: none; }
+  .replay-map-workspace .map-attribution { right: 60px; bottom: 16px; left: auto; max-width: calc(100% - 76px); }
+  .sensor-replay-workspace .ops-map-legend { top: auto; right: 8px; bottom: 68px; left: 8px; max-width: calc(100% - 16px); }
+  .sensor-replay-workspace .ops-map-attribution { top: auto; right: 60px; bottom: 12px; left: auto; max-width: calc(100% - 76px); }
+}

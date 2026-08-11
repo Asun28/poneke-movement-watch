@@ -1510,6 +1510,44 @@ data semantics or external side effects.
 | Python regression temp directories were blocked by the Windows sandbox. | 2 | Ran the same 22-test suite with an explicit repository-local basetemp outside the sandbox, then removed both verified temp directories. |
 
 ---
+## Phase 58 — Compact Replay map actions and attribution
+
+### Goal
+
+Reduce Replay map chrome with two accessible icon-only panel actions and place OpenStreetMap
+attribution immediately left of the bottom-right zoom controls without overlapping the legend.
+
+### Status
+
+- [completed] Audit both Replay map implementations, responsive overrides and existing icon system.
+- [completed] Add failing rendered and responsive layout contracts.
+- [completed] Implement concise Phosphor panel icons and the shared attribution placement.
+- [completed] Run full regression and desktop/mobile/landscape visual QA.
+- [in_progress] Commit, push the requested branch and publish the owner-only deployment.
+
+### Acceptance criteria
+
+- Layers uses a stack icon; August Evidence uses a panel icon. Both retain 44px targets, keyboard focus,
+  clear accessible names, pressed/expanded state and hover titles.
+- OpenStreetMap attribution sits on the bottom-right action row directly left of zoom/fullscreen controls
+  in August and April Replay maps.
+- The legend stays separate from attribution and controls at desktop, 375px portrait and landscape widths.
+- No data, replay, case, evidence, source, model or map-interaction behavior changes.
+
+### Rejected alternatives
+
+- Do not remove attribution, shrink controls below 44px or introduce a second icon library.
+- Do not move Layers/Evidence into a hidden overflow menu.
+
+### Errors encountered
+
+| Error | Attempt | Resolution |
+|---|---:|---|
+| Broad icon export search traversed the package for longer than the command limit. | 1 | Used the partial index result, which independently confirmed `SidebarSimple` and `StackSimple`; no repeat needed. |
+| Server rendering keeps the default August case when only a Replay query string changes. | 1 | Kept rendered assertions on the real default case and covered April placement through its scoped responsive CSS plus browser case-switch QA. |
+| One bounded file read included `site/` while already running from the `site` directory. | 1 | Re-ran with the correct relative test path; lint had already completed successfully. |
+
+---
 ## Phase 57 — Unified Replay command bar
 
 ### Goal

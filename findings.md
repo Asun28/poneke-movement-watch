@@ -2014,3 +2014,15 @@ supports spatial event-footprint resolution, never direct building-damage claims
   retaining the full accessible name.
 - At 812x375 the final production build keeps the case, playback, timeline, four movement filters, Layers and Evidence
   in one compact surface without obscuring the map; the shorter `Sensors` label removes the prior filter collision.
+
+# Phase 58 - Compact Replay map actions and attribution
+
+- The supplied compact icons map directly to the existing Phosphor `SidebarSimple` and `StackSimple` glyphs, so the
+  product can keep one outline icon family and avoid custom SVG or emoji.
+- August attribution is forced to the bottom-left by a late Replay override while its zoom controls are bottom-right.
+  April has a separate LiveMap override that puts attribution above the controls; both need scoped Replay rules.
+- On phones, attribution cannot share the same row as the full legend. The stable arrangement is legend above, then
+  attribution immediately left of the 44px control stack on the bottom action row.
+- Browser verification confirms that both August and April use that arrangement. Desktop, 375x812 portrait and
+  812x375 landscape have no page-level horizontal overflow; the icon actions remain 44px and the browser console
+  reports no errors or warnings.

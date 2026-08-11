@@ -1250,3 +1250,18 @@
   sensor filters and layer count. At 375x812 it has no horizontal overflow; browser console has zero errors/warnings.
 - 2026-08-12: Committed the verified UI as `fdf47d5`, pushed only to
   `Asun28/poneke-movement-watch` on `codex/movement-anomaly-prototype`, and published owner-only Sites version 68.
+
+# Phase 58 - Compact Replay map actions and attribution
+
+- 2026-08-12: Started the Replay map-chrome refinement from the supplied screenshots. Scope is limited to icon-only
+  Layers/Evidence actions and responsive attribution/legend placement in the two Replay map implementations.
+- 2026-08-12: Added RED contracts for icon-only Replay actions, explicit bottom-right-before-controls attribution and
+  non-overlapping phone legend placement. Production code remains unchanged for the RED run.
+- 2026-08-12: RED run completed at 112/114. The two intended failures are the missing compact-action attributes/icons
+  and the old phone legend/attribution positions; every existing contract still passes.
+- 2026-08-12: Implemented Phosphor stack/panel actions with unchanged accessible names and 44px targets. Added scoped
+  August/April attribution rows and moved phone legends above them; lint passes. One invalid SSR case-switch assertion
+  was removed because the route intentionally hydrates the selected case client-side.
+- 2026-08-12: Final verification passes the production build, 114/114 tests, ESLint and whitespace checks. Browser QA
+  confirms August and April at desktop, 375x812 portrait and 812x375 landscape: no horizontal overflow, attribution
+  immediately left of the control stack, legend above on phones, and zero console errors/warnings.

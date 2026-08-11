@@ -530,9 +530,10 @@ test("keeps mobile Replay controls clear of the fixed operator navigation", asyn
 
   assert.match(css, /\.sensor-replay-workspace \.ops-map-controls \{ top: auto; right: 8px; bottom: 12px; \}/);
   assert.match(css, /\.sensor-reading-strip \{ top: 282px; right: 8px; bottom: auto; \}/);
-  assert.match(css, /\.sensor-replay-workspace \.ops-map-legend \{ top: auto; right: 66px; bottom: 12px; left: 8px;/);
-  assert.match(css, /\.sensor-replay-workspace \.ops-map-attribution \{ top: auto; right: auto; bottom: 70px; left: 8px;/);
-  assert.match(css, /\.replay-map-workspace \.map-key \{ right: 66px; bottom: 16px; left: 8px;/);
+  assert.match(css, /\.sensor-replay-workspace \.ops-map-legend \{ top: auto; right: 8px; bottom: 68px; left: 8px;/);
+  assert.match(css, /\.sensor-replay-workspace \.ops-map-attribution \{ top: auto; right: 60px; bottom: 12px; left: auto;/);
+  assert.match(css, /\.replay-map-workspace \.map-key \{ right: 8px; bottom: 72px; left: 8px;/);
+  assert.match(css, /\.replay-map-workspace \.map-attribution \{ right: 60px; bottom: 16px; left: auto;/);
   assert.match(css, /--replay-overlay-top: 288px/);
 });
 

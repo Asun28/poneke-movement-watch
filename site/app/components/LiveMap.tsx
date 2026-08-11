@@ -514,7 +514,7 @@ export default function LiveMap({
       <div className="ops-map-legend" aria-label="Map symbol legend">
         {visibleSymbols.map((symbol) => <span key={symbol.id}><EventSymbolBadge symbolId={symbol.id} decorative />{symbol.label}</span>)}
       </div>
-      <a className="ops-map-attribution" data-corner="bottom-left" href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© OpenStreetMap contributors</a>
+      <a className="ops-map-attribution" data-corner={adaptiveEvidenceContext ? "bottom-right-before-controls" : "bottom-left"} href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© OpenStreetMap contributors</a>
       {fullscreenError && <p className="ops-map-error" role="status">{fullscreenError}</p>}
     </div>
   );
