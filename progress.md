@@ -1224,3 +1224,5 @@
   April-only backtest detail is isolated from the August workspace.
 - 2026-08-12: Verification passed: production build plus 113/113 tests, lint, zero browser console errors, desktop
   case switching and measurement-specific drawers, and a 375x812 mobile drawer with no horizontal overflow.
+- 2026-08-12: Published exact validated product commit `307c53d` only to the owner-only Sites source, saved version 67
+  and completed the private production deployment. GitHub remotes and remote `main` were not changed.

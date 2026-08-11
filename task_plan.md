@@ -3092,7 +3092,7 @@ strictly adaptive to the active case, selected layer, entity type and record.
 - [completed] Add failing projection, rendered and case-isolation contracts.
 - [completed] Implement shared adaptive evidence projections and shells for both Replay canvases.
 - [completed] Run focused, full, lint and desktop/mobile browser verification.
-- [in_progress] Publish the exact owner-only build without changing GitHub remotes.
+- [completed] Publish the exact owner-only build without changing GitHub remotes.
 
 ### Acceptance criteria
 
