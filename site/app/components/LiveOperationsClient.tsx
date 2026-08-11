@@ -176,6 +176,9 @@ export default function LiveOperationsClient() {
     : candidateCount === 0
       ? "Zero candidates ≠ all-clear"
       : `${candidateCount} candidate${candidateCount === 1 ? "" : "s"} to review`;
+  const inboxSummary = loading || !inbox
+    ? "Review — · Held —"
+    : `Review ${inbox.review_candidate_count} · Held ${inbox.suppressed_observation_count}`;
   const candidateEvidenceIds = useMemo(
     () => new Set(inbox?.candidates.flatMap((candidate) => candidate.evidence.supporting) ?? []),
     [inbox],
@@ -287,7 +290,7 @@ export default function LiveOperationsClient() {
             aria-controls="live-evidence-inbox"
             aria-label={inboxOpen ? "Hide Evidence Inbox" : "Show Evidence Inbox"}
             onClick={() => togglePanel("inbox")}
-          ><Tray aria-hidden="true" size={20} weight="regular" /><b>{inbox?.review_candidate_count ?? 0}</b></button>
+          ><Tray aria-hidden="true" size={20} weight="regular" /><b aria-label={inboxSummary}>{inbox ? `${inbox.review_candidate_count}·${inbox.suppressed_observation_count}` : "…"}</b></button>
         </div>
         {query.trim() && (
           <div className="live-map-search-results" aria-label="Live search results">
@@ -324,7 +327,7 @@ export default function LiveOperationsClient() {
 
         <aside id="live-evidence-inbox" className={`live-map-inbox-overlay ${inboxOpen ? "" : "is-collapsed"}`} aria-label="Evidence Inbox overlay">
           <header>
-            <div><h2>Evidence Inbox</h2><span>{inbox?.review_candidate_count ?? 0} to review</span></div>
+            <div><h2>Evidence Inbox</h2><span data-inbox-summary="review-held">{inboxSummary}</span></div>
             <button type="button" aria-expanded={inboxOpen} aria-label={inboxOpen ? "Hide Evidence Inbox" : "Show Evidence Inbox"} onClick={() => togglePanel("inbox")}>{inboxOpen ? <CloseIcon /> : <CaretRight aria-hidden="true" size={18} weight="regular" />}</button>
           </header>
           {inboxOpen && (

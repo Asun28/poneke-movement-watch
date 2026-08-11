@@ -161,10 +161,32 @@ test("movement markers cluster at regional zoom and expand into individual signa
   assert.deepEqual(markers.map((marker) => [marker.x, marker.y]), [[100, 100], [112, 108], [250, 250]]);
 });
 
-test("continuous map zoom stays inside the 50 to 1000 percent operating range", () => {
+test("continuous map zoom stays inside the 50 to 2000 percent operating range", () => {
   assert.equal(viewportModel.clampMapZoom?.(0.2), 0.5);
   assert.equal(viewportModel.clampMapZoom?.(3.37), 3.37);
-  assert.equal(viewportModel.clampMapZoom?.(12), 10);
+  assert.equal(viewportModel.clampMapZoom?.(12), 12);
+  assert.equal(viewportModel.clampMapZoom?.(25), 20);
+});
+
+test("movement difference indicator is signed and scales around a neutral centre", () => {
+  assert.deepEqual(viewportModel.movementDifference?.(20, 0), {
+    delta: 20,
+    direction: "increase",
+    signed_label: "+20",
+    bar_percent: 50,
+  });
+  assert.deepEqual(viewportModel.movementDifference?.(15, 20), {
+    delta: -5,
+    direction: "decrease",
+    signed_label: "−5",
+    bar_percent: 12.5,
+  });
+  assert.deepEqual(viewportModel.movementDifference?.(20, 20), {
+    delta: 0,
+    direction: "steady",
+    signed_label: "0",
+    bar_percent: 0,
+  });
 });
 
 test("map wheel input adjusts zoom in both directions without fixed button jumps", () => {

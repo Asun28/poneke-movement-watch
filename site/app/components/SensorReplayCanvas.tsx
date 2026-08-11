@@ -11,6 +11,7 @@ import { X } from "@phosphor-icons/react";
 import EventSymbolBadge from "./EventSymbolBadge";
 import LiveMap from "./LiveMap";
 import InvestigationLayersPanel, { InvestigationLayersButton } from "./InvestigationLayersPanel";
+import MovementDelta from "./MovementDelta";
 
 type Investigation = {
   id: string;
@@ -324,7 +325,7 @@ export default function SensorReplayCanvas({ investigation }: { investigation: I
   const replayProgress = replayMaxIndex > 0 ? (slotIndex / replayMaxIndex) * 100 : 0;
 
   return (
-    <section id="replay-map" className="replay-map-workspace sensor-replay-workspace" data-replay-map-first="true" data-replay-dataset="sensor" data-primary-layer="movement-outcomes" aria-label="April movement impact replay">
+    <section id="replay-map" className="replay-map-workspace sensor-replay-workspace" data-replay-map-first="true" data-replay-dataset="sensor" data-primary-layer="movement-outcomes" data-delta-encoding="signed-centre-bar" aria-label="April movement impact replay">
       <LiveMap
         observations={[...observations, ...movementOutcomeObservations]}
         sources={[
@@ -336,7 +337,7 @@ export default function SensorReplayCanvas({ investigation }: { investigation: I
         markerScale={markerScale}
         onSelect={setSelectedId}
       />
-      <div className="replay-compact-bar" aria-label="Replay controls" data-replay-toolbar-layout="two-tier">
+      <div className="replay-compact-bar" aria-label="Replay controls" data-replay-toolbar-layout="two-tier" data-replay-density="compact">
         <div className="replay-playback-header" aria-label="Playback header">
           <div className="replay-compact-identity">
             <h2>{investigation.title}</h2>
@@ -388,7 +389,6 @@ export default function SensorReplayCanvas({ investigation }: { investigation: I
           <button className="sensor-primary-layer" type="button" aria-pressed={showMovementOutcomes} onClick={toggleMovementOutcomes}>
             <span>Movement outcomes</span><strong>{movementLoadState === "loading" ? "…" : movementOutcomeObservations.length || "Off"}</strong>
           </button>
-          <small>Retrospective only · event-time weight 0</small>
           <span className="sensor-layer-role">Supporting · weather and river</span>
           {dataset.layer_groups.map((group: { id: string; label: string; series_count: number }) => {
             const groupFilter: Exclude<SensorFilter, null> = group.id === "rainfall" ? "rain" : group.id === "river-flow" ? "flow" : "anomaly";
@@ -427,7 +427,7 @@ export default function SensorReplayCanvas({ investigation }: { investigation: I
       </InvestigationLayersPanel>
       <aside className="replay-map-evidence-overlay april-movement-evidence" hidden={!selectedMovementDetail} aria-label="Selected April movement evidence">
         <header className="replay-map-panel-header">
-          <div><h2>Movement evidence</h2><span>Retrospective · weight 0</span></div>
+          <div><h2>Movement change</h2><span className="sr-only">Retrospective analysis; not event-time evidence.</span></div>
           <button type="button" aria-label="Close movement evidence" onClick={() => setSelectedId(null)}><X size={18} aria-hidden="true" /></button>
         </header>
         {selectedMovementDetail ? (
@@ -442,7 +442,7 @@ export default function SensorReplayCanvas({ investigation }: { investigation: I
               <div className="count-comparison april-count-comparison">
                 <div><span>Observed</span><strong>{movementCount(selectedMovementDetail.observed)}</strong></div>
                 <div><span>Expected</span><strong>{movementCount(selectedMovementDetail.expected)}</strong></div>
-                <div><span>Change</span><strong>{selectedMovementDetail.change_label}</strong></div>
+                <div className="movement-delta-cell"><span>Change</span><MovementDelta observed={selectedMovementDetail.observed} expected={selectedMovementDetail.expected} /></div>
               </div>
               <dl className="evidence-metrics">
                 <div><dt>Robust score</dt><dd>{selectedMovementDetail.robust_z.toFixed(1)} z</dd></div>

@@ -405,7 +405,7 @@ export default function LiveMap({
           dragRef.current = null;
           if (!drag?.moved) {
             const hit = nearest(localPoint(event));
-            if (hit?.count > 1) setZoom((value) => Math.min(10, value * 1.8));
+            if (hit?.count > 1) setZoom((value) => Math.min(20, value * 1.8));
             else if (hit) onSelect(hit.observation.id);
           }
         }}
@@ -415,7 +415,7 @@ export default function LiveMap({
         onWheel={(event) => {
           if (!event.ctrlKey && !event.metaKey) return;
           event.preventDefault();
-          setZoom((value) => Math.max(0.7, Math.min(10, value + (event.deltaY < 0 ? 0.25 : -0.25))));
+          setZoom((value) => Math.max(0.7, Math.min(20, value + (event.deltaY < 0 ? 0.25 : -0.25))));
         }}
       />
       <ul className="ops-map-marker-list" aria-label="Map evidence markers">
@@ -441,9 +441,9 @@ export default function LiveMap({
           );
         })}
       </ul>
-      <div className="ops-map-controls" aria-label="Map controls" data-max-zoom="1000%" data-style="google-vertical" data-corner="bottom-right">
+      <div className="ops-map-controls" aria-label="Map controls" data-max-zoom="2000%" data-style="google-vertical" data-corner="bottom-right">
         <div className="ops-map-zoom-controls" role="group" aria-label="Map zoom controls">
-          <button type="button" aria-label="Zoom in" disabled={zoom >= 10} onClick={() => setZoom((value) => Math.min(10, value + 0.5))}>+</button>
+          <button type="button" aria-label="Zoom in" disabled={zoom >= 20} onClick={() => setZoom((value) => Math.min(20, value + 0.5))}>+</button>
           <button type="button" aria-label="Zoom out" disabled={zoom <= 0.7} onClick={() => setZoom((value) => Math.max(0.7, value - 0.5))}>−</button>
         </div>
         <button className="ops-map-fullscreen" type="button" aria-label={isFullscreen ? "Exit map fullscreen" : "Show map fullscreen"} aria-pressed={isFullscreen} title={isFullscreen ? "Exit full screen" : "Full screen"} onClick={toggleFullscreen}>

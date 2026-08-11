@@ -1510,6 +1510,57 @@ data semantics or external side effects.
 | Python regression temp directories were blocked by the Windows sandbox. | 2 | Ran the same 22-test suite with an explicit repository-local basetemp outside the sandbox, then removed both verified temp directories. |
 
 ---
+## Phase 54 — Replay evidence density and review queues
+
+### Goal
+
+Make movement differences, direction, evidence density and review state readable in one operational
+view without inflating evidence or hiding the retrospective-only boundary.
+
+### Status
+
+- [completed] Add failing behavior and rendering contracts for zoom, deltas, queue semantics and inbox truth.
+- [completed] Implement compact Replay evidence, clearer directional markers and 2000% map zoom.
+- [completed] Replace queue tabs with a default-New five-option selector and meaningful History/All semantics.
+- [completed] Surface held observations beside zero review candidates without manufacturing a case.
+- [completed] Run production build, full regression, lint, whitespace and responsive browser checks.
+- [pending] Publish the validated owner-only build without changing GitHub origin or `main`.
+
+### Acceptance criteria
+
+- Increase and decrease use signed values, distinct accessible colours and a centred thin delta bar.
+- Replay maps zoom to 2000%; people/vehicle glyphs are centred and every movement marker retains a visible direction.
+- April movement detail removes the visible `Movement evidence` / `Retrospective · weight 0` duplication,
+  keeps the truth boundary accessible and fits its core metrics and chart in a compact desktop panel.
+- Replay controls use less vertical space while retaining 44px touch targets and an 8px scrub track.
+- Live Evidence Inbox distinguishes promoted review candidates from held observations and never treats zero as all-clear.
+- Signal Review defaults to New and exposes New, Active, Closed, History and All in one labelled selector;
+  History requires saved human activity and All includes every candidate.
+
+### Assumptions and exclusions
+
+- “Energy bar” is implemented as a signed difference-from-expected bar, not a new score or model output.
+- Generic People/Vehicles filter icons do not claim a direction; map markers and evidence rows show observed direction.
+- No mock observation becomes a live candidate, and no alert promotion, ontology or model rule changes.
+- Mobile evidence may scroll only when the viewport cannot contain the full detail; desktop is compact by default.
+
+### File-level implementation plan
+
+- `site/tests/*`: lock the new zoom limit, delta semantics, compact Replay contract, inbox truth and five queue states.
+- `site/app/MovementCanvas.tsx`, `site/app/components/SensorReplayCanvas.tsx`: render signed delta bars,
+  compact evidence and stronger movement direction cues.
+- `site/app/components/LiveMap.tsx`, `site/app/layerModel.mjs`: apply the shared 2000% zoom ceiling.
+- `site/app/components/LiveOperationsClient.tsx`: show Review and Held counts in the collapsed and expanded Inbox.
+- `site/lib/signalReview.mjs`, `site/app/components/AlertCentreClient.tsx`: add truthful History/All filtering and a queue selector.
+- `site/app/globals.css`: reduce replay stacking, centre icons and compact evidence without shrinking touch targets.
+
+### Rejected major alternatives
+
+- Do not manufacture review candidates to avoid a zero count.
+- Do not use colour alone, an unlabeled intensity gauge or an unbounded zoom transform.
+- Do not remove retrospective truth from source contracts merely because the repeated visible label is removed.
+
+---
 
 ## Phase 53 — Operator readability and first-viewport controls
 

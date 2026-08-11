@@ -3,6 +3,7 @@ export const REVIEW_QUEUES = Object.freeze([
   { id: "active", label: "Active" },
   { id: "closed", label: "Closed" },
   { id: "history", label: "History" },
+  { id: "all", label: "All" },
 ]);
 
 export const REVIEW_CLASSIFICATIONS = Object.freeze([
@@ -43,8 +44,10 @@ export function queueForReviewStatus(status) {
   return STATUS_QUEUE[status] ?? "new";
 }
 
-export function reviewQueueIncludesStatus(queue, status) {
-  return queue === "history" || queueForReviewStatus(status) === queue;
+export function reviewQueueIncludesStatus(queue, status, { has_history = false } = {}) {
+  if (queue === "all") return true;
+  if (queue === "history") return has_history;
+  return queueForReviewStatus(status) === queue;
 }
 
 export function classificationFeedback(classification, { is_mock = false } = {}) {

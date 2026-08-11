@@ -215,6 +215,7 @@ test("opens Live as one map-first workspace with readable evidence overlays", as
   assert.doesNotMatch(live, /aria-label="Live Operations views"/);
   assert.match(live, /class="live-map-inbox-overlay is-collapsed"[^>]*aria-label="Evidence Inbox overlay"/);
   assert.match(live, /aria-expanded="false" aria-label="Show Evidence Inbox"/);
+  assert.match(live, /data-inbox-summary="review-held">Review — · Held —<\/span>/);
   assert.match(live, /aria-label="Live map overlays"/);
   assert.match(live, /class="live-mobile-filter-toggle"[^>]*aria-expanded="false"[^>]*aria-controls="live-map-overlay-filters"[^>]*aria-label="Show map filters"/);
   assert.match(live, /class="live-mobile-inbox-toggle"[^>]*aria-expanded="false"[^>]*aria-controls="live-evidence-inbox"[^>]*aria-label="Show Evidence Inbox"/);
@@ -243,7 +244,7 @@ test("opens Live as one map-first workspace with readable evidence overlays", as
   assert.match(live, /data-event-symbol="report"/);
   assert.match(live, /Mock · zero evidence/);
   assert.match(live, /class="live-inbox-truth">Checking candidates…<\/span>/);
-  assert.match(live, /aria-label="Map controls"[^>]*data-max-zoom="1000%"[^>]*data-style="google-vertical"[^>]*data-corner="bottom-right"/);
+  assert.match(live, /aria-label="Map controls"[^>]*data-max-zoom="2000%"[^>]*data-style="google-vertical"[^>]*data-corner="bottom-right"/);
   assert.match(live, /aria-label="Map zoom controls"[^>]*>[\s\S]*?aria-label="Zoom in"[\s\S]*?aria-label="Zoom out"/);
   assert.match(live, /role="application"[^>]*tabindex="0"[^>]*aria-label="Interactive evidence map"[^>]*aria-keyshortcuts="ArrowUp ArrowDown ArrowLeft ArrowRight Enter Escape"/i);
   assert.match(live, /data-wheel-zoom="modifier-required"/);
@@ -465,7 +466,7 @@ test("provides a focused editable review ticket without changing system truth", 
 
   assert.match(html, /aria-label="Signal review queue"/);
   assert.match(html, /Search signals/);
-  assert.match(html, /aria-label="Signal review queues"/);
+  assert.match(html, /aria-label="Review queue"/);
   assert.match(html, /Review status/);
   assert.match(html, /Assigned to/);
   assert.match(html, /Review note/);
@@ -497,9 +498,10 @@ test("offers Signal Review queues and governed human outcome feedback", async ()
   const html = await response.text();
 
   assert.match(html, /Signal Review/);
-  assert.match(html, /aria-label="Signal review queues"/);
-  for (const queue of ["New", "Active", "Closed", "History"]) {
-    assert.match(html, new RegExp(`>${queue}<`), queue);
+  assert.match(html, /aria-label="Review queue"/);
+  assert.match(html, /data-default-queue="new"/);
+  for (const queue of ["New", "Active", "Closed", "History", "All"]) {
+    assert.match(html, new RegExp(`>${queue}(?: · [^<]+)?<`), queue);
   }
   assert.match(html, /aria-label="Signal review workflow"/);
   assert.match(html, /Signal[\s\S]*Candidate[\s\S]*Investigate[\s\S]*Outcome/);

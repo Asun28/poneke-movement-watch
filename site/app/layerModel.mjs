@@ -126,7 +126,23 @@ export function clusterMovementMarkers(markers, zoom, cellSize = 48) {
 }
 
 export function clampMapZoom(value) {
-  return Math.min(10, Math.max(0.5, value));
+  return Math.min(20, Math.max(0.5, value));
+}
+
+export function movementDifference(observed, expected) {
+  const observedValue = Number.isFinite(Number(observed)) ? Number(observed) : 0;
+  const expectedValue = Number.isFinite(Number(expected)) ? Number(expected) : 0;
+  const delta = observedValue - expectedValue;
+  const direction = delta > 0 ? "increase" : delta < 0 ? "decrease" : "steady";
+  const magnitude = Math.max(Math.abs(observedValue), Math.abs(expectedValue), 1);
+  const barPercent = Math.round(Math.min(50, (Math.abs(delta) / magnitude) * 50) * 10) / 10;
+  const formatted = Math.abs(delta).toLocaleString("en-NZ", { maximumFractionDigits: 1 });
+  return {
+    delta,
+    direction,
+    signed_label: delta > 0 ? `+${formatted}` : delta < 0 ? `−${formatted}` : "0",
+    bar_percent: barPercent,
+  };
 }
 
 export function zoomFromWheel(currentZoom, deltaY) {

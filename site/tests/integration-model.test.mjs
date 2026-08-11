@@ -467,15 +467,18 @@ test("keeps Signal, Incident and Warning states independently human-controlled",
   assert.equal(workflow.storage, "browser_local_demo");
 });
 
-test("groups review statuses into New, Active, Closed and all-record History views", async () => {
+test("groups review statuses into New, Active, Closed, activity-only History and All views", async () => {
   const { queueForReviewStatus, reviewQueueIncludesStatus } = await import("../lib/signalReview.mjs");
 
   assert.equal(queueForReviewStatus("open"), "new");
   assert.equal(queueForReviewStatus("investigating"), "active");
   assert.equal(queueForReviewStatus("needs_action"), "active");
   assert.equal(queueForReviewStatus("closed"), "closed");
-  assert.equal(reviewQueueIncludesStatus("history", "open"), true);
-  assert.equal(reviewQueueIncludesStatus("history", "closed"), true);
+  assert.equal(reviewQueueIncludesStatus("history", "open"), false);
+  assert.equal(reviewQueueIncludesStatus("history", "open", { has_history: true }), true);
+  assert.equal(reviewQueueIncludesStatus("history", "closed", { has_history: true }), true);
+  assert.equal(reviewQueueIncludesStatus("all", "open"), true);
+  assert.equal(reviewQueueIncludesStatus("all", "closed"), true);
   assert.equal(reviewQueueIncludesStatus("closed", "investigating"), false);
 });
 

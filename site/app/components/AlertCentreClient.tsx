@@ -30,7 +30,7 @@ type Candidate = {
 };
 
 type ReviewStatus = "open" | "investigating" | "needs_action" | "closed";
-type ReviewQueue = "new" | "active" | "closed" | "history";
+type ReviewQueue = "new" | "active" | "closed" | "history" | "all";
 type ReviewClassification = "true_positive" | "benign_positive" | "false_positive" | "undetermined";
 type ReviewDraft = { status: ReviewStatus; classification: ReviewClassification; assignee: string; note: string; updatedAt: string };
 type TabId = "case" | "warning" | "evidence" | "activity";
@@ -225,11 +225,14 @@ export default function AlertCentreClient() {
     candidates.filter((candidate) => reviewQueueIncludesStatus(
       queue.id,
       reviewDrafts[candidate.id]?.status ?? "open",
+      { has_history: Boolean(reviewDrafts[candidate.id]?.updatedAt) },
     )).length,
   ])) as Record<ReviewQueue, number>;
   const filteredCandidates = candidates.filter((candidate) => {
     const reviewStatus = reviewDrafts[candidate.id]?.status ?? "open";
-    const matchesStatus = reviewQueueIncludesStatus(activeQueue, reviewStatus);
+    const matchesStatus = reviewQueueIncludesStatus(activeQueue, reviewStatus, {
+      has_history: Boolean(reviewDrafts[candidate.id]?.updatedAt),
+    });
     const matchesQuery = !normalizedQuery || [candidate.id, candidate.title, candidate.source_id]
       .some((value) => value.toLowerCase().includes(normalizedQuery));
     return matchesStatus && matchesQuery;
@@ -241,7 +244,9 @@ export default function AlertCentreClient() {
   const workflowStep = activeReview.status === "closed" ? 3 : activeReview.status === "open" ? 1 : 2;
   const classification = classificationFeedback(activeReview.classification, { is_mock: !selected });
   const mockStatus = reviewDrafts[MOCK_ID]?.status ?? "open";
-  const showMock = reviewQueueIncludesStatus(activeQueue, mockStatus);
+  const showMock = reviewQueueIncludesStatus(activeQueue, mockStatus, {
+    has_history: Boolean(reviewDrafts[MOCK_ID]?.updatedAt),
+  });
   const channelRows = warningResult?.channels ?? (activeCase.warningState === "awaiting_approval"
     ? EMPTY_CHANNELS.map((channel) => ({ ...channel, status: "prepared_not_sent" }))
     : EMPTY_CHANNELS);
@@ -400,18 +405,32 @@ export default function AlertCentreClient() {
 
   return (
     <section className="alert-centre-grid" data-operator-workflow="signal-master-detail">
-      <aside className="alert-queue" data-review-surface="queue" aria-label="Signal review queue" aria-busy={state === "loading"}>
+      <aside className="alert-queue" data-review-surface="queue" data-default-queue="new" aria-label="Signal review queue" aria-busy={state === "loading"}>
         <header className="alert-queue-header">
           <h2>Review queue</h2>
           <output>{queueCounts[activeQueue]}</output>
         </header>
-        <nav className="alert-queue-tabs" aria-label="Signal review queues">
-          {REVIEW_QUEUES.map((queue) => (
-            <button key={queue.id} type="button" aria-pressed={activeQueue === queue.id} onClick={() => setActiveQueue(queue.id as ReviewQueue)}>
-              <span>{queue.label}</span><b>{queueCounts[queue.id as ReviewQueue]}</b>
-            </button>
-          ))}
-        </nav>
+        <label className="alert-queue-select">
+          <span>Queue</span>
+          <select
+            aria-label="Review queue"
+            value={activeQueue}
+            onChange={(event) => {
+              const queue = event.currentTarget.value as ReviewQueue;
+              setActiveQueue(queue);
+              const next = candidates.find((candidate) => reviewQueueIncludesStatus(
+                queue,
+                reviewDrafts[candidate.id]?.status ?? "open",
+                { has_history: Boolean(reviewDrafts[candidate.id]?.updatedAt) },
+              ));
+              setSelectedId(next?.id ?? null);
+            }}
+          >
+            {REVIEW_QUEUES.map((queue) => (
+              <option key={queue.id} value={queue.id}>{queue.label} · {queueCounts[queue.id as ReviewQueue]}</option>
+            ))}
+          </select>
+        </label>
         <div className="alert-queue-tools">
           <label><span>Search signals</span><input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="ID, source, title" /></label>
         </div>

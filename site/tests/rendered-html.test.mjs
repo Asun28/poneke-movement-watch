@@ -197,7 +197,7 @@ test("offers compact Google-style map controls without a zoom slider", async () 
   assert.equal(response.status, 200);
   const html = await response.text();
 
-  assert.match(html, /aria-label="Map controls"[^>]*data-max-zoom="1000%"[^>]*data-style="google-vertical"/);
+  assert.match(html, /aria-label="Map controls"[^>]*data-max-zoom="2000%"[^>]*data-style="google-vertical"/);
   assert.match(html, /aria-label="Map zoom controls"[^>]*>[\s\S]*?aria-label="Zoom in"[\s\S]*?aria-label="Zoom out"/);
   assert.doesNotMatch(html, /aria-label="Map zoom level"/);
   assert.doesNotMatch(html, />100(?:<!-- -->)?% zoom</);
@@ -211,6 +211,8 @@ test("separates Replay playback from layers and renders an operable timeline", a
   const html = await response.text();
 
   assert.match(html, /data-replay-toolbar-layout="two-tier"/);
+  assert.match(html, /data-replay-density="compact"/);
+  assert.match(html, /data-delta-encoding="signed-centre-bar"/);
   assert.match(html, /aria-label="Playback header"/);
   assert.match(html, /aria-label="Replay filters and layers"/);
   assert.match(html, /data-replay-filter-zone="primary"/);
@@ -218,6 +220,15 @@ test("separates Replay playback from layers and renders an operable timeline", a
   assert.match(html, /class="replay-timeline"/);
   assert.match(html, /aria-label="Replay timeline ticks"/);
   assert.match(html, /data-replay-clustering="screen-space"/);
+});
+
+test("keeps April movement truth accessible without repeating model-weight copy in the detail card", async () => {
+  const source = await readFile(new URL("../app/components/SensorReplayCanvas.tsx", import.meta.url), "utf8");
+
+  assert.match(source, /aria-label="Selected April movement evidence"/);
+  assert.match(source, /Retrospective analysis; not event-time evidence/);
+  assert.doesNotMatch(source, /<h2>Movement evidence<\/h2>/);
+  assert.doesNotMatch(source, /Retrospective · weight 0/);
 });
 
 test("keeps the travel-direction legend concise", async () => {
@@ -258,6 +269,7 @@ test("offers historical date-hour replay and a matched-hour trend view", async (
   const response = await render();
   assert.equal(response.status, 200);
   const html = await response.text();
+  const source = await readFile(new URL("../app/MovementCanvas.tsx", import.meta.url), "utf8");
 
   assert.match(html, /aria-label="Replay controls"/);
   assert.doesNotMatch(html, /History replay/);
@@ -272,6 +284,8 @@ test("offers historical date-hour replay and a matched-hour trend view", async (
   assert.match(html, />2×</);
   assert.match(html, />4×</);
   assert.match(html, /Matched-hour trend/);
+  assert.match(source, /function TrendView\(\{ signal, visible \}/);
+  assert.match(source, /<TrendView signal=\{selected\} visible=\{isEvidenceOpen\}/);
   assert.match(html, /Observed count/);
   assert.match(html, /Expected baseline/);
   assert.match(html, /\/cop\/v1\/movement-replay\.json/);

@@ -1914,3 +1914,20 @@ supports spatial event-footprint resolution, never direct building-damage claims
   paths mounts 33 paths; choosing Fusion architecture mounts its six stages without changing data.
 - A real 375×812 browser run confirmed 46 focusable Live markers, no page overflow, no console errors,
   Enter-selected native detail dialog and Escape returning focus to the named map surface.
+
+# Phase 54 — Replay evidence density and review queues
+
+- Signed difference-from-expected is clearer than another severity score. A centred bipolar bar keeps
+  increases and decreases comparable while the `+`/`−` value and accessible label prevent colour-only meaning.
+- Blue is used for increase and coral for decrease. Green was rejected because an increase in movement is
+  not inherently safe or positive during an emergency.
+- The shared zoom ceiling was still 1000% in both movement and live map implementations. It is now 2000%
+  with the existing clustering and pan rules unchanged.
+- `History` previously behaved as `All`, so the labels described the same data twice. History now requires
+  a saved human review timestamp; All is the explicit unfiltered queue.
+- A zero review count was truthful but visually incomplete. The live snapshot contained 63 held records at
+  browser verification, so the Inbox now shows `Review 0 · Held 63` and retains `Zero candidates ≠ all-clear`.
+- Browser inspection found the trend canvas initialized while its parent was hidden, leaving a blank chart
+  after Evidence opened. Visibility is now an explicit redraw dependency; the final chart renders at 303×96.
+- Final responsive measurements: desktop Replay toolbar 134px, 375×812 portrait 267px and 812×375 landscape
+  134px. Layers and Evidence remain fully visible; page width does not exceed the viewport; P/V centre delta is 0.

@@ -1182,3 +1182,15 @@
 - 2026-08-11: Published exact validated commit `050e003` only to the private Sites source, saved
   version 55 and completed the existing owner-only production deployment. The temporary archive was
   removed; GitHub `origin` and remote `main` remain unchanged.
+
+# Phase 54 — Replay evidence density and review queues
+
+- 2026-08-12: Added RED contracts for 2000% zoom, signed delta encoding, activity-only History,
+  explicit All and the default-New queue selector. The focused run failed only at the intended gaps.
+- 2026-08-12: Implemented one shared signed centre bar, compact evidence metrics, blue/coral movement
+  direction, centred P/V filters, stronger map arrows, default-New queue selection and Review/Held Inbox truth.
+- 2026-08-12: Real browser QA exposed a hidden-canvas initialization defect. Added a failing redraw
+  contract, then made Evidence visibility trigger the trend render; the visible chart now contains the
+  matched-hour line and expected baseline.
+- 2026-08-12: Final local validation passes: production build, 105/105 behavior/render tests, ESLint,
+  whitespace, desktop, 375×812 portrait and 812×375 landscape checks. The owner-only deployment is next.

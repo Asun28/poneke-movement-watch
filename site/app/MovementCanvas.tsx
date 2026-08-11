@@ -29,6 +29,7 @@ import {
   zoomPanOffsetAtPoint,
 } from "./layerModel.mjs";
 import InvestigationLayersPanel, { InvestigationLayersButton } from "./components/InvestigationLayersPanel";
+import MovementDelta from "./components/MovementDelta";
 import SourceIconPicker, { SourceIconMode, SourceIconPreview } from "./components/SourceIconPicker";
 
 type Coordinate = [number, number];
@@ -406,7 +407,7 @@ function drawMap(
       : rawEnd;
     const isSelected = feature.id === selectedId;
     const decreasing = feature.properties.change_direction === "decrease";
-    context.strokeStyle = decreasing ? "#C75845" : "#D78916";
+    context.strokeStyle = decreasing ? "#C75845" : "#0C66E4";
     context.lineWidth = isSelected ? Math.max(5, symbolSize * 0.6) : Math.max(3, symbolSize * 0.35);
     context.lineCap = "round";
     context.beginPath();
@@ -425,7 +426,7 @@ function drawMap(
         y: start[1],
         feature,
         selected: isSelected,
-        colour: decreasing ? "#C75845" : "#D78916",
+        colour: decreasing ? "#C75845" : "#0C66E4",
         direction: descriptor.direction,
         icon: descriptor.icon,
       });
@@ -566,27 +567,33 @@ function drawMovementMarker(
   const headLength = radius * 0.3;
   const headWidth = radius * 0.22;
 
-  context.strokeStyle = "#102A33";
-  context.lineWidth = isSelected ? 2.4 : 2;
+  const strokeDirectionArrow = () => {
+    context.beginPath();
+    context.moveTo(x + vectorX * arrowStart, y + vectorY * arrowStart);
+    context.lineTo(headX, headY);
+    context.moveTo(headX, headY);
+    context.lineTo(
+      headX - vectorX * headLength + perpendicularX * headWidth,
+      headY - vectorY * headLength + perpendicularY * headWidth,
+    );
+    context.moveTo(headX, headY);
+    context.lineTo(
+      headX - vectorX * headLength - perpendicularX * headWidth,
+      headY - vectorY * headLength - perpendicularY * headWidth,
+    );
+    context.stroke();
+  };
   context.lineCap = "round";
   context.lineJoin = "round";
-  context.beginPath();
-  context.moveTo(x + vectorX * arrowStart, y + vectorY * arrowStart);
-  context.lineTo(headX, headY);
-  context.moveTo(headX, headY);
-  context.lineTo(
-    headX - vectorX * headLength + perpendicularX * headWidth,
-    headY - vectorY * headLength + perpendicularY * headWidth,
-  );
-  context.moveTo(headX, headY);
-  context.lineTo(
-    headX - vectorX * headLength - perpendicularX * headWidth,
-    headY - vectorY * headLength - perpendicularY * headWidth,
-  );
-  context.stroke();
+  context.strokeStyle = "#FFFFFF";
+  context.lineWidth = isSelected ? 5 : 4.4;
+  strokeDirectionArrow();
+  context.strokeStyle = colour;
+  context.lineWidth = isSelected ? 2.8 : 2.3;
+  strokeDirectionArrow();
 }
 
-function TrendView({ signal }: { signal?: LineFeature }) {
+function TrendView({ signal, visible }: { signal?: LineFeature; visible: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const history = (signal?.properties.matched_history as HistoryPoint[] | undefined) ?? EMPTY_HISTORY;
   const observed = signal ? Number(signal.properties.observed_count) : 0;
@@ -597,7 +604,7 @@ function TrendView({ signal }: { signal?: LineFeature }) {
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas || points.length === 0) return;
+    if (!canvas || points.length === 0 || !visible) return;
     const draw = () => {
       const rect = canvas.getBoundingClientRect();
       if (rect.width < 2 || rect.height < 2) return;
@@ -640,7 +647,7 @@ function TrendView({ signal }: { signal?: LineFeature }) {
       context.stroke();
       context.setLineDash([]);
 
-      const colour = signal?.properties.change_direction === "decrease" ? "#c75845" : "#d78916";
+      const colour = signal?.properties.change_direction === "decrease" ? "#c75845" : "#0c66e4";
       context.strokeStyle = colour;
       context.lineWidth = 2.5;
       context.beginPath();
@@ -659,7 +666,7 @@ function TrendView({ signal }: { signal?: LineFeature }) {
     draw();
     window.addEventListener("resize", draw);
     return () => window.removeEventListener("resize", draw);
-  }, [expected, points, signal]);
+  }, [expected, points, signal, visible]);
 
   const firstDate = points[0]?.observed_at;
   const lastDate = points.at(-1)?.observed_at;
@@ -1521,6 +1528,8 @@ export default function MovementCanvas({ investigation }: {
       aria-labelledby="map-heading"
       data-replay-map-first="true"
       data-replay-dataset="movement"
+      data-delta-encoding="signed-centre-bar"
+      data-marker-direction="icon-arrow"
     >
       <InvestigationLayersPanel open={isLayerRailOpen} onClose={() => setIsLayerRailOpen(false)}>
         <LayerWorkspace
@@ -1541,7 +1550,7 @@ export default function MovementCanvas({ investigation }: {
         />
       </InvestigationLayersPanel>
       <div className="map-column">
-        <div className="replay-compact-bar movement-replay-compact" aria-label="Replay controls" data-replay-toolbar-layout="two-tier">
+        <div className="replay-compact-bar movement-replay-compact" aria-label="Replay controls" data-replay-toolbar-layout="two-tier" data-replay-density="compact">
           <div className="replay-playback-header" aria-label="Playback header">
             <div className="replay-compact-identity">
               <h2 id="map-heading">{investigation?.title ?? "Movement changes"}</h2>
@@ -1750,12 +1759,12 @@ export default function MovementCanvas({ investigation }: {
               )}
             </aside>
           ) : null}
-          <div className="map-controls replay-google-map-controls" aria-label="Map controls" data-max-zoom="1000%" data-style="google-vertical">
+          <div className="map-controls replay-google-map-controls" aria-label="Map controls" data-max-zoom="2000%" data-style="google-vertical">
             <div className="map-zoom-buttons" role="group" aria-label="Map zoom controls">
               <button
                 type="button"
                 aria-label="Zoom in"
-                disabled={zoom >= 10}
+                disabled={zoom >= 20}
                 onClick={() => adjustZoom(zoom + 0.5)}
               >+</button>
               <button
@@ -1821,6 +1830,7 @@ export default function MovementCanvas({ investigation }: {
             <div className="count-comparison">
               <div><span>Observed</span><strong>{Number(selected.properties.observed_count).toLocaleString("en-NZ")}</strong></div>
               <div><span>Expected</span><strong>{Number(selected.properties.expected_count).toLocaleString("en-NZ")}</strong></div>
+              <div className="movement-delta-cell"><span>Change</span><MovementDelta observed={Number(selected.properties.observed_count)} expected={Number(selected.properties.expected_count)} /></div>
             </div>
             <dl className="evidence-metrics">
               <div><dt>Robust score</dt><dd>{Number(selected.properties.robust_z).toFixed(1)} z</dd></div>
@@ -1836,7 +1846,7 @@ export default function MovementCanvas({ investigation }: {
           </p>
         )}
 
-        <TrendView signal={selected} />
+        <TrendView signal={selected} visible={isEvidenceOpen} />
 
         <div className="signal-list" aria-label={`${filteredSignals.length} filtered signals`}>
           {filteredSignals.map((feature) => (
@@ -1850,9 +1860,10 @@ export default function MovementCanvas({ investigation }: {
                 <strong>{String(feature.properties.name)}</strong>
                 <small>{String(feature.properties.transport_class)} · {String(feature.properties.direction)}</small>
               </span>
-              <em className={String(feature.properties.change_direction)}>
-                {Number(feature.properties.robust_z) > 0 ? "+" : ""}{Number(feature.properties.robust_z).toFixed(1)}
-              </em>
+              <span className="signal-list-delta">
+                <MovementDelta observed={Number(feature.properties.observed_count)} expected={Number(feature.properties.expected_count)} compact />
+                <small>{Number(feature.properties.robust_z).toFixed(1)} z</small>
+              </span>
             </button>
           ))}
           {filteredSignals.length === 0 ? (

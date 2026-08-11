@@ -1022,6 +1022,133 @@ footer strong { color: var(--white); }
   .source-layer-row { grid-template-columns: 44px minmax(0, 1fr) auto; }
 }
 
+/* Phase 54 — compact replay evidence and explicit review queues */
+.direction-chip.increase { background: #0c66e4; }
+.map-key .increase { background: #0c66e4; }
+
+.movement-filter-icon {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+  display: inline-grid;
+  place-items: center;
+  margin: 0 !important;
+  line-height: 0;
+  vertical-align: middle;
+}
+.movement-filter-icon svg { display: block; }
+.replay-compact-bar .filter-group button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.movement-delta {
+  min-width: 72px;
+  display: grid;
+  grid-template-columns: auto minmax(44px, 1fr);
+  align-items: center;
+  gap: 7px;
+  padding: 0;
+  border: 0;
+}
+.movement-delta > strong {
+  min-width: 28px;
+  margin: 0;
+  color: #44546f;
+  font: 800 14px/1 Consolas, monospace;
+  text-align: right;
+}
+.movement-delta.is-increase > strong { color: #0c66e4; }
+.movement-delta.is-decrease > strong { color: #c9372c; }
+.movement-delta-track {
+  position: relative;
+  width: 100%;
+  height: 6px;
+  display: block;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #dfe1e6;
+}
+.movement-delta-track::after {
+  position: absolute;
+  z-index: 2;
+  top: -2px;
+  bottom: -2px;
+  left: calc(50% - .5px);
+  width: 1px;
+  content: "";
+  background: #44546f;
+}
+.movement-delta-track i { position: absolute; top: 0; bottom: 0; width: var(--delta-fill); }
+.movement-delta.is-increase .movement-delta-track i { left: 50%; background: #0c66e4; }
+.movement-delta.is-decrease .movement-delta-track i { right: 50%; background: #c9372c; }
+.movement-delta.is-compact { min-width: 76px; grid-template-columns: 30px 42px; gap: 5px; }
+.movement-delta.is-compact > strong { font-size: 12px; }
+.count-comparison .movement-delta { padding: 0; border: 0; }
+.count-comparison .movement-delta > strong { margin: 0; font: 800 14px/1 Consolas, monospace; }
+.count-comparison .movement-delta-track { display: block; }
+.movement-delta-cell > .movement-delta { margin-top: 6px; }
+.signal-list-delta { display: grid; justify-items: end; gap: 2px; }
+.signal-list-delta > small { margin: 0; font-size: 10px; }
+
+.replay-compact-bar[data-replay-density="compact"] {
+  top: 8px;
+  gap: 3px;
+  padding: 6px 8px;
+}
+.replay-compact-bar[data-replay-density="compact"] .replay-playback-header { gap: 6px; }
+.replay-compact-bar[data-replay-density="compact"] .replay-compact-identity span { display: none; }
+.replay-compact-bar[data-replay-density="compact"] .replay-compact-inputs { gap: 4px; }
+.replay-compact-bar[data-replay-density="compact"] .replay-compact-inputs label > span { display: none; }
+.replay-compact-bar[data-replay-density="compact"] .replay-compact-inputs input,
+.replay-compact-bar[data-replay-density="compact"] .replay-compact-inputs select,
+.replay-compact-bar[data-replay-density="compact"] .replay-buttons button { min-height: 44px; }
+.replay-compact-bar[data-replay-density="compact"] .replay-filter-subbar { padding-top: 3px; }
+.replay-compact-bar[data-replay-density="compact"] .replay-timeline {
+  position: relative;
+  height: 23px;
+  display: block;
+}
+.replay-compact-bar[data-replay-density="compact"] .replay-compact-scrubber {
+  position: absolute;
+  inset: 0;
+  height: 18px;
+}
+.replay-compact-bar[data-replay-density="compact"] .replay-timeline-ticks {
+  position: absolute;
+  right: 3px;
+  bottom: 0;
+  left: 3px;
+  pointer-events: none;
+}
+.alert-queue-select {
+  display: grid;
+  gap: 4px;
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--hairline);
+  background: #ffffff;
+}
+.alert-queue-select > span { color: #5e6c84; font-size: 11px; font-weight: 700; }
+.alert-queue-select select {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 34px 0 10px;
+  border: 1px solid #a5adba;
+  border-radius: 6px;
+  color: var(--civic-ink);
+  background: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.alert-queue-select select:focus-visible { outline: 2px solid #0c66e4; outline-offset: 2px; }
+
+@media (max-width: 520px) {
+  .movement-delta { min-width: 64px; grid-template-columns: 26px minmax(34px, 1fr); gap: 4px; }
+}
+
 .integration-architecture { grid-template-columns: repeat(3, minmax(150px, 1fr) 34px) minmax(150px, 1fr); margin: 18px clamp(16px, 3vw, 40px); }
 .integration-registry { margin: 18px clamp(10px, 1.5vw, 22px); border: 1px solid var(--civic-ink); background: var(--white); box-shadow: 7px 8px 0 var(--harbour-deep); }
 .integration-toolbar { display: flex; align-items: end; justify-content: space-between; gap: 28px; padding: 20px; border-bottom: 1px solid var(--civic-ink); }
@@ -3851,4 +3978,70 @@ h1, h2, h3, h4, h5 { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-seri
   .live-situation-strip .live-strip-actions { grid-column: span 3; }
   .live-situation-strip .live-inbox-truth { min-width: 0; min-height: 44px; justify-content: center; margin: 0; padding-inline: 5px; border-radius: 0 0 0 9px; }
   .live-situation-strip .live-strip-actions { min-width: 0; justify-content: flex-end; }
+}
+
+/* Phase 54 final cascade: keep compact evidence after legacy Replay rules. */
+.replay-map-workspace { --replay-overlay-top: 150px; }
+.replay-map-panel-header { min-height: 44px; }
+.replay-map-evidence-overlay .selected-evidence { padding: 9px 11px; }
+.replay-map-evidence-overlay .evidence-heading { font-size: 10px; }
+.replay-map-evidence-overlay .direction-chip { padding: 4px 7px; }
+.replay-map-evidence-overlay .selected-evidence h3 { margin: 7px 0 2px; font-size: 18px; line-height: 1.1; }
+.replay-map-evidence-overlay .selected-evidence > p { margin: 2px 0; }
+.replay-map-evidence-overlay .count-comparison { grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 8px 0; }
+.replay-map-evidence-overlay .count-comparison > div { min-width: 0; padding: 7px 5px 7px 0; }
+.replay-map-evidence-overlay .count-comparison > div + div { padding-left: 7px; }
+.replay-map-evidence-overlay .count-comparison strong { font-size: 18px; }
+.replay-map-evidence-overlay .count-comparison .movement-delta > strong { font-size: 13px; }
+.replay-map-evidence-overlay .evidence-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-bottom: 1px dashed var(--hairline);
+}
+.replay-map-evidence-overlay .evidence-metrics > div {
+  min-width: 0;
+  display: grid;
+  align-content: start;
+  justify-content: initial;
+  gap: 3px;
+  padding: 6px;
+  border-bottom: 0;
+}
+.replay-map-evidence-overlay .evidence-metrics > div + div { border-left: 1px dashed var(--hairline); }
+.replay-map-evidence-overlay .evidence-metrics dt { font-size: 10px; line-height: 1.15; }
+.replay-map-evidence-overlay .evidence-metrics dd { overflow: hidden; font-size: 11px; line-height: 1.2; text-overflow: ellipsis; }
+.replay-map-evidence-overlay .trend-panel { padding: 8px 10px; }
+.replay-map-evidence-overlay .trend-panel canvas { height: 96px; margin-top: 6px; }
+.replay-map-evidence-overlay .trend-range { margin-top: 3px; }
+.replay-map-evidence-overlay .signal-list { padding: 5px; }
+.replay-map-evidence-overlay .signal-list button { min-height: 48px; padding: 6px 8px; }
+.april-movement-evidence { width: min(390px, calc(100% - 32px)); }
+.april-movement-evidence .selected-evidence { padding: 9px 11px; }
+.april-movement-evidence .evidence-note { margin-top: 7px; padding: 6px 8px; }
+.april-movement-history { padding: 8px 10px 10px; }
+.april-movement-history svg { height: 98px; margin-top: 5px; }
+
+@media (max-width: 700px) {
+  .replay-bound-workspace .replay-map-workspace { --replay-overlay-top: 252px; }
+}
+
+@media (max-width: 520px) {
+  .replay-bound-workspace .replay-map-workspace { --replay-overlay-top: 318px; }
+}
+
+@media (max-width: 700px) {
+  .replay-playback-header .replay-compact-identity { grid-row: 1; grid-column: 1; }
+  .replay-playback-header .replay-compact-inputs { grid-row: 2; }
+  .replay-playback-header .replay-compact-count {
+    grid-row: 1;
+    grid-column: 2;
+    max-width: 144px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .replay-bound-workspace .replay-map-workspace { --replay-overlay-top: 220px; }
+}
+
+@media (max-width: 520px) {
+  .replay-bound-workspace .replay-map-workspace { --replay-overlay-top: 276px; }
 }
