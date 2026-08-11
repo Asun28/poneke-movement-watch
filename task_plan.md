@@ -1524,7 +1524,7 @@ modules without creating a second alerting or evidence system.
 - [completed] Add failing route, navigation, truth-state and responsive rendering tests.
 - [completed] Implement the server-first dashboard and focused client refresh behavior.
 - [completed] Validate build, regression, lint and desktop/mobile layouts.
-- [pending] Publish the exact owner-only build without changing GitHub remotes.
+- [completed] Publish the exact owner-only build without changing GitHub remotes.
 
 ### Acceptance criteria
 

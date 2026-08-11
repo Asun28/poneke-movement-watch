@@ -1209,3 +1209,5 @@
 - 2026-08-12: Final production build, lint and all 109 behavior/rendering tests pass. Browser checks pass on desktop,
   375x812 portrait and 812x375 landscape; the live source-issue state correctly routes to Data Integration and retains
   `Not an all-clear` when there are no promoted candidates.
+- 2026-08-12: Published exact validated product commit `e094531` only to the owner-only Sites source, saved version 66
+  and verified `/dashboard` in production. GitHub remotes and remote `main` were not changed.
