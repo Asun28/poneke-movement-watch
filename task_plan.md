@@ -12,7 +12,7 @@ choose a built-in icon or upload a browser-local custom icon while onboarding/ed
 - [completed] Audit movement marker rendering, both onboarding surfaces and local persistence.
 - [completed] Add failing behavior tests for icon selection, upload validation and persistence.
 - [completed] Implement shared icon picker, source contract fields and map/source-row rendering.
-- [in_progress] Run production regressions and publish the owner-only demo.
+- [completed] Run production regressions and publish the owner-only demo.
 
 ### Acceptance criteria
 
@@ -54,6 +54,7 @@ choose a built-in icon or upload a browser-local custom icon while onboarding/ed
 | ESLint rejected synchronous custom-image cleanup in an effect | 1 | Store the loaded image with its URL and derive null for stale/missing URLs without a state-clearing effect. |
 | System Python lacked the project's pandas dependency | 1 | Use the repository's existing `.venv` instead of changing dependencies. |
 | Sandboxed pytest could not clean its exact temporary ACL | 1 | Re-ran the same `.venv` suite with bounded permission: 27/27 passed, then removed only that verified temp directory. |
+| First archive command passed Windows drive paths to Git Bash tar | 1 | Re-ran the packaging script with MSYS `/c/...` paths; version 58 was saved successfully. |
 
 ## Phase 48 — unified Investigation Layers container
 

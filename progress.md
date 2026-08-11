@@ -17,6 +17,9 @@
   choice, Auto draws distinct person/car pictograms, and the direction arrow stays outside the icon.
 - Verification passes: production build and 96/96 site tests, ESLint, 27/27 Python tests and
   `git diff --check`. The exact temporary Python test directory was removed after verification.
+- Published exact validated feature commit `3e49b27` only to the private Sites source, saved version
+  58 and completed the owner-only production deployment at the existing URL. The temporary archive
+  was removed; GitHub `origin/main` remains unchanged at `cb9d15b`.
 
 ## Phase 48 — unified Investigation Layers container
 
