@@ -1524,7 +1524,7 @@ all data, evidence, model and human-authority contracts.
 - [completed] Add failing behavior contracts for fixed Replay actions, visible Live empty truth and lazy Ontology graph mounting.
 - [completed] Implement readable typography, non-scrolling primary controls and deferred advanced graph rendering.
 - [completed] Run full regression, lint, desktop/mobile/landscape browser verification and a DOM/readability audit.
-- [pending] Publish the exact validated build to the existing owner-only Sites deployment.
+- [completed] Publish the exact validated build to the existing owner-only Sites deployment.
 
 ### Acceptance criteria
 

@@ -19,6 +19,8 @@
 - Final validation passes: production build, 103/103 behavior/render tests, ESLint and whitespace.
   Browser checks at 1440px, 375×812 and 812×375 found no clipped core controls or page overflow;
   Ontology's default DOM fell from about 1,600 nodes to 627.
+- Published the validated UX source to the existing owner-only Sites deployment. GitHub `origin`
+  and remote `main` remain unchanged.
 
 ## Phase 52 — Production operator workflow refactor
 
