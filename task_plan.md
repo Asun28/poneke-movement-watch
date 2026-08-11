@@ -13,7 +13,7 @@ rather than presenting raw rows as map signals.
 - [completed] Audit August source totals, candidate totals, model output and current Replay binding.
 - [completed] Add failing contracts for explicit model metadata and accurate investigation counts.
 - [completed] Update the replay generator, packaged artifact and concise investigation label.
-- [in_progress] Run regressions, build and owner-only deployment.
+- [completed] Run regressions, build and owner-only deployment.
 
 ### Acceptance criteria
 

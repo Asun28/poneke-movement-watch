@@ -10,6 +10,10 @@
   its separate 209,334 → 2,903 retrospective result.
 - Verification: Python 27/27 pass; site 93/93 pass with production build; ESLint pass;
   `git diff --check` pass apart from expected Windows line-ending notices.
+- Published exact validated commit `5be3fff` to the private Sites source, saved version 56 and
+  completed the owner-only production deployment. Deployed UI verification found the August
+  summary, `929 model candidates` and the default `12 signals · 207 gaps` with no load error.
+- GitHub `origin` and remote `main` remain unchanged.
 
 ## Phase 38 — unified map-first Live workspace
 
