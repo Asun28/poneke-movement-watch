@@ -12,10 +12,13 @@
   has an 8px track with visible start/current/end ticks; Replay map actions use vertical plus/minus,
   reset and fullscreen icons, and the legend has a translucent contrast card.
 - Verification passes: production build and 99/99 site tests, ESLint and `git diff --check`.
-  Independent review and owner-only deployment are next; GitHub origin/main remains untouched.
+  Independent review found no evidence or authority regression.
 - Independent review found no truth/authority regression and identified two UI defects before
   release. Mobile legend clearance now reserves the control column, small-screen panels use one
   shared toolbar-clearance variable, and cluster hit testing covers the full visible badge.
+- Published exact verified commit `491625c` only to the private Sites source, saved version 59 and
+  completed the owner-only production deployment at the existing URL. Temporary packaging files
+  were removed; GitHub origin/main remains untouched.
 
 
 ## Phase 49 — configurable movement icons

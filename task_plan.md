@@ -12,7 +12,7 @@ simplifying map controls and clustering crowded movement markers at regional zoo
 - [completed] Audit both Replay datasets, map controls, navigation and existing clustering behavior.
 - [completed] Add failing behavior and rendered-contract tests.
 - [completed] Implement the two-tier controls, movement clustering and compact icon controls.
-- [in_progress] Run regressions, production build and owner-only deployment.
+- [completed] Run regressions, production build and owner-only deployment.
 
 ### Acceptance criteria
 
