@@ -1523,7 +1523,7 @@ attribution immediately left of the bottom-right zoom controls without overlappi
 - [completed] Add failing rendered and responsive layout contracts.
 - [completed] Implement concise Phosphor panel icons and the shared attribution placement.
 - [completed] Run full regression and desktop/mobile/landscape visual QA.
-- [in_progress] Commit, push the requested branch and publish the owner-only deployment.
+- [completed] Commit, push the requested branch and publish the owner-only deployment.
 
 ### Acceptance criteria
 
@@ -1546,6 +1546,7 @@ attribution immediately left of the bottom-right zoom controls without overlappi
 | Broad icon export search traversed the package for longer than the command limit. | 1 | Used the partial index result, which independently confirmed `SidebarSimple` and `StackSimple`; no repeat needed. |
 | Server rendering keeps the default August case when only a Replay query string changes. | 1 | Kept rendered assertions on the real default case and covered April placement through its scoped responsive CSS plus browser case-switch QA. |
 | One bounded file read included `site/` while already running from the `site` directory. | 1 | Re-ran with the correct relative test path; lint had already completed successfully. |
+| The first Sites commit-tree command let PowerShell reinterpret the tree suffix and pipe message encoding. | 1 | Quoted the tree expression and used `commit-tree -m`; the exact validated site tree was then pushed and packaged successfully. |
 
 ---
 ## Phase 57 — Unified Replay command bar

@@ -1265,3 +1265,5 @@
 - 2026-08-12: Final verification passes the production build, 114/114 tests, ESLint and whitespace checks. Browser QA
   confirms August and April at desktop, 375x812 portrait and 812x375 landscape: no horizontal overflow, attribution
   immediately left of the control stack, legend above on phones, and zero console errors/warnings.
+- 2026-08-12: Committed the feature as `73fea56`, pushed only to
+  `Asun28/poneke-movement-watch` on `codex/movement-anomaly-prototype`, and published owner-only Sites version 70.
