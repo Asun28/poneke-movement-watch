@@ -1524,7 +1524,7 @@ view without inflating evidence or hiding the retrospective-only boundary.
 - [completed] Replace queue tabs with a default-New five-option selector and meaningful History/All semantics.
 - [completed] Surface held observations beside zero review candidates without manufacturing a case.
 - [completed] Run production build, full regression, lint, whitespace and responsive browser checks.
-- [pending] Publish the validated owner-only build without changing GitHub origin or `main`.
+- [completed] Publish the validated owner-only build without changing GitHub origin or `main`.
 
 ### Acceptance criteria
 

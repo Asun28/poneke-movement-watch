@@ -1192,5 +1192,8 @@
 - 2026-08-12: Real browser QA exposed a hidden-canvas initialization defect. Added a failing redraw
   contract, then made Evidence visibility trigger the trend render; the visible chart now contains the
   matched-hour line and expected baseline.
-- 2026-08-12: Final local validation passes: production build, 105/105 behavior/render tests, ESLint,
-  whitespace, desktop, 375×812 portrait and 812×375 landscape checks. The owner-only deployment is next.
+- 2026-08-12: Final validation passes: production build, 105/105 behavior/render tests, ESLint,
+  whitespace, desktop, 375×812 portrait and 812×375 landscape checks.
+- 2026-08-12: Published exact validated product commit `5b0e6b9` only to the private Sites source,
+  saved version 65 and completed the owner-only production deployment. GitHub `origin`,
+  `private-origin` and remote `main` were not changed.
