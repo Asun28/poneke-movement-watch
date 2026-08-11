@@ -1574,6 +1574,7 @@ all data, evidence, model and human-authority contracts.
 | Authoritative RED run failed five new UX contracts while 97 existing contracts passed. | 1 | Expected TDD RED; proceed to implementation only for those verified gaps. |
 | ESLint rejected an Escape handler on a role-based detail overlay. | 1 | Use the native open `dialog` element and retain the same non-modal, focus-return behavior. |
 | The first final-test process handle expired after context compaction. | 1 | Re-ran the complete build, 103 tests, lint and whitespace gate from source. |
+| Post-deployment self-review found the zero-candidate label was unconditional. | 1 | Render loading, zero and positive candidate states separately; add a regression and republish. |
 
 ---
 

@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 
 const workerUrl = new URL("../dist/server/index.js", import.meta.url);
@@ -241,7 +242,7 @@ test("opens Live as one map-first workspace with readable evidence overlays", as
   assert.match(live, /data-event-symbol="road"/);
   assert.match(live, /data-event-symbol="report"/);
   assert.match(live, /Mock · zero evidence/);
-  assert.match(live, /class="live-inbox-truth">Zero candidates ≠ all-clear<\/span>/);
+  assert.match(live, /class="live-inbox-truth">Checking candidates…<\/span>/);
   assert.match(live, /aria-label="Map controls"[^>]*data-max-zoom="1000%"[^>]*data-style="google-vertical"[^>]*data-corner="bottom-right"/);
   assert.match(live, /aria-label="Map zoom controls"[^>]*>[\s\S]*?aria-label="Zoom in"[\s\S]*?aria-label="Zoom out"/);
   assert.match(live, /role="application"[^>]*tabindex="0"[^>]*aria-label="Interactive evidence map"[^>]*aria-keyshortcuts="ArrowUp ArrowDown ArrowLeft ArrowRight Enter Escape"/i);
@@ -656,6 +657,7 @@ test("uses one compact title and status bar on every operator page", async () =>
 
 test("keeps the compact Live status bar operationally complete", async () => {
   const html = await (await request("/live")).text();
+  const component = readFileSync(new URL("../app/components/LiveOperationsClient.tsx", import.meta.url), "utf8");
   const status = html.match(/<div class="live-situation-strip" aria-label="Live source status">([\s\S]*?)<\/div>\s*<section class="live-map-workspace"/)?.[1] ?? "";
 
   assert.match(status, /data-live-metric="connected"[^>]*><span>Connected<\/span><strong>/);
@@ -663,7 +665,9 @@ test("keeps the compact Live status bar operationally complete", async () => {
   assert.match(status, /data-live-metric="issues"[^>]*><span>Issues<\/span><strong>/);
   assert.match(status, /class="live-status-time"/);
   assert.match(status, /class="sr-only">No current records\. Not all-clear\.<\/span>/);
-  assert.match(status, /class="live-inbox-truth">Zero candidates ≠ all-clear<\/span>/);
+  assert.match(status, /class="live-inbox-truth">Checking candidates…<\/span>/);
+  assert.match(component, /candidateCount === 0\s*\? "Zero candidates ≠ all-clear"/);
+  assert.match(component, /`\$\{candidateCount\} candidate\$\{candidateCount === 1/);
   assert.match(status, /class="sr-only">Auto refresh every 60 seconds\.<\/span>/);
   assert.match(status, /type="button">Pause<\/button>/);
   assert.match(status, /type="button" disabled="">Refreshing…<\/button>/);

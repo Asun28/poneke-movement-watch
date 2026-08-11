@@ -21,6 +21,9 @@
   Ontology's default DOM fell from about 1,600 nodes to 627.
 - Published the validated UX source to the existing owner-only Sites deployment. GitHub `origin`
   and remote `main` remain unchanged.
+- Post-deployment self-review caught one misleading edge state: positive queues would still say
+  `Zero candidates`. The status now distinguishes checking, zero and positive candidate counts;
+  the full 103-test, build, lint and whitespace gate passes again before the corrected release.
 
 ## Phase 52 — Production operator workflow refactor
 

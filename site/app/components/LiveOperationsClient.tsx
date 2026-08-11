@@ -170,6 +170,12 @@ export default function LiveOperationsClient() {
   const emptyCount = liveSources.filter((source) => source.runtime_state === "empty").length;
   const issueCount = liveSources.filter((source) => ["unavailable", "stale"].includes(source.runtime_state)).length;
   const inbox = snapshot?.evidence_inbox;
+  const candidateCount = inbox?.candidates.length ?? null;
+  const candidateStatus = loading || candidateCount === null
+    ? "Checking candidates…"
+    : candidateCount === 0
+      ? "Zero candidates ≠ all-clear"
+      : `${candidateCount} candidate${candidateCount === 1 ? "" : "s"} to review`;
   const candidateEvidenceIds = useMemo(
     () => new Set(inbox?.candidates.flatMap((candidate) => candidate.evidence.supporting) ?? []),
     [inbox],
@@ -241,7 +247,7 @@ export default function LiveOperationsClient() {
           <span className="sr-only">No current records. Not all-clear.</span>
         </div>
         <div data-live-metric="issues"><span>Issues</span><strong>{loading ? "—" : issueCount}</strong></div>
-        <span className="live-inbox-truth">Zero candidates ≠ all-clear</span>
+        <span className="live-inbox-truth">{candidateStatus}</span>
         <div className="live-strip-actions">
           <span className="sr-only">{paused ? "Display paused." : "Auto refresh every 60 seconds."}</span>
           <time className="live-status-time" dateTime={snapshot?.generated_at}>{snapshot ? timeLabel(snapshot.generated_at) : "—"}</time>
