@@ -14,8 +14,10 @@
 - Browser verification selected a real 20 April vehicle record and confirmed 23 observed, 84
   expected, −61 change, −6.6 z, 12 matched hours and high confidence. Closing the panel and changing
   replay time both remove stale evidence; no browser errors were reported.
-- Final production build, 101/101 site tests, ESLint and `git diff --check` pass. Owner-only
-  publishing is next.
+- Final production build, 101/101 site tests, ESLint and `git diff --check` pass.
+- Published exact validated commit `9e82cbe` only to the private Sites source, saved version 60 and
+  completed the owner-only deployment at the existing production URL. The temporary archive and
+  preview logs were removed; GitHub `origin/main` remains unchanged at `cb9d15b`.
 
 ## Phase 50 — Replay control hierarchy and map clustering
 

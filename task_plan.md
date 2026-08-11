@@ -12,7 +12,7 @@ including the real matched-hour history and a compact trend chart for the select
 - [completed] Audit the April outcome pack and selection path.
 - [completed] Add failing model and UI contracts.
 - [completed] Implement selected movement detail and the matched-history chart.
-- [in_progress] Run regressions, production build and owner-only deployment.
+- [completed] Run regressions, production build and owner-only deployment.
 
 ### Acceptance criteria
 
@@ -53,6 +53,7 @@ including the real matched-hour history and a compact trend chart for the select
 | One broad inspection command produced truncated output and a PowerShell range type error | 1 | Re-ran bounded, file-specific reads; no files were changed. |
 | A sandboxed parallel rebuild could not start Vite's helper process | 1 | Stopped the bounded preview server and reran the same build with approved process permission. |
 | Browser label matching treated `Replay time` as a prefix for the timeline controls | 1 | Retried with the exact accessible label; the interaction passed. |
+| The packaging helper was first invoked through an unavailable `bash` alias | 1 | Re-ran the unchanged helper through the installed Git Bash executable. |
 
 ## Phase 50 — Replay control hierarchy and map clustering
 
