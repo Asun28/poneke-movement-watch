@@ -1,7 +1,7 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
-import { CarProfile, PersonSimpleWalk } from "@phosphor-icons/react";
+import { CSSProperties, FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { ArrowCounterClockwise, CarProfile, CornersIn, CornersOut, PersonSimpleWalk } from "@phosphor-icons/react";
 import registryData from "../public/cop/v2/source-registry.json";
 import { SOURCE_MANIFEST } from "../lib/sourceManifest.mjs";
 import { operationsTargetForConnectorMode } from "../lib/sourceOperations.mjs";
@@ -17,6 +17,7 @@ import {
   canInspectSelectedSources,
   canReplaySelectedSources,
   clampMapZoom,
+  clusterMovementMarkers,
   findNearestMapMarker,
   filterSourcesByOperationsTarget,
   playableSignalsForSources,
@@ -100,11 +101,25 @@ type MapHitTarget = {
   y: number;
   radius: number;
   feature: LineFeature;
+  features: LineFeature[];
+  count: number;
 };
 type MapInspection = {
   feature: LineFeature;
+  features: LineFeature[];
+  count: number;
   left: number;
   top: number;
+};
+type ProjectedMovementMarker = {
+  id: string;
+  x: number;
+  y: number;
+  feature: LineFeature;
+  selected: boolean;
+  colour: string;
+  direction: string;
+  icon: "people" | "vehicle" | "custom";
 };
 type MapDragState = {
   pointerId: number;
@@ -208,6 +223,18 @@ function formatReplayTime(value: string) {
     year: "numeric",
     timeZone: "Pacific/Auckland",
   }).format(new Date(value)).replace(",", " ·");
+}
+
+function formatTimelineTick(value: string | undefined) {
+  if (!value) return "—";
+  return new Intl.DateTimeFormat("en-NZ", {
+    day: "numeric",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+    timeZone: "Pacific/Auckland",
+  }).format(new Date(value));
 }
 
 function lonLatToWorld([longitude, latitude]: Coordinate): Coordinate {
@@ -368,7 +395,7 @@ function drawMap(
     }
   }
 
-  const hitTargets: MapHitTarget[] = [];
+  const projectedMarkers: ProjectedMovementMarker[] = [];
   for (const feature of signals) {
     const [start, rawEnd] = feature.geometry.coordinates.map(project);
     const dx = rawEnd[0] - start[0];
@@ -391,27 +418,79 @@ function drawMap(
       String(feature.properties.transport_class),
       String(feature.properties.direction),
     );
-    drawMovementMarker(
-      context,
-      start,
-      descriptor.direction,
-      isSelected,
-      decreasing ? "#C75845" : "#D78916",
-      symbolSize,
-      descriptor.icon,
-      descriptor.icon === "custom" ? customMarkerImage : null,
-    );
     if (start[0] >= 0 && start[0] <= width && start[1] >= 0 && start[1] <= height) {
-      hitTargets.push({
+      projectedMarkers.push({
         id: feature.id,
         x: start[0],
         y: start[1],
-        radius: (isSelected ? symbolSize + 3 : symbolSize) * 1.55,
         feature,
+        selected: isSelected,
+        colour: decreasing ? "#C75845" : "#D78916",
+        direction: descriptor.direction,
+        icon: descriptor.icon,
       });
     }
   }
+
+  const hitTargets: MapHitTarget[] = [];
+  const clusters = clusterMovementMarkers(projectedMarkers, zoom, Math.max(48, symbolSize * 4));
+  for (const cluster of clusters) {
+    const primary = cluster.markers[0] as ProjectedMovementMarker;
+    const features = cluster.markers.map((marker: ProjectedMovementMarker) => marker.feature);
+    const selectedInCluster = cluster.markers.some((marker: ProjectedMovementMarker) => marker.selected);
+    const radius = cluster.count > 1
+      ? drawMovementCluster(context, [cluster.x, cluster.y], cluster.count, selectedInCluster)
+      : (() => {
+          drawMovementMarker(
+            context,
+            [primary.x, primary.y],
+            primary.direction,
+            primary.selected,
+            primary.colour,
+            symbolSize,
+            primary.icon,
+            primary.icon === "custom" ? customMarkerImage : null,
+          );
+          return (primary.selected ? symbolSize + 3 : symbolSize) * 1.55;
+        })();
+    hitTargets.push({
+      id: cluster.count > 1 ? `cluster:${cluster.markers.map((marker: ProjectedMovementMarker) => marker.id).join(":")}` : primary.id,
+      x: cluster.x,
+      y: cluster.y,
+      radius,
+      feature: primary.feature,
+      features,
+      count: cluster.count,
+    });
+  }
   return hitTargets;
+}
+
+function drawMovementCluster(
+  context: CanvasRenderingContext2D,
+  [x, y]: Coordinate,
+  count: number,
+  selected: boolean,
+) {
+  const radius = count > 99 ? 22 : 20;
+  context.save();
+  context.shadowColor = "rgba(9, 30, 66, 0.24)";
+  context.shadowBlur = 7;
+  context.fillStyle = selected ? "#102A33" : "#0C66E4";
+  context.strokeStyle = "#FFFFFF";
+  context.lineWidth = 3;
+  context.beginPath();
+  context.arc(x, y, radius, 0, Math.PI * 2);
+  context.fill();
+  context.stroke();
+  context.shadowColor = "transparent";
+  context.fillStyle = "#FFFFFF";
+  context.font = `800 ${count > 99 ? 10 : 12}px "Segoe UI", sans-serif`;
+  context.textAlign = "center";
+  context.textBaseline = "middle";
+  context.fillText(count > 999 ? "999+" : String(count), x, y + 0.5);
+  context.restore();
+  return radius + 8;
 }
 
 function drawMovementMarker(
@@ -1193,6 +1272,8 @@ export default function MovementCanvas({ investigation }: {
   const replayLabel = currentSlot
     ? formatReplayTime(currentSlot.target_at)
     : "12:00 · Thursday 6 August 2026";
+  const replayMaxIndex = Math.max(0, (replay?.slots.length ?? 1) - 1);
+  const replayProgress = replayMaxIndex > 0 ? (slotIndex / replayMaxIndex) * 100 : 0;
   const confidence = selected?.properties.signal_confidence as SignalConfidence | undefined;
   const replayEnabled = Boolean(replay && replaySourceSelected);
   const toggleSource = (sourceId: string) => {
@@ -1297,9 +1378,26 @@ export default function MovementCanvas({ investigation }: {
 
   const inspectionForTarget = (target: MapHitTarget, rect: DOMRect): MapInspection => ({
     feature: target.feature,
+    features: target.features,
+    count: target.count,
     left: Math.min(Math.max(12, target.x + target.radius + 12), Math.max(12, rect.width - 272)),
     top: Math.min(Math.max(12, target.y - 34), Math.max(12, rect.height - 190)),
   });
+
+  const zoomToCluster = (target: MapHitTarget, element: HTMLDivElement) => {
+    const nextZoom = clampMapZoom(Math.max(zoom + 0.75, zoom * 1.8));
+    const rect = element.getBoundingClientRect();
+    panOffsetRef.current = zoomPanOffsetAtPoint(
+      panOffsetRef.current,
+      zoom,
+      nextZoom,
+      [target.x, target.y],
+      [rect.width, rect.height],
+    );
+    setHasPanned(true);
+    setZoom(nextZoom);
+    setMapInspection(null);
+  };
 
   const inspectMap = (event: React.MouseEvent<HTMLDivElement>) => {
     if (!inspectionEnabled || mapDragRef.current) {
@@ -1359,8 +1457,11 @@ export default function MovementCanvas({ investigation }: {
         event.clientY,
       );
       if (target) {
-        setSelectedSignalKey(signalKey(target.feature));
-        setMapInspection(inspectionForTarget(target, rect));
+        if (target.count > 1) zoomToCluster(target, event.currentTarget);
+        else {
+          setSelectedSignalKey(signalKey(target.feature));
+          setMapInspection(inspectionForTarget(target, rect));
+        }
       }
     }
     mapDragRef.current = null;
@@ -1440,12 +1541,104 @@ export default function MovementCanvas({ investigation }: {
         />
       </InvestigationLayersPanel>
       <div className="map-column">
-        <div className="replay-compact-bar movement-replay-compact" aria-label="Replay controls">
-          <div className="replay-compact-identity">
-            <h2 id="map-heading">{investigation?.title ?? "Movement changes"}</h2>
-            <span>{replayLabel}</span>
+        <div className="replay-compact-bar movement-replay-compact" aria-label="Replay controls" data-replay-toolbar-layout="two-tier">
+          <div className="replay-playback-header" aria-label="Playback header">
+            <div className="replay-compact-identity">
+              <h2 id="map-heading">{investigation?.title ?? "Movement changes"}</h2>
+              <span>{replayLabel}</span>
+            </div>
+            <div className="replay-compact-inputs">
+              <label>
+                <span>Date</span>
+                <input
+                  type="date"
+                  aria-label="Replay date"
+                  value={selectedDate}
+                  min={replayDates[0]}
+                  max={replayDates.at(-1)}
+                  disabled={!replayEnabled}
+                  onChange={(event) => selectDateAndHour(event.currentTarget.value, selectedHour)}
+                />
+              </label>
+              <label>
+                <span>Hour</span>
+                <select
+                  aria-label="Replay hour"
+                  value={selectedHour}
+                  disabled={!replayEnabled}
+                  onChange={(event) => selectDateAndHour(selectedDate, event.currentTarget.value)}
+                >
+                  {(availableHours.length > 0 ? availableHours : ["12"]).map((hour) => (
+                    <option key={hour} value={hour}>{hour}:00</option>
+                  ))}
+                </select>
+              </label>
+              <label className="replay-speed-control">
+                <span>Speed</span>
+                <select
+                  aria-label="Replay speed"
+                  value={replaySpeed}
+                  disabled={!replayEnabled}
+                  onChange={(event) => setReplaySpeed(Number(event.currentTarget.value) as ReplaySpeed)}
+                >
+                  <option value={0.5}>0.5×</option>
+                  <option value={1}>1×</option>
+                  <option value={2}>2×</option>
+                  <option value={4}>4×</option>
+                </select>
+              </label>
+              <div className="replay-buttons">
+                <button
+                  type="button"
+                  aria-label="Previous replay hour"
+                  disabled={!replayEnabled || slotIndex === 0}
+                  onClick={() => { setSlotIndex((value) => Math.max(0, value - 1)); setIsPlaying(false); setMapInspection(null); }}
+                >←</button>
+                <button
+                  type="button"
+                  className="play-button"
+                  aria-label={isPlaying ? "Pause replay" : "Play replay"}
+                  aria-pressed={isPlaying}
+                  disabled={!replayEnabled || (replay?.slots.length ?? 0) < 2}
+                  onClick={() => {
+                    if (!isPlaying) setMapInspection(null);
+                    setIsPlaying(!isPlaying);
+                  }}
+                >{isPlaying ? "Pause" : "Play"}</button>
+                <button
+                  type="button"
+                  aria-label="Next replay hour"
+                  disabled={!replayEnabled || slotIndex >= (replay?.slots.length ?? 1) - 1}
+                  onClick={() => { setSlotIndex((value) => Math.min((replay?.slots.length ?? 1) - 1, value + 1)); setIsPlaying(false); setMapInspection(null); }}
+                >→</button>
+              </div>
+            </div>
+            <output className="replay-compact-count" aria-live="polite">
+              {!replaySourceSelected
+                ? "No playable data"
+                : currentSlot
+                ? `${currentSlot.candidate_count} signals · ${currentSlot.data_gap_groups} gaps`
+                : "Loading…"}
+            </output>
           </div>
-          <nav className="replay-compact-actions" aria-label="Replay map views">
+          <div className="replay-timeline" style={{ "--replay-progress": `${replayProgress}%` } as CSSProperties}>
+            <input
+              className="replay-compact-scrubber"
+              type="range"
+              aria-label="Replay timeline"
+              min={0}
+              max={replayMaxIndex}
+              value={slotIndex}
+              disabled={!replayEnabled}
+              onChange={(event) => { setSlotIndex(Number(event.currentTarget.value)); setIsPlaying(false); setMapInspection(null); }}
+            />
+            <div className="replay-timeline-ticks" aria-label="Replay timeline ticks">
+              <span>{formatTimelineTick(replay?.slots[0]?.target_at)}</span>
+              <strong>{formatTimelineTick(currentSlot?.target_at)}</strong>
+              <span>{formatTimelineTick(replay?.slots.at(-1)?.target_at)}</span>
+            </div>
+          </div>
+          <nav className="replay-filter-subbar replay-compact-actions" aria-label="Replay filters and layers">
             <div className="filter-group" aria-label="Filter signals">
               {(["all", "people", "vehicles"] as Filter[]).map((value) => (
                 <button
@@ -1469,6 +1662,9 @@ export default function MovementCanvas({ investigation }: {
                 </button>
               ))}
             </div>
+            <button type="button" className={showCoverage ? "active" : ""} aria-pressed={showCoverage} onClick={() => setShowCoverage((value) => !value)}>
+              Sensor coverage
+            </button>
             <InvestigationLayersButton
               open={isLayerRailOpen}
               selectedCount={selectedSourceIds.size + Number(showBasemap) + Number(showCoverage)}
@@ -1482,95 +1678,13 @@ export default function MovementCanvas({ investigation }: {
               onClick={() => setIsEvidenceOpen((value) => !value)}
             >Evidence <span>{filteredSignals.length}</span></button>
           </nav>
-          <div className="replay-compact-inputs">
-            <label>
-              <span>Date</span>
-              <input
-                type="date"
-                aria-label="Replay date"
-                value={selectedDate}
-                min={replayDates[0]}
-                max={replayDates.at(-1)}
-                disabled={!replayEnabled}
-                onChange={(event) => selectDateAndHour(event.currentTarget.value, selectedHour)}
-              />
-            </label>
-            <label>
-              <span>Hour</span>
-              <select
-                aria-label="Replay hour"
-                value={selectedHour}
-                disabled={!replayEnabled}
-                onChange={(event) => selectDateAndHour(selectedDate, event.currentTarget.value)}
-              >
-                {(availableHours.length > 0 ? availableHours : ["12"]).map((hour) => (
-                  <option key={hour} value={hour}>{hour}:00</option>
-                ))}
-              </select>
-            </label>
-            <label className="replay-speed-control">
-              <span>Speed</span>
-              <select
-                aria-label="Replay speed"
-                value={replaySpeed}
-                disabled={!replayEnabled}
-                onChange={(event) => setReplaySpeed(Number(event.currentTarget.value) as ReplaySpeed)}
-              >
-                <option value={0.5}>0.5×</option>
-                <option value={1}>1×</option>
-                <option value={2}>2×</option>
-                <option value={4}>4×</option>
-              </select>
-            </label>
-            <div className="replay-buttons">
-              <button
-                type="button"
-                aria-label="Previous replay hour"
-                disabled={!replayEnabled || slotIndex === 0}
-                onClick={() => { setSlotIndex((value) => Math.max(0, value - 1)); setIsPlaying(false); setMapInspection(null); }}
-              >←</button>
-              <button
-                type="button"
-                className="play-button"
-                aria-label={isPlaying ? "Pause replay" : "Play replay"}
-                aria-pressed={isPlaying}
-                disabled={!replayEnabled || (replay?.slots.length ?? 0) < 2}
-                onClick={() => {
-                  if (!isPlaying) setMapInspection(null);
-                  setIsPlaying(!isPlaying);
-                }}
-              >{isPlaying ? "Pause" : "Play"}</button>
-              <button
-                type="button"
-                aria-label="Next replay hour"
-                disabled={!replayEnabled || slotIndex >= (replay?.slots.length ?? 1) - 1}
-                onClick={() => { setSlotIndex((value) => Math.min((replay?.slots.length ?? 1) - 1, value + 1)); setIsPlaying(false); setMapInspection(null); }}
-              >→</button>
-            </div>
-          </div>
-          <output className="replay-compact-count" aria-live="polite">
-            {!replaySourceSelected
-              ? "No playable data"
-              : currentSlot
-              ? `${currentSlot.candidate_count} signals · ${currentSlot.data_gap_groups} gaps`
-              : "Loading…"}
-          </output>
-          <input
-            className="replay-compact-scrubber"
-            type="range"
-            aria-label="Replay timeline"
-            min={0}
-            max={Math.max(0, (replay?.slots.length ?? 1) - 1)}
-            value={slotIndex}
-            disabled={!replayEnabled}
-            onChange={(event) => { setSlotIndex(Number(event.currentTarget.value)); setIsPlaying(false); setMapInspection(null); }}
-          />
           {replayWarning ? <p className="replay-warning" role="status">{replayWarning}</p> : null}
         </div>
         <div className="map-stage replay-map-stage">
           <canvas
             ref={canvasRef}
             role="img"
+            data-replay-clustering="screen-space"
             aria-label={`${filteredSignals.length} unusual movement changes across 414 WCC countlines ${showBasemap ? "on the Wellington basemap" : "with the basemap hidden"}.`}
           />
           <div
@@ -1599,74 +1713,75 @@ export default function MovementCanvas({ investigation }: {
           <span className="sr-only">Inspection is off during playback. The signal list remains available for keyboard inspection.</span>
           {mapInspection ? (
             <aside
-              className="map-hover-card"
+              className={`map-hover-card${mapInspection.count > 1 ? " is-cluster" : ""}`}
               role="status"
               style={{ left: mapInspection.left, top: mapInspection.top }}
             >
-              <div>
-                <span>Paused inspection</span>
-                <em className={String(mapInspection.feature.properties.change_direction)}>
-                  {String(mapInspection.feature.properties.change_direction)}
-                </em>
-              </div>
-              <strong>{String(mapInspection.feature.properties.name)}</strong>
-              <p>
-                {String(mapInspection.feature.properties.transport_class)} · {String(mapInspection.feature.properties.direction)} travel
-              </p>
-              <dl>
-                <div><dt>Observed</dt><dd>{Number(mapInspection.feature.properties.observed_count).toLocaleString("en-NZ")}</dd></div>
-                <div><dt>Expected</dt><dd>{Number(mapInspection.feature.properties.expected_count).toLocaleString("en-NZ", { maximumFractionDigits: 1 })}</dd></div>
-              </dl>
-              <time>{formatReplayTime(String(mapInspection.feature.properties.observed_at))}</time>
-              <small>WCC Transport Sensors · real replay</small>
+              {mapInspection.count > 1 ? (
+                <>
+                  <div><span>Nearby movement signals</span><em>{mapInspection.count}</em></div>
+                  <strong>{mapInspection.count} signals in this area</strong>
+                  <p>Click the cluster to zoom in and inspect individual sensors.</p>
+                  <small>WCC Transport Sensors · display cluster</small>
+                </>
+              ) : (
+                <>
+                  <div>
+                    <span>Paused inspection</span>
+                    <em className={String(mapInspection.feature.properties.change_direction)}>
+                      {String(mapInspection.feature.properties.change_direction)}
+                    </em>
+                  </div>
+                  <strong>{String(mapInspection.feature.properties.name)}</strong>
+                  <p>
+                    {String(mapInspection.feature.properties.transport_class)} · {String(mapInspection.feature.properties.direction)} travel
+                  </p>
+                  <dl>
+                    <div><dt>Observed</dt><dd>{Number(mapInspection.feature.properties.observed_count).toLocaleString("en-NZ")}</dd></div>
+                    <div><dt>Expected</dt><dd>{Number(mapInspection.feature.properties.expected_count).toLocaleString("en-NZ", { maximumFractionDigits: 1 })}</dd></div>
+                  </dl>
+                  <time>{formatReplayTime(String(mapInspection.feature.properties.observed_at))}</time>
+                  <small>WCC Transport Sensors · real replay</small>
+                </>
+              )}
             </aside>
           ) : null}
-          <div className="map-controls" aria-label="Map zoom controls">
-            <div className="map-zoom-buttons">
-              <button
-                type="button"
-                aria-label="Zoom out"
-                disabled={zoom <= 0.5}
-                onClick={() => adjustZoom(zoom - 0.25)}
-              >−</button>
-              <output aria-live="polite">{Math.round(zoom * 100)}% zoom</output>
+          <div className="map-controls replay-google-map-controls" aria-label="Map controls" data-max-zoom="1000%" data-style="google-vertical">
+            <div className="map-zoom-buttons" role="group" aria-label="Map zoom controls">
               <button
                 type="button"
                 aria-label="Zoom in"
                 disabled={zoom >= 10}
-                onClick={() => adjustZoom(zoom + 0.25)}
+                onClick={() => adjustZoom(zoom + 0.5)}
               >+</button>
-            </div>
-            <div className="map-zoom-range">
-              <input
-                type="range"
-                aria-label="Map zoom level"
-                min="0.5"
-                max="10"
-                step="0.1"
-                value={zoom}
-                onChange={(event) => adjustZoom(Number(event.currentTarget.value))}
-              />
+              <button
+                type="button"
+                aria-label="Zoom out"
+                disabled={zoom <= 0.5}
+                onClick={() => adjustZoom(zoom - 0.5)}
+              >−</button>
             </div>
             <div className="map-view-actions">
               <button
                 type="button"
                 aria-label="Reset map view"
+                title="Reset map view"
                 disabled={zoom === 1 && !hasPanned}
                 onClick={resetMapView}
-              >Reset</button>
+              ><ArrowCounterClockwise size={18} aria-hidden="true" /></button>
               <button
                 type="button"
                 aria-label={isMapFullscreen ? "Exit map fullscreen" : "Show map fullscreen"}
+                title={isMapFullscreen ? "Exit map fullscreen" : "Show map fullscreen"}
                 aria-pressed={isMapFullscreen}
                 onClick={toggleMapFullscreen}
-              >{isMapFullscreen ? "Exit full screen" : "Full screen"}</button>
+              >{isMapFullscreen ? <CornersIn size={18} aria-hidden="true" /> : <CornersOut size={18} aria-hidden="true" />}</button>
             </div>
           </div>
           {fullscreenMessage ? (
             <p className="map-fullscreen-message" role="status">{fullscreenMessage}</p>
           ) : null}
-          <div className="map-key">
+          <div className="map-key" data-map-legend="floating-card">
             <span><i className="increase" />Increase</span>
             <span><i className="decrease" />Decrease</span>
             <span aria-label="Travel direction"><b className="direction-arrow-key" aria-hidden="true">↗</b>Direction</span>

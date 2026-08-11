@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { CSSProperties, useEffect, useMemo, useState } from "react";
 import hilltopPack from "../../public/cop/v4/april-storm-hilltop-observations.json";
 import detectorPack from "../../public/cop/v4/april-storm-hydro-detector.json";
 import eventPack from "../../public/cop/v4/april-storm-event-pack.json";
@@ -47,6 +47,18 @@ function timeLabel(value: string | null) {
   if (!value) return "No replay time";
   return new Intl.DateTimeFormat("en-NZ", {
     weekday: "short",
+    day: "numeric",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+    timeZone: "Pacific/Auckland",
+  }).format(new Date(value));
+}
+
+function timelineTick(value: string | null | undefined) {
+  if (!value) return "—";
+  return new Intl.DateTimeFormat("en-NZ", {
     day: "numeric",
     month: "short",
     hour: "2-digit",
@@ -237,6 +249,9 @@ export default function SensorReplayCanvas({ investigation }: { investigation: I
     setSelectedId(null);
   }
 
+  const replayMaxIndex = Math.max(0, dataset.slots.length - 1);
+  const replayProgress = replayMaxIndex > 0 ? (slotIndex / replayMaxIndex) * 100 : 0;
+
   return (
     <section id="replay-map" className="replay-map-workspace sensor-replay-workspace" data-replay-map-first="true" data-replay-dataset="sensor" data-primary-layer="movement-outcomes" aria-label="April movement impact replay">
       <LiveMap
@@ -250,36 +265,45 @@ export default function SensorReplayCanvas({ investigation }: { investigation: I
         markerScale={markerScale}
         onSelect={setSelectedId}
       />
-      <div className="replay-compact-bar" aria-label="Replay controls">
-        <div className="replay-compact-identity">
-          <h2>{investigation.title}</h2>
-          <span>{timeLabel(frame.target_at)}</span>
+      <div className="replay-compact-bar" aria-label="Replay controls" data-replay-toolbar-layout="two-tier">
+        <div className="replay-playback-header" aria-label="Playback header">
+          <div className="replay-compact-identity">
+            <h2>{investigation.title}</h2>
+            <span>{timeLabel(frame.target_at)}</span>
+          </div>
+          <div className="replay-compact-inputs">
+            <label><span>Date</span><input type="date" aria-label="Replay date" value={selectedDate} min={replayDates[0]} max={replayDates.at(-1)} onChange={(event) => selectDate(event.currentTarget.value)} /></label>
+            <label><span>Time</span><select aria-label="Replay time" value={frame.target_at ?? ""} onChange={(event) => selectTime(event.currentTarget.value)}>{dateSlots.map((time: string) => <option key={time} value={time}>{time.slice(11, 16)}</option>)}</select></label>
+            <label><span>Speed</span><select aria-label="Replay speed" value={speed} onChange={(event) => setSpeed(Number(event.currentTarget.value) as ReplaySpeed)}><option value={0.5}>0.5×</option><option value={1}>1×</option><option value={2}>2×</option><option value={4}>4×</option></select></label>
+            <div className="replay-buttons">
+              <button type="button" aria-label="Previous replay step" disabled={slotIndex === 0} onClick={() => { setSlotIndex((value) => Math.max(0, value - 1)); setPlaying(false); }}>←</button>
+              <button type="button" className="play-button" aria-label={playing ? "Pause replay" : "Play replay"} aria-pressed={playing} onClick={() => setPlaying((value) => !value)}>{playing ? "Pause" : "Play"}</button>
+              <button type="button" aria-label="Next replay step" disabled={slotIndex >= dataset.slots.length - 1} onClick={() => { setSlotIndex((value) => Math.min(dataset.slots.length - 1, value + 1)); setPlaying(false); }}>→</button>
+            </div>
+          </div>
+          <output className="replay-compact-count" aria-live="polite">{dataset.playable_record_count.toLocaleString("en-NZ")} / {dataset.total_record_count.toLocaleString("en-NZ")} records</output>
         </div>
-        <div className="filter-group" aria-label="Replay evidence filters">
-          <button type="button" className={showMovementOutcomes ? "active" : ""} aria-pressed={showMovementOutcomes} onClick={toggleMovementOutcomes}>
-            Movement
-          </button>
-          {(["all", "rain", "flow", "anomaly"] as Exclude<SensorFilter, null>[]).map((value) => (
-            <button key={value} type="button" className={filter === value ? "active" : ""} aria-pressed={filter === value} onClick={() => setFilter((current) => toggleSensorEvidenceFilter(current, value) as SensorFilter)}>
-              {value === "all" ? "Weather" : value === "rain" ? "Rain" : value === "flow" ? "Flow" : "Hydro candidates"}
-            </button>
-          ))}
-        </div>
-        <div className="replay-compact-actions">
-          <InvestigationLayersButton open={layersOpen} selectedCount={selectedLayerCount} totalCount={4} onToggle={() => setLayersOpen((value) => !value)} />
-        </div>
-        <div className="replay-compact-inputs">
-          <label><span>Date</span><input type="date" aria-label="Replay date" value={selectedDate} min={replayDates[0]} max={replayDates.at(-1)} onChange={(event) => selectDate(event.currentTarget.value)} /></label>
-          <label><span>Time</span><select aria-label="Replay time" value={frame.target_at ?? ""} onChange={(event) => selectTime(event.currentTarget.value)}>{dateSlots.map((time: string) => <option key={time} value={time}>{time.slice(11, 16)}</option>)}</select></label>
-          <label><span>Speed</span><select aria-label="Replay speed" value={speed} onChange={(event) => setSpeed(Number(event.currentTarget.value) as ReplaySpeed)}><option value={0.5}>0.5×</option><option value={1}>1×</option><option value={2}>2×</option><option value={4}>4×</option></select></label>
-          <div className="replay-buttons">
-            <button type="button" aria-label="Previous replay step" disabled={slotIndex === 0} onClick={() => { setSlotIndex((value) => Math.max(0, value - 1)); setPlaying(false); }}>←</button>
-            <button type="button" className="play-button" aria-label={playing ? "Pause replay" : "Play replay"} aria-pressed={playing} onClick={() => setPlaying((value) => !value)}>{playing ? "Pause" : "Play"}</button>
-            <button type="button" aria-label="Next replay step" disabled={slotIndex >= dataset.slots.length - 1} onClick={() => { setSlotIndex((value) => Math.min(dataset.slots.length - 1, value + 1)); setPlaying(false); }}>→</button>
+        <div className="replay-timeline" style={{ "--replay-progress": `${replayProgress}%` } as CSSProperties}>
+          <input className="replay-compact-scrubber" type="range" aria-label="Replay timeline" min={0} max={replayMaxIndex} value={slotIndex} onChange={(event) => { setSlotIndex(Number(event.currentTarget.value)); setPlaying(false); }} />
+          <div className="replay-timeline-ticks" aria-label="Replay timeline ticks">
+            <span>{timelineTick(dataset.slots[0])}</span>
+            <strong>{timelineTick(frame.target_at)}</strong>
+            <span>{timelineTick(dataset.slots.at(-1))}</span>
           </div>
         </div>
-        <output className="replay-compact-count" aria-live="polite">{dataset.playable_record_count.toLocaleString("en-NZ")} / {dataset.total_record_count.toLocaleString("en-NZ")} records</output>
-        <input className="replay-compact-scrubber" type="range" aria-label="Replay timeline" min={0} max={Math.max(0, dataset.slots.length - 1)} value={slotIndex} onChange={(event) => { setSlotIndex(Number(event.currentTarget.value)); setPlaying(false); }} />
+        <nav className="replay-filter-subbar replay-compact-actions" aria-label="Replay filters and layers">
+          <div className="filter-group" aria-label="Replay evidence filters">
+            <button type="button" className={showMovementOutcomes ? "active" : ""} aria-pressed={showMovementOutcomes} onClick={toggleMovementOutcomes}>
+              Movement
+            </button>
+            {(["all", "rain", "flow", "anomaly"] as Exclude<SensorFilter, null>[]).map((value) => (
+              <button key={value} type="button" className={filter === value ? "active" : ""} aria-pressed={filter === value} onClick={() => setFilter((current) => toggleSensorEvidenceFilter(current, value) as SensorFilter)}>
+                {value === "all" ? "Weather" : value === "rain" ? "Rain" : value === "flow" ? "Flow" : "Hydro candidates"}
+              </button>
+            ))}
+          </div>
+          <InvestigationLayersButton open={layersOpen} selectedCount={selectedLayerCount} totalCount={4} onToggle={() => setLayersOpen((value) => !value)} />
+        </nav>
       </div>
       <InvestigationLayersPanel open={layersOpen} onClose={() => setLayersOpen(false)}>
         <div className="sensor-investigation-layers">

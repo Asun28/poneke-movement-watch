@@ -4,6 +4,8 @@ import { useState } from "react";
 import {
   ArrowCounterClockwise,
   ArrowsLeftRight,
+  CaretDoubleLeft,
+  CaretDoubleRight,
   Pulse,
   ShareNetwork,
   SlidersHorizontal,
@@ -37,12 +39,15 @@ export default function OperatorNavigation({ active }: { active: string }) {
         <button
           className="operator-nav-toggle"
           type="button"
+          data-icon-only="true"
           aria-label={collapsed ? "Expand navigation" : "Collapse navigation"}
+          title={collapsed ? "Expand navigation" : "Collapse navigation"}
           aria-expanded={!collapsed}
           onClick={() => setCollapsed((value) => !value)}
         >
-          <span aria-hidden="true">{collapsed ? "›" : "‹"}</span>
-          {!collapsed && "Hide menu"}
+          {collapsed
+            ? <CaretDoubleRight size={18} aria-hidden="true" />
+            : <CaretDoubleLeft size={18} aria-hidden="true" />}
         </button>
         <nav aria-label="Operator modules">
           {destinations.map((destination) => (

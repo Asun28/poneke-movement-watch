@@ -1,5 +1,62 @@
 # Pōneke Movement Watch — evidence ontology roadmap
 
+## Phase 50 — Replay control hierarchy and map clustering
+
+### Goal
+
+Make Replay easier to operate by separating playback from layer filtering, enlarging the scrubber,
+simplifying map controls and clustering crowded movement markers at regional zoom.
+
+### Status
+
+- [completed] Audit both Replay datasets, map controls, navigation and existing clustering behavior.
+- [completed] Add failing behavior and rendered-contract tests.
+- [completed] Implement the two-tier controls, movement clustering and compact icon controls.
+- [in_progress] Run regressions, production build and owner-only deployment.
+
+### Acceptance criteria
+
+- Both Replay datasets use a two-tier control surface: playback/time first, layers and filters second.
+- The scrubber is full width with an 8px track, a clear thumb and visible start/current/end labels.
+- Replay shows standard vertical plus/minus controls with compact reset and fullscreen icon buttons;
+  it does not show a zoom slider or percentage readout, while wheel zoom and the 50–1000% range remain.
+- The movement map clusters nearby signals at regional zoom, shows the count, and expands the cluster
+  when selected; high-zoom single-marker inspection keeps the existing People/Vehicle/direction detail.
+- The map legend is a readable translucent card and the sidebar collapse control is icon-only with a
+  descriptive accessible name and at least a 44px target.
+- Mobile and desktop layouts do not clip the controls or cover most of the map.
+- No dataset, detector, model, ontology, evidence weight, case workflow or GitHub-origin change.
+
+### Assumptions and exclusions
+
+- Clustering is a screen-space display projection, not a new evidence or ontology record.
+- Selecting a cluster zooms the map; it does not select a misleading member signal.
+- The existing Investigation Layers container remains the source of truth for detailed layer setup.
+- No external map/clustering dependency and no removal of wheel/pinch-style map interaction.
+
+### File-level plan
+
+- `site/app/layerModel.mjs`, `site/tests/layer-model.test.mjs`: pure movement clustering behavior.
+- `site/app/MovementCanvas.tsx`, `site/app/components/SensorReplayCanvas.tsx`: two-tier controls,
+  timeline ticks, movement clusters and compact map actions.
+- `site/app/components/OperatorNavigation.tsx`, `site/app/globals.css`: icon-only collapse and layout.
+- `site/tests/rendered-html.test.mjs`, `site/tests/operator-console.test.mjs`: rendered UX contracts.
+- `findings.md`, `progress.md`: decisions, verification and deployment evidence.
+
+### Rejected major alternatives
+
+- Do not add a third control bar or hide critical playback controls behind a drawer.
+- Do not select the first signal inside a cluster as if it represented the whole cluster.
+- Do not add a new map framework or change canonical Replay records.
+
+### Errors encountered
+
+| Error | Attempt | Resolution |
+|---|---:|---|
+| First full build found one extra CSS closing brace after the control rewrite | 1 | Removed the single unmatched brace; no design or behavior changed. |
+| One mobile test still required the retired top-right sensor map controls | 1 | Updated it to enforce the new bottom-right Google-style control placement. |
+| Independent review found a mobile legend/control overlap and a short cluster hit radius | 1 | Reserved mobile overlay space, constrained the legend beside the controls and made hit testing respect each marker radius. |
+
 ## Phase 49 — configurable movement icons
 
 ### Goal

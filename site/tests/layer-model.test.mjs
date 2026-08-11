@@ -5,6 +5,7 @@ import * as viewportModel from "../app/layerModel.mjs";
 import {
   canInspectSelectedSources,
   canReplaySelectedSources,
+  clusterMovementMarkers,
   findNearestMapMarker,
   filterSourcesByOperationsTarget,
   playableSignalsForSources,
@@ -138,6 +139,26 @@ test("nearest visible marker wins only inside the bounded inspection radius", ()
 
   assert.equal(findNearestMapMarker(markers, { x: 100, y: 100 }, 12)?.id, "nearest");
   assert.equal(findNearestMapMarker(markers, { x: 140, y: 140 }, 12), null);
+  assert.equal(
+    findNearestMapMarker([{ id: "cluster", x: 125, y: 100, radius: 28 }], { x: 100, y: 100 }, 12)?.id,
+    "cluster",
+  );
+});
+
+test("movement markers cluster at regional zoom and expand into individual signals", () => {
+  const markers = [
+    { id: "a", x: 100, y: 100, feature: { id: "a" } },
+    { id: "b", x: 112, y: 108, feature: { id: "b" } },
+    { id: "c", x: 250, y: 250, feature: { id: "c" } },
+  ];
+
+  const regional = clusterMovementMarkers(markers, 1, 48);
+  const street = clusterMovementMarkers(markers, 4, 48);
+
+  assert.deepEqual(regional.map((cluster) => cluster.count), [2, 1]);
+  assert.deepEqual(regional[0].markers.map((marker) => marker.id), ["a", "b"]);
+  assert.deepEqual(street.map((cluster) => cluster.count), [1, 1, 1]);
+  assert.deepEqual(markers.map((marker) => [marker.x, marker.y]), [[100, 100], [112, 108], [250, 250]]);
 });
 
 test("continuous map zoom stays inside the 50 to 1000 percent operating range", () => {

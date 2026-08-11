@@ -300,10 +300,12 @@ test("keeps April movement and official-impact layers operator-controlled", asyn
 test("keeps mobile Replay controls clear of the fixed operator navigation", async () => {
   const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
 
-  assert.match(css, /\.sensor-replay-workspace \.ops-map-controls \{ top: 88px; right: 8px; bottom: auto; \}/);
+  assert.match(css, /\.sensor-replay-workspace \.ops-map-controls \{ top: auto; right: 8px; bottom: 12px; \}/);
   assert.match(css, /\.sensor-reading-strip \{ top: 282px; right: 8px; bottom: auto; \}/);
-  assert.match(css, /\.sensor-replay-workspace \.ops-map-legend \{ top: 239px; right: auto; bottom: auto;/);
-  assert.match(css, /\.sensor-replay-workspace \.ops-map-attribution \{ top: 88px; right: auto; bottom: auto; left: 8px;/);
+  assert.match(css, /\.sensor-replay-workspace \.ops-map-legend \{ top: auto; right: 66px; bottom: 12px; left: 8px;/);
+  assert.match(css, /\.sensor-replay-workspace \.ops-map-attribution \{ top: auto; right: auto; bottom: 70px; left: 8px;/);
+  assert.match(css, /\.replay-map-workspace \.map-key \{ right: 66px; bottom: 16px; left: 8px;/);
+  assert.match(css, /--replay-overlay-top: 288px/);
 });
 
 test("clusters overlapping evidence only at broad map zoom", () => {

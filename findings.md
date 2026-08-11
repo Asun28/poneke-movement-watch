@@ -1,5 +1,22 @@
 # Findings — Phase 2 ontology and sources
 
+## Phase 50 — Replay control hierarchy and map clustering
+
+- Both Replay datasets shared one compact control class but placed title, filters, layers, evidence,
+  time inputs, playback, counts and a thin scrubber in one horizontal row. The correct seam was a
+  shared presentation hierarchy, not any Replay data or investigation change.
+- The April sensor map already reused LiveMap's screen-space clustering and compact vertical zoom.
+  August movement drew every marker separately, so a small pure projection in `layerModel.mjs` can
+  add display clustering without creating or changing evidence records.
+- Regional movement clusters preserve every member feature, show only an aggregate count, and zoom
+  toward the selected cluster. They never select the first member as though it represented the group.
+- The 50–1000% zoom range and anchored wheel zoom remain. Only the redundant visible slider and
+  percentage output were removed; reset and fullscreen remain as labelled icon buttons.
+- The timeline track is now 8px with a 20px thumb and start/current/end labels. Filters and layer
+  switches are on a separate scroll-safe row with 44px targets.
+- No dataset, detector, source truth, ontology relation, evidence weight or case workflow changed.
+
+
 ## Phase 49 — configurable movement icons
 
 - Movement map markers are drawn on canvas as direction-only circles; People and Vehicle are only

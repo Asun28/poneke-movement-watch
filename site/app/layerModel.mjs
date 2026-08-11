@@ -83,15 +83,46 @@ export function replayIntervalMs(speed) {
 
 export function findNearestMapMarker(markers, point, maxDistance) {
   let nearest = null;
-  let nearestDistance = maxDistance;
+  let nearestDistance = Number.POSITIVE_INFINITY;
   for (const marker of markers) {
     const distance = Math.hypot(marker.x - point.x, marker.y - point.y);
-    if (distance <= nearestDistance) {
+    const hitDistance = Math.max(maxDistance, Number(marker.radius) || 0);
+    if (distance <= hitDistance && distance <= nearestDistance) {
       nearest = marker;
       nearestDistance = distance;
     }
   }
   return nearest;
+}
+
+export function clusterMovementMarkers(markers, zoom, cellSize = 48) {
+  if (!Array.isArray(markers) || markers.length === 0) return [];
+  if (zoom >= 4) {
+    return markers.map((marker) => ({
+      id: marker.id,
+      x: marker.x,
+      y: marker.y,
+      count: 1,
+      markers: [marker],
+    }));
+  }
+
+  const distance = Math.max(20, cellSize / Math.max(0.75, zoom));
+  const clusters = [];
+  for (const marker of markers) {
+    const cluster = clusters.find((candidate) => (
+      Math.hypot(candidate.x - marker.x, candidate.y - marker.y) <= distance
+    ));
+    if (!cluster) {
+      clusters.push({ id: marker.id, x: marker.x, y: marker.y, count: 1, markers: [marker] });
+      continue;
+    }
+    cluster.markers.push(marker);
+    cluster.count = cluster.markers.length;
+    cluster.x = cluster.markers.reduce((total, item) => total + item.x, 0) / cluster.count;
+    cluster.y = cluster.markers.reduce((total, item) => total + item.y, 0) / cluster.count;
+  }
+  return clusters;
 }
 
 export function clampMapZoom(value) {

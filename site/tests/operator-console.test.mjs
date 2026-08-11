@@ -169,6 +169,14 @@ test("opens Replay as a map-first workspace with secondary panels collapsed", as
   assert.match(replay, /aria-label="Map zoom controls"/);
 });
 
+test("keeps the desktop navigation collapse control icon-only", async () => {
+  const replay = await (await request("/replay")).text();
+
+  assert.match(replay, /class="operator-nav-toggle"[^>]*data-icon-only="true"/);
+  assert.match(replay, /aria-label="Collapse navigation"/);
+  assert.doesNotMatch(replay, />Hide menu</);
+});
+
 test("opens Live as one map-first workspace with readable evidence overlays", async () => {
   const live = await (await request("/live")).text();
   const review = await (await request("/alerts")).text();

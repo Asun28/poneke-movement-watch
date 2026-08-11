@@ -1,5 +1,23 @@
 # Progress — Phase 2 ontology and sources
 
+## Phase 50 — Replay control hierarchy and map clustering
+
+- Audited both Replay datasets, navigation, map controls and the existing LiveMap clustering seam.
+  Fixed scope at a two-tier Replay control surface, usable timeline, display-only movement clusters,
+  compact map actions and an icon-only desktop navigation collapse control.
+- TDD RED confirmed the missing movement cluster projection and the old one-row/slider contracts.
+  TDD GREEN now clusters regional movement signals without mutation, expands them on selection and
+  retains individual People/Vehicle/direction inspection at street zoom.
+- Both August movement and April storm now separate playback/time from filters/layers. The scrubber
+  has an 8px track with visible start/current/end ticks; Replay map actions use vertical plus/minus,
+  reset and fullscreen icons, and the legend has a translucent contrast card.
+- Verification passes: production build and 99/99 site tests, ESLint and `git diff --check`.
+  Independent review and owner-only deployment are next; GitHub origin/main remains untouched.
+- Independent review found no truth/authority regression and identified two UI defects before
+  release. Mobile legend clearance now reserves the control column, small-screen panels use one
+  shared toolbar-clearance variable, and cluster hit testing covers the full visible badge.
+
+
 ## Phase 49 — configurable movement icons
 
 - Started the icon-onboarding change. Scope is fixed at clear People/Vehicle map symbols, retained

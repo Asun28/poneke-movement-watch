@@ -189,19 +189,33 @@ test("renders clear people and vehicle filter icons while preserving direction",
   assert.match(html, /data-movement-icon="people"/);
   assert.match(html, /data-movement-icon="vehicle"/);
   assert.match(html, /Travel direction/);
-  assert.match(html, />100(?:<!-- -->)?% zoom</);
+  assert.match(html, /data-map-legend="floating-card"/);
 });
 
-test("offers continuous wheel-slider zoom and map-only fullscreen", async () => {
+test("offers compact Google-style map controls without a zoom slider", async () => {
   const response = await render();
   assert.equal(response.status, 200);
   const html = await response.text();
 
-  assert.match(html, /aria-label="Map zoom level"/);
-  assert.match(html, /min="0.5" max="10" step="0.1"/);
-  assert.doesNotMatch(html, /Scroll or use slider/);
+  assert.match(html, /aria-label="Map controls"[^>]*data-max-zoom="1000%"[^>]*data-style="google-vertical"/);
+  assert.match(html, /aria-label="Map zoom controls"[^>]*>[\s\S]*?aria-label="Zoom in"[\s\S]*?aria-label="Zoom out"/);
+  assert.doesNotMatch(html, /aria-label="Map zoom level"/);
+  assert.doesNotMatch(html, />100(?:<!-- -->)?% zoom</);
+  assert.match(html, /aria-label="Reset map view"/);
   assert.match(html, /aria-label="Show map fullscreen"/);
-  assert.match(html, />Full screen</);
+});
+
+test("separates Replay playback from layers and renders an operable timeline", async () => {
+  const response = await render();
+  assert.equal(response.status, 200);
+  const html = await response.text();
+
+  assert.match(html, /data-replay-toolbar-layout="two-tier"/);
+  assert.match(html, /aria-label="Playback header"/);
+  assert.match(html, /aria-label="Replay filters and layers"/);
+  assert.match(html, /class="replay-timeline"/);
+  assert.match(html, /aria-label="Replay timeline ticks"/);
+  assert.match(html, /data-replay-clustering="screen-space"/);
 });
 
 test("keeps the travel-direction legend concise", async () => {
