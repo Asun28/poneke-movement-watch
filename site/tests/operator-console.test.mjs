@@ -125,6 +125,9 @@ test("offers short safe setup paths for sources, API, MCP and A2A", async () => 
   assert.match(html, />MCP</);
   assert.match(html, />A2A</);
   assert.match(html, /Source name/);
+  assert.match(html, /aria-label="Map icon"/);
+  assert.match(html, /Auto by data type/);
+  assert.match(html, /Upload PNG or WebP/);
   assert.match(html, /Use in/);
   assert.match(html, /name="operationsTarget"/);
   assert.match(html, />Live Operations</);
@@ -435,6 +438,8 @@ test("provides a friendly Replay investigation source workspace", async () => {
   assert.match(html, /Data status/);
   assert.match(html, /Access/);
   assert.match(html, /Use in/);
+  assert.match(html, /aria-label="Map icon"/);
+  assert.match(html, /Upload PNG or WebP/);
   assert.match(html, /aria-label="Edit WCC Transport Sensors"/);
   assert.match(html, /Registry/);
   assert.match(html, /This browser only/);

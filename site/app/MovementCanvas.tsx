@@ -1,12 +1,14 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { CarProfile, PersonSimpleWalk } from "@phosphor-icons/react";
 import registryData from "../public/cop/v2/source-registry.json";
 import { SOURCE_MANIFEST } from "../lib/sourceManifest.mjs";
 import { operationsTargetForConnectorMode } from "../lib/sourceOperations.mjs";
 import {
   INVESTIGATION_MODULES,
   mergeInvestigationSources,
+  movementIconDescriptor,
   persistableInvestigationSources,
   upsertInvestigationSource,
 } from "../lib/replaySourceWorkspace.mjs";
@@ -26,6 +28,7 @@ import {
   zoomPanOffsetAtPoint,
 } from "./layerModel.mjs";
 import InvestigationLayersPanel, { InvestigationLayersButton } from "./components/InvestigationLayersPanel";
+import SourceIconPicker, { SourceIconMode, SourceIconPreview } from "./components/SourceIconPicker";
 
 type Coordinate = [number, number];
 type LineFeature = {
@@ -78,6 +81,8 @@ type SourceLayer = {
   access_status: string;
   operations_target: string;
   endpoint?: string | null;
+  icon_mode?: SourceIconMode;
+  custom_icon_data_url?: string | null;
   alert_eligible?: boolean;
   assigned_modules?: string[];
   record_origin?: "canonical" | "local_draft" | "local_override";
@@ -155,6 +160,8 @@ type InvestigationSourceDraft = {
   demo_data_status: string;
   access_status: string;
   assigned_modules: string[];
+  icon_mode: SourceIconMode;
+  custom_icon_data_url: string | null;
 };
 
 const EMPTY_SOURCE_DRAFT: InvestigationSourceDraft = {
@@ -164,6 +171,8 @@ const EMPTY_SOURCE_DRAFT: InvestigationSourceDraft = {
   demo_data_status: "registered_only",
   access_status: "public_free",
   assigned_modules: ["replay_analyzer"],
+  icon_mode: "auto",
+  custom_icon_data_url: null,
 };
 
 function signalKey(feature: LineFeature) {
@@ -322,6 +331,8 @@ function drawMap(
   showBasemap: boolean,
   showCoverage: boolean,
   symbolSize: number,
+  iconSource: SourceLayer | undefined,
+  customMarkerImage: HTMLImageElement | null,
   onTileSettled: () => void,
 ): MapHitTarget[] {
   const rect = canvas.getBoundingClientRect();
@@ -375,20 +386,27 @@ function drawMap(
     context.moveTo(...start);
     context.lineTo(...end);
     context.stroke();
+    const descriptor = movementIconDescriptor(
+      iconSource,
+      String(feature.properties.transport_class),
+      String(feature.properties.direction),
+    );
     drawMovementMarker(
       context,
       start,
-      String(feature.properties.direction),
+      descriptor.direction,
       isSelected,
       decreasing ? "#C75845" : "#D78916",
       symbolSize,
+      descriptor.icon,
+      descriptor.icon === "custom" ? customMarkerImage : null,
     );
     if (start[0] >= 0 && start[0] <= width && start[1] >= 0 && start[1] <= height) {
       hitTargets.push({
         id: feature.id,
         x: start[0],
         y: start[1],
-        radius: isSelected ? symbolSize + 3 : symbolSize,
+        radius: (isSelected ? symbolSize + 3 : symbolSize) * 1.55,
         feature,
       });
     }
@@ -403,6 +421,8 @@ function drawMovementMarker(
   isSelected: boolean,
   colour: string,
   symbolSize: number,
+  icon: "people" | "vehicle" | "custom",
+  customImage: HTMLImageElement | null,
 ) {
   const radius = isSelected ? symbolSize + 3 : symbolSize;
   context.fillStyle = "#F8FBFB";
@@ -413,22 +433,66 @@ function drawMovementMarker(
   context.fill();
   context.stroke();
 
+  context.save();
+  context.strokeStyle = "#102A33";
+  context.fillStyle = "#102A33";
+  context.lineWidth = Math.max(1.4, radius * 0.13);
+  context.lineCap = "round";
+  context.lineJoin = "round";
+  if (icon === "custom" && customImage?.complete && customImage.naturalWidth > 0) {
+    context.beginPath();
+    context.arc(x, y, radius * 0.68, 0, Math.PI * 2);
+    context.clip();
+    context.drawImage(customImage, x - radius * 0.68, y - radius * 0.68, radius * 1.36, radius * 1.36);
+  } else if (icon === "people") {
+    context.beginPath();
+    context.arc(x, y - radius * 0.35, radius * 0.16, 0, Math.PI * 2);
+    context.fill();
+    context.beginPath();
+    context.moveTo(x, y - radius * 0.13);
+    context.lineTo(x, y + radius * 0.28);
+    context.moveTo(x - radius * 0.32, y + radius * 0.02);
+    context.lineTo(x, y - radius * 0.05);
+    context.lineTo(x + radius * 0.3, y + radius * 0.12);
+    context.moveTo(x, y + radius * 0.28);
+    context.lineTo(x - radius * 0.27, y + radius * 0.58);
+    context.moveTo(x, y + radius * 0.28);
+    context.lineTo(x + radius * 0.3, y + radius * 0.55);
+    context.stroke();
+  } else {
+    context.beginPath();
+    context.moveTo(x - radius * 0.58, y - radius * 0.04);
+    context.lineTo(x - radius * 0.34, y - radius * 0.34);
+    context.lineTo(x + radius * 0.3, y - radius * 0.34);
+    context.lineTo(x + radius * 0.56, y - radius * 0.04);
+    context.lineTo(x + radius * 0.56, y + radius * 0.32);
+    context.lineTo(x - radius * 0.58, y + radius * 0.32);
+    context.closePath();
+    context.stroke();
+    context.beginPath();
+    context.arc(x - radius * 0.32, y + radius * 0.36, radius * 0.12, 0, Math.PI * 2);
+    context.arc(x + radius * 0.31, y + radius * 0.36, radius * 0.12, 0, Math.PI * 2);
+    context.fill();
+  }
+  context.restore();
+
   const normalisedDirection = direction.toUpperCase();
   const [vectorX, vectorY] = DIRECTION_VECTORS[normalisedDirection] ?? [1, 0];
-  const arrowHalfLength = radius * 0.55;
-  const headX = x + vectorX * arrowHalfLength;
-  const headY = y + vectorY * arrowHalfLength;
+  const arrowStart = radius * 0.82;
+  const arrowEnd = radius * 1.45;
+  const headX = x + vectorX * arrowEnd;
+  const headY = y + vectorY * arrowEnd;
   const perpendicularX = -vectorY;
   const perpendicularY = vectorX;
-  const headLength = radius * 0.32;
-  const headWidth = radius * 0.26;
+  const headLength = radius * 0.3;
+  const headWidth = radius * 0.22;
 
   context.strokeStyle = "#102A33";
   context.lineWidth = isSelected ? 2.4 : 2;
   context.lineCap = "round";
   context.lineJoin = "round";
   context.beginPath();
-  context.moveTo(x - vectorX * arrowHalfLength, y - vectorY * arrowHalfLength);
+  context.moveTo(x + vectorX * arrowStart, y + vectorY * arrowStart);
   context.lineTo(headX, headY);
   context.moveTo(headX, headY);
   context.lineTo(
@@ -624,6 +688,8 @@ function LayerWorkspace({
       demo_data_status: source.demo_data_status,
       access_status: source.access_status,
       assigned_modules: [...(source.assigned_modules ?? [])],
+      icon_mode: source.icon_mode ?? "auto",
+      custom_icon_data_url: source.custom_icon_data_url ?? null,
     });
     setSourceFormNotice("");
     setSourceFormOpen(true);
@@ -784,6 +850,17 @@ function LayerWorkspace({
                 </select>
               </label>
             </div>
+            <SourceIconPicker
+              mode={sourceDraft.icon_mode}
+              customIconDataUrl={sourceDraft.custom_icon_data_url}
+              onChange={({ mode, customIconDataUrl }) => {
+                setSourceDraft((current) => ({
+                  ...current,
+                  icon_mode: mode,
+                  custom_icon_data_url: customIconDataUrl,
+                }));
+              }}
+            />
             <fieldset>
               <legend>Use in</legend>
               {INVESTIGATION_MODULES.map((module) => (
@@ -854,10 +931,10 @@ function LayerWorkspace({
                   aria-label={`${isSelected ? "Remove" : "Add"} ${source.name} source layer`}
                   onClick={() => onToggleSource(source.id)}
                 >
-                  <span
-                    className="source-layer-toggle-icon"
-                    style={{ width: symbolSize, height: symbolSize }}
-                    aria-hidden="true"
+                  <SourceIconPreview
+                    mode={source.icon_mode ?? "auto"}
+                    customIconDataUrl={source.custom_icon_data_url}
+                    size={Math.max(18, symbolSize + 7)}
                   />
                   <span className="source-layer-toggle-mark" aria-hidden="true">
                     {isSelected ? "✓" : "+"}
@@ -938,6 +1015,10 @@ export default function MovementCanvas({ investigation }: {
   );
   const [sourceStorageReady, setSourceStorageReady] = useState(false);
   const [sourceStorageNotice, setSourceStorageNotice] = useState("This browser only");
+  const [customMarkerAsset, setCustomMarkerAsset] = useState<{
+    url: string;
+    image: HTMLImageElement;
+  } | null>(null);
   const [mapInspection, setMapInspection] = useState<MapInspection | null>(null);
   const [isMapFullscreen, setIsMapFullscreen] = useState(false);
   const [fullscreenMessage, setFullscreenMessage] = useState<string | null>(null);
@@ -1023,6 +1104,27 @@ export default function MovementCanvas({ investigation }: {
       window.setTimeout(() => setSourceStorageNotice("Could not save"), 0);
     }
   }, [selectedSourceIds, sourceLayers, sourceStorageReady]);
+
+  const movementIconSource = useMemo(
+    () => sourceLayers.find((source) => source.id === MOVEMENT_REPLAY_SOURCE_ID),
+    [sourceLayers],
+  );
+  const movementCustomIconUrl = movementIconSource?.icon_mode === "custom"
+    ? movementIconSource.custom_icon_data_url ?? null
+    : null;
+  const customMarkerImage = customMarkerAsset?.url === movementCustomIconUrl
+    ? customMarkerAsset.image
+    : null;
+
+  useEffect(() => {
+    if (!movementCustomIconUrl) return;
+    let active = true;
+    const image = new Image();
+    image.decoding = "async";
+    image.onload = () => { if (active) setCustomMarkerAsset({ url: movementCustomIconUrl, image }); };
+    image.src = movementCustomIconUrl;
+    return () => { active = false; };
+  }, [movementCustomIconUrl]);
 
   const coverageByCountline = useMemo(() => new Map(
     coverage.map((feature) => [String(feature.properties.countline_id), feature]),
@@ -1126,6 +1228,8 @@ export default function MovementCanvas({ investigation }: {
           showBasemap,
           showCoverage,
           symbolSize,
+          movementIconSource,
+          customMarkerImage,
           () => setTileRevision((value) => value + 1),
         );
       });
@@ -1138,7 +1242,7 @@ export default function MovementCanvas({ investigation }: {
       redrawMapRef.current = () => undefined;
       window.removeEventListener("resize", render);
     };
-  }, [coverage, filteredSignals, selected, showBasemap, showCoverage, symbolSize, tileRevision, zoom]);
+  }, [coverage, customMarkerImage, filteredSignals, movementIconSource, selected, showBasemap, showCoverage, symbolSize, tileRevision, zoom]);
 
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -1351,6 +1455,16 @@ export default function MovementCanvas({ investigation }: {
                   aria-pressed={filter === value}
                   onClick={() => { setFilter(value); setMapInspection(null); }}
                 >
+                  {value === "people" ? (
+                    <span className="movement-filter-icon" data-movement-icon="people" aria-hidden="true">
+                      <PersonSimpleWalk size={17} weight="bold" />
+                    </span>
+                  ) : null}
+                  {value === "vehicles" ? (
+                    <span className="movement-filter-icon" data-movement-icon="vehicle" aria-hidden="true">
+                      <CarProfile size={17} weight="bold" />
+                    </span>
+                  ) : null}
                   {value === "all" ? "All" : value === "people" ? "People" : "Vehicles"}
                 </button>
               ))}

@@ -178,7 +178,7 @@ test("renders a paused-only map inspection layer with a keyboard alternative", a
   assert.match(html, /data-map-selectable="true"/);
 });
 
-test("renders zoom controls with text-only people and vehicle filters", async () => {
+test("renders clear people and vehicle filter icons while preserving direction", async () => {
   const response = await render();
   assert.equal(response.status, 200);
   const html = await response.text();
@@ -186,8 +186,9 @@ test("renders zoom controls with text-only people and vehicle filters", async ()
   assert.match(html, /aria-label="Zoom in"/);
   assert.match(html, /aria-label="Zoom out"/);
   assert.match(html, /aria-label="Reset map view"/);
-  assert.doesNotMatch(html, /aria-label="Person signal"/);
-  assert.doesNotMatch(html, /aria-label="Vehicle signal"/);
+  assert.match(html, /data-movement-icon="people"/);
+  assert.match(html, /data-movement-icon="vehicle"/);
+  assert.match(html, /Travel direction/);
   assert.match(html, />100(?:<!-- -->)?% zoom</);
 });
 

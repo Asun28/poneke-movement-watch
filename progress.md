@@ -1,5 +1,23 @@
 # Progress — Phase 2 ontology and sources
 
+## Phase 49 — configurable movement icons
+
+- Started the icon-onboarding change. Scope is fixed at clear People/Vehicle map symbols, retained
+  direction, a shared Auto/People/Vehicle/Custom picker and browser-only PNG/WebP persistence.
+- Audited the two onboarding paths and current canvas. Replay source overrides already provide the
+  correct local persistence boundary; Setup drafts remain separate and will reuse the same picker.
+- Confirmed implementation seam: one source-level icon preference feeds source-row preview and the
+  canvas; Auto resolves each signal to People/Vehicle and a separate outer arrow preserves direction.
+- TDD RED is verified: canonical sources lack an Auto icon default, custom upload helpers are absent,
+  and unsafe SVG data is currently accepted. The other 36 focused model tests remain green.
+- Pure validation and persistence are now GREEN at 39/39. Rendered RED confirms the remaining UI
+  gaps: Setup and Replay lack the Map icon picker/upload, and Replay filters lack People/Vehicle icons.
+  The independent direction legend already passes.
+- TDD GREEN is complete: both onboarding surfaces share the picker, source rows preview the current
+  choice, Auto draws distinct person/car pictograms, and the direction arrow stays outside the icon.
+- Verification passes: production build and 96/96 site tests, ESLint, 27/27 Python tests and
+  `git diff --check`. The exact temporary Python test directory was removed after verification.
+
 ## Phase 48 — unified Investigation Layers container
 
 - Reproduced the deployed 20 April Weather issue: click produced no pressed-state change and

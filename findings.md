@@ -1,5 +1,31 @@
 # Findings — Phase 2 ontology and sources
 
+## Phase 49 — configurable movement icons
+
+- Movement map markers are drawn on canvas as direction-only circles; People and Vehicle are only
+  text filter labels, while the shared event-symbol registry still uses `P` and `V` glyphs.
+- Replay source onboarding already persists local source overrides in browser storage, and Setup has
+  a separate browser-only draft form. Both need one icon contract so the operator sees the same
+  choices instead of two unrelated controls.
+- The playable WCC source contains both People and Vehicle records. Default `auto` must therefore
+  resolve per signal from existing `transport_class`; a source-level People, Vehicle or Custom choice
+  is an explicit display override only.
+- Direction is operational evidence and must remain independent from the family/custom pictogram.
+  The marker should render a central icon plus an outer direction cue, never replace one with the other.
+- PNG/WebP data URLs are the safe bounded upload path for this demo. They can be previewed and stored
+  locally without server writes; arbitrary SVG/HTML is excluded.
+- The canvas redraw is a pure `drawMap` call driven by source/filter state, so one resolved marker
+  preference can be passed into the renderer without changing movement data. Built-ins can be drawn
+  as compact canvas pictograms; a custom raster needs a decoded `HTMLImageElement` and redraw on load.
+- Current direction rendering crosses the centre of the marker. The icon design must move direction
+  to a short outer arrow so the central People/Vehicle/custom pictogram stays legible.
+- Source rows currently show a generic coloured square and check mark. The selected icon preview can
+  replace only that inner square while the existing 44px add/remove target and check state remain.
+- The implemented contract is presentation-only: `auto` resolves the existing transport class,
+  source overrides remain local, and neither the icon nor uploaded bytes enter evidence/model fields.
+- A URL-tagged decoded image avoids showing the previous custom icon while a replacement loads; an
+  invalid or missing image therefore falls back without altering the movement record or direction.
+
 ## Phase 48 — unified Investigation Layers container
 
 - The April Weather control is an exclusive filter, not a toggle: clicking active `all` calls

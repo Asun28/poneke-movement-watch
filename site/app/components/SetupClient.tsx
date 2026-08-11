@@ -1,6 +1,8 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
+import SourceIconPicker, { SourceIconMode } from "./SourceIconPicker";
+import { movementIconDescriptor } from "../../lib/replaySourceWorkspace.mjs";
 
 type SetupSection = "source" | "connection" | "settings";
 type ConnectionKind = "api" | "mcp" | "a2a";
@@ -34,13 +36,26 @@ export default function SetupClient() {
   const [connectionKind, setConnectionKind] = useState<ConnectionKind>("api");
   const [saved, setSaved] = useState<SavedDraft>({});
   const [notice, setNotice] = useState("Draft not saved");
+  const [sourceIconMode, setSourceIconMode] = useState<SourceIconMode>("auto");
+  const [sourceCustomIcon, setSourceCustomIcon] = useState<string | null>(null);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
       try {
         const stored = window.localStorage.getItem(STORAGE_KEY);
         if (stored) {
-          setSaved(JSON.parse(stored));
+          const parsed = JSON.parse(stored) as SavedDraft;
+          setSaved(parsed);
+          const requestedMode = String(parsed.source?.iconMode ?? "auto");
+          const storedMode: SourceIconMode = ["auto", "people", "vehicle", "custom"].includes(requestedMode)
+            ? requestedMode as SourceIconMode
+            : "auto";
+          const descriptor = movementIconDescriptor({
+            icon_mode: storedMode,
+            custom_icon_data_url: parsed.source?.customIconDataUrl,
+          }, "Car", "");
+          setSourceIconMode(storedMode === "custom" && !descriptor.custom_icon_data_url ? "auto" : storedMode);
+          setSourceCustomIcon(descriptor.custom_icon_data_url);
           setNotice("Saved on this browser");
         }
       } catch {
@@ -52,6 +67,10 @@ export default function SetupClient() {
 
   function save(event: FormEvent<HTMLFormElement>, section: SetupSection) {
     event.preventDefault();
+    if (section === "source" && sourceIconMode === "custom" && !sourceCustomIcon) {
+      setNotice("Choose a PNG or WebP icon");
+      return;
+    }
     const next = { ...saved, [section]: formValues(event.currentTarget) };
     try {
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
@@ -66,6 +85,8 @@ export default function SetupClient() {
     if (!window.confirm("Clear this browser-only setup draft?")) return;
     window.localStorage.removeItem(STORAGE_KEY);
     setSaved({});
+    setSourceIconMode("auto");
+    setSourceCustomIcon(null);
     setNotice("Draft cleared");
   }
 
@@ -110,6 +131,16 @@ export default function SetupClient() {
             <label><span>Format</span><select name="format" defaultValue="json"><option value="json">JSON</option><option value="geojson">GeoJSON</option><option value="xml">XML / CAP</option><option value="gtfs_rt">GTFS-Realtime</option><option value="csv">CSV / Parquet</option></select></label>
             <label><span>Access</span><select name="access" defaultValue="public"><option value="public">Public</option><option value="api_key">API key</option><option value="paid">Paid</option><option value="permission">Permission</option></select></label>
           </div>
+          <input type="hidden" name="iconMode" value={sourceIconMode} />
+          <input type="hidden" name="customIconDataUrl" value={sourceIconMode === "custom" ? sourceCustomIcon ?? "" : ""} />
+          <SourceIconPicker
+            mode={sourceIconMode}
+            customIconDataUrl={sourceCustomIcon}
+            onChange={({ mode, customIconDataUrl }) => {
+              setSourceIconMode(mode);
+              setSourceCustomIcon(customIconDataUrl);
+            }}
+          />
           <details>
             <summary>More source fields</summary>
             <div className="setup-fields">

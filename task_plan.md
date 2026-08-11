@@ -1,5 +1,60 @@
 # Pōneke Movement Watch — evidence ontology roadmap
 
+## Phase 49 — configurable movement icons
+
+### Goal
+
+Give People and Vehicle movement records clear, direction-preserving map icons and let an operator
+choose a built-in icon or upload a browser-local custom icon while onboarding/editing a data source.
+
+### Status
+
+- [completed] Audit movement marker rendering, both onboarding surfaces and local persistence.
+- [completed] Add failing behavior tests for icon selection, upload validation and persistence.
+- [completed] Implement shared icon picker, source contract fields and map/source-row rendering.
+- [in_progress] Run production regressions and publish the owner-only demo.
+
+### Acceptance criteria
+
+- Auto mode renders distinct People and Vehicle icons while retaining the signal direction cue.
+- Add/Edit source in Replay and Add data source in Setup offer Auto, People, Vehicle and Custom icons.
+- PNG/WebP uploads are size/type validated, previewed and stored only in the current browser draft.
+- A source icon choice survives reload and is used consistently in the source row, map and filters.
+- Invalid/oversized uploads fail visibly and never enter source storage.
+- No evidence weight, dataset, model, ontology, alert/case or GitHub-origin change.
+
+### Assumptions and exclusions
+
+- Custom icons are device-local display preferences, not uploaded to a server or added to source data.
+- Auto is the default and derives People/Vehicle only from the existing `transport_class` field.
+- Custom source icons may replace the family pictogram, but the separate direction indicator remains.
+- No arbitrary SVG/HTML upload; accept bounded PNG/WebP raster images only.
+
+### File-level plan
+
+- `site/lib/replaySourceWorkspace.mjs`, new icon helper: validate and persist local display fields.
+- Shared icon picker/preview plus `SetupClient.tsx` and `MovementCanvas.tsx`: onboarding controls.
+- Movement canvas and CSS: clear built-in glyphs, custom image projection and direction cue.
+- `site/tests/*`: pure validation/persistence, rendered controls and movement-map behavior.
+- `findings.md`, `progress.md`: decisions, verification and deployment evidence.
+
+### Rejected major alternatives
+
+- Do not remove direction arrows or rely on colour/letters P and V.
+- Do not store uploaded images in canonical source records or a remote service.
+- Do not accept unbounded files or active SVG content.
+
+### Errors encountered
+
+| Error | Attempt | Resolution |
+|---|---:|---|
+| Initial multi-file plan insertion missed the exact heading context | 1 | Insert this phase directly before the verified Phase 48 heading. |
+| A CSS excerpt command used the repository root instead of `site/` | 1 | Re-run scoped reads from the `site` directory; no files were changed. |
+| First production build hit sandbox `spawn EPERM` | 1 | Re-ran the same build with approved process permission; it passed. |
+| ESLint rejected synchronous custom-image cleanup in an effect | 1 | Store the loaded image with its URL and derive null for stale/missing URLs without a state-clearing effect. |
+| System Python lacked the project's pandas dependency | 1 | Use the repository's existing `.venv` instead of changing dependencies. |
+| Sandboxed pytest could not clean its exact temporary ACL | 1 | Re-ran the same `.venv` suite with bounded permission: 27/27 passed, then removed only that verified temp directory. |
+
 ## Phase 48 — unified Investigation Layers container
 
 ### Goal

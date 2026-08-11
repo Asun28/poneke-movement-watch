@@ -19,8 +19,42 @@ const ACCESS_STATUSES = new Set([
   "council_input_required",
 ]);
 
+const ICON_MODES = new Set(["auto", "people", "vehicle", "custom"]);
+const PEOPLE_TRANSPORT_CLASSES = new Set(["Pedestrian", "Cyclist", "E-scooter"]);
+const CUSTOM_ICON_TYPES = new Set(["image/png", "image/webp"]);
+export const MAX_CUSTOM_ICON_BYTES = 131072;
+
 function clean(value) {
   return typeof value === "string" ? value.trim() : "";
+}
+
+function validCustomIconDataUrl(value) {
+  const text = clean(value);
+  if (!/^data:image\/(?:png|webp);base64,[A-Za-z0-9+/]+={0,2}$/.test(text)) return false;
+  const encoded = text.slice(text.indexOf(",") + 1).replace(/=+$/, "");
+  return Math.floor((encoded.length * 3) / 4) <= MAX_CUSTOM_ICON_BYTES;
+}
+
+export function validateCustomIconFile(file) {
+  if (!CUSTOM_ICON_TYPES.has(clean(file?.type).toLowerCase())) return { ok: false, error: "type" };
+  const size = Number(file?.size);
+  if (!Number.isFinite(size) || size <= 0 || size > MAX_CUSTOM_ICON_BYTES) {
+    return { ok: false, error: "size" };
+  }
+  return { ok: true, error: null };
+}
+
+export function movementIconDescriptor(source, transportClass, direction) {
+  const autoIcon = PEOPLE_TRANSPORT_CLASSES.has(clean(transportClass)) ? "people" : "vehicle";
+  const requested = ICON_MODES.has(source?.icon_mode) ? source.icon_mode : "auto";
+  const customIcon = validCustomIconDataUrl(source?.custom_icon_data_url)
+    ? clean(source.custom_icon_data_url)
+    : null;
+  return {
+    icon: requested === "auto" ? autoIcon : requested === "custom" && !customIcon ? autoIcon : requested,
+    custom_icon_data_url: requested === "custom" ? customIcon : null,
+    direction: clean(direction).toUpperCase(),
+  };
 }
 
 function uniqueModules(value) {
@@ -62,6 +96,8 @@ function validateDraft(input) {
   const endpoint = clean(input?.endpoint);
   const rawModules = Array.isArray(input?.assigned_modules) ? input.assigned_modules : [];
   const modules = uniqueModules(rawModules);
+  const iconMode = clean(input?.icon_mode) || "auto";
+  const customIconDataUrl = clean(input?.custom_icon_data_url) || null;
 
   if (!id) errors.push("required:id");
   else if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(id)) errors.push("invalid:id");
@@ -70,6 +106,12 @@ function validateDraft(input) {
   else if (modules.length !== rawModules.length) errors.push("invalid:assigned_modules");
   if (!DEMO_DATA_STATUSES.has(input?.demo_data_status)) errors.push("invalid:demo_data_status");
   if (!ACCESS_STATUSES.has(input?.access_status)) errors.push("invalid:access_status");
+  if (!ICON_MODES.has(iconMode)) errors.push("invalid:icon_mode");
+  if (customIconDataUrl && !validCustomIconDataUrl(customIconDataUrl)) {
+    errors.push("invalid:custom_icon_data_url");
+  } else if (iconMode === "custom" && !customIconDataUrl) {
+    errors.push("required:custom_icon_data_url");
+  }
   if (endpoint) {
     try {
       const url = new URL(endpoint);
@@ -79,15 +121,26 @@ function validateDraft(input) {
     }
   }
 
-  return { errors, id, name, endpoint: endpoint || null, modules };
+  return {
+    errors,
+    id,
+    name,
+    endpoint: endpoint || null,
+    modules,
+    iconMode,
+    customIconDataUrl: iconMode === "custom" ? customIconDataUrl : null,
+  };
 }
 
 function canonicalSource(source) {
+  const descriptor = movementIconDescriptor(source, "Car", "");
   return {
     ...source,
     endpoint: source.endpoint ?? null,
     assigned_modules: canonicalModules(source),
     record_origin: "canonical",
+    icon_mode: ICON_MODES.has(source?.icon_mode) ? source.icon_mode : "auto",
+    custom_icon_data_url: source?.icon_mode === "custom" ? descriptor.custom_icon_data_url : null,
   };
 }
 
@@ -104,6 +157,8 @@ function localDraft(input, parsed) {
     assigned_modules: parsed.modules,
     record_origin: "local_draft",
     evidence_weight: 0,
+    icon_mode: parsed.iconMode,
+    custom_icon_data_url: parsed.customIconDataUrl,
     data_2026: {
       status: draftDataState(input),
       active: false,
@@ -122,6 +177,8 @@ function localOverride(existing, input, parsed) {
     operations_target: operationsTarget(parsed.modules),
     record_origin: "local_override",
     canonical_name: existing.canonical_name ?? existing.name,
+    icon_mode: parsed.iconMode,
+    custom_icon_data_url: parsed.customIconDataUrl,
   };
 }
 
@@ -175,5 +232,7 @@ export function persistableInvestigationSources(sources) {
       access_status: source.access_status,
       assigned_modules: source.assigned_modules,
       record_origin: source.record_origin,
+      icon_mode: source.icon_mode,
+      custom_icon_data_url: source.custom_icon_data_url,
     }));
 }

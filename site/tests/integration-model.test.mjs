@@ -671,6 +671,7 @@ test("builds one versioned integration contract for every registered source", ()
 test("builds editable investigation sources without changing canonical truth", async () => {
   const {
     mergeInvestigationSources,
+    persistableInvestigationSources,
     upsertInvestigationSource,
   } = await import("../lib/replaySourceWorkspace.mjs");
   const canonical = [
@@ -700,6 +701,8 @@ test("builds editable investigation sources without changing canonical truth", a
   assert.deepEqual(seeded[0].assigned_modules, ["replay_analyzer"]);
   assert.deepEqual(seeded[1].assigned_modules, ["live_operations", "alert_centre"]);
   assert.ok(seeded.every((source) => source.record_origin === "canonical"));
+  assert.ok(seeded.every((source) => source.icon_mode === "auto"));
+  assert.ok(seeded.every((source) => source.custom_icon_data_url === null));
 
   const added = upsertInvestigationSource(seeded, {
     id: "operator-field-notes",
@@ -708,11 +711,14 @@ test("builds editable investigation sources without changing canonical truth", a
     demo_data_status: "mock_preview",
     access_status: "permission_required",
     assigned_modules: ["replay_analyzer", "alert_centre"],
+    icon_mode: "people",
+    custom_icon_data_url: null,
   });
   assert.equal(added.ok, true);
   assert.equal(added.saved.record_origin, "local_draft");
   assert.deepEqual(added.saved.assigned_modules, ["replay_analyzer", "alert_centre"]);
   assert.equal(added.saved.data_2026.status, "input_required");
+  assert.equal(added.saved.icon_mode, "people");
 
   const overridden = upsertInvestigationSource(added.sources, {
     id: "wcc-transport-sensors",
@@ -721,6 +727,8 @@ test("builds editable investigation sources without changing canonical truth", a
     demo_data_status: "mock_preview",
     access_status: "paid_key_required",
     assigned_modules: ["replay_analyzer", "alert_centre"],
+    icon_mode: "custom",
+    custom_icon_data_url: "data:image/png;base64,iVBORw0KGgo=",
   });
   assert.equal(overridden.ok, true);
   assert.equal(overridden.saved.record_origin, "local_override");
@@ -729,6 +737,63 @@ test("builds editable investigation sources without changing canonical truth", a
   assert.equal(overridden.saved.access_status, "public_free");
   assert.equal(overridden.saved.endpoint, null);
   assert.deepEqual(overridden.saved.data_2026, canonical[0].data_2026);
+  assert.equal(overridden.saved.icon_mode, "custom");
+  assert.equal(overridden.saved.custom_icon_data_url, "data:image/png;base64,iVBORw0KGgo=");
+
+  assert.deepEqual(persistableInvestigationSources(overridden.sources), [
+    {
+      id: "wcc-transport-sensors",
+      name: "Movement counters for case",
+      endpoint: null,
+      demo_data_status: "real_replay",
+      access_status: "public_free",
+      assigned_modules: ["replay_analyzer", "alert_centre"],
+      record_origin: "local_override",
+      icon_mode: "custom",
+      custom_icon_data_url: "data:image/png;base64,iVBORw0KGgo=",
+    },
+    {
+      id: "operator-field-notes",
+      name: "Operator field notes",
+      endpoint: "https://example.govt.nz/field-notes",
+      demo_data_status: "mock_preview",
+      access_status: "permission_required",
+      assigned_modules: ["replay_analyzer", "alert_centre"],
+      record_origin: "local_draft",
+      icon_mode: "people",
+      custom_icon_data_url: null,
+    },
+  ]);
+});
+
+test("validates browser-local custom icons and preserves movement direction", async () => {
+  const workspace = await import("../lib/replaySourceWorkspace.mjs");
+  assert.equal(typeof workspace.validateCustomIconFile, "function");
+  assert.equal(typeof workspace.movementIconDescriptor, "function");
+
+  assert.deepEqual(workspace.validateCustomIconFile({ type: "image/png", size: 1024 }), { ok: true, error: null });
+  assert.deepEqual(workspace.validateCustomIconFile({ type: "image/webp", size: 131072 }), { ok: true, error: null });
+  assert.deepEqual(workspace.validateCustomIconFile({ type: "image/svg+xml", size: 1024 }), { ok: false, error: "type" });
+  assert.deepEqual(workspace.validateCustomIconFile({ type: "image/png", size: 131073 }), { ok: false, error: "size" });
+
+  assert.deepEqual(workspace.movementIconDescriptor({ icon_mode: "auto" }, "Pedestrian", "SW"), {
+    icon: "people",
+    custom_icon_data_url: null,
+    direction: "SW",
+  });
+  assert.deepEqual(workspace.movementIconDescriptor({ icon_mode: "auto" }, "Car", "N"), {
+    icon: "vehicle",
+    custom_icon_data_url: null,
+    direction: "N",
+  });
+  assert.deepEqual(workspace.movementIconDescriptor({
+    icon_mode: "custom",
+    custom_icon_data_url: "data:image/webp;base64,UklGRg==",
+  }, "Bus", "E"), {
+    icon: "custom",
+    custom_icon_data_url: "data:image/webp;base64,UklGRg==",
+    direction: "E",
+  });
 });
 
 test("rejects incomplete or unsafe investigation source drafts", async () => {
@@ -776,6 +841,18 @@ test("rejects incomplete or unsafe investigation source drafts", async () => {
   });
   assert.equal(unverifiedHistory.ok, false);
   assert.deepEqual(unverifiedHistory.errors, ["invalid:demo_data_status"]);
+
+  const unsafeIcon = upsertInvestigationSource(sources, {
+    id: "unsafe-icon",
+    name: "Unsafe icon",
+    demo_data_status: "registered_only",
+    access_status: "public_free",
+    assigned_modules: ["replay_analyzer"],
+    icon_mode: "custom",
+    custom_icon_data_url: "data:image/svg+xml;base64,PHN2Zz4=",
+  });
+  assert.equal(unsafeIcon.ok, false);
+  assert.deepEqual(unsafeIcon.errors, ["invalid:custom_icon_data_url"]);
 });
 
 test("joins every source to one readable ontology concept and operator module", async () => {
