@@ -1033,3 +1033,6 @@
 - 2026-08-11: TDD GREEN and final validation pass. April automatically loads the movement layer,
   lists it before hydro evidence, exposes WCC as the primary source in case settings, and keeps the
   retrospective/event-time-zero boundary. Production build, 93/93 tests, ESLint and whitespace checks pass.
+- 2026-08-11: Published exact validated commit `050e003` only to the private Sites source, saved
+  version 55 and completed the existing owner-only production deployment. The temporary archive was
+  removed; GitHub `origin` and remote `main` remain unchanged.

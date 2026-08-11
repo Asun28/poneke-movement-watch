@@ -13,7 +13,7 @@ records remain clearly separated supporting evidence.
 - [completed] Audit the current April layer defaults, hierarchy, labels and truth boundaries.
 - [completed] Add failing behavior tests for a default-on movement layer and movement-first evidence order.
 - [completed] Implement automatic movement-layer loading, concise primary/supporting labels and page hierarchy.
-- [in_progress] Run regressions, build and owner-only deployment.
+- [completed] Run regressions, build and owner-only deployment.
 
 ### Acceptance criteria
 
@@ -51,6 +51,7 @@ records remain clearly separated supporting evidence.
 | Error | Attempt | Resolution |
 |---|---:|---|
 | A standalone Windows build was blocked by sandbox child-process `EPERM` | 1 | Re-run the same scoped build outside the restricted process sandbox; it completed, then the full approved test workflow passed. |
+| The Sites packaging helper was first invoked through an unavailable `bash` command | 1 | Use the verified Git for Windows Bash executable with the same official packaging helper. |
 
 ## Phase 45 — April hydro-weather evidence enrichment
 
