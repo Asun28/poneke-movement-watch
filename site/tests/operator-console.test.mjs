@@ -12,10 +12,10 @@ function request(pathname, init) {
   return worker.fetch(new Request(`http://localhost${pathname}`, init), env, ctx);
 }
 
-test("opens the operator console in Live Operations", async () => {
+test("opens the operator console in the operator dashboard", async () => {
   const response = await request("/");
   assert.ok([307, 308].includes(response.status));
-  assert.equal(response.headers.get("location"), "/live");
+  assert.equal(response.headers.get("location"), "/dashboard");
 });
 
 test("publishes one integration contract for all registered providers", async () => {
@@ -36,8 +36,9 @@ test("publishes one integration contract for all registered providers", async ()
   );
 });
 
-test("exposes six distinct operator modules with shared navigation", async () => {
+test("exposes the dashboard and six specialist modules with shared navigation", async () => {
   const expectations = [
+    ["/dashboard", /Dashboard/, /Current picture/],
     ["/live", /Live Operations/, /Current feeds/],
     ["/alerts", /Signal Review/, /Review queue/],
     ["/replay", /Replay Analyzer/, /aria-label="Replay controls"/],
@@ -52,6 +53,7 @@ test("exposes six distinct operator modules with shared navigation", async () =>
     const html = await response.text();
     assert.match(html, heading, path);
     assert.match(html, content, path);
+    assert.match(html, /Dashboard/, path);
     assert.match(html, /Live Operations/, path);
     assert.match(html, /Signal Review/, path);
     assert.match(html, /Replay Analyzer/, path);
@@ -59,6 +61,38 @@ test("exposes six distinct operator modules with shared navigation", async () =>
     assert.match(html, /Ontology/, path);
     assert.match(html, /Setup/, path);
   }
+});
+
+test("renders a first-login dashboard that routes staff to the next operational action", async () => {
+  const response = await request("/dashboard");
+  assert.equal(response.status, 200);
+  const html = await response.text();
+
+  assert.match(html, /data-operator-dashboard="current-picture"/);
+  assert.match(html, /Current picture/);
+  assert.match(html, /Needs attention/);
+  assert.match(html, /Source health/);
+  assert.match(html, /Recent investigations/);
+  assert.match(html, /Open Signal Review/);
+  assert.match(html, /Open Live map/);
+  assert.match(html, /April Storm/);
+  assert.match(html, /August movement review/);
+  assert.match(html, /Checking current operations/);
+  assert.match(html, /Not an all-clear/);
+  assert.doesNotMatch(html, /AI agent|Ask anything|Latest from our changelog/);
+});
+
+test("keeps five core destinations in the mobile operator navigation", async () => {
+  const html = await (await request("/dashboard")).text();
+  const mobile = html.match(/<nav class="operator-mobile-nav"[\s\S]*?<\/nav>/)?.[0] ?? "";
+
+  assert.equal((mobile.match(/<a /g) ?? []).length, 5);
+  assert.match(mobile, />Dashboard</);
+  assert.match(mobile, />Live</);
+  assert.match(mobile, />Review</);
+  assert.match(mobile, />Replay</);
+  assert.match(mobile, />Setup</);
+  assert.doesNotMatch(mobile, />Integrate|>Ontology/);
 });
 
 test("keeps the ontology dashboard on one dedicated top-level page", async () => {
@@ -78,7 +112,7 @@ test("keeps the ontology dashboard on one dedicated top-level page", async () =>
 });
 
 test("keeps every operator route task-first without tutorial copy", async () => {
-  const pages = ["/live", "/alerts", "/replay", "/integration", "/ontology", "/setup"];
+  const pages = ["/dashboard", "/live", "/alerts", "/replay", "/integration", "/ontology", "/setup"];
   const html = (await Promise.all(pages.map(async (path) => (await request(path)).text()))).join("\n");
 
   assert.doesNotMatch(html, /class="eyebrow"/);
@@ -634,6 +668,7 @@ test("serves provider-shaped workflow mocks and never reports a dispatch", async
 
 test("uses one compact title and status bar on every operator page", async () => {
   const pages = [
+    ["/dashboard", "Dashboard", "Current picture"],
     ["/live", "Live Operations", "Live"],
     ["/alerts", "Signal Review", "Triage queue"],
     ["/replay", "Replay Analyzer", "Batch replay"],

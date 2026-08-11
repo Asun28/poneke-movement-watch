@@ -1510,6 +1510,62 @@ data semantics or external side effects.
 | Python regression temp directories were blocked by the Windows sandbox. | 2 | Ran the same 22-test suite with an explicit repository-local basetemp outside the sandbox, then removed both verified temp directories. |
 
 ---
+## Phase 55 - Operator home dashboard
+
+### Goal
+
+Make `/dashboard` the first post-login workspace for WCC emergency staff. It must summarize current
+operational truth, focus the operator on the next review action and link into the existing specialist
+modules without creating a second alerting or evidence system.
+
+### Status
+
+- [completed] Audit current navigation, runtime summaries and existing operator contracts.
+- [completed] Add failing route, navigation, truth-state and responsive rendering tests.
+- [completed] Implement the server-first dashboard and focused client refresh behavior.
+- [completed] Validate build, regression, lint and desktop/mobile layouts.
+- [pending] Publish the exact owner-only build without changing GitHub remotes.
+
+### Acceptance criteria
+
+- `/` redirects to `/dashboard`; Dashboard is the first desktop navigation item and remains reachable on mobile.
+- The first viewport shows current review workload, source health, current evidence summary and recent investigations.
+- A single primary action opens Signal Review; secondary links open Live Operations and Replay Analyzer.
+- Zero candidates is explicitly not presented as all-clear, and mock, held and unavailable records remain distinct.
+- Every value is derived from existing product contracts or labelled unavailable; no invented incident, score or AI decision.
+- Loading, empty and error states are visible; keyboard order, 44px targets and 375px/landscape layouts remain usable.
+
+### Assumptions and exclusions
+
+- This is an operator home page, not a new model, COP, alert policy, feed or authentication implementation.
+- Existing light theme, civic blue palette, Phosphor icon family and 8px spacing rhythm remain the design source of truth.
+- The reference screenshot contributes layout hierarchy only; GitHub-specific repository, agent and changelog concepts are excluded.
+- The UI database returned a dark marketing landing pattern that conflicts with the existing public-sector console; it is rejected.
+
+### File-level implementation plan
+
+- `site/app/dashboard/*`: add the server route, loading skeleton and one focused dashboard client only if refresh is needed.
+- `site/app/page.tsx`, `site/app/components/OperatorNavigation.tsx`, `OperatorShell.tsx`: make Dashboard the default destination.
+- `site/lib/*`: add a pure projection only if existing live/review models cannot supply the summary cleanly.
+- `site/app/globals.css`: add scoped responsive dashboard layout with no new theme or generic card grid.
+- `site/tests/*`: lock route, source-truth, navigation, accessibility and responsive contracts.
+
+### Rejected major alternatives
+
+- Do not copy GitHub Home, add a general chatbot prompt, or repeat every specialist screen on the landing page.
+- Do not show fake user productivity, risk scores, incident counts or AI recommendations.
+- Do not add a new design-system dependency to one route inside the established console.
+
+### Errors encountered
+
+| Error | Attempt | Resolution |
+|---|---:|---|
+| The first broad `rg` expression had an unclosed PowerShell regex group. | 1 | Re-ran with separate `-e` patterns. |
+| The first RED run failed seven new contracts because the route and model did not exist. | 1 | Expected TDD RED; implemented only the specified gaps. |
+| Dashboard route HTML contained two `h1` elements because its loading fallback repeated `OperatorShell`. | 1 | Keep the route skeleton inside the page content and let the final shell own the single page heading. |
+| Direct `node --test` could not spawn a child process in the managed shell. | 1 | Ran the test module directly to preserve the RED evidence, then kept the normal `npm test` gate for final verification. |
+
+---
 ## Phase 54 — Replay evidence density and review queues
 
 ### Goal

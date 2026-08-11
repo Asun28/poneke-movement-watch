@@ -1931,3 +1931,21 @@ supports spatial event-footprint resolution, never direct building-damage claims
   after Evidence opened. Visibility is now an explicit redraw dependency; the final chart renders at 303×96.
 - Final responsive measurements: desktop Replay toolbar 134px, 375×812 portrait 267px and 812×375 landscape
   134px. Layers and Evidence remain fully visible; page width does not exceed the viewport; P/V centre delta is 0.
+# Phase 55 - Operator home dashboard
+
+- The root route currently redirects directly to `/live`; the six module links are centralized in
+  `OperatorNavigation.tsx`, so a Dashboard entry and default redirect can be added without changing module URLs.
+- The screenshot's useful pattern is hierarchical orientation: identity/navigation on the left, one primary work
+  surface, and a compact activity rail. Repository lists, a general AI prompt and product changelog are irrelevant.
+- The existing site already has the correct public-sector visual language: light surfaces, civic blue, compact
+  title bar, Phosphor icons and a collapsible desktop sidebar. Adding Fluent or another design system would fragment it.
+- UI Pro Max's generated design-system match was a dark marketing landing page with exaggerated typography and was
+  explicitly rejected. Its applicable rules are accessibility, 44px targets, server-first rendering, clear loading,
+  no horizontal mobile scroll and progressive disclosure.
+- Dashboard truth must come from the existing live snapshot, review policy and investigation catalogue. Held records,
+  current review candidates, unavailable sources and mock examples must not be collapsed into one status number.
+- The completed projection keeps only live connectors in source health, separates New/Active/Held/Records and selects
+  one honest next action: review a candidate, continue an investigation, inspect source health or open the live map.
+- Desktop, 375x812 portrait and 812x375 landscape checks confirm the current picture, core actions and five-item
+  mobile navigation remain visible without horizontal scrolling. Advanced Integration and Ontology stay available
+  from Dashboard quick links rather than competing for bottom-navigation space.

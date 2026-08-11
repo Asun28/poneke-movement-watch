@@ -3,7 +3,7 @@ import NowClock from "./NowClock";
 import OperatorNavigation from "./OperatorNavigation";
 
 type Props = {
-  active: "/live" | "/alerts" | "/replay" | "/integration" | "/ontology" | "/setup";
+  active: "/dashboard" | "/live" | "/alerts" | "/replay" | "/integration" | "/ontology" | "/setup";
   title: string;
   modeLabel: string;
   children: ReactNode;

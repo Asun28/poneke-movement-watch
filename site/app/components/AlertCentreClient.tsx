@@ -7,6 +7,7 @@ import {
   queueForReviewStatus,
   REVIEW_CLASSIFICATIONS,
   REVIEW_QUEUES,
+  REVIEW_STORAGE_KEY,
   reviewQueueIncludesStatus,
 } from "../../lib/signalReview.mjs";
 import { WORKFLOW_ADAPTERS } from "../../lib/workflowAdapters.mjs";
@@ -72,7 +73,6 @@ type WarningResult = {
   channels: ChannelPreparation[];
 };
 
-const REVIEW_STORAGE_KEY = "poneke-alert-review-drafts-v1";
 const CASE_STORAGE_KEY = "poneke-case-cop-drafts-v1";
 const MOCK_ID = "mock-preview";
 const EMPTY_REVIEW: ReviewDraft = { status: "open", classification: "undetermined", assignee: "", note: "", updatedAt: "" };

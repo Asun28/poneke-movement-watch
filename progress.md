@@ -1197,3 +1197,15 @@
 - 2026-08-12: Published exact validated product commit `5b0e6b9` only to the private Sites source,
   saved version 65 and completed the owner-only production deployment. GitHub `origin`,
   `private-origin` and remote `main` were not changed.
+# Phase 55 - Operator home dashboard
+
+- 2026-08-12: Started the operator-home change. Classified the screenshot as a hierarchy reference, not a component
+  template, and fixed the design direction at public-sector, low-motion, medium-density and existing civic-blue styling.
+- 2026-08-12: Audited routes, shell, navigation and source-truth boundaries. The implementation will summarize current
+  work and route staff into existing modules; it will not add a model, alert rule, feed, chatbot or fabricated incident.
+- 2026-08-12: Added `/dashboard` as the default operator entry with adaptive next action, truthful review/source metrics,
+  monitoring groups, real packaged investigations and specialist-module quick links. Mobile navigation now keeps the
+  five daily destinations visible without horizontal scrolling.
+- 2026-08-12: Final production build, lint and all 109 behavior/rendering tests pass. Browser checks pass on desktop,
+  375x812 portrait and 812x375 landscape; the live source-issue state correctly routes to Data Integration and retains
+  `Not an all-clear` when there are no promoted candidates.

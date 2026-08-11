@@ -9,10 +9,12 @@ import {
   Pulse,
   ShareNetwork,
   SlidersHorizontal,
+  SquaresFour,
   Tray,
 } from "@phosphor-icons/react";
 
 const destinations = [
+  { href: "/dashboard", label: "Dashboard", short: "Dashboard", icon: "dashboard", Icon: SquaresFour },
   { href: "/live", label: "Live Operations", short: "Live", icon: "activity", Icon: Pulse },
   { href: "/alerts", label: "Signal Review", short: "Review", icon: "inbox", Icon: Tray },
   { href: "/replay", label: "Replay Analyzer", short: "Replay", icon: "replay", Icon: ArrowCounterClockwise },
@@ -20,6 +22,8 @@ const destinations = [
   { href: "/ontology", label: "Ontology", short: "Ontology", icon: "ontology", Icon: ShareNetwork },
   { href: "/setup", label: "Setup", short: "Setup", icon: "settings", Icon: SlidersHorizontal },
 ];
+
+const mobileDestinations = destinations.filter(({ href }) => !["/integration", "/ontology"].includes(href));
 
 export default function OperatorNavigation({ active }: { active: string }) {
   const [collapsed, setCollapsed] = useState(false);
@@ -64,7 +68,7 @@ export default function OperatorNavigation({ active }: { active: string }) {
         </nav>
       </aside>
       <nav className="operator-mobile-nav" aria-label="Operator modules">
-        {destinations.map((destination) => (
+        {mobileDestinations.map((destination) => (
           <a
             key={destination.href}
             href={destination.href}

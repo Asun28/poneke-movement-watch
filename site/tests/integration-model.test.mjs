@@ -25,6 +25,13 @@ try {
   // The contract tests stay readable during the initial RED step.
 }
 
+let operatorDashboard = {};
+try {
+  operatorDashboard = await import("../lib/operatorDashboard.mjs");
+} catch {
+  // The contract stays readable during the initial RED step.
+}
+
 const registry = JSON.parse(
   await readFile(new URL("../public/cop/v2/source-registry.json", import.meta.url), "utf8"),
 );
@@ -67,6 +74,56 @@ const validWarningDraft = {
   creator_id: "operator:maya",
   approver_id: "operator:ana",
 };
+
+test("summarises operator workload without treating zero candidates as all-clear", () => {
+  assert.equal(typeof operatorDashboard.buildOperatorDashboardSummary, "function");
+  const summary = operatorDashboard.buildOperatorDashboardSummary({
+    generated_at: "2026-08-12T08:00:00.000Z",
+    sources: [
+      { source_id: "rain", connector_mode: "live", runtime_state: "live", record_count: 12 },
+      { source_id: "warning", connector_mode: "live", runtime_state: "empty", record_count: 0 },
+      { source_id: "river", connector_mode: "live", runtime_state: "stale", record_count: 3 },
+      { source_id: "batch", connector_mode: "batch", runtime_state: "live", record_count: 100 },
+    ],
+    observations: Array.from({ length: 15 }, (_, index) => ({ id: `observation:${index}` })),
+    evidence_inbox: {
+      raw_observation_count: 64,
+      review_candidate_count: 0,
+      suppressed_observation_count: 63,
+      candidates: [],
+      monitoring_groups: [{ id: "sensors_weather", label: "Weather & natural sensors", fresh_count: 12 }],
+    },
+  }, {});
+
+  assert.deepEqual(summary.source_health, { connected: 1, empty: 1, issues: 1 });
+  assert.equal(summary.current_records, 15);
+  assert.equal(summary.review.new, 0);
+  assert.equal(summary.review.active, 0);
+  assert.equal(summary.held, 63);
+  assert.equal(summary.attention.kind, "source_issue");
+  assert.match(summary.attention.detail, /Not an all-clear/);
+  assert.equal(summary.attention.href, "/integration");
+  assert.equal(summary.attention.action_label, "Check source health");
+});
+
+test("uses browser review state to separate new, active, closed and history work", () => {
+  const summary = operatorDashboard.buildOperatorDashboardSummary({
+    sources: [], observations: [], evidence_inbox: {
+      review_candidate_count: 3,
+      suppressed_observation_count: 4,
+      candidates: [{ id: "new" }, { id: "active" }, { id: "closed" }],
+      monitoring_groups: [],
+    },
+  }, {
+    active: { status: "investigating", updatedAt: "2026-08-12T08:00:00.000Z" },
+    closed: { status: "closed", updatedAt: "2026-08-12T07:00:00.000Z" },
+  });
+
+  assert.deepEqual(summary.review, { new: 1, active: 1, closed: 1, history: 2, all: 3 });
+  assert.equal(summary.attention.kind, "candidate");
+  assert.match(summary.attention.label, /1 new candidate/);
+  assert.equal(summary.attention.href, "/alerts");
+});
 
 test("classifies live evidence into honest overlapping map layers", () => {
   assert.equal(typeof liveMapWorkspace.classifyLiveObservationLayers, "function");

@@ -6,6 +6,8 @@ export const REVIEW_QUEUES = Object.freeze([
   { id: "all", label: "All" },
 ]);
 
+export const REVIEW_STORAGE_KEY = "poneke-alert-review-drafts-v1";
+
 export const REVIEW_CLASSIFICATIONS = Object.freeze([
   {
     id: "true_positive",
