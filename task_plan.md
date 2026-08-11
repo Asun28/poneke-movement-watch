@@ -12,7 +12,7 @@ container so every Replay investigation can add/select layers and independently 
 - [completed] Audit both Replay layer implementations and reproduce the April Weather toggle bug.
 - [completed] Add failing behavior tests for a shared container and deselectable Weather layer.
 - [completed] Implement the shared container and migrate both movement and sensor investigations.
-- [in_progress] Run regressions, production build and owner-only deployment.
+- [completed] Run regressions, production build and owner-only deployment.
 
 ### Acceptance criteria
 

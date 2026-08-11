@@ -19,6 +19,9 @@
   strip. The packaged April data has five Wellington City locations (Berhampore, Newtown, Te Papa,
   Karori Reservoir and Seton Nossiter); regional Hutt/Porirua/Wainui gauges remain available only
   through the explicit detailed Rain, Flow or Hydro selections.
+- Production interaction verification closes the original bug: Weather now reports
+  `aria-pressed=false` and zero current sensor cards when deselected, while Movement remains true.
+  Restoring Weather returns exactly five Wellington City cards, each with the rain symbol.
 
 ## Phase 47 — August model-output Replay
 

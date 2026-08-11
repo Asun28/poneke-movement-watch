@@ -15,6 +15,11 @@
 - Production build and all 95 site tests pass; ESLint, 27/27 Python tests and `git diff --check`
   also pass. One obsolete rendered title assertion was updated from the retired per-dataset shell
   to the shared Investigation Layers contract.
+- Published exact validated feature commit `9d3b070` only to the private Sites source, saved version
+  57 and completed the owner-only production deployment. Deployed checks confirm Weather 5 → 0 → 5,
+  Movement stays enabled, all five summary cards use the rain symbol, and both April and August open
+  the same Investigation Layers panel with source selection/add access.
+- Removed the temporary deployment archive. GitHub `origin` and remote `main` remain unchanged.
 
 ## Phase 47 — August model-output Replay
 
