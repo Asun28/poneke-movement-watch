@@ -1,5 +1,21 @@
 # Progress — Phase 2 ontology and sources
 
+## Phase 48 — unified Investigation Layers container
+
+- Reproduced the deployed 20 April Weather issue: click produced no pressed-state change and
+  left 18 sensor values visible.
+- Audited both Replay paths. August owns the full source workspace; April owns a separate sensor
+  overlay and treats Weather as a radio-style filter. The fix will share one container contract
+  and make evidence-family visibility independent from Weather subfilters.
+- TDD RED confirmed the exact missing transition: `toggleSensorEvidenceFilter` does not exist, so
+  the active Weather state cannot become off while preserving its selected series.
+- TDD GREEN now covers the shared Investigation Layers shell, independent Weather deselection and
+  a five-location Wellington City Weather overview. The Weather strip uses the same rain symbol as
+  the map; detailed Rain/Flow/Hydro selections still expose the full packaged investigation data.
+- Production build and all 95 site tests pass; ESLint, 27/27 Python tests and `git diff --check`
+  also pass. One obsolete rendered title assertion was updated from the retired per-dataset shell
+  to the shared Investigation Layers contract.
+
 ## Phase 47 — August model-output Replay
 
 - Audited the full WCC August pack: 284,556 canonical observations, 144 hourly slots and 929

@@ -1,5 +1,62 @@
 # Pōneke Movement Watch — evidence ontology roadmap
 
+## Phase 48 — unified Investigation Layers container
+
+### Goal
+
+Replace the separate August and April layer controls with one consistent Investigation Layers
+container so every Replay investigation can add/select layers and independently turn them off.
+
+### Status
+
+- [completed] Audit both Replay layer implementations and reproduce the April Weather toggle bug.
+- [completed] Add failing behavior tests for a shared container and deselectable Weather layer.
+- [completed] Implement the shared container and migrate both movement and sensor investigations.
+- [in_progress] Run regressions, production build and owner-only deployment.
+
+### Acceptance criteria
+
+- August movement and April storm investigations render the same `Investigation Layers` container,
+  with the same open/close, layer count, selected state and add-source entry point.
+- Every visible evidence layer can be selected and deselected. On 20 April, turning Weather off
+  removes rainfall/flow/hydro readings from the map and current-values strip while movement remains.
+- Rain, Flow and Hydro candidates remain optional subfilters; turning one on must also enable the
+  weather evidence family without silently re-enabling unrelated layers.
+- Switching investigations remounts the correct dataset and layer state without leaking selections
+  from the previous investigation.
+- Weather overview shows only the five packaged Wellington City locations; detailed Rain, Flow and
+  Hydro selections retain their full investigation coverage. Rain uses a recognisable rain symbol.
+- Existing source truth, retrospective-only movement boundary, post-event impact controls, map
+  zoom/fullscreen, replay timing and mobile behavior do not regress.
+
+### Assumptions and exclusions
+
+- “Add layers” means selecting packaged/canonical investigation sources through the existing source
+  workspace; it does not authorize downloading new data or creating external integrations.
+- Layer state remains local UI state. No schema change, model retraining, alert/case mutation,
+  ontology weight change or GitHub-origin push.
+
+### File-level plan
+
+- `site/tests/*`: shared-container and Weather-off behavior contracts.
+- `site/lib/replayDataWorkspace.mjs`: pure deselectable evidence-filter state transition.
+- `site/app/components/InvestigationLayersPanel.tsx`: shared container shell and controls.
+- `site/app/MovementCanvas.tsx`, `site/app/components/SensorReplayCanvas.tsx`: migrate both Replay datasets.
+- `site/app/globals.css`: one responsive container style; preserve current map geometry and controls.
+- `findings.md`, `progress.md`: audit, verification and deployment evidence.
+
+### Rejected major alternatives
+
+- Do not keep two containers with matching titles; behavior must be shared.
+- Do not make Weather a radio-only filter or hide all evidence through one global switch.
+
+### Errors encountered
+
+| Error | Attempt | Resolution |
+|---|---:|---|
+| PowerShell parsed the first source-anchor search pattern as syntax | 1 | Re-run the read-only search with a literal single-quoted pattern. |
+| Full regression still expected the retired `Layer workspace` title | 1 | Updated the rendered behavior contract to the shared `Investigation Layers` name and reran all tests. |
+
 ## Phase 47 — August model-output Replay
 
 ### Goal

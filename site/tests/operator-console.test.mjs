@@ -156,9 +156,11 @@ test("opens Replay as a map-first workspace with secondary panels collapsed", as
   assert.ok(playbackAt > mapAt);
   assert.match(replay, /class="replay-investigation-selector is-collapsed"[^>]*aria-label="Replay investigations"/);
   assert.match(replay, /aria-expanded="false" aria-label="Show investigation settings"/);
-  assert.match(replay, /aria-expanded="false" aria-label="Show data source layers"/);
+  assert.match(replay, /aria-expanded="false" aria-label="Show Investigation Layers"/);
   assert.match(replay, /aria-expanded="false" aria-label="Show signal evidence"/);
   assert.match(replay, /class="replay-layer-overlay" hidden=""/);
+  assert.match(replay, /aria-label="Investigation Layers"/);
+  assert.match(replay, />Investigation Layers</);
   assert.match(replay, /class="evidence-column replay-map-evidence-overlay"[^>]*hidden=""[^>]*aria-label="Signal evidence"/);
   assert.match(replay, /data-replay-dataset="movement"/);
   assert.match(replay, /aria-label="Map zoom controls"/);

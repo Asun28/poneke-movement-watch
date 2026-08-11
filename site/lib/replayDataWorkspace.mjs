@@ -144,10 +144,28 @@ export function filterSensorReplayReadings(readings, {
   const selected = visibleSeriesIds instanceof Set ? visibleSeriesIds : new Set(visibleSeriesIds ?? []);
   return (Array.isArray(readings) ? readings : []).filter((reading) => {
     if (!selected.has(reading.series_id)) return false;
+    if (!measurementFilter) return false;
     if (measurementFilter === "all") return true;
     if (measurementFilter === "anomaly") return reading.detector_candidate === true;
     return String(reading.measurement ?? "").toLowerCase().includes(measurementFilter);
   });
+}
+
+export function toggleSensorEvidenceFilter(currentFilter, requestedFilter) {
+  return currentFilter === requestedFilter ? null : requestedFilter;
+}
+
+const WELLINGTON_CITY_WEATHER_SERIES = new Set([
+  "berhampore-hourly-rainfall",
+  "newtown-hourly-rainfall",
+  "te-papa-hourly-rainfall",
+  "karori-reservoir-hourly-rainfall",
+  "seton-nossiter-hourly-rainfall",
+]);
+
+export function wellingtonCityWeatherReadings(readings) {
+  return (Array.isArray(readings) ? readings : [])
+    .filter((reading) => WELLINGTON_CITY_WEATHER_SERIES.has(String(reading?.series_id ?? "")));
 }
 
 export function updateVisibleSensorSeries(currentIds, seriesId, checked) {

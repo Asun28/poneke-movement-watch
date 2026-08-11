@@ -1,5 +1,25 @@
 # Findings — Phase 2 ontology and sources
 
+## Phase 48 — unified Investigation Layers container
+
+- The April Weather control is an exclusive filter, not a toggle: clicking active `all` calls
+  `setFilter("all")` again, so no state transition can remove weather observations.
+- April uses a custom `sensor-layer-overlay`, while August uses the source-layer workspace embedded
+  in `MovementCanvas`. The duplicate shells explain the inconsistent labels, add/select behavior
+  and deselection bug.
+- The safe minimal model is two independent dimensions: evidence-family visibility
+  (Movement, Weather, Official impacts) and an optional Weather subfilter (All, Rain, Flow,
+  Hydro candidates). Weather-off must produce zero sensor observations without clearing the
+  operator's selected series, so restoring it preserves granular choices.
+- Investigation switching already remounts each canvas by investigation ID. Shared presentation
+  can therefore reuse local state without introducing cross-investigation persistence or schema work.
+- Deployed reproduction at the April investigation confirmed the bug: Weather remained
+  `aria-pressed="true"` after click and all 18 current sensor values stayed visible.
+- The broad Weather view was also projecting all 18 metropolitan gauges into the current-value
+  strip. The packaged April data has five Wellington City locations (Berhampore, Newtown, Te Papa,
+  Karori Reservoir and Seton Nossiter); regional Hutt/Porirua/Wainui gauges remain available only
+  through the explicit detailed Rain, Flow or Hydro selections.
+
 ## Phase 47 — August model-output Replay
 
 - The April figures `209,334 source rows → 2,903 candidates` cannot be reused for the August

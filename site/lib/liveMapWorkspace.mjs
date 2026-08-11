@@ -16,7 +16,7 @@ export function liveMapHitRadius(visualRadius) {
 }
 
 export const EVENT_SYMBOLS = Object.freeze({
-  rain: { id: "rain", label: "Rain & weather", glyph: "↓", colour: "#1e6a8d", shape: "circle" },
+  rain: { id: "rain", label: "Rain & weather", glyph: "☔", colour: "#1e6a8d", shape: "circle" },
   water: { id: "water", label: "Flood & water", glyph: "≈", colour: "#0c66a1", shape: "circle" },
   earthquake: { id: "earthquake", label: "Earthquake", glyph: "⌁", colour: "#8c3f67", shape: "circle" },
   warning: { id: "warning", label: "Official warning", glyph: "!", colour: "#c75845", shape: "triangle" },

@@ -25,6 +25,7 @@ import {
   zoomFromWheel,
   zoomPanOffsetAtPoint,
 } from "./layerModel.mjs";
+import InvestigationLayersPanel, { InvestigationLayersButton } from "./components/InvestigationLayersPanel";
 
 type Coordinate = [number, number];
 type LineFeature = {
@@ -564,7 +565,6 @@ type LayerWorkspaceProps = {
   symbolSize: number;
   selectedSourceIds: Set<string>;
   sourceStorageNotice: string;
-  onClose: () => void;
   onSetBasemap: (value: boolean) => void;
   onSetCoverage: (value: boolean) => void;
   onSetSymbolSize: (value: number) => void;
@@ -582,7 +582,6 @@ function LayerWorkspace({
   symbolSize,
   selectedSourceIds,
   sourceStorageNotice,
-  onClose,
   onSetBasemap,
   onSetCoverage,
   onSetSymbolSize,
@@ -666,12 +665,7 @@ function LayerWorkspace({
   }
 
   return (
-    <aside className="layer-workspace" aria-labelledby="layer-workspace-heading">
-      <header className="layer-workspace-header">
-        <h3 id="layer-workspace-heading">Layer workspace</h3>
-        <button type="button" aria-label="Hide layer panel" onClick={onClose}>×</button>
-      </header>
-
+    <>
       <section className="layer-group" aria-labelledby="base-layers-heading">
         <div className="layer-group-heading">
           <h4 id="base-layers-heading">Map layers</h4>
@@ -903,7 +897,7 @@ function LayerWorkspace({
           <span>{summary.selected_count} included</span>
         </div>
       </section>
-    </aside>
+    </>
   );
 }
 
@@ -1323,7 +1317,7 @@ export default function MovementCanvas({ investigation }: {
       data-replay-map-first="true"
       data-replay-dataset="movement"
     >
-      <div className="replay-layer-overlay" hidden={!isLayerRailOpen}>
+      <InvestigationLayersPanel open={isLayerRailOpen} onClose={() => setIsLayerRailOpen(false)}>
         <LayerWorkspace
           sources={sourceLayers}
           showBasemap={showBasemap}
@@ -1331,7 +1325,6 @@ export default function MovementCanvas({ investigation }: {
           symbolSize={symbolSize}
           selectedSourceIds={selectedSourceIds}
           sourceStorageNotice={sourceStorageNotice}
-          onClose={() => setIsLayerRailOpen(false)}
           onSetBasemap={setShowBasemap}
           onSetCoverage={setShowCoverage}
           onSetSymbolSize={setSymbolSize}
@@ -1341,7 +1334,7 @@ export default function MovementCanvas({ investigation }: {
           onClearSources={() => { setSelectedSourceIds(new Set()); setIsPlaying(false); setMapInspection(null); }}
           onSaveSource={saveInvestigationSource}
         />
-      </div>
+      </InvestigationLayersPanel>
       <div className="map-column">
         <div className="replay-compact-bar movement-replay-compact" aria-label="Replay controls">
           <div className="replay-compact-identity">
@@ -1362,12 +1355,12 @@ export default function MovementCanvas({ investigation }: {
                 </button>
               ))}
             </div>
-            <button
-              type="button"
-              aria-expanded={isLayerRailOpen}
-              aria-label={isLayerRailOpen ? "Hide data source layers" : "Show data source layers"}
-              onClick={() => setIsLayerRailOpen((value) => !value)}
-            >Sources <span>{selectedSourceIds.size}/{sourceLayers.length}</span></button>
+            <InvestigationLayersButton
+              open={isLayerRailOpen}
+              selectedCount={selectedSourceIds.size + Number(showBasemap) + Number(showCoverage)}
+              totalCount={sourceLayers.length + 2}
+              onToggle={() => setIsLayerRailOpen((value) => !value)}
+            />
             <button
               type="button"
               aria-expanded={isEvidenceOpen}

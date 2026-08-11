@@ -4,11 +4,12 @@ import { useEffect, useMemo, useState } from "react";
 import hilltopPack from "../../public/cop/v4/april-storm-hilltop-observations.json";
 import detectorPack from "../../public/cop/v4/april-storm-hydro-detector.json";
 import eventPack from "../../public/cop/v4/april-storm-event-pack.json";
-import { buildSensorReplayDataset, defaultSensorReplayLayers, filterSensorReplayReadings, sensorReplayFrame, updateVisibleSensorSeries } from "../../lib/replayDataWorkspace.mjs";
+import { buildSensorReplayDataset, defaultSensorReplayLayers, filterSensorReplayReadings, sensorReplayFrame, toggleSensorEvidenceFilter, updateVisibleSensorSeries, wellingtonCityWeatherReadings } from "../../lib/replayDataWorkspace.mjs";
 import { eventSymbolFor } from "../../lib/liveMapWorkspace.mjs";
 import { replayIntervalMs } from "../layerModel.mjs";
 import EventSymbolBadge from "./EventSymbolBadge";
 import LiveMap from "./LiveMap";
+import InvestigationLayersPanel, { InvestigationLayersButton } from "./InvestigationLayersPanel";
 
 type Investigation = {
   id: string;
@@ -19,7 +20,7 @@ type Investigation = {
   default_target_at?: string;
 };
 type ReplaySpeed = 0.5 | 1 | 2 | 4;
-type SensorFilter = "all" | "rain" | "flow" | "anomaly";
+type SensorFilter = "all" | "rain" | "flow" | "anomaly" | null;
 type MapGeometry = { type: string; coordinates: unknown };
 type MovementOutcomeSignal = {
   id: string;
@@ -99,7 +100,14 @@ export default function SensorReplayCanvas({ investigation }: { investigation: I
     visibleSeriesIds,
     measurementFilter: filter,
   });
-  const observations = visibleReadings
+  const weatherReadings = filter === "all"
+    ? wellingtonCityWeatherReadings(visibleReadings)
+    : visibleReadings;
+  const selectedLayerCount = Number(showBasemap)
+    + Number(showMovementOutcomes)
+    + Number(filter !== null)
+    + Number(showImpactEvidence);
+  const observations = weatherReadings
     .map((reading: {
       id: string;
       site: string;
@@ -251,16 +259,14 @@ export default function SensorReplayCanvas({ investigation }: { investigation: I
           <button type="button" className={showMovementOutcomes ? "active" : ""} aria-pressed={showMovementOutcomes} onClick={toggleMovementOutcomes}>
             Movement
           </button>
-          {(["all", "rain", "flow", "anomaly"] as SensorFilter[]).map((value) => (
-            <button key={value} type="button" className={filter === value ? "active" : ""} aria-pressed={filter === value} onClick={() => setFilter(value)}>
+          {(["all", "rain", "flow", "anomaly"] as Exclude<SensorFilter, null>[]).map((value) => (
+            <button key={value} type="button" className={filter === value ? "active" : ""} aria-pressed={filter === value} onClick={() => setFilter((current) => toggleSensorEvidenceFilter(current, value) as SensorFilter)}>
               {value === "all" ? "Weather" : value === "rain" ? "Rain" : value === "flow" ? "Flow" : "Hydro candidates"}
             </button>
           ))}
         </div>
         <div className="replay-compact-actions">
-          <button type="button" aria-expanded={layersOpen} aria-label={layersOpen ? "Hide sensor layers" : "Show sensor layers"} onClick={() => setLayersOpen((value) => !value)}>
-            Layers <span>{visibleSeriesIds.size}/{dataset.series.length}</span>
-          </button>
+          <InvestigationLayersButton open={layersOpen} selectedCount={selectedLayerCount} totalCount={4} onToggle={() => setLayersOpen((value) => !value)} />
         </div>
         <div className="replay-compact-inputs">
           <label><span>Date</span><input type="date" aria-label="Replay date" value={selectedDate} min={replayDates[0]} max={replayDates.at(-1)} onChange={(event) => selectDate(event.currentTarget.value)} /></label>
@@ -275,8 +281,8 @@ export default function SensorReplayCanvas({ investigation }: { investigation: I
         <output className="replay-compact-count" aria-live="polite">{dataset.playable_record_count.toLocaleString("en-NZ")} / {dataset.total_record_count.toLocaleString("en-NZ")} records</output>
         <input className="replay-compact-scrubber" type="range" aria-label="Replay timeline" min={0} max={Math.max(0, dataset.slots.length - 1)} value={slotIndex} onChange={(event) => { setSlotIndex(Number(event.currentTarget.value)); setPlaying(false); }} />
       </div>
-      <aside className="sensor-layer-overlay" aria-label="Sensor map layers" hidden={!layersOpen}>
-        <header><h2>Layers</h2><button type="button" aria-label="Close sensor layers" onClick={() => setLayersOpen(false)}>×</button></header>
+      <InvestigationLayersPanel open={layersOpen} onClose={() => setLayersOpen(false)}>
+        <div className="sensor-investigation-layers">
         <label className="sensor-core-layer"><input type="checkbox" checked={showBasemap} onChange={(event) => setShowBasemap(event.currentTarget.checked)} /><span>Street basemap</span></label>
         <div className="sensor-evidence-layer-summary" aria-label="April evidence layers">
           <span className="sensor-layer-role">Primary · city movement</span>
@@ -285,11 +291,14 @@ export default function SensorReplayCanvas({ investigation }: { investigation: I
           </button>
           <small>Retrospective only · event-time weight 0</small>
           <span className="sensor-layer-role">Supporting · weather and river</span>
-          {dataset.layer_groups.map((group: { id: string; label: string; series_count: number }) => (
-            <button key={group.id} type="button" onClick={() => setFilter(group.id === "rainfall" ? "rain" : group.id === "river-flow" ? "flow" : "anomaly")}>
-              <span>{group.label}</span><strong>{group.series_count}</strong>
-            </button>
-          ))}
+          {dataset.layer_groups.map((group: { id: string; label: string; series_count: number }) => {
+            const groupFilter: Exclude<SensorFilter, null> = group.id === "rainfall" ? "rain" : group.id === "river-flow" ? "flow" : "anomaly";
+            return (
+              <button key={group.id} type="button" aria-pressed={filter === groupFilter} onClick={() => setFilter((current) => toggleSensorEvidenceFilter(current, groupFilter) as SensorFilter)}>
+                <span>{group.label}</span><strong>{group.series_count}</strong>
+              </button>
+            );
+          })}
           <button type="button" aria-label="Toggle official impact evidence" aria-pressed={showImpactEvidence} onClick={() => setShowImpactEvidence((value) => !value)}>
             <span>Official impacts</span><strong>{eventPack.ground_truth.length}</strong>
           </button>
@@ -315,10 +324,12 @@ export default function SensorReplayCanvas({ investigation }: { investigation: I
             );
           })}
         </div>
-      </aside>
-      <div className="sensor-reading-strip" aria-label="Current sensor values">
+        </div>
+      </InvestigationLayersPanel>
+      <div className="sensor-reading-strip" aria-label="Current sensor values" data-weather-overview={filter === "all" ? "wellington-city" : "detail"}>
         {observations.map((observation) => (
           <button key={observation.id} type="button" onClick={() => setSelectedId(observation.id)}>
+            <EventSymbolBadge symbolId={eventSymbolFor(observation).id} decorative />
             <span>{String(observation.properties.name)}</span>
             <strong>{compactValue(Number(observation.properties.value), String(observation.properties.unit))}{observation.properties.detector_candidate ? " · candidate" : ""}</strong>
           </button>

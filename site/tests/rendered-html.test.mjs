@@ -137,18 +137,19 @@ test("renders a city ontology explorer with explicit semantic and truth boundari
   assert.equal(city.nodes.filter((node) => node.type === "DataLayer").length, 33);
 });
 
-test("renders a collapsible per-source layer workspace with selected-data replay controls", async () => {
+test("renders a unified Investigation Layers workspace with selected-data replay controls", async () => {
   const response = await render();
   assert.equal(response.status, 200);
   const html = await response.text();
 
-  assert.match(html, /Layer workspace/);
-  assert.match(html, /aria-label="Hide layer panel"/);
+  assert.match(html, /Investigation Layers/);
+  assert.match(html, /aria-label="Hide Investigation Layers"/);
   assert.match(html, /Street basemap/);
   assert.match(html, /Sensor coverage/);
   assert.match(html, /Search source layers/);
   assert.match(html, /Replay source only/);
   assert.match(html, /Clear sources/);
+  assert.match(html, /\+ Add data source/);
   assert.match(html, /Map symbol size/);
   assert.match(html, /1(?:<!-- -->)? playable/);
   assert.match(html, /Real replay/);

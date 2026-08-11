@@ -161,6 +161,7 @@ test("maps operational event families to distinct accessible symbols", () => {
     return symbol;
   });
   assert.equal(new Set(symbols.map(({ id }) => id)).size, examples.length);
+  assert.equal(liveMapWorkspace.EVENT_SYMBOLS.rain.glyph, "☔");
 });
 
 test("builds an available-at-safe April sensor replay for the selected investigation", async () => {
@@ -226,6 +227,44 @@ test("filters Replay sensor layers without changing the source frame", () => {
   }).map(({ id }) => id), ["rain:alert:1"]);
 });
 
+test("turns an active Replay weather layer off without clearing its series choices", () => {
+  assert.equal(typeof replayDataWorkspace.toggleSensorEvidenceFilter, "function");
+  assert.equal(replayDataWorkspace.toggleSensorEvidenceFilter("all", "all"), null);
+  assert.equal(replayDataWorkspace.toggleSensorEvidenceFilter(null, "all"), "all");
+  assert.equal(replayDataWorkspace.toggleSensorEvidenceFilter("rain", "flow"), "flow");
+  assert.equal(replayDataWorkspace.toggleSensorEvidenceFilter("flow", "flow"), null);
+
+  const readings = [
+    { id: "rain:1", series_id: "rain", measurement: "Rainfall" },
+    { id: "flow:1", series_id: "flow", measurement: "Flow" },
+  ];
+  const selected = new Set(["rain", "flow"]);
+  assert.deepEqual(replayDataWorkspace.filterSensorReplayReadings(readings, {
+    visibleSeriesIds: selected,
+    measurementFilter: null,
+  }), []);
+  assert.deepEqual([...selected], ["rain", "flow"]);
+});
+
+test("keeps the Weather overview to Wellington City locations", () => {
+  assert.equal(typeof replayDataWorkspace.wellingtonCityWeatherReadings, "function");
+  const readings = [
+    { id: "berhampore", series_id: "berhampore-hourly-rainfall" },
+    { id: "newtown", series_id: "newtown-hourly-rainfall" },
+    { id: "te-papa", series_id: "te-papa-hourly-rainfall" },
+    { id: "karori", series_id: "karori-reservoir-hourly-rainfall" },
+    { id: "seton-nossiter", series_id: "seton-nossiter-hourly-rainfall" },
+    { id: "hutt", series_id: "birch-lane-hourly-rainfall" },
+    { id: "porirua", series_id: "porirua-town-centre-flow" },
+  ];
+
+  assert.deepEqual(
+    replayDataWorkspace.wellingtonCityWeatherReadings(readings).map(({ id }) => id),
+    ["berhampore", "newtown", "te-papa", "karori", "seton-nossiter"],
+  );
+  assert.equal(readings.length, 7);
+});
+
 test("updates a Replay sensor selection from a captured checkbox value", () => {
   assert.equal(typeof replayDataWorkspace.updateVisibleSensorSeries, "function");
   const original = new Set(["rain:berhampore", "flow:hutt"]);
@@ -252,6 +291,8 @@ test("keeps April movement and official-impact layers operator-controlled", asyn
 
   assert.match(component, /aria-label="Toggle official impact evidence"/);
   assert.match(component, /aria-pressed=\{showMovementOutcomes\}/);
+  assert.match(component, /data-weather-overview=\{filter === "all" \? "wellington-city" : "detail"\}/);
+  assert.match(component, /wellingtonCityWeatherReadings\(visibleReadings\)/);
   assert.match(component, /fetch\("\/cop\/v4\/april-storm-movement-outcomes\.json"\)/);
   assert.match(component, /evidence_weight: 0/);
 });
