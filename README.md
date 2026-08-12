@@ -7,6 +7,9 @@ multiple dashboards without collapsing observations into confirmed incidents.
 
 **Live demo:** [poneke-movement-watch.sun28long.chatgpt.site](https://poneke-movement-watch.sun28long.chatgpt.site/)
 
+**Licence:** [Apache-2.0](LICENSE) for project code and the synthetic sample.
+Third-party publisher data retains its own terms.
+
 The deployed view opens on one map-first **Live Operations** workspace. **Replay Analyzer** retains
 every published hour from 1–6 August 2026, including 12:00 Thursday 6 August. This is
 a decision-support prototype, not an emergency dispatch or public warning system.
@@ -589,7 +592,28 @@ Open `http://localhost:3001` when the development server is ready.
 
 ## Rebuild the data artifacts
 
-Build the v1 movement replay from the existing WCC Transport Sensors files:
+### Offline sample
+
+Run the complete v1 builder from a clean clone without network access or private
+data. The two fictional countlines are a pipeline fixture, not training data,
+emergency evidence or an accuracy benchmark.
+
+```powershell
+.\.venv\Scripts\python scripts\build_demo.py `
+  --data-dir data\sample\transport_sensors `
+  --metadata data\sample\countline_meta_info_sample.csv `
+  --target-at 2026-08-06T08:00:00+12:00 `
+  --replay-start-at 2026-08-06T08:00:00+12:00 `
+  --replay-end-at 2026-08-06T08:00:00+12:00 `
+  --output-dir artifacts\local\sample-build
+```
+
+This produces the four v1 artifacts and two deterministic movement candidates.
+
+### Full WCC files
+
+Download the public publisher files and record their listing metadata and local
+SHA-256 hashes using [the full-data guide](docs/data-reproduction.md). Then run:
 
 ```powershell
 .\.venv\Scripts\python scripts\build_demo.py `
@@ -617,12 +641,13 @@ Build the v2 ontology replay:
 ├── src/movement_anomaly/       Python detector, contracts and ontology
 ├── scripts/                    Reproducible v1 and v2 artifact builders
 ├── tests/                      Detector, adapter, ontology and CLI tests
+├── data/sample/                Synthetic clean-clone builder fixture
 ├── site/
 │   ├── app/                    Web interface
 │   ├── public/cop/v1/          Movement signal contracts
 │   └── public/cop/v2/          Ontology and evidence contracts
 ├── artifacts/                  Benchmark and replay fixtures
-└── docs/                       Model card, ontology rules and demo script
+└── docs/                       Decisions, data guide, model card and demo script
 ```
 
 ## Verification and further reading
@@ -636,6 +661,8 @@ npm run lint
 
 - [Model card](docs/model-card.md)
 - [Evidence ontology and exclusions](docs/ontology-and-exclusions.md)
+- [Curated architecture decisions](docs/decisions/README.md)
+- [Full-data reproduction guide](docs/data-reproduction.md)
 - [Four-minute demo script](docs/demo-script.md)
 - [Machine-readable benchmark](artifacts/model-benchmark.json)
 
@@ -644,3 +671,6 @@ npm run lint
 Built for the Wellington City Council Emergency Management Impact Lab. Source
 data remains subject to the terms and attribution requirements of its respective
 publishers. Review WCC and provider licences before production use.
+
+Project code and the repository's synthetic sample are licensed under
+[Apache-2.0](LICENSE). That licence does not relicense third-party datasets.

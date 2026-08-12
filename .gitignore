@@ -1,7 +1,10 @@
 __pycache__/
 *.py[cod]
 .pytest_cache/
+.pytest_tmp*/
 .venv/
-data/
+data/*
+!data/sample/
+!data/sample/**
 artifacts/local/
-
+.notes/

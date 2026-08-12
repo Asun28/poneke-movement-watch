@@ -7,6 +7,9 @@ import sys
 import pandas as pd
 
 
+ROOT = Path(__file__).resolve().parents[1]
+
+
 def test_cli_builds_cop_geojson_health_and_coverage_from_parquet(tmp_path):
     rows = []
     start = date(2026, 5, 14)
@@ -52,7 +55,7 @@ def test_cli_builds_cop_geojson_health_and_coverage_from_parquet(tmp_path):
         ]
     ).to_csv(metadata_path, index=False)
     output_dir = tmp_path / "output"
-    script = Path(__file__).resolve().parents[1] / "scripts" / "build_demo.py"
+    script = ROOT / "scripts" / "build_demo.py"
 
     result = subprocess.run(
         [
@@ -97,3 +100,45 @@ def test_cli_builds_cop_geojson_health_and_coverage_from_parquet(tmp_path):
     assert replay["output_role"] == "movement_anomaly_candidates"
     assert replay["slots"][0]["signals"][0]["name"] == "Luxford St road upper"
     assert len(replay["slots"][0]["signals"][0]["matched_history"]) == 12
+
+
+def test_checked_in_sample_builds_without_private_data_or_network(tmp_path):
+    output_dir = tmp_path / "sample-output"
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(ROOT / "scripts" / "build_demo.py"),
+            "--data-dir",
+            str(ROOT / "data" / "sample" / "transport_sensors"),
+            "--metadata",
+            str(ROOT / "data" / "sample" / "countline_meta_info_sample.csv"),
+            "--output-dir",
+            str(output_dir),
+            "--target-at",
+            "2026-08-06T08:00:00+12:00",
+            "--replay-start-at",
+            "2026-08-06T08:00:00+12:00",
+            "--replay-end-at",
+            "2026-08-06T08:00:00+12:00",
+            "--lookback-weeks",
+            "12",
+        ],
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 0, result.stderr
+    health = json.loads((output_dir / "movement-health.json").read_text())
+    replay = json.loads((output_dir / "movement-replay.json").read_text())
+    coverage = json.loads((output_dir / "countline-coverage.geojson").read_text())
+
+    assert health["candidate_count"] == 2
+    assert health["data_gap_groups"] == 0
+    assert replay["input_observation_count"] == 2
+    assert replay["candidate_count"] == 2
+    assert replay["model"]["decision_role"] == "candidate_generation_only"
+    assert [feature["properties"]["name"] for feature in coverage["features"]] == [
+        "Sample Quay path",
+        "Example Street road",
+    ]
