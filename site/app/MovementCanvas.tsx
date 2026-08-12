@@ -1,7 +1,7 @@
 "use client";
 
-import { CSSProperties, FormEvent, ReactNode, useEffect, useMemo, useRef, useState } from "react";
-import { ArrowCounterClockwise, CarProfile, CornersIn, CornersOut, PersonSimpleWalk, SidebarSimple } from "@phosphor-icons/react";
+import { FormEvent, ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import { ArrowCounterClockwise, Broadcast, CarProfile, CornersIn, CornersOut, PersonSimpleWalk, SidebarSimple, SquaresFour } from "@phosphor-icons/react";
 import registryData from "../public/cop/v2/source-registry.json";
 import { SOURCE_MANIFEST } from "../lib/sourceManifest.mjs";
 import { operationsTargetForConnectorMode } from "../lib/sourceOperations.mjs";
@@ -34,6 +34,8 @@ import InvestigationLayersPanel, { InvestigationLayersButton } from "./component
 import MovementDelta from "./components/MovementDelta";
 import SourceIconPicker, { SourceIconMode, SourceIconPreview } from "./components/SourceIconPicker";
 import { AdaptiveEvidenceDrawer, AdaptiveEvidencePreview } from "./components/AdaptiveEvidence";
+import ReplayDensityTimeline from "./components/ReplayDensityTimeline";
+import { movementReplayTimelinePoints } from "../lib/replayDataWorkspace.mjs";
 
 type Coordinate = [number, number];
 type LineFeature = {
@@ -1304,9 +1306,11 @@ export default function MovementCanvas({ investigation, investigationControl }: 
     setSelectedSignalKey(null);
     setIsEvidenceOpen(false);
   };
-  const replayMaxIndex = Math.max(0, (replay?.slots.length ?? 1) - 1);
-  const replayProgress = replayMaxIndex > 0 ? (slotIndex / replayMaxIndex) * 100 : 0;
   const replayEnabled = Boolean(replay && replaySourceSelected);
+  const replayTimelinePoints = useMemo(
+    () => movementReplayTimelinePoints(replay?.slots),
+    [replay],
+  );
   const toggleSource = (sourceId: string) => {
     if (sourceId === MOVEMENT_REPLAY_SOURCE_ID && selectedSourceIds.has(sourceId)) {
       setIsPlaying(false);
@@ -1655,26 +1659,18 @@ export default function MovementCanvas({ investigation, investigationControl }: 
                 : "Loading…"}
             </output>
           </div>
-          <div className="replay-timeline" style={{ "--replay-progress": `${replayProgress}%` } as CSSProperties}>
-            <input
-              className="replay-compact-scrubber"
-              type="range"
-              aria-label="Replay timeline"
-              min={0}
-              max={replayMaxIndex}
-              value={slotIndex}
-              disabled={!replayEnabled}
-              onChange={(event) => { setSlotIndex(Number(event.currentTarget.value)); setIsPlaying(false); setMapInspection(null); setSelectedSignalKey(null); setIsEvidenceOpen(false); }}
-            />
-            <div className="replay-timeline-ticks" aria-label="Replay timeline ticks">
-              <span>{formatTimelineTick(replay?.slots[0]?.target_at)}</span>
-              <strong>{formatTimelineTick(currentSlot?.target_at)}</strong>
-              <span>{formatTimelineTick(replay?.slots.at(-1)?.target_at)}</span>
-            </div>
-          </div>
+          <ReplayDensityTimeline
+            points={replayTimelinePoints}
+            currentIndex={slotIndex}
+            disabled={!replayEnabled}
+            densityMeasure="movement-candidates"
+            densityLabel="model candidates"
+            formatTick={formatTimelineTick}
+            onChange={(index) => { setSlotIndex(index); setIsPlaying(false); setMapInspection(null); setSelectedSignalKey(null); setIsEvidenceOpen(false); }}
+          />
           <nav className="replay-filter-subbar replay-compact-actions" aria-label="Replay filters and layers">
             <div className="replay-primary-filters" data-replay-filter-zone="primary">
-              <div className="filter-group" aria-label="Filter signals">
+              <div className="filter-group" data-replay-filter-kind="movement-mode" aria-label="Filter movement mode">
                 {(["all", "people", "vehicles"] as Filter[]).map((value) => (
                   <button
                     type="button"
@@ -1683,6 +1679,11 @@ export default function MovementCanvas({ investigation, investigationControl }: 
                     aria-pressed={filter === value}
                     onClick={() => { setFilter(value); setMapInspection(null); setSelectedSignalKey(null); setIsEvidenceOpen(false); }}
                   >
+                    {value === "all" ? (
+                      <span className="movement-filter-icon" data-movement-icon="all" aria-hidden="true">
+                        <SquaresFour size={17} weight="bold" />
+                      </span>
+                    ) : null}
                     {value === "people" ? (
                       <span className="movement-filter-icon" data-movement-icon="people" aria-hidden="true">
                         <PersonSimpleWalk size={17} weight="bold" />
@@ -1697,9 +1698,14 @@ export default function MovementCanvas({ investigation, investigationControl }: 
                   </button>
                 ))}
               </div>
-              <button type="button" className={showCoverage ? "active" : ""} aria-label="Sensor coverage" aria-pressed={showCoverage} onClick={() => setShowCoverage((value) => !value)}>
-                Sensors
-              </button>
+              <div className="replay-map-overlays" aria-label="Map overlays">
+                <button type="button" data-replay-overlay="sensor-coverage" aria-pressed={showCoverage} aria-label="Sensor coverage" onClick={() => setShowCoverage((value) => !value)}>
+                  <span className="movement-filter-icon" data-movement-icon="sensor" aria-hidden="true">
+                    <Broadcast size={17} weight="bold" />
+                  </span>
+                  Coverage
+                </button>
+              </div>
             </div>
             <div className="replay-primary-actions" data-replay-action-zone="always-visible">
               <InvestigationLayersButton
@@ -1798,11 +1804,17 @@ export default function MovementCanvas({ investigation, investigationControl }: 
           {fullscreenMessage ? (
             <p className="map-fullscreen-message" role="status">{fullscreenMessage}</p>
           ) : null}
-          <div className="map-key" data-map-legend="floating-card">
-            <span><i className="increase" />Increase</span>
-            <span><i className="decrease" />Decrease</span>
-            <span aria-label="Travel direction"><b className="direction-arrow-key" aria-hidden="true">↗</b>Direction</span>
-            {showCoverage ? <span><i className="coverage" />Sensor coverage</span> : null}
+          <div className="map-key" data-map-legend="floating-card" aria-label="Movement map legend">
+            <div className="map-key-grid">
+              <span><i className="increase" />Increase</span>
+              <span><i className="decrease" />Decrease</span>
+              <span aria-label="Travel direction"><b className="direction-arrow-key" aria-hidden="true">↗</b>Direction</span>
+              {showCoverage ? <span><i className="coverage" />Sensor coverage</span> : null}
+            </div>
+            <div className="map-cluster-key">
+              <span data-cluster-state="grouped"><i>2</i>Grouped records</span>
+              <span data-cluster-state="selected"><i>2</i>Selected group</span>
+            </div>
           </div>
           {showBasemap ? (
             <div className="map-attribution" data-corner="bottom-right-before-controls">

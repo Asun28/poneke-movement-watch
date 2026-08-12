@@ -334,6 +334,50 @@ test("builds an available-at-safe April sensor replay for the selected investiga
   assert.ok(frame.readings.every((reading) => new Date(reading.available_at) <= new Date(frame.target_at)));
 });
 
+test("bins Replay activity by time without turning density into severity", () => {
+  assert.equal(typeof replayDataWorkspace.buildReplayTimelineDensity, "function");
+  const density = replayDataWorkspace.buildReplayTimelineDensity([
+    { target_at: "2026-08-01T00:00:00+12:00", activity_count: 2 },
+    { target_at: "2026-08-01T01:00:00+12:00", activity_count: 0 },
+    { target_at: "2026-08-01T02:00:00+12:00", activity_count: 3 },
+    { target_at: "2026-08-01T03:00:00+12:00", activity_count: 5 },
+  ], 2);
+
+  assert.deepEqual(density.bins.map(({ activity_count }) => activity_count), [2, 8]);
+  assert.deepEqual(density.bins.map(({ height_percent }) => height_percent), [25, 100]);
+  assert.equal(density.activity_total, 10);
+  assert.equal(density.peak_activity_count, 8);
+  assert.equal(density.measure, "record_activity");
+
+  const empty = replayDataWorkspace.buildReplayTimelineDensity([
+    { target_at: "invalid", activity_count: 50 },
+  ], 8);
+  assert.deepEqual(empty.bins, []);
+  assert.equal(empty.activity_total, 0);
+});
+
+test("derives Replay density from movement candidates and newly available sensor observations", () => {
+  assert.equal(typeof replayDataWorkspace.movementReplayTimelinePoints, "function");
+  assert.equal(typeof replayDataWorkspace.sensorReplayTimelinePoints, "function");
+  assert.deepEqual(replayDataWorkspace.movementReplayTimelinePoints([
+    { target_at: "2026-08-01T00:00:00+12:00", candidate_count: 4 },
+    { target_at: "2026-08-01T01:00:00+12:00", candidate_count: 9 },
+  ]), [
+    { target_at: "2026-08-01T00:00:00+12:00", activity_count: 4 },
+    { target_at: "2026-08-01T01:00:00+12:00", activity_count: 9 },
+  ]);
+  assert.deepEqual(replayDataWorkspace.sensorReplayTimelinePoints({
+    slots: ["2026-04-20T12:00:00+12:00", "2026-04-20T12:05:00+12:00"],
+    series: [
+      { observations: [{ available_at: "2026-04-20T12:00:00+12:00" }, { available_at: "2026-04-20T12:05:00+12:00" }] },
+      { observations: [{ available_at: "2026-04-20T12:05:00+12:00" }] },
+    ],
+  }), [
+    { target_at: "2026-04-20T12:00:00+12:00", activity_count: 1 },
+    { target_at: "2026-04-20T12:05:00+12:00", activity_count: 2 },
+  ]);
+});
+
 test("projects an April movement candidate into truthful selected evidence and ordered history", () => {
   assert.equal(typeof replayDataWorkspace.buildMovementEvidenceDetail, "function");
   const signal = {

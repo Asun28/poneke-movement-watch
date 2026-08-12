@@ -26,6 +26,76 @@ export function defaultSensorReplayLayers() {
   };
 }
 
+export function buildReplayTimelineDensity(points, requestedBins = 48) {
+  const validPoints = (Array.isArray(points) ? points : [])
+    .map((point) => ({
+      target_at: cleanText(point?.target_at),
+      target_epoch: epoch(point?.target_at),
+      activity_count: Math.max(0, Number(point?.activity_count) || 0),
+    }))
+    .filter((point) => point.target_epoch !== null)
+    .toSorted((first, second) => first.target_epoch - second.target_epoch);
+  if (validPoints.length === 0) {
+    return {
+      measure: "record_activity",
+      activity_total: 0,
+      peak_activity_count: 0,
+      bins: [],
+    };
+  }
+
+  const desiredBins = Math.max(1, Math.trunc(Number(requestedBins) || 1));
+  const binCount = Math.min(desiredBins, validPoints.length);
+  const firstEpoch = validPoints[0].target_epoch;
+  const lastEpoch = validPoints.at(-1).target_epoch;
+  const duration = Math.max(0, lastEpoch - firstEpoch);
+  const counts = Array.from({ length: binCount }, () => 0);
+
+  validPoints.forEach((point, pointIndex) => {
+    const position = duration > 0
+      ? (point.target_epoch - firstEpoch) / duration
+      : pointIndex / Math.max(1, validPoints.length - 1);
+    const binIndex = Math.min(binCount - 1, Math.floor(position * binCount));
+    counts[binIndex] += point.activity_count;
+  });
+
+  const peakActivityCount = Math.max(0, ...counts);
+  return {
+    measure: "record_activity",
+    activity_total: counts.reduce((total, count) => total + count, 0),
+    peak_activity_count: peakActivityCount,
+    bins: counts.map((activityCount, index) => ({
+      index,
+      activity_count: activityCount,
+      height_percent: peakActivityCount > 0
+        ? Math.round((activityCount / peakActivityCount) * 100)
+        : 0,
+    })),
+  };
+}
+
+export function movementReplayTimelinePoints(slots) {
+  return (Array.isArray(slots) ? slots : []).map((slot) => ({
+    target_at: cleanText(slot?.target_at),
+    activity_count: Math.max(0, Number(slot?.candidate_count) || 0),
+  }));
+}
+
+export function sensorReplayTimelinePoints(dataset) {
+  const activityBySlot = new Map();
+  for (const series of dataset?.series ?? []) {
+    for (const observation of series?.observations ?? []) {
+      const availableAt = cleanText(observation?.available_at);
+      if (!availableAt) continue;
+      activityBySlot.set(availableAt, (activityBySlot.get(availableAt) ?? 0) + 1);
+    }
+  }
+  return (Array.isArray(dataset?.slots) ? dataset.slots : []).map((targetAt) => ({
+    target_at: cleanText(targetAt),
+    activity_count: activityBySlot.get(cleanText(targetAt)) ?? 0,
+  }));
+}
+
 export function buildSensorReplayDataset(pack, investigation, detectorPack = null) {
   const startsAt = epoch(investigation?.starts_at);
   const asOf = epoch(investigation?.as_of);

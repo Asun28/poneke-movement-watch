@@ -4872,3 +4872,236 @@ h1, h2, h3, h4, h5 { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-seri
   .live-operational-review .live-inbox-truth { max-width: none; flex: 1; justify-content: center; }
   .live-situation-strip[aria-label="Live operational status"] > .live-strip-actions { grid-column: 2; grid-row: 1; }
 }
+
+/* Phase 66 — truthful Replay density and separated map overlays. */
+.replay-compact-bar[data-replay-density="compact"] {
+  gap: 2px;
+  padding: 5px 7px 6px;
+}
+.replay-compact-bar[data-replay-density="compact"] .replay-filter-subbar {
+  padding-top: 2px;
+  border-top-color: #dfe1e6;
+}
+.replay-compact-bar[data-replay-density="compact"] .replay-timeline {
+  position: relative;
+  height: 34px;
+  display: block;
+  overflow: hidden;
+  border-radius: 5px;
+}
+.replay-density-chart {
+  position: absolute;
+  z-index: 1;
+  top: 1px;
+  right: 3px;
+  left: 3px;
+  height: 20px;
+  display: grid;
+  grid-template-columns: repeat(48, minmax(1px, 1fr));
+  align-items: end;
+  gap: 1px;
+  border-bottom: 1px solid #b7bdc8;
+}
+.replay-density-chart i {
+  min-height: 1px;
+  height: var(--density-height, 0%);
+  display: block;
+  border-radius: 1px 1px 0 0;
+  background: #579dff;
+  opacity: .72;
+}
+.replay-timeline-future {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  right: 0;
+  bottom: 12px;
+  left: var(--replay-progress, 0%);
+  border-left: 1px solid rgba(9,30,66,.12);
+  background: rgba(247,248,249,.76);
+  pointer-events: none;
+}
+.replay-timeline-playhead {
+  position: absolute;
+  z-index: 4;
+  top: 0;
+  bottom: 11px;
+  left: var(--replay-progress, 0%);
+  width: 2px;
+  border-radius: 1px;
+  background: #172b4d;
+  box-shadow: 0 0 0 1px rgba(255,255,255,.78);
+  transform: translateX(-1px);
+  pointer-events: none;
+}
+.replay-compact-bar[data-replay-density="compact"] .replay-compact-scrubber {
+  position: absolute;
+  z-index: 5;
+  inset: 0 0 auto;
+  width: 100%;
+  height: 22px;
+  margin: 0;
+}
+.replay-compact-scrubber::-webkit-slider-runnable-track {
+  height: 2px;
+  border-radius: 0;
+  background: rgba(23,43,77,.16);
+}
+.replay-compact-scrubber::-webkit-slider-thumb {
+  width: 14px;
+  height: 14px;
+  margin-top: -6px;
+  border-width: 3px;
+  background: #172b4d;
+}
+.replay-compact-scrubber::-moz-range-track {
+  height: 2px;
+  border-radius: 0;
+  background: rgba(23,43,77,.16);
+}
+.replay-compact-scrubber::-moz-range-progress { height: 2px; background: transparent; }
+.replay-compact-scrubber::-moz-range-thumb { width: 10px; height: 10px; background: #172b4d; }
+.replay-compact-bar[data-replay-density="compact"] .replay-timeline-ticks {
+  position: absolute;
+  z-index: 6;
+  right: 3px;
+  bottom: 0;
+  left: 3px;
+  pointer-events: none;
+}
+
+.replay-primary-filters {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.replay-map-overlays {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  padding-left: 6px;
+  border-left: 1px solid #dfe1e6;
+}
+.replay-map-overlays button {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 0 11px;
+  border: 1px solid #b7bdc8;
+  border-radius: 8px;
+  color: #344563;
+  background: #f7f8f9;
+  cursor: pointer;
+  font-size: var(--operator-type-floor);
+  font-weight: 700;
+  white-space: nowrap;
+}
+.replay-map-overlays button[aria-pressed="true"] {
+  color: #0747a6;
+  border-color: #579dff;
+  background: #e9f2ff;
+  box-shadow: inset 3px 0 0 #0c66e4;
+}
+.replay-map-overlays button:hover { background: #dbeafe; }
+.replay-map-overlays .movement-filter-icon,
+.replay-compact-bar .filter-group .movement-filter-icon {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+  margin: 0;
+}
+
+.replay-map-workspace .map-key[aria-label="Movement map legend"] {
+  display: grid;
+  gap: 5px;
+  padding: 7px 8px;
+}
+.map-key-grid,
+.map-cluster-key {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: max-content;
+  align-items: center;
+  gap: 9px;
+}
+.map-cluster-key {
+  padding-top: 5px;
+  border-top: 1px solid #dfe1e6;
+}
+.map-cluster-key i {
+  width: 18px;
+  height: 18px;
+  display: inline-grid;
+  place-items: center;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  color: #ffffff;
+  background: #0c66e4;
+  box-shadow: 0 0 0 1px rgba(9,30,66,.14);
+  font: 750 8px/1 Consolas, monospace;
+}
+.map-cluster-key [data-cluster-state="selected"] i { background: #102a33; }
+
+.adaptive-evidence-handle {
+  position: sticky;
+  z-index: 4;
+  top: 0;
+  height: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: -10px;
+  pointer-events: none;
+}
+.adaptive-evidence-handle span {
+  width: 42px;
+  height: 4px;
+  border-radius: 999px;
+  background: #a5adba;
+}
+.adaptive-evidence-drawer .replay-map-panel-header { padding-top: 5px; }
+.adaptive-evidence-drawer [data-drawer-affordance="collapse"] { color: #344563; }
+
+@media (max-width: 700px) {
+  .replay-primary-filters { grid-template-columns: minmax(0, 1fr) auto; }
+  .replay-map-overlays { padding-left: 5px; }
+  .replay-map-overlays button { width: 100%; padding-inline: 9px; }
+  .replay-map-workspace .map-key[aria-label="Movement map legend"] { right: 60px; bottom: 16px; left: 8px; }
+  .map-key-grid { grid-template-columns: repeat(2, max-content); grid-auto-flow: row; }
+  .map-cluster-key { grid-template-columns: repeat(2, max-content); grid-auto-flow: row; }
+}
+
+@media (max-width: 520px) {
+  .replay-filter-subbar {
+    position: relative;
+    display: block;
+    min-height: 94px;
+  }
+  .replay-primary-filters {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 5px;
+  }
+  .replay-primary-filters .filter-group {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .replay-primary-filters .filter-group button { min-width: 0; padding-inline: 7px; }
+  .replay-map-overlays { width: calc(100% - 100px); }
+  .replay-primary-actions {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    display: flex;
+  }
+  .replay-primary-actions > button { width: 44px; min-width: 44px; padding: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .replay-timeline-future,
+  .replay-timeline-playhead,
+  .replay-density-chart i { transition: none; }
+}

@@ -231,8 +231,38 @@ test("separates Replay playback from layers and renders an operable timeline", a
   assert.match(html, /data-replay-filter-zone="primary"/);
   assert.match(html, /data-replay-action-zone="always-visible"[\s\S]*?Investigation Layers[\s\S]*?signal evidence/);
   assert.match(html, /class="replay-timeline"/);
+  assert.match(html, /data-replay-timeline="activity-density"/);
+  assert.match(html, /data-density-measure="movement-candidates"/);
+  assert.match(html, /aria-label="Replay activity density"/);
+  assert.match(html, /data-replay-playhead="selected-time"/);
+  assert.match(html, /data-replay-future="muted"/);
   assert.match(html, /aria-label="Replay timeline ticks"/);
   assert.match(html, /data-replay-clustering="screen-space"/);
+});
+
+test("separates movement-mode filters from the sensor coverage overlay", async () => {
+  const response = await render();
+  assert.equal(response.status, 200);
+  const html = await response.text();
+
+  assert.match(html, /data-replay-filter-kind="movement-mode"[^>]*aria-label="Filter movement mode"/);
+  assert.match(html, /data-movement-icon="all"/);
+  assert.match(html, /data-movement-icon="people"/);
+  assert.match(html, /data-movement-icon="vehicle"/);
+  assert.match(html, /data-replay-overlay="sensor-coverage"[^>]*aria-pressed="true"/);
+  assert.match(html, /data-movement-icon="sensor"/);
+});
+
+test("explains movement cluster colours and gives evidence a collapse affordance", async () => {
+  const response = await render();
+  assert.equal(response.status, 200);
+  const html = await response.text();
+
+  assert.match(html, /aria-label="Movement map legend"/);
+  assert.match(html, /data-cluster-state="grouped"[^>]*>[s\S]*?Grouped records/);
+  assert.match(html, /data-cluster-state="selected"[^>]*>[s\S]*?Selected group/);
+  assert.match(html, /data-drawer-affordance="collapse"/);
+  assert.match(html, /class="adaptive-evidence-handle"/);
 });
 
 test("keeps April movement truth accessible without repeating model-weight copy in the detail card", async () => {

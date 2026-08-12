@@ -1,7 +1,7 @@
 "use client";
 
 import type { CSSProperties, ReactNode } from "react";
-import { X } from "@phosphor-icons/react";
+import { CaretDown } from "@phosphor-icons/react";
 
 type EvidenceField = { label: string; value: string };
 
@@ -109,12 +109,13 @@ export function AdaptiveEvidenceDrawer({
       hidden={!open}
       aria-label={title}
     >
+      <div className="adaptive-evidence-handle" aria-hidden="true"><span /></div>
       <header className="replay-map-panel-header">
         <div>
           <h2>{title}</h2>
           <span>{model ? model.source_label : "No record selected"}</span>
         </div>
-        <button type="button" aria-label="Close evidence details" onClick={onClose}><X size={18} aria-hidden="true" /></button>
+        <button type="button" data-drawer-affordance="collapse" aria-label="Close evidence details" onClick={onClose}><CaretDown size={19} weight="bold" aria-hidden="true" /></button>
       </header>
       {model ? (
         <div className="adaptive-evidence-record">

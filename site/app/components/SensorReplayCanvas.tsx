@@ -1,11 +1,11 @@
 "use client";
 
-import { CSSProperties, ReactNode, useEffect, useMemo, useState } from "react";
+import { ReactNode, useEffect, useMemo, useState } from "react";
 import hilltopPack from "../../public/cop/v4/april-storm-hilltop-observations.json";
 import detectorPack from "../../public/cop/v4/april-storm-hydro-detector.json";
 import eventPack from "../../public/cop/v4/april-storm-event-pack.json";
 import { buildAdaptiveEvidenceModel } from "../../lib/adaptiveEvidence.mjs";
-import { buildMovementEvidenceDetail, buildSensorReplayDataset, defaultSensorReplayLayers, filterSensorReplayReadings, sensorReplayFrame, toggleSensorEvidenceFilter, updateVisibleSensorSeries, wellingtonCityWeatherReadings } from "../../lib/replayDataWorkspace.mjs";
+import { buildMovementEvidenceDetail, buildSensorReplayDataset, defaultSensorReplayLayers, filterSensorReplayReadings, sensorReplayFrame, sensorReplayTimelinePoints, toggleSensorEvidenceFilter, updateVisibleSensorSeries, wellingtonCityWeatherReadings } from "../../lib/replayDataWorkspace.mjs";
 import { eventSymbolFor } from "../../lib/liveMapWorkspace.mjs";
 import { OPERATIONAL_BASEMAP } from "../../lib/operationalBasemap.mjs";
 import { replayIntervalMs } from "../layerModel.mjs";
@@ -13,6 +13,7 @@ import { AdaptiveEvidenceDrawer } from "./AdaptiveEvidence";
 import EventSymbolBadge from "./EventSymbolBadge";
 import LiveMap from "./LiveMap";
 import InvestigationLayersPanel, { InvestigationLayersButton } from "./InvestigationLayersPanel";
+import ReplayDensityTimeline from "./ReplayDensityTimeline";
 
 type Investigation = {
   id: string;
@@ -322,8 +323,7 @@ export default function SensorReplayCanvas({ investigation, investigationControl
     setSelectedId(null);
   }
 
-  const replayMaxIndex = Math.max(0, dataset.slots.length - 1);
-  const replayProgress = replayMaxIndex > 0 ? (slotIndex / replayMaxIndex) * 100 : 0;
+  const replayTimelinePoints = useMemo(() => sensorReplayTimelinePoints(dataset), [dataset]);
 
   return (
     <section id="replay-map" className="replay-map-workspace sensor-replay-workspace" data-replay-map-first="true" data-replay-dataset="sensor" data-primary-layer="movement-outcomes" data-delta-encoding="signed-centre-bar" aria-label="April movement impact replay">
@@ -354,14 +354,15 @@ export default function SensorReplayCanvas({ investigation, investigationControl
           </div>
           <output className="replay-compact-count" aria-live="polite">{dataset.playable_record_count.toLocaleString("en-NZ")} / {dataset.total_record_count.toLocaleString("en-NZ")} records</output>
         </div>
-        <div className="replay-timeline" style={{ "--replay-progress": `${replayProgress}%` } as CSSProperties}>
-          <input className="replay-compact-scrubber" type="range" aria-label="Replay timeline" min={0} max={replayMaxIndex} value={slotIndex} onChange={(event) => { setSlotIndex(Number(event.currentTarget.value)); setPlaying(false); setSelectedId(null); }} />
-          <div className="replay-timeline-ticks" aria-label="Replay timeline ticks">
-            <span>{timelineTick(dataset.slots[0])}</span>
-            <strong>{timelineTick(frame.target_at)}</strong>
-            <span>{timelineTick(dataset.slots.at(-1))}</span>
-          </div>
-        </div>
+        <ReplayDensityTimeline
+          points={replayTimelinePoints}
+          currentIndex={slotIndex}
+          disabled={dataset.slots.length === 0}
+          densityMeasure="new-sensor-observations"
+          densityLabel="new observations"
+          formatTick={timelineTick}
+          onChange={(index) => { setSlotIndex(index); setPlaying(false); setSelectedId(null); }}
+        />
         <nav className="replay-filter-subbar replay-compact-actions" aria-label="Replay filters and layers">
           <div className="replay-primary-filters" data-replay-filter-zone="primary">
             <div className="filter-group" aria-label="Replay evidence filters">
