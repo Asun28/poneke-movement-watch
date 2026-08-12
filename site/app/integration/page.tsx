@@ -12,7 +12,7 @@ export default function IntegrationPage() {
     <OperatorShell
       active="/integration"
       title="Data Integration"
-      modeLabel="33 registered sources"
+      modeLabel={`${contracts.sources.length} registered sources`}
     >
       <IntegrationRegistry contracts={contracts.sources} />
       <details className="operator-advanced">

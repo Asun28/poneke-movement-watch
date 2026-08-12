@@ -401,6 +401,41 @@ test("renders truth, access and runtime health as separate integration dimension
   assert.match(html, /Add source/);
 });
 
+test("partitions every source contract in the Integration summary", async () => {
+  const html = await (await request("/integration")).text();
+
+  assert.match(html, /data-source-summary-total="33"/);
+  assert.match(html, /data-source-summary-kind="live"[^>]*>.*?<dt>Live<\/dt><dd>10<\/dd>/s);
+  assert.match(html, /data-source-summary-kind="replay"[^>]*>.*?<dt>Replay<\/dt><dd>1<\/dd>/s);
+  assert.match(html, /data-source-summary-kind="mock"[^>]*>.*?<dt>Mock<\/dt><dd>14<\/dd>/s);
+  assert.match(html, /data-source-summary-kind="registered"[^>]*>.*?<dt>Registered<\/dt><dd>7<\/dd>/s);
+  assert.match(html, /data-source-summary-kind="stale"[^>]*>.*?<dt>Stale<\/dt><dd>1<\/dd>/s);
+});
+
+test("keeps source selection separate from concise connector and runtime states", async () => {
+  const html = await (await request("/integration")).text();
+
+  assert.match(html, /data-source-list-item="wcc-transport-sensors"[^>]*aria-pressed="true"/);
+  assert.match(html, /data-runtime-state="stale"[^>]*aria-label="Runtime default: stale"/);
+  assert.match(html, /data-connector-kind="batch"[^>]*>REPLAY<\/span>/);
+  assert.match(html, /data-connector-kind="live"[^>]*>LIVE<\/span>/);
+  assert.match(html, /data-connector-kind="mock"[^>]*>MOCK<\/span>/);
+  assert.match(html, /data-connector-kind="context"[^>]*>REGISTERED<\/span>/);
+  assert.match(html, /data-connector-kind="stale"[^>]*>STALE<\/span>/);
+  assert.doesNotMatch(html, /BATCH REPLAY ONLY|MOCK · ZERO EVIDENCE WEIGHT|CONNECTED LIVE ADAPTER/);
+});
+
+test("keeps source configuration and technical disclosure visible at the top of detail", async () => {
+  const html = await (await request("/integration")).text();
+  const actionAt = html.indexOf('data-detail-action="configure-source"');
+  const gridAt = html.indexOf('class="integration-detail-grid"');
+
+  assert.ok(actionAt > -1);
+  assert.ok(actionAt < gridAt);
+  assert.match(html, /data-runtime-value="stale"[^>]*class="[^"]*state-stale/);
+  assert.match(html, /<summary>.*Technical details.*data-disclosure-caret="technical-details"/s);
+});
+
 test("shows the six-level operational evidence chain before advanced technical detail", async () => {
   const html = await (await request("/ontology")).text();
   const dashboardAt = html.indexOf('aria-label="Ontology workspace"');

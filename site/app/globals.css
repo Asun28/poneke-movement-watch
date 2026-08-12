@@ -5105,3 +5105,119 @@ h1, h2, h3, h4, h5 { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-seri
   .replay-timeline-playhead,
   .replay-density-chart i { transition: none; }
 }
+
+/* Phase 67 — complete, scannable source-registry states. */
+.integration-registry[data-operator-workflow="source-master-detail"] .integration-heading {
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+}
+.integration-registry[data-operator-workflow="source-master-detail"] .integration-summary {
+  width: min(100%, 390px);
+  display: grid;
+  grid-template-columns: repeat(5, minmax(54px, 1fr));
+  gap: 4px;
+}
+.integration-registry[data-operator-workflow="source-master-detail"] .integration-summary > div {
+  min-width: 0;
+  display: grid;
+  justify-items: start;
+  gap: 2px;
+  padding: 5px 7px;
+}
+.integration-registry[data-operator-workflow="source-master-detail"] .integration-summary dt {
+  font-size: 10px;
+  line-height: 1.2;
+}
+.integration-registry[data-operator-workflow="source-master-detail"] .integration-summary dd {
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+.integration-summary [data-source-summary-kind="stale"] { background: #ffebe6; }
+.integration-summary [data-source-summary-kind="stale"] dt,
+.integration-summary [data-source-summary-kind="stale"] dd { color: #8c1f16; }
+
+.integration-source-list .contract-mode {
+  max-width: none;
+  overflow: visible;
+  text-overflow: clip;
+  font-size: 9px;
+  white-space: nowrap;
+}
+.contract-mode.mode-batch { color: #0747a6; background: #e9f2ff; }
+.source-mode-dot.state-live { border-color: #1f845a; background: #1f845a; }
+.source-mode-dot.state-empty,
+.source-mode-dot.state-unavailable { border-color: #7a869a; background: #ffffff; }
+.source-mode-dot.state-mock,
+.source-mode-dot.state-credentials_required,
+.source-mode-dot.state-permission_required { border-color: #b65c02; background: #fff0b3; }
+.source-mode-dot.state-stale { border-color: #ae2e24; background: #ffebe6; }
+
+.integration-detail-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+.integration-detail-actions .integration-detail-status {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+}
+.integration-configure-source {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 12px;
+  border: 1px solid #0c66e4;
+  border-radius: 6px;
+  color: #0747a6;
+  background: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.integration-configure-source:hover { color: #ffffff; background: #0c66e4; }
+.integration-configure-source:focus-visible { outline: 2px solid #0c66e4; outline-offset: 2px; }
+.runtime-value { color: #344563; }
+.runtime-value.state-stale { color: #8c1f16; }
+.runtime-value.state-mock,
+.runtime-value.state-credentials_required,
+.runtime-value.state-permission_required { color: #7c4c00; }
+
+.integration-technical-detail > summary {
+  justify-content: space-between;
+  gap: 12px;
+  list-style: none;
+}
+.integration-technical-detail > summary::-webkit-details-marker { display: none; }
+.integration-technical-detail > summary svg {
+  flex: 0 0 auto;
+  color: #44546f;
+  transition: transform 180ms ease;
+}
+.integration-technical-detail[open] > summary svg { transform: rotate(180deg); }
+.integration-source-detail > footer { justify-content: flex-start; }
+
+@media (max-width: 1100px) {
+  .integration-registry[data-operator-workflow="source-master-detail"] .integration-summary {
+    width: min(100%, 460px);
+  }
+}
+
+@media (max-width: 600px) {
+  .integration-registry[data-operator-workflow="source-master-detail"] .integration-heading h2 { width: calc(100% - 32px); }
+  .integration-registry[data-operator-workflow="source-master-detail"] .integration-summary { width: 100%; }
+  .integration-registry[data-operator-workflow="source-master-detail"] .integration-summary > div { padding-inline: 5px; }
+  .integration-registry[data-operator-workflow="source-master-detail"] .integration-summary dt { font-size: 9px; }
+  .integration-detail-actions { width: 100%; align-items: stretch; flex-direction: column; }
+  .integration-detail-actions .integration-detail-status { justify-content: flex-start; }
+  .integration-configure-source { width: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .integration-technical-detail > summary svg { transition: none; }
+}

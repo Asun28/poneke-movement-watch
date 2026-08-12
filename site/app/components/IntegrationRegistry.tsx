@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Database, MagnifyingGlass, Plus } from "@phosphor-icons/react";
+import { CaretDown, Database, MagnifyingGlass, Plus, SlidersHorizontal } from "@phosphor-icons/react";
 import { operationsTargetLabel } from "../../lib/sourceOperations.mjs";
 
 type Contract = {
@@ -35,6 +35,14 @@ function connectorLabel(contract: Contract) {
   return "Context / registered";
 }
 
+function connectorShortLabel(contract: Contract) {
+  if (contract.connector_mode === "live") return "LIVE";
+  if (contract.connector_mode === "mock") return "MOCK";
+  if (contract.connector_mode === "batch") return "REPLAY";
+  if (contract.connector_mode === "stale") return "STALE";
+  return "REGISTERED";
+}
+
 function accessLabel(contract: Contract) {
   if (contract.access.cost === "paid") return "Paid · API key + billing";
   if (contract.access.credentials_required) return "API key required";
@@ -54,10 +62,20 @@ export default function IntegrationRegistry({ contracts }: { contracts: Contract
   }), [contracts, target, query]);
   const selected = filtered.find((contract) => contract.source_id === selectedId) ?? filtered[0] ?? null;
   const summary = useMemo(() => ({
+    total: contracts.length,
     live: contracts.filter((contract) => contract.connector_mode === "live").length,
     replay: contracts.filter((contract) => contract.connector_mode === "batch").length,
     mock: contracts.filter((contract) => contract.connector_mode === "mock").length,
+    registered: contracts.filter((contract) => ["registered", "context"].includes(contract.connector_mode)).length,
+    stale: contracts.filter((contract) => contract.connector_mode === "stale").length,
   }), [contracts]);
+  const summaryItems = [
+    ["live", "Live", summary.live],
+    ["replay", "Replay", summary.replay],
+    ["mock", "Mock", summary.mock],
+    ["registered", "Registered", summary.registered],
+    ["stale", "Stale", summary.stale],
+  ] as const;
 
   return (
     <section
@@ -68,11 +86,15 @@ export default function IntegrationRegistry({ contracts }: { contracts: Contract
       <div className="integration-toolbar">
         <div className="integration-heading">
           <Database size={20} weight="duotone" aria-hidden="true" />
-          <h2 id="integration-registry-heading">33 source contracts</h2>
-          <dl className="integration-summary" aria-label="Source contract summary">
-            <div><dt>Live</dt><dd>{summary.live}</dd></div>
-            <div><dt>Replay</dt><dd>{summary.replay}</dd></div>
-            <div><dt>Mock</dt><dd>{summary.mock}</dd></div>
+          <h2 id="integration-registry-heading">{`${summary.total} source contracts`}</h2>
+          <dl
+            className="integration-summary"
+            aria-label={`Source contract summary: ${summary.total} total`}
+            data-source-summary-total={summary.total}
+          >
+            {summaryItems.map(([kind, label, count]) => (
+              <div key={kind} data-source-summary-kind={kind}><dt>{label}</dt><dd>{count}</dd></div>
+            ))}
           </dl>
         </div>
         <div className="integration-filters">
@@ -110,12 +132,23 @@ export default function IntegrationRegistry({ contracts }: { contracts: Contract
                 aria-pressed={selected?.source_id === contract.source_id}
                 onClick={() => setSelectedId(contract.source_id)}
               >
-                <span className={`source-mode-dot mode-${contract.connector_mode}`} aria-hidden="true" />
+                <span
+                  className={`source-mode-dot state-${contract.runtime_default}`}
+                  data-runtime-state={contract.runtime_default}
+                  aria-label={`Runtime default: ${contract.runtime_default.replaceAll("_", " ")}`}
+                />
                 <span className="integration-source-name">
                   <strong>{contract.name}</strong>
                   <small>{contract.source_id} · {contract.operations_target === "integration_only" ? operationsTargetLabel(contract.operations_target) : `${operationsTargetLabel(contract.operations_target)} source`}</small>
                 </span>
-                <span className={`contract-mode mode-${contract.connector_mode}`}>{connectorLabel(contract)}</span>
+                <span
+                  className={`contract-mode mode-${contract.connector_mode}`}
+                  data-connector-kind={contract.connector_mode}
+                  title={connectorLabel(contract)}
+                  aria-label={`Connector: ${connectorLabel(contract)}`}
+                >
+                  {connectorShortLabel(contract)}
+                </span>
               </button>
             ))}
           </div>
@@ -127,9 +160,15 @@ export default function IntegrationRegistry({ contracts }: { contracts: Contract
             <>
               <header>
                 <div><span>Source contract</span><h3>{selected.name}</h3><code>{selected.source_id}</code></div>
-                <div className="integration-detail-status">
-                  <span className={`contract-mode mode-${selected.connector_mode}`}>{connectorLabel(selected)}</span>
-                  <span className={`runtime-state state-${selected.runtime_default}`}>{selected.runtime_default.replaceAll("_", " ")}</span>
+                <div className="integration-detail-actions">
+                  <div className="integration-detail-status">
+                    <span className={`contract-mode mode-${selected.connector_mode}`}>{connectorLabel(selected)}</span>
+                    <span className={`runtime-state state-${selected.runtime_default}`}>{selected.runtime_default.replaceAll("_", " ")}</span>
+                  </div>
+                  <a className="integration-configure-source" data-detail-action="configure-source" href="/setup">
+                    <SlidersHorizontal size={15} aria-hidden="true" />
+                    Configure source
+                  </a>
                 </div>
               </header>
               <dl className="integration-detail-grid">
@@ -137,19 +176,21 @@ export default function IntegrationRegistry({ contracts }: { contracts: Contract
                 <div data-detail-label="Ontology role"><dt>Ontology role</dt><dd>{selected.role.replaceAll("_", " ")}</dd></div>
                 <div data-detail-label="Source truth"><dt>Source truth</dt><dd><strong>{selected.truth.data_2026_status.replaceAll("_", " ")}</strong><span>Evidence weight {selected.evidence_weight}</span></dd></div>
                 <div data-detail-label="Access &amp; cost"><dt>Access &amp; cost</dt><dd><strong>{accessLabel(selected)}</strong><span>{selected.licence === "not_stated" ? "Licence not stated" : selected.licence}</span></dd></div>
-                <div data-detail-label="Runtime health"><dt>Runtime health</dt><dd><strong>{selected.runtime_default.replaceAll("_", " ")}</strong><span>{selected.freshness_seconds ? `${selected.freshness_seconds}s freshness target` : "No live freshness target"}</span></dd></div>
+                <div data-detail-label="Runtime health"><dt>Runtime health</dt><dd><strong data-runtime-value={selected.runtime_default} className={`runtime-value state-${selected.runtime_default}`}>{selected.runtime_default.replaceAll("_", " ")}</strong><span>{selected.freshness_seconds ? `${selected.freshness_seconds}s freshness target` : "No live freshness target"}</span></dd></div>
                 <div data-detail-label="Provider format"><dt>Provider format</dt><dd><strong>{selected.raw_format}</strong><span>{selected.endpoint ? "Official endpoint registered" : "No public endpoint called"}</span></dd></div>
               </dl>
               {(selected.notes || selected.endpoint) && (
                 <details className="integration-technical-detail">
-                  <summary>Technical details</summary>
+                  <summary>
+                    <span>Technical details</span>
+                    <CaretDown size={16} data-disclosure-caret="technical-details" aria-hidden="true" />
+                  </summary>
                   {selected.notes && <p>{selected.notes}</p>}
                   {selected.endpoint && <code>{selected.endpoint}</code>}
                 </details>
               )}
               <footer>
                 <span>{selected.alert_eligible ? "Eligible for human review" : "Not alert eligible"}</span>
-                <a href="/setup">Configure source</a>
               </footer>
             </>
           ) : <div className="integration-empty-detail"><strong>No source selected</strong><span>Change the filters to view a contract.</span></div>}
