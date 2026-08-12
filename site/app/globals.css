@@ -5718,6 +5718,7 @@ h1, h2, h3, h4, h5 { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-seri
 }
 
 @media (max-width: 700px) {
+  .replay-compact-count span { display: none; }
   .alert-centre-grid[data-operator-workflow="signal-master-detail"] .alert-ticket-workspace[data-detail-layout="responsive-stack"] .alert-detail-fields { grid-template-columns: 1fr; }
 }
 
@@ -5842,7 +5843,13 @@ h1, h2, h3, h4, h5 { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-seri
   .alert-ticket-row-meta i,
   .alert-evidence-bucket h3,
   .alert-evidence-bucket header span,
+  .alert-evidence-bucket li,
+  .alert-evidence-bucket p,
   .alert-evidence-section > header span,
+  .alert-staff-fields label > span,
+  .alert-workflow-result span,
+  .alert-state-strip small,
+  .alert-warning-action span,
   .situation-gate > div > span,
   .situation-signals > summary span,
   .situation-record-panel li span,
@@ -5851,6 +5858,6 @@ h1, h2, h3, h4, h5 { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-seri
   .wcc-ticket-simulator-help,
   .wcc-ticket-simulator-error,
   .wcc-ticket-simulator > ol
-) { font-size: 12px; }
+) { font-size: 12px !important; }
 .integration-registry[data-operator-workflow="source-master-detail"] :where(.contract-mode, dt, code, small),
-.ontology-dashboard[data-operator-workflow="ontology-step-inspector"] :where(.ontology-step-rail strong, .ontology-step-rail span, .ontology-step-rail em) { font-size: 12px; }
+.ontology-dashboard[data-operator-workflow="ontology-step-inspector"] :where(.ontology-step-rail strong, .ontology-step-rail span, .ontology-step-rail em) { font-size: 12px !important; }

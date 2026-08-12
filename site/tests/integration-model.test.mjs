@@ -832,6 +832,14 @@ test("projects Replay counts into compact visible and complete accessible status
   });
 });
 
+test("keeps phone status compact and the final operator labels readable", async () => {
+  const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+
+  assert.ok(css.includes(".replay-compact-count span { display: none; }"));
+  assert.match(css, /\.wcc-ticket-simulator > ol\s*\) \{ font-size: 12px !important; \}/);
+  assert.match(css, /ontology-step-rail em\) \{ font-size: 12px !important; \}/);
+});
+
 test("projects every live map record into a compact label and value card", () => {
   assert.equal(typeof liveMapWorkspace.buildLiveMapCard, "function");
   const card = liveMapWorkspace.buildLiveMapCard({
