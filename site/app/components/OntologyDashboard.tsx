@@ -314,7 +314,7 @@ export default function OntologyDashboard({ model }: { model: OntologyDashboardM
           aria-pressed={view === "graph"}
           aria-controls="ontology-fusion-region"
           data-deferred-view="ontology-fusion"
-          data-fusion-layout="horizontal"
+          data-fusion-layout="responsive-grid"
           onClick={() => {
             setView("graph");
             setPathsOpen(true);
@@ -602,10 +602,10 @@ export default function OntologyDashboard({ model }: { model: OntologyDashboardM
               </div>
             </div>
 
-            <div className="ontology-layer-viewport" role="region" aria-label="Horizontal six-stage fusion architecture">
+            <div className="ontology-layer-viewport" role="region" aria-label="Responsive six-stage fusion architecture">
               <div
                 className="ontology-fusion-track"
-                data-flow-direction="horizontal"
+                data-flow-layout="responsive-grid"
                 style={{ "--ontology-zoom": graphZoom / 100 } as CSSProperties}
               >
                 {layerGraph.layers.map((layer) => {

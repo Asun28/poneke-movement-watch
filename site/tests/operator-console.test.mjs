@@ -512,13 +512,14 @@ test("separates ontology scope, stage state and source evidence context", async 
   assert.doesNotMatch(html, /data-source-table-row=/);
 });
 
-test("offers an expandable ontology-aware fusion architecture without replacing the operational chain", async () => {
+test("offers a responsive ontology-aware fusion grid without replacing the operational chain", async () => {
   const html = await (await request("/ontology")).text();
 
   assert.match(html, /aria-label="Choose ontology view"/);
   assert.match(html, /aria-pressed="true">Operational chain/);
   assert.match(html, /aria-pressed="false"[^>]*aria-controls="ontology-fusion-region"[^>]*data-deferred-view="ontology-fusion"[^>]*>Fusion architecture/);
-  assert.match(html, /data-fusion-layout="horizontal"/);
+  assert.match(html, /data-fusion-layout="responsive-grid"/);
+  assert.doesNotMatch(html, /data-fusion-layout="horizontal"/);
   assert.match(html, /data-ontology-view="chain"/);
   assert.doesNotMatch(html, /data-ontology-view="graph"/);
   assert.doesNotMatch(html, /id="ontology-fusion-region"/);
