@@ -6,7 +6,7 @@ export default function SetupPage() {
     <OperatorShell
       active="/setup"
       title="Easy setup"
-      modeLabel="Draft"
+      modeLabel="Configuration"
     >
       <SetupClient />
     </OperatorShell>

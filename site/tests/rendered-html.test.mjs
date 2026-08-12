@@ -325,7 +325,7 @@ test("removes routine teaching paragraphs while preserving operational states", 
   assert.doesNotMatch(combined, /Geometry is the WCC sensor countline itself/);
   assert.doesNotMatch(combined, /Optional OpenAPI contract can be added/);
   assert.match(combined, /Mock · zero evidence/);
-  assert.match(combined, /Needs server activation/);
+  assert.match(combined, /Changes take effect only after server activation/);
 });
 
 test("offers historical date-hour replay and a matched-hour trend view", async () => {

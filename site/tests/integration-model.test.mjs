@@ -46,6 +46,13 @@ try {
   // The contract stays readable during the initial RED step.
 }
 
+let setupWorkspace = {};
+try {
+  setupWorkspace = await import("../lib/setupWorkspace.mjs");
+} catch {
+  // The contract stays readable during the initial RED step.
+}
+
 const registry = JSON.parse(
   await readFile(new URL("../public/cop/v2/source-registry.json", import.meta.url), "utf8"),
 );
@@ -1178,6 +1185,29 @@ test("validates browser-local custom icons and preserves movement direction", as
     custom_icon_data_url: "data:image/webp;base64,UklGRg==",
     direction: "E",
   });
+});
+
+test("projects saved, current and untouched Setup task states independently", () => {
+  assert.equal(typeof setupWorkspace.setupTaskState, "function");
+  assert.equal(setupWorkspace.setupTaskState({ saved: true, active: true }), "saved");
+  assert.equal(setupWorkspace.setupTaskState({ saved: false, active: true }), "current");
+  assert.equal(setupWorkspace.setupTaskState({ saved: false, active: false }), "not_started");
+});
+
+test("advances Setup only from the explicit continue action", () => {
+  assert.equal(typeof setupWorkspace.nextSetupTask, "function");
+  assert.equal(setupWorkspace.nextSetupTask("source", "save"), "source");
+  assert.equal(setupWorkspace.nextSetupTask("source", "continue"), "connection");
+  assert.equal(setupWorkspace.nextSetupTask("connection", "continue"), "settings");
+  assert.equal(setupWorkspace.nextSetupTask("settings", "continue"), "settings");
+});
+
+test("reveals the custom icon upload only for the Custom choice", () => {
+  assert.equal(typeof setupWorkspace.customIconUploadVisible, "function");
+  assert.equal(setupWorkspace.customIconUploadVisible("auto"), false);
+  assert.equal(setupWorkspace.customIconUploadVisible("people"), false);
+  assert.equal(setupWorkspace.customIconUploadVisible("vehicle"), false);
+  assert.equal(setupWorkspace.customIconUploadVisible("custom"), true);
 });
 
 test("rejects incomplete or unsafe investigation source drafts", async () => {

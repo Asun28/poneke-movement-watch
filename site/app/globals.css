@@ -4156,6 +4156,135 @@ h1, h2, h3, h4, h5 { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-seri
   [data-operator-workflow] *::after { scroll-behavior: auto; transition: none !important; }
 }
 
+/* Phase 69 — modular Setup tasks with one truthful local-draft state. */
+.setup-workspace[data-operator-workflow="configuration-tasks"] {
+  max-width: 1180px;
+  margin: 10px auto 0;
+  padding-inline: clamp(10px, 1.5vw, 22px);
+}
+.setup-draft-banner {
+  min-height: 58px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px 8px 14px;
+  border: 1px solid #b3d4ff;
+  border-radius: 8px;
+  background: #f0f7ff;
+}
+.setup-draft-copy { min-width: 0; display: flex; align-items: center; gap: 10px; color: #0747a6; }
+.setup-draft-copy > span { min-width: 0; display: grid; gap: 2px; }
+.setup-draft-copy strong { color: var(--civic-ink); font-size: 13px; }
+.setup-draft-copy small { color: #44546f; font-size: 12px; line-height: 1.3; }
+.setup-draft-banner output {
+  min-height: 28px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 9px;
+  border-radius: 999px;
+  color: #44546f;
+  background: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.setup-draft-banner [data-destructive-action] {
+  min-height: 44px;
+  padding-inline: 12px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  color: #ae2a19;
+  background: transparent;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 750;
+}
+.setup-draft-banner [data-destructive-action]:hover:not(:disabled) { border-color: #ffbdad; background: #fff0ed; }
+.setup-draft-banner [data-destructive-action]:disabled { color: #97a0af; cursor: default; }
+.setup-task-navigation { margin-top: 10px; }
+.setup-task-navigation > header { min-height: 34px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.setup-task-navigation > header h2 { font-size: 14px; }
+.setup-task-navigation > header span { color: #6b778c; font-size: 12px; font-weight: 700; }
+.setup-workspace[data-operator-workflow="configuration-tasks"] .setup-step-nav {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 4px;
+  border: 0;
+}
+.setup-workspace[data-operator-workflow="configuration-tasks"] .setup-step-nav button {
+  position: relative;
+  min-width: 0;
+  min-height: 60px;
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  align-items: center;
+  align-content: center;
+  gap: 9px;
+  padding: 9px 12px;
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+  color: #44546f;
+  background: #f7f8f9;
+  cursor: pointer;
+  text-align: left;
+}
+.setup-workspace[data-operator-workflow="configuration-tasks"] .setup-step-nav button > span {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+  color: inherit;
+  font: inherit;
+  text-transform: none;
+}
+.setup-workspace[data-operator-workflow="configuration-tasks"] .setup-step-nav button strong { font-size: 13px; line-height: 1.2; }
+.setup-workspace[data-operator-workflow="configuration-tasks"] .setup-step-nav button small { color: #6b778c; font-size: 12px; line-height: 1.2; }
+.setup-workspace[data-operator-workflow="configuration-tasks"] .setup-step-nav button[data-task-state="saved"] { color: #216e4e; background: #dcfff1; }
+.setup-workspace[data-operator-workflow="configuration-tasks"] .setup-step-nav button[data-task-state="current"] { color: #0747a6; border-color: #85b8ff; background: #e9f2ff; }
+.setup-workspace[data-operator-workflow="configuration-tasks"] .setup-step-nav button[aria-pressed="true"] { box-shadow: inset 3px 0 0 #0c66e4; }
+.setup-workspace[data-operator-workflow="configuration-tasks"] .setup-panel { margin-top: 10px; overflow: hidden; box-shadow: var(--shadow-civic); }
+.setup-workspace[data-operator-workflow="configuration-tasks"] .setup-panel > form { width: min(960px, 100%); margin-inline: auto; padding: 20px clamp(16px, 3vw, 30px) 24px; }
+.setup-workspace[data-operator-workflow="configuration-tasks"] .setup-panel form > header { padding-bottom: 12px; }
+.setup-workspace[data-operator-workflow="configuration-tasks"] .setup-panel h2 { font-size: 22px; }
+.setup-workspace[data-operator-workflow="configuration-tasks"] .source-icon-picker { margin-top: 16px; }
+.setup-workspace[data-operator-workflow="configuration-tasks"] .source-icon-choices { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.source-icon-custom { display: grid; gap: 5px; }
+.source-icon-custom > small { color: #6b778c; font-size: 12px; }
+.setup-secret-note {
+  min-height: 54px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 11px;
+  border: 1px solid #b3d4ff;
+  border-radius: 6px;
+  color: #0747a6;
+  background: #f0f7ff;
+}
+.setup-secret-note > span { display: grid; gap: 2px; }
+.setup-secret-note strong { color: var(--civic-ink); font-size: 12px; }
+.setup-secret-note small { color: #44546f; font-size: 12px; line-height: 1.3; }
+.setup-form-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--hairline); }
+.setup-form-actions button { min-height: 44px; margin: 0; padding: 0 16px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 750; }
+.setup-secondary-action { border: 1px solid #a5adba; color: var(--civic-ink); background: #ffffff; }
+.setup-secondary-action:hover { border-color: #579dff; background: #f0f7ff; }
+.setup-workspace[data-operator-workflow="configuration-tasks"] .setup-primary-action { min-width: 150px; border-color: #0c66e4; background: #0c66e4; }
+
+@media (max-width: 600px) {
+  .setup-draft-banner { grid-template-columns: minmax(0, 1fr) auto; gap: 6px 8px; }
+  .setup-draft-copy { grid-column: 1 / -1; }
+  .setup-draft-banner output { justify-self: start; }
+  .setup-workspace[data-operator-workflow="configuration-tasks"] .setup-step-nav { grid-template-columns: 1fr; }
+  .setup-workspace[data-operator-workflow="configuration-tasks"] .setup-step-nav button { min-height: 54px; }
+  .setup-workspace[data-operator-workflow="configuration-tasks"] .source-icon-choices { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .setup-workspace[data-operator-workflow="configuration-tasks"] .setup-panel input,
+  .setup-workspace[data-operator-workflow="configuration-tasks"] .setup-panel select,
+  .setup-workspace[data-operator-workflow="configuration-tasks"] .setup-panel textarea { font-size: 16px; }
+  .setup-form-actions { display: grid; grid-template-columns: 1fr 1fr; }
+  .setup-form-actions button { min-width: 0 !important; padding-inline: 8px; }
+}
+
 /* Phase 53 — readable, first-viewport operator controls. */
 :root { --operator-type-floor: 13px; }
 .operator-console[data-operator-type-floor="13px"] { font-size: var(--operator-type-floor); }

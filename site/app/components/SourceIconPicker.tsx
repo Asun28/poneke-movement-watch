@@ -11,6 +11,7 @@ import {
   MAX_CUSTOM_ICON_BYTES,
   validateCustomIconFile,
 } from "../../lib/replaySourceWorkspace.mjs";
+import { customIconUploadVisible } from "../../lib/setupWorkspace.mjs";
 
 export type SourceIconMode = "auto" | "people" | "vehicle" | "custom";
 
@@ -107,20 +108,24 @@ export default function SourceIconPicker({
           </button>
         ))}
       </div>
-      <label className="source-icon-upload">
-        <UploadSimple size={17} weight="bold" aria-hidden="true" />
-        <span>Upload PNG or WebP</span>
-        <input
-          type="file"
-          accept="image/png,image/webp"
-          aria-describedby="source-icon-limit"
-          onChange={(event) => {
-            upload(event.currentTarget.files?.[0]);
-            event.currentTarget.value = "";
-          }}
-        />
-      </label>
-      <small id="source-icon-limit">Max {Math.round(MAX_CUSTOM_ICON_BYTES / 1024)} KB · saved on this browser</small>
+      {customIconUploadVisible(mode) ? (
+        <div className="source-icon-custom" data-custom-icon-upload="visible">
+          <label className="source-icon-upload">
+            <UploadSimple size={17} weight="bold" aria-hidden="true" />
+            <span>Upload PNG or WebP</span>
+            <input
+              type="file"
+              accept="image/png,image/webp"
+              aria-describedby="source-icon-limit"
+              onChange={(event) => {
+                upload(event.currentTarget.files?.[0]);
+                event.currentTarget.value = "";
+              }}
+            />
+          </label>
+          <small id="source-icon-limit">Max {Math.round(MAX_CUSTOM_ICON_BYTES / 1024)} KB · this browser only</small>
+        </div>
+      ) : null}
       <output aria-live="polite">{notice}</output>
     </div>
   );

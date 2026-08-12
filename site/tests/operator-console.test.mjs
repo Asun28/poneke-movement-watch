@@ -142,7 +142,7 @@ test("keeps every operator route task-first without tutorial copy", async () => 
 
   assert.match(html, /Monitoring continues/);
   assert.match(html, /Mock · zero evidence/);
-  assert.match(html, /Needs server activation/);
+  assert.match(html, /Changes take effect only after server activation/);
   assert.match(html, /Call 111 for immediate danger/);
 });
 
@@ -167,9 +167,13 @@ test("uses concise production workflows across review, integration, ontology and
   assert.equal((ontology.match(/data-ontology-step=/g) ?? []).length, 6);
   assert.match(ontology, /data-ontology-step-panel="sources"/);
 
-  assert.match(setup, /data-operator-workflow="guided-setup"/);
-  assert.match(setup, /data-setup-progress="0\/3"/);
-  assert.match(setup, />Save and continue<\/button>/);
+  assert.match(setup, /data-operator-workflow="configuration-tasks"/);
+  assert.match(setup, /aria-label="Configuration tasks"/);
+  assert.equal((setup.match(/data-task-state="current"/g) ?? []).length, 1);
+  assert.equal((setup.match(/data-task-state="not_started"/g) ?? []).length, 2);
+  assert.doesNotMatch(setup, /data-setup-progress=/);
+  assert.match(setup, />Save draft<\/button>/);
+  assert.match(setup, />Save &amp; Continue<\/button>/);
   assert.doesNotMatch(setup, /class="setup-boundary"/);
 });
 
@@ -198,7 +202,8 @@ test("offers short safe setup paths for sources, API, MCP and A2A", async () => 
   assert.match(html, /Source name/);
   assert.match(html, /aria-label="Map icon"/);
   assert.match(html, /Auto by data type/);
-  assert.match(html, /Upload PNG or WebP/);
+  assert.match(html, />Custom<\/span>/);
+  assert.doesNotMatch(html, /Upload PNG or WebP/);
   assert.match(html, /Use in/);
   assert.match(html, /name="operationsTarget"/);
   assert.match(html, />Live Operations</);
@@ -206,8 +211,11 @@ test("offers short safe setup paths for sources, API, MCP and A2A", async () => 
   assert.match(html, />Integration only</);
   assert.match(html, /Secret reference/);
   assert.equal((html.match(/No secrets stored/g) ?? []).length, 1);
-  assert.match(html, /Needs server activation/);
-  assert.match(html, /Browser draft/);
+  assert.match(html, /setup-secret-note[\s\S]*No secrets stored/);
+  assert.match(html, /aria-label="Local draft status"/);
+  assert.match(html, /Changes take effect only after server activation/);
+  assert.match(html, /data-destructive-action="clear-local-draft"/);
+  assert.doesNotMatch(html, /Browser draft|Needs server activation|>Progress</);
   assert.doesNotMatch(html, /Saved on this browser/);
 });
 
@@ -547,7 +555,8 @@ test("provides a friendly Replay investigation source workspace", async () => {
   assert.match(html, /Access/);
   assert.match(html, /Use in/);
   assert.match(html, /aria-label="Map icon"/);
-  assert.match(html, /Upload PNG or WebP/);
+  assert.match(html, />Custom<\/span>/);
+  assert.doesNotMatch(html, /Upload PNG or WebP/);
   assert.match(html, /aria-label="Edit WCC Transport Sensors"/);
   assert.match(html, /Registry/);
   assert.match(html, /This browser only/);
@@ -776,7 +785,7 @@ test("uses one compact title and status bar on every operator page", async () =>
     ["/replay", "Replay Analyzer", "Batch replay"],
     ["/integration", "Data Integration", "33 registered sources"],
     ["/ontology", "City Ontology", "33 ontology paths"],
-    ["/setup", "Easy setup", "Draft"],
+    ["/setup", "Easy setup", "Configuration"],
   ];
 
   for (const [path, title, mode] of pages) {

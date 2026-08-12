@@ -1,8 +1,10 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
+import { CheckCircle, Circle, LockKeyOpen, PencilSimple } from "@phosphor-icons/react";
 import SourceIconPicker, { SourceIconMode } from "./SourceIconPicker";
 import { movementIconDescriptor } from "../../lib/replaySourceWorkspace.mjs";
+import { nextSetupTask, setupTaskState } from "../../lib/setupWorkspace.mjs";
 
 type SetupSection = "source" | "connection" | "settings";
 type ConnectionKind = "api" | "mcp" | "a2a";
@@ -10,10 +12,10 @@ type SavedDraft = Partial<Record<SetupSection, Record<string, string | boolean>>
 
 const STORAGE_KEY = "poneke-setup-draft-v1";
 
-const sections: Array<{ id: SetupSection; number: string; title: string }> = [
-  { id: "source", number: "01", title: "Add data source" },
-  { id: "connection", number: "02", title: "Connect a system" },
-  { id: "settings", number: "03", title: "Operations settings" },
+const sections: Array<{ id: SetupSection; title: string }> = [
+  { id: "source", title: "Add data source" },
+  { id: "connection", title: "Connect a system" },
+  { id: "settings", title: "Operations settings" },
 ];
 
 const connectionLabels: Record<ConnectionKind, string> = {
@@ -21,6 +23,12 @@ const connectionLabels: Record<ConnectionKind, string> = {
   mcp: "MCP",
   a2a: "A2A",
 };
+
+const taskStateLabels = {
+  saved: "Saved",
+  current: "Current",
+  not_started: "Not started",
+} as const;
 
 function formValues(form: HTMLFormElement) {
   const values: Record<string, string | boolean> = {};
@@ -56,7 +64,7 @@ export default function SetupClient() {
           }, "Car", "");
           setSourceIconMode(storedMode === "custom" && !descriptor.custom_icon_data_url ? "auto" : storedMode);
           setSourceCustomIcon(descriptor.custom_icon_data_url);
-          setNotice("Saved locally");
+          setNotice("Draft saved");
         }
       } catch {
         setNotice("Storage unavailable");
@@ -75,9 +83,9 @@ export default function SetupClient() {
     try {
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
       setSaved(next);
-      setNotice("Saved locally");
-      const currentIndex = sections.findIndex((item) => item.id === section);
-      if (currentIndex >= 0 && currentIndex < sections.length - 1) setActive(sections[currentIndex + 1].id);
+      setNotice("Draft saved");
+      const submitter = (event.nativeEvent as SubmitEvent).submitter as HTMLButtonElement | null;
+      setActive(nextSetupTask(section, submitter?.value));
     } catch {
       setNotice("Could not save this draft");
     }
@@ -94,34 +102,61 @@ export default function SetupClient() {
 
   const completed = sections.filter((section) => saved[section.id]).length;
 
+  function formActions(last = false) {
+    return (
+      <div className="setup-form-actions">
+        <button className="setup-secondary-action" type="submit" name="intent" value="save">Save draft</button>
+        <button className="setup-primary-action" type="submit" name="intent" value="continue">
+          {last ? "Save & Finish" : "Save & Continue"}
+        </button>
+      </div>
+    );
+  }
+
   return (
     <section
       className="setup-workspace"
       aria-label="Easy integration setup"
-      data-operator-workflow="guided-setup"
-      data-setup-progress={`${completed}/3`}
+      data-operator-workflow="configuration-tasks"
     >
-      <div className="setup-status-strip" aria-label="Setup draft status">
-        <div className="setup-progress"><span>Progress</span><strong>{completed}/3</strong></div>
-        <div className="setup-draft-state" aria-live="polite"><strong>{notice}</strong><span>Browser draft</span></div>
-        <div className="setup-activation-state"><span>No secrets stored</span><strong>Needs server activation</strong></div>
-        <button type="button" onClick={clearDraft} disabled={!completed}>Clear draft</button>
+      <div className="setup-draft-banner" aria-label="Local draft status">
+        <div className="setup-draft-copy">
+          <PencilSimple size={18} weight="bold" aria-hidden="true" />
+          <span><strong>Local draft</strong><small>Changes take effect only after server activation</small></span>
+        </div>
+        <output aria-live="polite">{notice}</output>
+        <button
+          type="button"
+          data-destructive-action="clear-local-draft"
+          onClick={clearDraft}
+          disabled={!completed}
+        >Clear draft</button>
       </div>
 
-      <div className="setup-step-nav" aria-label="Setup sections">
-        {sections.map((section) => (
-          <button
-            key={section.id}
-            type="button"
-            aria-pressed={active === section.id}
-            onClick={() => setActive(section.id)}
-          >
-            <span>{section.number}</span>
-            <strong>{section.title}</strong>
-            <b aria-hidden="true">{saved[section.id] ? "Saved" : "Open"}</b>
-          </button>
-        ))}
-      </div>
+      <section className="setup-task-navigation" aria-labelledby="setup-task-heading">
+        <header>
+          <h2 id="setup-task-heading">Configuration tasks</h2>
+          <span>{completed} saved</span>
+        </header>
+        <div className="setup-step-nav" aria-label="Configuration tasks">
+          {sections.map((section) => {
+            const taskState = setupTaskState({ saved: Boolean(saved[section.id]), active: active === section.id });
+            const StateIcon = taskState === "saved" ? CheckCircle : taskState === "current" ? PencilSimple : Circle;
+            return (
+              <button
+                key={section.id}
+                type="button"
+                data-task-state={taskState}
+                aria-pressed={active === section.id}
+                onClick={() => setActive(section.id)}
+              >
+                <StateIcon size={20} weight={taskState === "not_started" ? "regular" : "fill"} aria-hidden="true" />
+                <span><strong>{section.title}</strong><small>{taskStateLabels[taskState]}</small></span>
+              </button>
+            );
+          })}
+        </div>
+      </section>
 
       <section className="setup-panel" hidden={active !== "source"} aria-labelledby="setup-source-title">
         <form onSubmit={(event) => save(event, "source")}>
@@ -157,7 +192,7 @@ export default function SetupClient() {
               <label className="setup-check"><input type="checkbox" name="alertEligible" /><span>May support alert review</span></label>
             </div>
           </details>
-          <button className="setup-primary-action" type="submit">Save and continue</button>
+          {formActions()}
         </form>
       </section>
 
@@ -178,8 +213,12 @@ export default function SetupClient() {
             <label className="setup-wide"><span>{connectionKind === "a2a" ? "Agent Card URL" : "Endpoint URL"}</span><input name="endpoint" type="url" required placeholder={connectionKind === "a2a" ? "https://agent.example/.well-known/agent-card.json" : connectionKind === "mcp" ? "https://service.example/mcp" : "https://api.example/v1"} /></label>
             <label><span>Authentication</span><select name="auth" defaultValue="none"><option value="none">None</option><option value="api_key">API key</option><option value="oauth2">OAuth 2</option><option value="bearer">Bearer token</option><option value="from_agent_card">From Agent Card</option></select></label>
             <label><span>Secret reference</span><input name="secretReference" placeholder="e.g. METLINK_API_KEY" autoComplete="off" /></label>
+            <aside className="setup-secret-note setup-wide" aria-label="Credential handling">
+              <LockKeyOpen size={18} weight="bold" aria-hidden="true" />
+              <span><strong>No secrets stored</strong><small>Use a server secret reference, never a credential value.</small></span>
+            </aside>
           </div>
-          <button className="setup-primary-action" type="submit">Save and continue</button>
+          {formActions()}
         </form>
       </section>
 
@@ -196,7 +235,7 @@ export default function SetupClient() {
             <label className="setup-check"><input type="checkbox" name="showMock" /><span>Show mock layers</span></label>
             <label className="setup-check is-locked"><input type="checkbox" checked readOnly disabled /><span>Human review required</span></label>
           </div>
-          <button className="setup-primary-action" type="submit">Save settings</button>
+          {formActions(true)}
         </form>
       </section>
     </section>
