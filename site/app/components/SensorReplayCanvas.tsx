@@ -201,6 +201,7 @@ export default function SensorReplayCanvas({ investigation, investigationControl
         detector_candidate: reading.detector_candidate,
         detector_threshold: reading.detector_threshold,
         model: reading.detector_candidate ? "Hydro robust v1 · investigation only" : null,
+        map_label: compactValue(reading.value, reading.unit),
       },
     }));
   const movementOutcomeSignals = useMemo(() => {
@@ -326,7 +327,7 @@ export default function SensorReplayCanvas({ investigation, investigationControl
   const replayTimelinePoints = useMemo(() => sensorReplayTimelinePoints(dataset), [dataset]);
 
   return (
-    <section id="replay-map" className="replay-map-workspace sensor-replay-workspace" data-replay-map-first="true" data-replay-dataset="sensor" data-primary-layer="movement-outcomes" data-delta-encoding="signed-centre-bar" aria-label="April movement impact replay">
+    <section id="replay-map" className="replay-map-workspace sensor-replay-workspace" data-replay-map-first="true" data-replay-dataset="sensor" data-primary-layer="movement-outcomes" data-delta-encoding="signed-centre-bar" data-weather-label-mode="marker" data-movement-icon-adapter="shared" aria-label="April movement impact replay">
       <LiveMap
         observations={replayObservations}
         sources={[
@@ -435,15 +436,6 @@ export default function SensorReplayCanvas({ investigation, investigationControl
         <span className="sr-only">Retrospective analysis; not event-time evidence.</span>
         {selectedMovementDetail ? <MovementHistoryChart detail={selectedMovementDetail} /> : null}
       </AdaptiveEvidenceDrawer>
-      <div className="sensor-reading-strip" aria-label="Current sensor values" data-weather-overview={filter === "all" ? "wellington-city" : "detail"}>
-        {observations.map((observation) => (
-          <button key={observation.id} type="button" onClick={() => setSelectedId(observation.id)}>
-            <EventSymbolBadge symbolId={eventSymbolFor(observation).id} decorative />
-            <span>{String(observation.properties.name)}</span>
-            <strong>{compactValue(Number(observation.properties.value), String(observation.properties.unit))}{observation.properties.detector_candidate ? " · candidate" : ""}</strong>
-          </button>
-        ))}
-      </div>
       <span className="sr-only">Only observations available by the selected replay time are shown.</span>
     </section>
   );

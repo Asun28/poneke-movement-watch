@@ -95,9 +95,9 @@ export function findNearestMapMarker(markers, point, maxDistance) {
   return nearest;
 }
 
-export function clusterMovementMarkers(markers, zoom, cellSize = 48) {
+export function clusterMovementMarkers(markers, zoom, cellSize = 48, clusterBelowZoom = 1) {
   if (!Array.isArray(markers) || markers.length === 0) return [];
-  if (zoom >= 4) {
+  if (clusterBelowZoom <= 0 || zoom >= clusterBelowZoom) {
     return markers.map((marker) => ({
       id: marker.id,
       x: marker.x,

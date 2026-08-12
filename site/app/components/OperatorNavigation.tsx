@@ -67,7 +67,7 @@ export default function OperatorNavigation({ active }: { active: string }) {
           ))}
         </nav>
       </aside>
-      <nav className="operator-mobile-nav" aria-label="Operator modules">
+      <nav className="operator-mobile-nav" aria-label="Operator modules" data-icon-alignment="center">
         {mobileDestinations.map((destination) => (
           <a
             key={destination.href}

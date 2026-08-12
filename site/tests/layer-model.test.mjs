@@ -160,19 +160,21 @@ test("nearest visible marker wins only inside the bounded inspection radius", ()
   );
 });
 
-test("movement markers cluster at regional zoom and expand into individual signals", () => {
+test("movement markers stay individual at 100 percent and cluster below the chosen threshold", () => {
   const markers = [
     { id: "a", x: 100, y: 100, feature: { id: "a" } },
     { id: "b", x: 112, y: 108, feature: { id: "b" } },
     { id: "c", x: 250, y: 250, feature: { id: "c" } },
   ];
 
-  const regional = clusterMovementMarkers(markers, 1, 48);
-  const street = clusterMovementMarkers(markers, 4, 48);
+  const defaultScale = clusterMovementMarkers(markers, 1, 48, 1);
+  const regional = clusterMovementMarkers(markers, 0.75, 48, 1);
+  const operatorRaisedThreshold = clusterMovementMarkers(markers, 1, 48, 1.5);
 
+  assert.deepEqual(defaultScale.map((cluster) => cluster.count), [1, 1, 1]);
   assert.deepEqual(regional.map((cluster) => cluster.count), [2, 1]);
   assert.deepEqual(regional[0].markers.map((marker) => marker.id), ["a", "b"]);
-  assert.deepEqual(street.map((cluster) => cluster.count), [1, 1, 1]);
+  assert.deepEqual(operatorRaisedThreshold.map((cluster) => cluster.count), [2, 1]);
   assert.deepEqual(markers.map((marker) => [marker.x, marker.y]), [[100, 100], [112, 108], [250, 250]]);
 });
 

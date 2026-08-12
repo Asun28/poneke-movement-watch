@@ -637,7 +637,9 @@ test("keeps April movement and official-impact layers operator-controlled", asyn
 
   assert.match(component, /aria-label="Toggle official impact evidence"/);
   assert.match(component, /aria-pressed=\{showMovementOutcomes\}/);
-  assert.match(component, /data-weather-overview=\{filter === "all" \? "wellington-city" : "detail"\}/);
+  assert.match(component, /data-weather-label-mode="marker"/);
+  assert.match(component, /map_label: compactValue\(reading\.value, reading\.unit\)/);
+  assert.doesNotMatch(component, /sensor-reading-strip/);
   assert.match(component, /wellingtonCityWeatherReadings\(visibleReadings\)/);
   assert.match(component, /fetch\("\/cop\/v4\/april-storm-movement-outcomes\.json"\)/);
   assert.match(component, /evidence_weight: 0/);
@@ -646,11 +648,11 @@ test("keeps April movement and official-impact layers operator-controlled", asyn
   assert.match(component, /<AdaptiveEvidenceDrawer/);
 });
 
-test("keeps mobile Replay controls clear of the fixed operator navigation", async () => {
+test("keeps Replay map controls visible below the compact header", async () => {
   const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
 
-  assert.match(css, /\.sensor-replay-workspace \.ops-map-controls \{ top: auto; right: 8px; bottom: 12px; \}/);
-  assert.match(css, /\.sensor-reading-strip \{ top: 282px; right: 8px; bottom: auto; \}/);
+  assert.match(css, /\.sensor-replay-workspace \.ops-map-controls \{ top: calc\(var\(--replay-overlay-top\) \+ 8px\); right: 8px; bottom: auto; \}/);
+  assert.doesNotMatch(css, /\.sensor-reading-strip/);
   assert.match(css, /\.sensor-replay-workspace \.ops-map-legend \{ top: auto; right: 8px; bottom: 68px; left: 8px;/);
   assert.match(css, /\.sensor-replay-workspace \.ops-map-attribution \{ top: auto; right: 60px; bottom: 12px; left: auto;/);
   assert.match(css, /\.replay-map-workspace \.map-key \{ right: 8px; bottom: 72px; left: 8px;/);
@@ -658,7 +660,7 @@ test("keeps mobile Replay controls clear of the fixed operator navigation", asyn
   assert.match(css, /--replay-overlay-top: 288px/);
 });
 
-test("clusters overlapping evidence only at broad map zoom", () => {
+test("keeps evidence individual at 100 percent and clusters below the chosen threshold", () => {
   assert.equal(typeof liveMapWorkspace.clusterMapPoints, "function");
   const points = [
     { id: "a", x: 100, y: 100 },
@@ -666,8 +668,9 @@ test("clusters overlapping evidence only at broad map zoom", () => {
     { id: "c", x: 420, y: 300 },
   ];
 
-  assert.deepEqual(liveMapWorkspace.clusterMapPoints(points, 1).map(({ count }) => count), [2, 1]);
-  assert.deepEqual(liveMapWorkspace.clusterMapPoints(points, 4).map(({ count }) => count), [1, 1, 1]);
+  assert.deepEqual(liveMapWorkspace.clusterMapPoints(points, 1, 48, 1).map(({ count }) => count), [1, 1, 1]);
+  assert.deepEqual(liveMapWorkspace.clusterMapPoints(points, 0.75, 48, 1).map(({ count }) => count), [2, 1]);
+  assert.deepEqual(liveMapWorkspace.clusterMapPoints(points, 1, 48, 1.5).map(({ count }) => count), [2, 1]);
 });
 
 test("keeps one Live map panel open at a time", () => {
@@ -696,7 +699,7 @@ test("keeps Live mobile map details in one clear bottom sheet", async () => {
   assert.match(component, /<dialog open ref=\{detailRef\} tabIndex=\{-1\} className="live-map-detail-overlay" aria-modal="false" aria-label="Selected evidence details"/);
   assert.ok(css.includes(".live-map-inbox-overlay.is-collapsed { display: none; }"));
   assert.ok(css.includes("border-radius: 16px 16px 0 0;"));
-  assert.ok(css.includes(".live-map-workspace .ops-map-controls { top: auto; right: 8px; bottom: 82px; }"));
+  assert.ok(css.includes(".live-map-workspace .ops-map-controls { top: 72px; right: 8px; bottom: auto; }"));
 });
 
 test("projects every live map record into a compact label and value card", () => {

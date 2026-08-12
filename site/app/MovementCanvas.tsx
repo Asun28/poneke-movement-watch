@@ -35,6 +35,7 @@ import MovementDelta from "./components/MovementDelta";
 import SourceIconPicker, { SourceIconMode, SourceIconPreview } from "./components/SourceIconPicker";
 import { AdaptiveEvidenceDrawer, AdaptiveEvidencePreview } from "./components/AdaptiveEvidence";
 import ReplayDensityTimeline from "./components/ReplayDensityTimeline";
+import MapGroupingControl from "./components/MapGroupingControl";
 import { movementReplayTimelinePoints } from "../lib/replayDataWorkspace.mjs";
 
 type Coordinate = [number, number];
@@ -363,6 +364,7 @@ function drawMap(
   signals: LineFeature[],
   selectedId: string | null,
   zoom: number,
+  clusterBelowZoom: number,
   panOffset: Coordinate,
   showBasemap: boolean,
   showCoverage: boolean,
@@ -389,8 +391,8 @@ function drawMap(
   if (showBasemap) drawStreetTiles(context, width, height, viewport, onTileSettled);
 
   if (showCoverage) {
-    context.strokeStyle = "rgba(35, 72, 83, 0.68)";
-    context.fillStyle = "rgba(35, 72, 83, 0.78)";
+    context.strokeStyle = "rgba(35, 72, 83, 0.28)";
+    context.fillStyle = "rgba(35, 72, 83, 0.42)";
     context.lineWidth = 1.4;
     for (const feature of coverage) {
       const [start, end] = feature.geometry.coordinates.map(project);
@@ -442,7 +444,7 @@ function drawMap(
   }
 
   const hitTargets: MapHitTarget[] = [];
-  const clusters = clusterMovementMarkers(projectedMarkers, zoom, Math.max(48, symbolSize * 4));
+  const clusters = clusterMovementMarkers(projectedMarkers, zoom, Math.max(48, symbolSize * 4), clusterBelowZoom);
   for (const cluster of clusters) {
     const primary = cluster.markers[0] as ProjectedMovementMarker;
     const features = cluster.markers.map((marker: ProjectedMovementMarker) => marker.feature);
@@ -1092,6 +1094,7 @@ export default function MovementCanvas({ investigation, investigationControl }: 
   const [replaySpeed, setReplaySpeed] = useState<ReplaySpeed>(1);
   const [filter, setFilter] = useState<Filter>("all");
   const [zoom, setZoom] = useState(1);
+  const [clusterBelowPercent, setClusterBelowPercent] = useState(100);
   const [hasPanned, setHasPanned] = useState(false);
   const [isPanning, setIsPanning] = useState(false);
   const [tileRevision, setTileRevision] = useState(0);
@@ -1342,6 +1345,7 @@ export default function MovementCanvas({ investigation, investigationControl }: 
           filteredSignals,
           selected?.id ?? null,
           zoom,
+          clusterBelowPercent / 100,
           panOffsetRef.current,
           showBasemap,
           showCoverage,
@@ -1360,7 +1364,7 @@ export default function MovementCanvas({ investigation, investigationControl }: 
       redrawMapRef.current = () => undefined;
       window.removeEventListener("resize", render);
     };
-  }, [coverage, customMarkerImage, filteredSignals, movementIconSource, selected, showBasemap, showCoverage, symbolSize, tileRevision, zoom]);
+  }, [clusterBelowPercent, coverage, customMarkerImage, filteredSignals, movementIconSource, selected, showBasemap, showCoverage, symbolSize, tileRevision, zoom]);
 
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -1769,7 +1773,7 @@ export default function MovementCanvas({ investigation, investigationControl }: 
               style={{ left: mapInspection.left, top: mapInspection.top }}
             />
           ) : null}
-          <div className="map-controls replay-google-map-controls" aria-label="Map controls" data-max-zoom="2000%" data-style="google-vertical">
+          <div className="map-controls replay-google-map-controls" aria-label="Map controls" data-max-zoom="2000%" data-style="google-vertical" data-corner="top-right">
             <div className="map-zoom-buttons" role="group" aria-label="Map zoom controls">
               <button
                 type="button"
@@ -1800,6 +1804,7 @@ export default function MovementCanvas({ investigation, investigationControl }: 
                 onClick={toggleMapFullscreen}
               >{isMapFullscreen ? <CornersIn size={18} aria-hidden="true" /> : <CornersOut size={18} aria-hidden="true" />}</button>
             </div>
+            <MapGroupingControl value={clusterBelowPercent} onChange={setClusterBelowPercent} />
           </div>
           {fullscreenMessage ? (
             <p className="map-fullscreen-message" role="status">{fullscreenMessage}</p>

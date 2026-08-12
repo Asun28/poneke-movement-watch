@@ -208,8 +208,8 @@ export function filterLiveMapObservations({
   });
 }
 
-export function clusterMapPoints(points, zoom, cellSize = 48) {
-  if (zoom >= 3.5) {
+export function clusterMapPoints(points, zoom, cellSize = 48, clusterBelowZoom = 1) {
+  if (clusterBelowZoom <= 0 || zoom >= clusterBelowZoom) {
     return points.map((point) => ({ id: point.id, x: point.x, y: point.y, count: 1, points: [point] }));
   }
 

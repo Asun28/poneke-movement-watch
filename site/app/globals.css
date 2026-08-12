@@ -212,7 +212,7 @@ h2 { font-size: clamp(29px, 3.2vw, 47px); line-height: 1; }
 .map-key i { width: 14px; height: 3px; display: inline-block; }
 .map-key .increase { background: var(--signal-amber); }
 .map-key .decrease { background: var(--uncertainty-coral); }
-.map-key .coverage { background: rgba(70,111,124,.35); height: 1px; }
+.map-key .coverage { background: rgba(70,111,124,.2); height: 1px; }
 .direction-arrow-key { display: inline-grid; place-items: center; width: 18px; height: 18px; border: 1px solid var(--civic-ink); border-radius: 50%; background: var(--white); color: var(--civic-ink); font-size: 14px; line-height: 1; }
 .map-attribution { position: absolute; right: 14px; bottom: 14px; z-index: 2; display: flex; gap: 8px; align-items: center; padding: 7px 9px; background: rgba(248,251,251,.95); border: 1px solid var(--hairline); color: var(--muted-ink); font: 700 9px/1.2 Consolas, monospace; }
 .map-attribution span { color: var(--civic-ink); text-transform: uppercase; letter-spacing: .05em; }
@@ -3719,36 +3719,6 @@ h1, h2, h3, h4, h5 { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-seri
 .sensor-series-list small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .sensor-series-list strong { font-size: 10px; }
 .sensor-series-list small { margin-top: 2px; color: var(--muted-ink); font-size: 8px; }
-.sensor-reading-strip {
-  position: absolute;
-  z-index: 8;
-  right: 260px;
-  bottom: 18px;
-  left: 8px;
-  display: flex;
-  gap: 6px;
-  overflow-x: auto;
-  pointer-events: none;
-}
-.sensor-reading-strip button {
-  min-height: 44px;
-  flex: 0 0 auto;
-  display: grid;
-  grid-template-columns: 22px minmax(0, 1fr);
-  gap: 2px;
-  padding: 6px 10px;
-  border: 1px solid rgba(9,30,66,.18);
-  border-radius: 8px;
-  color: var(--civic-ink);
-  background: rgba(255,255,255,.97);
-  box-shadow: 0 2px 7px rgba(9,30,66,.14);
-  cursor: pointer;
-  pointer-events: auto;
-  text-align: left;
-}
-.sensor-reading-strip .event-symbol-token { grid-row: 1 / 3; width: 20px; height: 20px; align-self: center; border-width: 1.5px; font-size: 10px; }
-.sensor-reading-strip button > span:not(.event-symbol-token) { grid-column: 2; max-width: 170px; overflow: hidden; font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
-.sensor-reading-strip strong { grid-column: 2; color: #0b6656; font: 800 12px/1.1 Consolas, monospace; }
 .april-movement-evidence { display: block; width: min(360px, calc(100% - 32px)); }
 .april-movement-evidence .selected-evidence { padding: 14px; }
 .april-movement-evidence .selected-evidence h3 { margin: 12px 0 3px; font-size: 22px; }
@@ -3793,7 +3763,6 @@ h1, h2, h3, h4, h5 { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-seri
   .replay-filter-subbar { padding-bottom: 2px; }
   .replay-map-workspace .map-key { right: 66px; bottom: 16px; left: 8px; max-width: calc(100% - 82px); }
   .sensor-replay-workspace .ops-map-controls { top: auto; right: 8px; bottom: 12px; }
-  .sensor-reading-strip { top: 282px; right: 8px; bottom: auto; }
   .sensor-replay-workspace .ops-map-legend { top: auto; right: 66px; bottom: 12px; left: 8px; max-width: calc(100% - 82px); }
   .sensor-replay-workspace .ops-map-attribution { top: auto; right: auto; bottom: 70px; left: 8px; max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .april-movement-evidence { right: 8px; bottom: 68px; left: 8px; width: auto; max-height: calc(100% - var(--replay-overlay-top) - 76px); }
@@ -5619,4 +5588,58 @@ h1, h2, h3, h4, h5 { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-seri
 
 @media (prefers-reduced-motion: reduce) {
   .ontology-fusion-track[data-flow-direction="horizontal"] { transition: none; }
+}
+
+/* Phase 71 — visible map tools, operator-controlled clustering and aligned movement symbols. */
+.map-grouping-control { position: relative; width: 44px; height: 44px; }
+.map-grouping-control > summary {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(9,30,66,.2);
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 2px 7px rgba(9,30,66,.2);
+  color: #3c4043;
+  cursor: pointer;
+  list-style: none;
+}
+.map-grouping-control > summary::-webkit-details-marker { display: none; }
+.map-grouping-control > summary:hover { background: #f1f3f4; color: #202124; }
+.map-grouping-control > summary:focus-visible { outline: 3px solid var(--movement-blue); outline-offset: -3px; }
+.map-grouping-control[open] > summary { color: #0055cc; background: #e9f2ff; }
+.map-grouping-menu {
+  position: absolute;
+  z-index: 18;
+  top: 0;
+  right: 52px;
+  width: 210px;
+  padding: 10px;
+  border: 1px solid rgba(9,30,66,.2);
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 6px 18px rgba(9,30,66,.2);
+}
+.map-grouping-menu label { display: grid; gap: 7px; color: #344563; font-size: 12px; font-weight: 700; }
+.map-grouping-menu select { width: 100%; min-height: 44px; padding: 0 10px; border: 1px solid #b3bac5; border-radius: 6px; color: #172b4d; background: #ffffff; font-size: 16px; }
+.map-grouping-menu select:focus-visible { outline: 3px solid rgba(12,102,228,.3); outline-offset: 1px; }
+.replay-google-map-controls .map-grouping-control { display: block; }
+.replay-map-workspace .map-controls { top: calc(var(--replay-overlay-top) + 8px); right: 16px; bottom: auto; z-index: 12; }
+.sensor-replay-workspace .ops-map-controls { top: calc(var(--replay-overlay-top) + 8px); right: 12px; bottom: auto; z-index: 12; }
+.live-map-workspace .ops-map-controls { top: 72px; right: 16px; bottom: auto; z-index: 12; }
+.operator-mobile-nav .operator-nav-icon {
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  margin-inline: auto;
+  line-height: 0;
+}
+.event-symbol-token svg { display: block; margin: auto; }
+
+@media (max-width: 700px) {
+  .replay-map-workspace .map-controls { top: calc(var(--replay-overlay-top) + 8px); right: 8px; bottom: auto; }
+  .sensor-replay-workspace .ops-map-controls { top: calc(var(--replay-overlay-top) + 8px); right: 8px; bottom: auto; }
+  .live-map-workspace .ops-map-controls { top: 72px; right: 8px; bottom: auto; }
 }

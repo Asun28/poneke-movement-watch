@@ -197,12 +197,29 @@ test("offers compact Google-style map controls without a zoom slider", async () 
   assert.equal(response.status, 200);
   const html = await response.text();
 
-  assert.match(html, /aria-label="Map controls"[^>]*data-max-zoom="2000%"[^>]*data-style="google-vertical"/);
+  assert.match(html, /aria-label="Map controls"[^>]*data-max-zoom="2000%"[^>]*data-style="google-vertical"[^>]*data-corner="top-right"/);
   assert.match(html, /aria-label="Map zoom controls"[^>]*>[\s\S]*?aria-label="Zoom in"[\s\S]*?aria-label="Zoom out"/);
+  assert.match(html, /aria-label="Grouping settings"/);
+  assert.match(html, /aria-label="Group records below zoom"/);
+  assert.match(html, />100%<\/option>/);
   assert.doesNotMatch(html, /aria-label="Map zoom level"/);
   assert.doesNotMatch(html, />100(?:<!-- -->)?% zoom</);
   assert.match(html, /aria-label="Reset map view"/);
   assert.match(html, /aria-label="Show map fullscreen"/);
+});
+
+test("renders April weather and movement with the shared map marker system", async () => {
+  const [sensorReplay, liveMap] = await Promise.all([
+    readFile(new URL("../app/components/SensorReplayCanvas.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/LiveMap.tsx", import.meta.url), "utf8"),
+  ]);
+
+  assert.match(sensorReplay, /data-replay-dataset="sensor"/);
+  assert.match(sensorReplay, /data-weather-label-mode="marker"/);
+  assert.match(sensorReplay, /data-movement-icon-adapter="shared"/);
+  assert.match(liveMap, /aria-label="Map zoom controls"[\s\S]*?aria-label="Zoom in"[\s\S]*?aria-label="Zoom out"/);
+  assert.match(liveMap, /<MapGroupingControl/);
+  assert.doesNotMatch(sensorReplay, /aria-label="Current sensor values"/);
 });
 
 test("uses compact Replay panel icons and places attribution beside map controls", async () => {

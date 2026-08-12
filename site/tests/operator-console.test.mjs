@@ -101,6 +101,7 @@ test("keeps five core destinations in the mobile operator navigation", async () 
   assert.match(mobile, />Replay</);
   assert.match(mobile, />Setup</);
   assert.doesNotMatch(mobile, />Integrate|>Ontology/);
+  assert.match(mobile, /data-icon-alignment="center"/);
 });
 
 test("keeps the ontology dashboard on one dedicated top-level page", async () => {
@@ -304,8 +305,9 @@ test("opens Live as one map-first workspace with readable evidence overlays", as
   assert.match(live, /data-event-symbol="report"/);
   assert.match(live, /Mock · zero evidence/);
   assert.match(live, /class="live-inbox-truth">Checking review queue…<\/span>/);
-  assert.match(live, /aria-label="Map controls"[^>]*data-max-zoom="2000%"[^>]*data-style="google-vertical"[^>]*data-corner="bottom-right"/);
+  assert.match(live, /aria-label="Map controls"[^>]*data-max-zoom="2000%"[^>]*data-style="google-vertical"[^>]*data-corner="top-right"/);
   assert.match(live, /aria-label="Map zoom controls"[^>]*>[\s\S]*?aria-label="Zoom in"[\s\S]*?aria-label="Zoom out"/);
+  assert.match(live, /aria-label="Grouping settings"/);
   assert.match(live, /role="application"[^>]*tabindex="0"[^>]*aria-label="Interactive evidence map"[^>]*aria-keyshortcuts="ArrowUp ArrowDown ArrowLeft ArrowRight Enter Escape"/i);
   assert.match(live, /data-wheel-zoom="modifier-required"/);
   assert.match(live, /aria-label="Map evidence markers"/);

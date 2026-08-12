@@ -1,3 +1,4 @@
+import { CarProfile, PersonSimpleWalk } from "@phosphor-icons/react";
 import { eventSymbolById } from "../../lib/liveMapWorkspace.mjs";
 
 export default function EventSymbolBadge({
@@ -16,6 +17,10 @@ export default function EventSymbolBadge({
       aria-hidden={decorative ? "true" : undefined}
       aria-label={decorative ? undefined : symbol.label}
       style={{ "--event-symbol-colour": symbol.colour } as React.CSSProperties}
-    >{symbol.glyph}</span>
+    >
+      {symbol.id === "people" ? <PersonSimpleWalk size={15} weight="bold" aria-hidden="true" /> : null}
+      {symbol.id === "vehicle" ? <CarProfile size={15} weight="bold" aria-hidden="true" /> : null}
+      {symbol.id !== "people" && symbol.id !== "vehicle" ? symbol.glyph : null}
+    </span>
   );
 }

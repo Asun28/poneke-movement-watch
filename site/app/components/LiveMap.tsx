@@ -5,8 +5,10 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { buildAdaptiveEvidenceClusterModel, buildAdaptiveEvidenceModel } from "../../lib/adaptiveEvidence.mjs";
 import { buildLiveMapCard, buildLiveMapClusterCard, clusterMapPoints, eventSymbolFor, liveMapHitRadius } from "../../lib/liveMapWorkspace.mjs";
 import { OPERATIONAL_BASEMAP, operationalBasemapTileUrl } from "../../lib/operationalBasemap.mjs";
+import { movementIconDescriptor } from "../../lib/replaySourceWorkspace.mjs";
 import { AdaptiveEvidencePreview } from "./AdaptiveEvidence";
 import EventSymbolBadge from "./EventSymbolBadge";
+import MapGroupingControl from "./MapGroupingControl";
 
 type Coordinate = [number, number];
 type Observation = {
@@ -28,6 +30,10 @@ const TILE_SIZE = 256;
 const tileCache = new Map<string, HTMLImageElement>();
 const failedTiles = new Set<string>();
 const CITY_CORNERS: Coordinate[] = [[174.62, -41.39], [174.97, -41.16]];
+const DIRECTION_VECTORS: Record<string, Coordinate> = {
+  N: [0, -1], NE: [Math.SQRT1_2, -Math.SQRT1_2], E: [1, 0], SE: [Math.SQRT1_2, Math.SQRT1_2],
+  S: [0, 1], SW: [-Math.SQRT1_2, Math.SQRT1_2], W: [-1, 0], NW: [-Math.SQRT1_2, -Math.SQRT1_2],
+};
 
 function lonLatToWorld([longitude, latitude]: Coordinate): Coordinate {
   const limited = Math.max(-85.05112878, Math.min(85.05112878, latitude));
@@ -124,8 +130,90 @@ function drawTiles(
   context.fillRect(0, 0, width, height);
 }
 
+function drawMovementIcon(
+  context: CanvasRenderingContext2D,
+  radius: number,
+  icon: "people" | "vehicle" | "custom",
+  direction: string,
+  colour: string,
+) {
+  context.save();
+  context.strokeStyle = "#102a33";
+  context.fillStyle = "#102a33";
+  context.lineWidth = Math.max(1.4, radius * 0.13);
+  context.lineCap = "round";
+  context.lineJoin = "round";
+  if (icon === "people") {
+    context.beginPath();
+    context.arc(0, -radius * 0.35, radius * 0.16, 0, Math.PI * 2);
+    context.fill();
+    context.beginPath();
+    context.moveTo(0, -radius * 0.13); context.lineTo(0, radius * 0.28);
+    context.moveTo(-radius * 0.32, radius * 0.02); context.lineTo(0, -radius * 0.05); context.lineTo(radius * 0.3, radius * 0.12);
+    context.moveTo(0, radius * 0.28); context.lineTo(-radius * 0.27, radius * 0.58);
+    context.moveTo(0, radius * 0.28); context.lineTo(radius * 0.3, radius * 0.55);
+    context.stroke();
+  } else {
+    context.beginPath();
+    context.moveTo(-radius * 0.58, -radius * 0.04); context.lineTo(-radius * 0.34, -radius * 0.34);
+    context.lineTo(radius * 0.3, -radius * 0.34); context.lineTo(radius * 0.56, -radius * 0.04);
+    context.lineTo(radius * 0.56, radius * 0.32); context.lineTo(-radius * 0.58, radius * 0.32); context.closePath();
+    context.stroke();
+    context.beginPath();
+    context.arc(-radius * 0.32, radius * 0.36, radius * 0.12, 0, Math.PI * 2);
+    context.arc(radius * 0.31, radius * 0.36, radius * 0.12, 0, Math.PI * 2);
+    context.fill();
+  }
+  context.restore();
+
+  const vector = DIRECTION_VECTORS[direction] ?? DIRECTION_VECTORS.E;
+  const [vectorX, vectorY] = vector;
+  const arrowStart = radius * 0.82;
+  const arrowEnd = radius * 1.45;
+  const headX = vectorX * arrowEnd;
+  const headY = vectorY * arrowEnd;
+  const perpendicularX = -vectorY;
+  const perpendicularY = vectorX;
+  const strokeArrow = () => {
+    context.beginPath();
+    context.moveTo(vectorX * arrowStart, vectorY * arrowStart); context.lineTo(headX, headY);
+    context.moveTo(headX, headY); context.lineTo(headX - vectorX * radius * 0.3 + perpendicularX * radius * 0.22, headY - vectorY * radius * 0.3 + perpendicularY * radius * 0.22);
+    context.moveTo(headX, headY); context.lineTo(headX - vectorX * radius * 0.3 - perpendicularX * radius * 0.22, headY - vectorY * radius * 0.3 - perpendicularY * radius * 0.22);
+    context.stroke();
+  };
+  context.lineCap = "round";
+  context.lineJoin = "round";
+  context.strokeStyle = "#fff";
+  context.lineWidth = 4.4;
+  strokeArrow();
+  context.strokeStyle = colour;
+  context.lineWidth = 2.3;
+  strokeArrow();
+}
+
+function drawMarkerValue(context: CanvasRenderingContext2D, point: Coordinate, label: string, radius: number) {
+  const text = label.slice(0, 18);
+  context.save();
+  context.font = '800 10px Consolas, "SFMono-Regular", monospace';
+  const width = Math.min(92, Math.max(36, context.measureText(text).width + 14));
+  const x = point[0] - width / 2;
+  const y = point[1] - radius - 24;
+  context.fillStyle = "rgba(255,255,255,.94)";
+  context.strokeStyle = "rgba(16,42,51,.18)";
+  context.lineWidth = 1;
+  context.beginPath();
+  context.roundRect(x, y, width, 18, 7);
+  context.fill();
+  context.stroke();
+  context.fillStyle = "#0b6656";
+  context.textAlign = "center";
+  context.textBaseline = "middle";
+  context.fillText(text, point[0], y + 9, width - 8);
+  context.restore();
+}
+
 function drawMarker(context: CanvasRenderingContext2D, point: Coordinate, observation: Observation, source: MapSource | undefined, selected: boolean, highlighted: boolean, markerScale: number) {
-  const { colour, shape, glyph } = eventSymbolFor(observation, source);
+  const { colour, shape, glyph, id: symbolId } = eventSymbolFor(observation, source);
   const radius = (selected ? 11 : 8) * markerScale;
   context.save();
   context.translate(point[0], point[1]);
@@ -151,12 +239,24 @@ function drawMarker(context: CanvasRenderingContext2D, point: Coordinate, observ
   }
   context.fill();
   context.stroke();
-  context.fillStyle = colour;
-  context.font = `800 ${Math.max(10, radius + 2)}px "Segoe UI Symbol", system-ui, sans-serif`;
-  context.textAlign = "center";
-  context.textBaseline = "middle";
-  context.fillText(glyph, 0, shape === "triangle" ? 2 : 0);
+  if (symbolId === "people" || symbolId === "vehicle") {
+    const descriptor = movementIconDescriptor(
+      undefined,
+      String(observation.properties.transport_class ?? (symbolId === "people" ? "Pedestrian" : "Car")),
+      String(observation.properties.direction ?? ""),
+    );
+    drawMovementIcon(context, radius, descriptor.icon, descriptor.direction, colour);
+  } else {
+    context.fillStyle = colour;
+    context.font = `800 ${Math.max(10, radius + 2)}px "Segoe UI Symbol", system-ui, sans-serif`;
+    context.textAlign = "center";
+    context.textBaseline = "middle";
+    context.fillText(glyph, 0, shape === "triangle" ? 2 : 0);
+  }
   context.restore();
+  if (typeof observation.properties.map_label === "string" && observation.properties.map_label) {
+    drawMarkerValue(context, point, observation.properties.map_label, radius);
+  }
   return radius;
 }
 
@@ -227,6 +327,7 @@ export default function LiveMap({
   const hitsRef = useRef<Hit[]>([]);
   const dragRef = useRef<{ pointerId: number; last: Coordinate; moved: boolean } | null>(null);
   const [zoom, setZoom] = useState(1);
+  const [clusterBelowPercent, setClusterBelowPercent] = useState(100);
   const [pan, setPan] = useState<Coordinate>([0, 0]);
   const [revision, setRevision] = useState(0);
   const [hovered, setHovered] = useState<HoveredHit | null>(null);
@@ -294,7 +395,7 @@ export default function LiveMap({
         const point = viewport.project(anchor);
         return [{ id: observation.id, x: point[0], y: point[1], observation }];
       });
-      hitsRef.current = clusterMapPoints(mapPoints, zoom).map((cluster) => {
+      hitsRef.current = clusterMapPoints(mapPoints, zoom, 48, clusterBelowPercent / 100).map((cluster) => {
         const observation = cluster.points[0].observation;
         const selected = cluster.points.some((point) => point.observation.id === selectedId);
         const highlighted = cluster.points.some((point) => highlightedIds.has(point.observation.id));
@@ -315,7 +416,7 @@ export default function LiveMap({
     const observer = new ResizeObserver(draw);
     observer.observe(canvas);
     return () => observer.disconnect();
-  }, [highlightedIds, markerScale, pan, plottable, revision, selectedId, showBasemap, sourceById, zoom]);
+  }, [clusterBelowPercent, highlightedIds, markerScale, pan, plottable, revision, selectedId, showBasemap, sourceById, zoom]);
 
   function localPoint(event: React.PointerEvent): Coordinate {
     const rect = event.currentTarget.getBoundingClientRect();
@@ -468,7 +569,7 @@ export default function LiveMap({
           );
         })}
       </ul>
-      <div className="ops-map-controls" aria-label="Map controls" data-max-zoom="2000%" data-style="google-vertical" data-corner="bottom-right">
+      <div className="ops-map-controls" aria-label="Map controls" data-max-zoom="2000%" data-style="google-vertical" data-corner="top-right">
         <div className="ops-map-zoom-controls" role="group" aria-label="Map zoom controls">
           <button type="button" aria-label="Zoom in" disabled={zoom >= 20} onClick={() => setZoom((value) => Math.min(20, value + 0.5))}>+</button>
           <button type="button" aria-label="Zoom out" disabled={zoom <= 0.7} onClick={() => setZoom((value) => Math.max(0.7, value - 0.5))}>−</button>
@@ -476,6 +577,7 @@ export default function LiveMap({
         <button className="ops-map-fullscreen" type="button" aria-label={isFullscreen ? "Exit map fullscreen" : "Show map fullscreen"} aria-pressed={isFullscreen} title={isFullscreen ? "Exit full screen" : "Full screen"} onClick={toggleFullscreen}>
           <span className="ops-map-fullscreen-glyph" aria-hidden="true" />
         </button>
+        <MapGroupingControl value={clusterBelowPercent} onChange={setClusterBelowPercent} />
       </div>
       {hovered && adaptiveEvidenceContext ? (
         <AdaptiveEvidencePreview
