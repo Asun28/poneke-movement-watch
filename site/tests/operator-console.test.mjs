@@ -290,7 +290,7 @@ test("opens Live as one map-first workspace with readable evidence overlays", as
   assert.doesNotMatch(live, /aria-label="Reset map view"/);
   assert.match(live, /class="ops-map-fullscreen"[^>]*aria-label="Show map fullscreen"/);
   assert.doesNotMatch(live, /class="ops-map-status"/);
-  assert.match(live, /class="ops-map-attribution"[^>]*data-corner="bottom-left"[^>]*>© OpenStreetMap contributors/);
+  assert.match(live, /class="ops-map-attribution"[^>]*data-corner="bottom-left"[^>]*>[\s\S]*?© OpenStreetMap contributors[\s\S]*?© CARTO/);
   assert.match(live, /data-nav-icon="activity"/);
   assert.match(live, /data-nav-icon="inbox"/);
   assert.match(live, /data-nav-icon="settings"/);

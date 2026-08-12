@@ -144,7 +144,7 @@ test("renders a unified Investigation Layers workspace with selected-data replay
 
   assert.match(html, /Investigation Layers/);
   assert.match(html, /aria-label="Hide Investigation Layers"/);
-  assert.match(html, /Street basemap/);
+  assert.match(html, /Calm streets/);
   assert.match(html, /Sensor coverage/);
   assert.match(html, /Search source layers/);
   assert.match(html, /Replay source only/);
@@ -280,6 +280,8 @@ test("keeps basemap attribution without coaching copy", async () => {
   assert.match(html, /© OpenStreetMap contributors/);
   assert.match(html, /href="https:\/\/www\.openstreetmap\.org\/copyright"/);
   assert.match(html, /OpenStreetMap contributors/);
+  assert.match(html, /href="https:\/\/carto\.com\/attributions"/);
+  assert.match(html, /© CARTO/);
   assert.doesNotMatch(html, /Real Wellington street basemap/);
 });
 

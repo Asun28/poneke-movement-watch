@@ -4,6 +4,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { buildAdaptiveEvidenceClusterModel, buildAdaptiveEvidenceModel } from "../../lib/adaptiveEvidence.mjs";
 import { buildLiveMapCard, buildLiveMapClusterCard, clusterMapPoints, eventSymbolFor, liveMapHitRadius } from "../../lib/liveMapWorkspace.mjs";
+import { OPERATIONAL_BASEMAP, operationalBasemapTileUrl } from "../../lib/operationalBasemap.mjs";
 import { AdaptiveEvidencePreview } from "./AdaptiveEvidence";
 import EventSymbolBadge from "./EventSymbolBadge";
 
@@ -109,7 +110,12 @@ function drawTiles(
           redraw();
         };
         tileCache.set(key, pending);
-        pending.src = `https://tile.openstreetmap.org/${key}.png`;
+        pending.src = operationalBasemapTileUrl({
+          zoom: viewport.tileZoom,
+          x: wrappedX,
+          y,
+          pixelRatio: window.devicePixelRatio || 1,
+        });
       }
     }
   }
@@ -514,7 +520,11 @@ export default function LiveMap({
       <div className="ops-map-legend" aria-label="Map symbol legend">
         {visibleSymbols.map((symbol) => <span key={symbol.id}><EventSymbolBadge symbolId={symbol.id} decorative />{symbol.label}</span>)}
       </div>
-      <a className="ops-map-attribution" data-corner={adaptiveEvidenceContext ? "bottom-right-before-controls" : "bottom-left"} href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© OpenStreetMap contributors</a>
+      <div className="ops-map-attribution" data-corner={adaptiveEvidenceContext ? "bottom-right-before-controls" : "bottom-left"}>
+        {OPERATIONAL_BASEMAP.attribution.map((item) => (
+          <a key={item.href} href={item.href} target="_blank" rel="noreferrer">{item.label}</a>
+        ))}
+      </div>
       {fullscreenError && <p className="ops-map-error" role="status">{fullscreenError}</p>}
     </div>
   );

@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import * as viewportModel from "../app/layerModel.mjs";
 
+const basemapModel = await import("../lib/operationalBasemap.mjs").catch(() => ({}));
+
 import {
   canInspectSelectedSources,
   canReplaySelectedSources,
@@ -47,6 +49,19 @@ const sources = [
   },
 ];
 const signals = [{ id: "movement:1" }, { id: "movement:2" }];
+
+test("operational maps use a calm high-resolution street tile contract", () => {
+  assert.equal(basemapModel.OPERATIONAL_BASEMAP?.id, "carto-positron");
+  assert.equal(basemapModel.OPERATIONAL_BASEMAP?.label, "Calm streets");
+  assert.equal(
+    basemapModel.operationalBasemapTileUrl?.({ zoom: 12, x: 100, y: 200, pixelRatio: 2 }),
+    "https://a.basemaps.cartocdn.com/light_all/12/100/200@2x.png",
+  );
+  assert.deepEqual(basemapModel.OPERATIONAL_BASEMAP?.attribution, [
+    { label: "© OpenStreetMap contributors", href: "https://www.openstreetmap.org/copyright" },
+    { label: "© CARTO", href: "https://carto.com/attributions" },
+  ]);
+});
 
 test("toggles only the requested Replay source without mutating the current selection", () => {
   const current = new Set(["wcc-transport-sensors", "nema-cap-alerts"]);

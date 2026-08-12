@@ -7,6 +7,7 @@ import eventPack from "../../public/cop/v4/april-storm-event-pack.json";
 import { buildAdaptiveEvidenceModel } from "../../lib/adaptiveEvidence.mjs";
 import { buildMovementEvidenceDetail, buildSensorReplayDataset, defaultSensorReplayLayers, filterSensorReplayReadings, sensorReplayFrame, toggleSensorEvidenceFilter, updateVisibleSensorSeries, wellingtonCityWeatherReadings } from "../../lib/replayDataWorkspace.mjs";
 import { eventSymbolFor } from "../../lib/liveMapWorkspace.mjs";
+import { OPERATIONAL_BASEMAP } from "../../lib/operationalBasemap.mjs";
 import { replayIntervalMs } from "../layerModel.mjs";
 import { AdaptiveEvidenceDrawer } from "./AdaptiveEvidence";
 import EventSymbolBadge from "./EventSymbolBadge";
@@ -381,7 +382,7 @@ export default function SensorReplayCanvas({ investigation, investigationControl
       </div>
       <InvestigationLayersPanel open={layersOpen} onClose={() => setLayersOpen(false)}>
         <div className="sensor-investigation-layers">
-        <label className="sensor-core-layer"><input type="checkbox" checked={showBasemap} onChange={(event) => setShowBasemap(event.currentTarget.checked)} /><span>Street basemap</span></label>
+        <label className="sensor-core-layer"><input type="checkbox" checked={showBasemap} onChange={(event) => setShowBasemap(event.currentTarget.checked)} /><span>{OPERATIONAL_BASEMAP.label}</span></label>
         <div className="sensor-evidence-layer-summary" aria-label="April evidence layers">
           <span className="sensor-layer-role">Primary · city movement</span>
           <button className="sensor-primary-layer" type="button" aria-pressed={showMovementOutcomes} onClick={toggleMovementOutcomes}>

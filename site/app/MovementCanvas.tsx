@@ -6,6 +6,7 @@ import registryData from "../public/cop/v2/source-registry.json";
 import { SOURCE_MANIFEST } from "../lib/sourceManifest.mjs";
 import { operationsTargetForConnectorMode } from "../lib/sourceOperations.mjs";
 import { buildAdaptiveEvidenceClusterModel, buildAdaptiveEvidenceModel } from "../lib/adaptiveEvidence.mjs";
+import { OPERATIONAL_BASEMAP, operationalBasemapTileUrl } from "../lib/operationalBasemap.mjs";
 import {
   INVESTIGATION_MODULES,
   mergeInvestigationSources,
@@ -340,7 +341,12 @@ function drawStreetTiles(
         onTileSettled();
       };
       tileCache.set(key, pendingImage);
-      pendingImage.src = `https://tile.openstreetmap.org/${key}.png`;
+      pendingImage.src = operationalBasemapTileUrl({
+        zoom: viewport.tileZoom,
+        x: wrappedTileX,
+        y: tileY,
+        pixelRatio: window.devicePixelRatio || 1,
+      });
     }
   }
   context.restore();
@@ -826,14 +832,14 @@ function LayerWorkspace({
         <label className="core-layer-row" htmlFor="layer-basemap">
           <input
             id="layer-basemap"
-            aria-label="Street basemap"
+            aria-label="Calm streets basemap"
             type="checkbox"
             checked={showBasemap}
             onChange={(event) => onSetBasemap(event.currentTarget.checked)}
           />
-          <span className="sr-only">Street basemap</span>
+          <span className="sr-only">Calm streets basemap</span>
           <span className="layer-mini-symbol basemap-symbol" aria-hidden="true" />
-          <span><strong>Street basemap</strong><small>OpenStreetMap · display only</small></span>
+          <span><strong>{OPERATIONAL_BASEMAP.label}</strong><small>Low-clutter · display only</small></span>
         </label>
         <label className="core-layer-row" htmlFor="layer-coverage">
           <input
@@ -1800,9 +1806,9 @@ export default function MovementCanvas({ investigation, investigationControl }: 
           </div>
           {showBasemap ? (
             <div className="map-attribution" data-corner="bottom-right-before-controls">
-              <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">
-                © OpenStreetMap contributors
-              </a>
+              {OPERATIONAL_BASEMAP.attribution.map((item) => (
+                <a key={item.href} href={item.href} target="_blank" rel="noreferrer">{item.label}</a>
+              ))}
             </div>
           ) : <div className="map-attribution"><span>Basemap hidden</span></div>}
           {coverage.length === 0 && !error ? <p className="map-message">Loading countlines…</p> : null}
