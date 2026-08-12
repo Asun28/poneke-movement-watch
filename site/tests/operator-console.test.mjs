@@ -284,6 +284,8 @@ test("opens Live as one map-first workspace with readable evidence overlays", as
   assert.match(live, /data-live-layer-toggle="access-impacts"/);
   assert.match(live, /data-live-layer-toggle="reports"/);
   assert.match(live, /data-live-layer-toggle="other-live"/);
+  assert.match(live, /aria-label="Toggle Review evidence layer"[^>]*>[\s\S]*?Review<\/button>/);
+  assert.match(live, /aria-label="Toggle Sensors &amp; weather layer"[^>]*>[\s\S]*?Weather<\/button>/);
   assert.equal((live.match(/class="live-map-layer-filter(?: is-active)?"/g) ?? []).length, 6);
   assert.doesNotMatch(live, /live-filter-check/);
   assert.match(live, /data-filter-state="selected"/);
@@ -565,6 +567,13 @@ test("provides a friendly Replay investigation source workspace", async () => {
   assert.match(html, /aria-label="Edit WCC Transport Sensors"/);
   assert.match(html, /Registry/);
   assert.match(html, /This browser only/);
+});
+
+test("keeps Signal Review details readable beside or below the evidence workspace", async () => {
+  const review = await (await request("/alerts")).text();
+
+  assert.match(review, /class="alert-ticket-workspace"[^>]*data-detail-layout="responsive-stack"/);
+  assert.match(review, /class="alert-signal-details"[^>]*aria-label="Situation details"/);
 });
 
 test("labels Replay layers by playhead state instead of presenting static contracts as moving data", async () => {

@@ -348,6 +348,17 @@ test("builds an available-at-safe April sensor replay for the selected investiga
   assert.ok(frame.readings.every((reading) => new Date(reading.available_at) <= new Date(frame.target_at)));
 });
 
+test("gives Live map layers compact visible labels without losing their full meaning", () => {
+  assert.deepEqual(
+    liveMapWorkspace.LIVE_MAP_LAYERS.map(({ compact_label }) => compact_label),
+    ["Review", "Weather", "Warnings", "Access", "Reports", "Other"],
+  );
+  assert.deepEqual(
+    liveMapWorkspace.LIVE_MAP_LAYERS.map(({ label }) => label),
+    ["Review evidence", "Sensors & weather", "Warnings & hazards", "Access impacts", "Reports", "Other live"],
+  );
+});
+
 test("expires stale sensor snapshots instead of carrying dead layer values forward", () => {
   const dataset = {
     slots: [
@@ -803,6 +814,22 @@ test("keeps Live mobile map details in one clear bottom sheet", async () => {
   assert.ok(css.includes(".live-map-inbox-overlay.is-collapsed { display: none; }"));
   assert.ok(css.includes("border-radius: 16px 16px 0 0;"));
   assert.ok(css.includes(".live-map-workspace .ops-map-controls { top: 72px; right: 8px; bottom: auto; }"));
+});
+
+test("projects Replay counts into compact visible and complete accessible status", () => {
+  assert.equal(typeof replayDataWorkspace.buildReplayCurrentStatus, "function");
+  assert.deepEqual(replayDataWorkspace.buildReplayCurrentStatus({ recordCount: 12, gapCount: 207 }), {
+    accessible: "12 signals, 207 data gaps at selected time",
+    primary: "12 signals",
+    secondary: "207 gaps",
+    scope: "selected time",
+  });
+  assert.deepEqual(replayDataWorkspace.buildReplayCurrentStatus({ recordCount: 76, staleCount: 3 }), {
+    accessible: "76 records at selected time, 3 stale records hidden",
+    primary: "76 records",
+    secondary: "3 stale hidden",
+    scope: "selected time",
+  });
 });
 
 test("projects every live map record into a compact label and value card", () => {

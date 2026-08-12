@@ -233,6 +233,27 @@ export function sensorReplayFrame(dataset, requestedIndex) {
   };
 }
 
+export function buildReplayCurrentStatus({ recordCount = 0, gapCount, staleCount } = {}) {
+  const count = Math.max(0, Number(recordCount) || 0);
+  const hasGaps = gapCount !== undefined;
+  const noun = hasGaps ? "signals" : "records";
+  const primary = `${count} ${noun}`;
+  const gaps = Math.max(0, Number(gapCount) || 0);
+  const stale = Math.max(0, Number(staleCount) || 0);
+  const secondary = hasGaps
+    ? `${gaps} gaps`
+    : stale > 0
+      ? `${stale} stale hidden`
+      : "";
+  const accessible = hasGaps
+    ? `${primary}, ${gaps} data gaps at selected time`
+    : stale > 0
+      ? `${primary} at selected time, ${stale} stale records hidden`
+      : `${primary} at selected time`;
+
+  return { accessible, primary, secondary, scope: "selected time" };
+}
+
 export function movementOutcomeSignalsAt(pack, targetAt) {
   const targetEpoch = epoch(targetAt);
   if (targetEpoch === null) return [];

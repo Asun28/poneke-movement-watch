@@ -5,7 +5,7 @@ import hilltopPack from "../../public/cop/v4/april-storm-hilltop-observations.js
 import detectorPack from "../../public/cop/v4/april-storm-hydro-detector.json";
 import eventPack from "../../public/cop/v4/april-storm-event-pack.json";
 import { buildAdaptiveEvidenceModel } from "../../lib/adaptiveEvidence.mjs";
-import { buildMovementEvidenceDetail, buildSensorReplayDataset, buildSensorReplayLayerStates, defaultSensorReplayLayers, filterSensorReplayReadings, movementOutcomeSignalsAt, sensorReplayFrame, sensorReplayTimelinePoints, toggleSensorEvidenceFilter, updateVisibleSensorSeries, wellingtonCityWeatherReadings } from "../../lib/replayDataWorkspace.mjs";
+import { buildMovementEvidenceDetail, buildReplayCurrentStatus, buildSensorReplayDataset, buildSensorReplayLayerStates, defaultSensorReplayLayers, filterSensorReplayReadings, movementOutcomeSignalsAt, sensorReplayFrame, sensorReplayTimelinePoints, toggleSensorEvidenceFilter, updateVisibleSensorSeries, wellingtonCityWeatherReadings } from "../../lib/replayDataWorkspace.mjs";
 import { eventSymbolFor } from "../../lib/liveMapWorkspace.mjs";
 import { OPERATIONAL_BASEMAP } from "../../lib/operationalBasemap.mjs";
 import { replayIntervalMs } from "../layerModel.mjs";
@@ -326,6 +326,7 @@ export default function SensorReplayCanvas({ investigation, investigationControl
   }
 
   const replayTimelinePoints = useMemo(() => sensorReplayTimelinePoints(dataset), [dataset]);
+  const currentStatus = buildReplayCurrentStatus({ recordCount: replayObservations.length, staleCount: frame.stale_reading_count });
 
   return (
     <section id="replay-map" className="replay-map-workspace sensor-replay-workspace" data-replay-map-first="true" data-replay-time-policy="playhead-bound" data-replay-dataset="sensor" data-primary-layer="movement-outcomes" data-delta-encoding="signed-centre-bar" data-weather-label-mode="marker" data-movement-icon-adapter="shared" aria-label="April movement impact replay">
@@ -354,7 +355,7 @@ export default function SensorReplayCanvas({ investigation, investigationControl
               <button type="button" aria-label="Next replay step" disabled={slotIndex >= dataset.slots.length - 1} onClick={() => { setSlotIndex((value) => Math.min(dataset.slots.length - 1, value + 1)); setPlaying(false); setSelectedId(null); }}>→</button>
             </div>
           </div>
-          <output className="replay-compact-count" aria-live="polite">{replayObservations.length} at selected time{frame.stale_reading_count ? ` · ${frame.stale_reading_count} stale hidden` : ""}</output>
+          <output className="replay-compact-count" aria-live="polite" aria-label={currentStatus.accessible}><strong>{currentStatus.primary}</strong>{currentStatus.secondary ? <span>· {currentStatus.secondary}</span> : null}<em>· {currentStatus.scope}</em></output>
         </div>
         <ReplayDensityTimeline
           points={replayTimelinePoints}

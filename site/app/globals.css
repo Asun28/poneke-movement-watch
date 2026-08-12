@@ -5694,6 +5694,33 @@ h1, h2, h3, h4, h5 { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-seri
 .alert-centre-grid[data-review-unit="situation"] .alert-ticket-row-meta b { color: #5e4b00; font-size: 10px; }
 .alert-centre-grid[data-review-unit="situation"] .alert-ticket-row small { font-size: 11px; }
 
+/* Phase 76: keep core operator status readable without crowding the map. */
+.replay-compact-count { display: inline-flex; align-items: center; gap: 4px; }
+.replay-compact-count strong,
+.replay-compact-count span,
+.replay-compact-count em { font: inherit; }
+.replay-compact-count em { font-style: normal; }
+
+@media (max-width: 1400px) {
+  .replay-compact-count em { display: none; }
+  .alert-centre-grid[data-operator-workflow="signal-master-detail"] .alert-ticket-workspace[data-detail-layout="responsive-stack"] { grid-template-columns: 1fr; }
+  .alert-centre-grid[data-operator-workflow="signal-master-detail"] .alert-ticket-workspace[data-detail-layout="responsive-stack"] .alert-signal-details {
+    position: static;
+    padding: 14px 0 0;
+    border-top: 1px solid var(--hairline);
+    border-left: 0;
+  }
+  .alert-centre-grid[data-operator-workflow="signal-master-detail"] .alert-ticket-workspace[data-detail-layout="responsive-stack"] .alert-detail-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 18px;
+  }
+}
+
+@media (max-width: 700px) {
+  .alert-centre-grid[data-operator-workflow="signal-master-detail"] .alert-ticket-workspace[data-detail-layout="responsive-stack"] .alert-detail-fields { grid-template-columns: 1fr; }
+}
+
 .situation-gate {
   display: grid;
   grid-template-columns: minmax(180px, .7fr) minmax(320px, 1.3fr);
@@ -5796,3 +5823,34 @@ h1, h2, h3, h4, h5 { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-seri
   .situation-inline-form button,
   .wcc-ticket-simulator-controls button { grid-column: auto; width: 100%; }
 }
+
+/* Phase 76 final readability floor. Keep this after feature-specific rules. */
+.operator-title-bar :where(.operator-mode-label, time),
+.operator-brand-block small { font-size: 12px; }
+.alert-centre-grid[data-operator-workflow="signal-master-detail"] :where(
+  small,
+  dt,
+  dd,
+  code,
+  output,
+  .case-rule,
+  .mock-chip,
+  .alert-tabs button,
+  .alert-review-lifecycle strong,
+  .alert-queue-tools label > span,
+  .alert-ticket-row-meta b,
+  .alert-ticket-row-meta i,
+  .alert-evidence-bucket h3,
+  .alert-evidence-bucket header span,
+  .alert-evidence-section > header span,
+  .situation-gate > div > span,
+  .situation-signals > summary span,
+  .situation-record-panel li span,
+  .wcc-ticket-simulator > header span,
+  .wcc-ticket-simulator > header p,
+  .wcc-ticket-simulator-help,
+  .wcc-ticket-simulator-error,
+  .wcc-ticket-simulator > ol
+) { font-size: 12px; }
+.integration-registry[data-operator-workflow="source-master-detail"] :where(.contract-mode, dt, code, small),
+.ontology-dashboard[data-operator-workflow="ontology-step-inspector"] :where(.ontology-step-rail strong, .ontology-step-rail span, .ontology-step-rail em) { font-size: 12px; }

@@ -323,8 +323,10 @@ export default function LiveOperationsClient() {
               aria-pressed={activeLayers.has(layer.id)}
               data-filter-state={activeLayers.has(layer.id) ? "selected" : "available"}
               data-live-layer-toggle={layer.id}
+              aria-label={`Toggle ${layer.label} layer`}
+              title={layer.label}
               onClick={() => toggleLayer(layer.id)}
-            ><EventSymbolBadge symbolId={LIVE_LAYER_SYMBOLS[layer.id]} decorative />{layer.label}</button>
+            ><EventSymbolBadge symbolId={LIVE_LAYER_SYMBOLS[layer.id]} decorative />{layer.compact_label}</button>
           ))}
         </nav>
 

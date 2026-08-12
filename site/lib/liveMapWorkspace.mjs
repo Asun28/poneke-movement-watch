@@ -1,10 +1,10 @@
 export const LIVE_MAP_LAYERS = Object.freeze([
-  { id: "review-evidence", label: "Review evidence" },
-  { id: "sensors-weather", label: "Sensors & weather" },
-  { id: "warnings-hazards", label: "Warnings & hazards" },
-  { id: "access-impacts", label: "Access impacts" },
-  { id: "reports", label: "Reports" },
-  { id: "other-live", label: "Other live" },
+  { id: "review-evidence", label: "Review evidence", compact_label: "Review" },
+  { id: "sensors-weather", label: "Sensors & weather", compact_label: "Weather" },
+  { id: "warnings-hazards", label: "Warnings & hazards", compact_label: "Warnings" },
+  { id: "access-impacts", label: "Access impacts", compact_label: "Access" },
+  { id: "reports", label: "Reports", compact_label: "Reports" },
+  { id: "other-live", label: "Other live", compact_label: "Other" },
 ]);
 
 export function toggleLiveMapPanel(currentPanel, requestedPanel) {

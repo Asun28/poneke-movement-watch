@@ -36,7 +36,7 @@ import SourceIconPicker, { SourceIconMode, SourceIconPreview } from "./component
 import { AdaptiveEvidenceDrawer, AdaptiveEvidencePreview } from "./components/AdaptiveEvidence";
 import ReplayDensityTimeline from "./components/ReplayDensityTimeline";
 import MapGroupingControl from "./components/MapGroupingControl";
-import { movementReplayTimelinePoints } from "../lib/replayDataWorkspace.mjs";
+import { buildReplayCurrentStatus, movementReplayTimelinePoints } from "../lib/replayDataWorkspace.mjs";
 
 type Coordinate = [number, number];
 type LineFeature = {
@@ -1316,6 +1316,12 @@ export default function MovementCanvas({ investigation, investigationControl }: 
     setIsEvidenceOpen(false);
   };
   const replayEnabled = Boolean(replay && replaySourceSelected);
+  const replayCurrentStatus = currentSlot
+    ? buildReplayCurrentStatus({
+        recordCount: currentSlot.candidate_count,
+        gapCount: currentSlot.data_gap_groups,
+      })
+    : null;
   const replayTimelinePoints = useMemo(
     () => movementReplayTimelinePoints(replay?.slots),
     [replay],
@@ -1662,11 +1668,11 @@ export default function MovementCanvas({ investigation, investigationControl }: 
                 >→</button>
               </div>
             </div>
-            <output className="replay-compact-count" aria-live="polite">
+            <output className="replay-compact-count" aria-live="polite" aria-label={replaySourceSelected ? replayCurrentStatus?.accessible : "No playable data"}>
               {!replaySourceSelected
                 ? "No playable data"
-                : currentSlot
-                ? `${currentSlot.candidate_count} signals · ${currentSlot.data_gap_groups} gaps · at selected time`
+                : replayCurrentStatus
+                ? <><strong>{replayCurrentStatus.primary}</strong><span>· {replayCurrentStatus.secondary}</span><em>· {replayCurrentStatus.scope}</em></>
                 : "Loading…"}
             </output>
           </div>

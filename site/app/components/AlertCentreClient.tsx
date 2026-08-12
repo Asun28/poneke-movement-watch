@@ -684,7 +684,7 @@ export default function AlertCentreClient() {
           })}
         </ol>
 
-        <div className="alert-ticket-workspace">
+        <div className="alert-ticket-workspace" data-detail-layout="responsive-stack">
           <section className="alert-ticket-main" aria-label="Investigation content">
             <div className="alert-tabs" role="tablist" aria-label="Case workspace">
           {TABS.map((tab, index) => (
