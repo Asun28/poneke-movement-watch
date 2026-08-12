@@ -17,7 +17,6 @@ from movement_anomaly.hilltop_replay import (
 )
 from movement_anomaly.hydro_detector import build_hydro_detector_pack
 
-
 BASE_URL = "https://hilltop.gw.govt.nz/Data.hts"
 BASELINE_START = "2026-04-01"
 EVENT_START = "2026-04-18"

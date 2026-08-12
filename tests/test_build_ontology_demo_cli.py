@@ -1,7 +1,7 @@
 import json
-from pathlib import Path
 import subprocess
 import sys
+from pathlib import Path
 
 
 def test_cli_builds_v2_and_v3_ontology_artifacts_from_required_ticket_format(tmp_path):

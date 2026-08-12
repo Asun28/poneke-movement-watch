@@ -1,50 +1,73 @@
 # Four-minute demo
 
-## 0:00–0:25 — The promise
+## 0:00–0:25 — The operating picture
 
-“This is an extra signal for investigation, not an incident detector. We compare
-anonymous hourly pedestrian and vehicle counts with the same weekday and hour in
-the preceding 12 weeks.”
+Open **Dashboard**. Say:
 
-Point to **Batch replay** and **Data through 6 Aug 2026**. Say that the publisher
-refreshes the source at least monthly, so this prototype does not claim to be live.
+> “This is an extra signal for investigation, not an incident detector. It brings
+> source health, movement change, weather and reports into one evidence workflow,
+> while people retain every operational decision.”
 
-## 0:25–1:15 — The map
+Point out that infrastructure issues and operational candidates are separate.
+Zero review candidates is explicitly not an all-clear.
 
-Show the 414 WCC countlines and the 12 changes at Thursday 6 August, 12:00.
-Switch between **People** and **Vehicles**. Explain that each line is the actual
-sensor countline, not a claim about an entire street or suburb.
+## 0:25–1:30 — Live and Simulation
 
-## 1:15–2:35 — The evidence trail
+Open **Live Operations**. Show the compact command deck: source health, review
+state, refresh and `Live / History / Simulation` share one bounded control.
 
-Select Centennial Highway: 502 cars versus a matched baseline of 873.5. Then
-scroll to the case ledger and read the four states: **Observation, Inference,
-Human decision, Confirmed fact**.
+Select **Simulation** and say:
 
-Show Supporting, Contradicting and Missing. Say: “No contradictory observation
-was received; that is not evidence that the road is clear.” Point out that the
-ticket row is a synthetic format fixture and adds zero evidence weight.
+> “WCC movement counts are a monthly batch, not a live API. For this demo we use
+> a browser-local exercise instead of pretending those counts are live.”
 
-## 2:35–3:20 — Accuracy and exclusions
+Play the six stages. Show rain rising while people/vehicle movement falls, transit
+delay and mock reports appear, and mapped values change with the timeline. Point
+to `Mock scenario · weight 0 · no alert · no training`.
 
-Show the **207 data gaps**. Missing rows are never converted to zero. Mention the
-fixed-sensor coverage, possible double counting at nearby countlines, staggered
-installation dates and that a vehicle count is not a passenger count.
+State that the scenario performs no external write and cannot create an alert,
+incident, ticket or training label.
 
-The chronological benchmark used June for validation and July for testing. The
-matched weekday/hour baseline beat Ridge, Linear SVM and XGBoost on test MAE, so
-the simpler detector was selected.
+## 1:30–2:20 — Compare with the April Storm
 
-NZTA TMS is registered but unresolved because it has no geometry or verified
-countline crosswalk. Current Hilltop, road-event and weather feeds are missing
-from this past replay window, not counted as counter-evidence. Personal ticket
-identity, address and free text are removed at ingestion.
+At a later simulated stage, show the **April Storm 2026** comparison and its
+coverage count. Say:
 
-## 3:20–4:00 — Hand-off
+> “This is missing-aware pattern similarity, not a forecast or probability. It
+> helps an operator find a relevant saved investigation; it does not decide that
+> the same event is happening.”
 
-Open `/cop/v2/evidence-graph.json` and `/cop/v2/source-registry.json`. The v1
-movement feed remains compatible; v2 adds typed observations, provenance,
-evidence roles, hypotheses, decision state and exclusions for the shared COP.
+Open the saved investigation. Replay is bounded to 18–22 April and uses 10,098
+official historical GWRC Hilltop observations. Move the playhead and show rainfall,
+river and map records changing by selected time. Historical WCC movement outcomes
+remain retrospective, off by default and zero event-time evidence weight.
 
-Close with: “Council gets another transparent early indication, while the human
-operator keeps the decision.”
+## 2:20–3:05 — Return to the movement task
+
+Switch to **August movement review**. Show the 414 WCC countlines and the published
+hourly pedestrian/vehicle replay. Select a movement record and compare observed,
+expected, signed change, robust score and matched-hour history.
+
+Explain:
+
+- the baseline matches `countline × class × direction × weekday × hour`;
+- missing rows are data gaps, never zero;
+- a countline change is an investigation candidate, not a cause or incident;
+- the monthly publisher cadence means this is retrospective batch evidence.
+
+## 3:05–3:40 — Investigation workflow
+
+Open **Signal Review**. One queue card represents a Situation; raw Signals expand
+under it. Show supporting, contradicting, missing and context evidence, then the
+human-controlled investigation/COP fields.
+
+The WCC ticket path is a supplied-shape simulator only: prepared, never sent, no
+WCC connection. Mock feedback cannot enter model training or accuracy metrics.
+
+## 3:40–4:00 — Hand-off
+
+Open **City Ontology** or the COP feeds. Close with:
+
+> “Council gets one quieter, auditable Situation instead of a thousand raw
+> signals. Ontology aligns time, place, source and evidence; models propose;
+> authorised staff investigate and decide.”

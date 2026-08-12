@@ -1,0 +1,501 @@
+/* Phase 71 — visible map tools, operator-controlled clustering and aligned movement symbols. */
+.map-grouping-control { position: relative; width: 44px; height: 44px; }
+.map-grouping-control > summary {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(9,30,66,.2);
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 2px 7px rgba(9,30,66,.2);
+  color: #3c4043;
+  cursor: pointer;
+  list-style: none;
+}
+.map-grouping-control > summary::-webkit-details-marker { display: none; }
+.map-grouping-control > summary:hover { background: #f1f3f4; color: #202124; }
+.map-grouping-control > summary:focus-visible { outline: 3px solid var(--movement-blue); outline-offset: -3px; }
+.map-grouping-control[open] > summary { color: #0055cc; background: #e9f2ff; }
+.map-grouping-menu {
+  position: absolute;
+  z-index: 18;
+  top: 0;
+  right: 52px;
+  width: 210px;
+  padding: 10px;
+  border: 1px solid rgba(9,30,66,.2);
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 6px 18px rgba(9,30,66,.2);
+}
+.map-grouping-menu label { display: grid; gap: 7px; color: #344563; font-size: 12px; font-weight: 700; }
+.map-grouping-menu select { width: 100%; min-height: 44px; padding: 0 10px; border: 1px solid #b3bac5; border-radius: 6px; color: #172b4d; background: #ffffff; font-size: 16px; }
+.map-grouping-menu select:focus-visible { outline: 3px solid rgba(12,102,228,.3); outline-offset: 1px; }
+.replay-google-map-controls .map-grouping-control { display: block; }
+.replay-map-workspace .map-controls { top: calc(var(--replay-overlay-top) + 8px); right: 16px; bottom: auto; z-index: 12; }
+.sensor-replay-workspace .ops-map-controls { top: calc(var(--replay-overlay-top) + 8px); right: 12px; bottom: auto; z-index: 12; }
+.live-map-workspace .ops-map-controls { top: 72px; right: 16px; bottom: auto; z-index: 12; }
+.operator-mobile-nav .operator-nav-icon {
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  margin-inline: auto;
+  line-height: 0;
+}
+.event-symbol-token svg { display: block; margin: auto; }
+
+@media (max-width: 700px) {
+  .replay-map-workspace .map-controls { top: calc(var(--replay-overlay-top) + 8px); right: 8px; bottom: auto; }
+  .sensor-replay-workspace .ops-map-controls { top: calc(var(--replay-overlay-top) + 8px); right: 8px; bottom: auto; }
+  .live-map-workspace .ops-map-controls { top: 72px; right: 8px; bottom: auto; }
+}
+
+/* Phase 73 - Situation-first review */
+.alert-centre-grid[data-review-unit="situation"] .alert-ticket-row { min-height: 68px; }
+.alert-centre-grid[data-review-unit="situation"] .alert-ticket-row-meta b { color: #5e4b00; font-size: 10px; }
+.alert-centre-grid[data-review-unit="situation"] .alert-ticket-row small { font-size: 11px; }
+
+/* Phase 76: keep core operator status readable without crowding the map. */
+.replay-compact-count { display: inline-flex; align-items: center; gap: 4px; }
+.replay-compact-count strong,
+.replay-compact-count span,
+.replay-compact-count em { font: inherit; }
+.replay-compact-count em { font-style: normal; }
+
+@media (max-width: 1400px) {
+  .replay-compact-count em { display: none; }
+  .alert-centre-grid[data-operator-workflow="signal-master-detail"] .alert-ticket-workspace[data-detail-layout="responsive-stack"] { grid-template-columns: 1fr; }
+  .alert-centre-grid[data-operator-workflow="signal-master-detail"] .alert-ticket-workspace[data-detail-layout="responsive-stack"] .alert-signal-details {
+    position: static;
+    padding: 14px 0 0;
+    border-top: 1px solid var(--hairline);
+    border-left: 0;
+  }
+  .alert-centre-grid[data-operator-workflow="signal-master-detail"] .alert-ticket-workspace[data-detail-layout="responsive-stack"] .alert-detail-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 18px;
+  }
+}
+
+@media (max-width: 700px) {
+  .replay-compact-count span { display: none; }
+  .alert-centre-grid[data-operator-workflow="signal-master-detail"] .alert-ticket-workspace[data-detail-layout="responsive-stack"] .alert-detail-fields { grid-template-columns: 1fr; }
+}
+
+.situation-gate {
+  display: grid;
+  grid-template-columns: minmax(180px, .7fr) minmax(320px, 1.3fr);
+  gap: 8px 18px;
+  margin-top: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--hairline);
+  border-left: 4px solid #6b778c;
+  border-radius: 8px;
+  background: #ffffff;
+}
+.situation-gate.gate-hard { border-left-color: #c9372c; background: #fff7f6; }
+.situation-gate.gate-soft { border-left-color: #e07912; background: #fffaf2; }
+.situation-gate.gate-monitor { border-left-color: #6b778c; background: #f7f8f9; }
+.situation-gate > div > span,
+.situation-gate dt { color: #5e6c84; font-size: 11px; font-weight: 700; }
+.situation-gate h2 { margin: 4px 0 0; font-size: 17px; line-height: 1.25; text-transform: capitalize; }
+.situation-gate dl { display: grid; grid-template-columns: 90px minmax(150px, 1fr) 100px; gap: 12px; margin: 0; }
+.situation-gate dl > div { min-width: 0; }
+.situation-gate dd { margin: 4px 0 0; font-size: 12px; font-weight: 700; line-height: 1.35; text-transform: capitalize; overflow-wrap: anywhere; }
+.situation-gate > p { grid-column: 1 / -1; margin: 0; color: #44546f; font-size: 12px; line-height: 1.4; }
+
+.situation-signals { border-top: 1px solid var(--hairline); }
+.situation-signals > summary { min-height: 44px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 11px; cursor: pointer; }
+.situation-signals > summary strong { font-size: 12px; }
+.situation-signals > summary span { min-width: 24px; padding: 3px 6px; border-radius: 999px; color: #0747a6; background: #e9f2ff; font-size: 11px; font-weight: 800; text-align: center; }
+.situation-signals ol { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--hairline); }
+.situation-signals li { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 12px; align-items: center; min-height: 52px; padding: 7px 11px; border-bottom: 1px solid #f1f2f4; }
+.situation-signals li:last-child { border-bottom: 0; }
+.situation-signals code { font-size: 11px; overflow-wrap: anywhere; }
+.situation-signals li strong,
+.situation-signals li span { display: block; }
+.situation-signals li strong { font-size: 12px; }
+.situation-signals li span { margin-top: 3px; color: #5e6c84; font-size: 11px; }
+.situation-signals > p { margin: 0; padding: 12px; color: #5e6c84; font-size: 12px; }
+
+.situation-record-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 14px; }
+.situation-record-panel { min-width: 0; border: 1px solid var(--hairline); border-radius: 8px; background: #ffffff; overflow: hidden; }
+.situation-record-panel:first-child { grid-column: 1 / -1; }
+.situation-record-panel > header { min-height: 42px; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 0 12px; border-bottom: 1px solid var(--hairline); background: #f7f8f9; }
+.situation-record-panel > header h3 { margin: 0; font-size: 13px; }
+.situation-record-panel > header span { min-width: 24px; padding: 3px 6px; border-radius: 999px; color: #0747a6; background: #e9f2ff; font-size: 11px; font-weight: 800; text-align: center; }
+.situation-record-panel > ol,
+.situation-record-panel > ul { max-height: 190px; margin: 0; padding: 0; overflow: auto; list-style: none; }
+.situation-record-panel > ol li,
+.situation-record-panel > ul li { display: grid; grid-template-columns: minmax(100px, .6fr) minmax(130px, 1fr); gap: 4px 10px; padding: 9px 12px; border-bottom: 1px solid #f1f2f4; }
+.situation-record-panel li strong { font-size: 12px; text-transform: capitalize; }
+.situation-record-panel li span { color: #5e6c84; font-size: 11px; text-align: right; }
+.situation-record-panel li p { grid-column: 1 / -1; margin: 0; font-size: 12px; line-height: 1.4; }
+.record-empty { margin: 0; padding: 12px; color: #5e6c84; font-size: 12px; }
+.situation-inline-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; padding: 12px; border-top: 1px solid var(--hairline); background: #fafbfc; }
+.situation-inline-form label > span,
+.wcc-ticket-simulator-controls label > span { display: block; margin-bottom: 5px; color: #5e6c84; font-size: 11px; font-weight: 700; }
+.situation-record-panel:last-child .situation-inline-form label:nth-child(2) { grid-column: 1 / -1; }
+.situation-inline-form input,
+.situation-inline-form select,
+.wcc-ticket-simulator-controls select { width: 100%; min-height: 44px; padding: 0 9px; border: 1px solid #a5adba; border-radius: 5px; color: var(--civic-ink); background: #ffffff; font: inherit; font-size: 12px; }
+.situation-inline-form button,
+.wcc-ticket-simulator-controls button { min-height: 44px; padding: 0 12px; border: 1px solid #0c66e4; border-radius: 5px; color: #ffffff; background: #0c66e4; cursor: pointer; font-size: 12px; font-weight: 700; }
+.situation-inline-form button { grid-column: 1 / -1; justify-self: start; }
+
+.wcc-ticket-simulator { border-top: 1px solid var(--hairline); background: #ffffff; }
+.wcc-ticket-simulator > header { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 11px 12px; }
+.wcc-ticket-simulator > header h2 { margin: 0; font-size: 14px; }
+.wcc-ticket-simulator > header span { display: block; margin-top: 3px; color: #974f0c; font-size: 11px; font-weight: 700; }
+.wcc-ticket-simulator > header p { max-width: 330px; margin: 0; color: #5e6c84; font-size: 11px; text-align: right; }
+.wcc-ticket-simulator-controls { display: grid; grid-template-columns: minmax(150px, 1fr) minmax(170px, 1fr) auto; gap: 10px; align-items: end; padding: 0 12px 12px; }
+.wcc-ticket-simulator-help,
+.wcc-ticket-simulator-error { margin: 0; padding: 0 12px 12px; color: #5e6c84; font-size: 11px; }
+.wcc-ticket-simulator-error { color: #ae2e24; }
+.wcc-ticket-simulator > ol { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--hairline); }
+.wcc-ticket-simulator > ol li { display: grid; grid-template-columns: minmax(180px, 1fr) minmax(130px, .7fr) 170px; gap: 10px; padding: 9px 12px; border-bottom: 1px solid #f1f2f4; font-size: 11px; }
+.wcc-ticket-simulator > ol li:last-child { border-bottom: 0; }
+.wcc-ticket-simulator > ol strong { text-transform: capitalize; }
+.wcc-ticket-simulator > ol span,
+.wcc-ticket-simulator > ol time { color: #5e6c84; }
+
+@media (max-width: 800px) {
+  .situation-gate { grid-template-columns: 1fr; }
+  .situation-gate dl { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .situation-record-grid { grid-template-columns: 1fr; }
+  .situation-record-panel:first-child { grid-column: auto; }
+  .wcc-ticket-simulator-controls { grid-template-columns: 1fr 1fr; }
+  .wcc-ticket-simulator-controls button { grid-column: 1 / -1; justify-self: start; }
+}
+
+@media (max-width: 520px) {
+  .situation-gate dl,
+  .situation-inline-form,
+  .wcc-ticket-simulator-controls { grid-template-columns: 1fr; }
+  .situation-record-panel > ol li,
+  .situation-record-panel > ul li,
+  .situation-signals li,
+  .wcc-ticket-simulator > ol li { grid-template-columns: 1fr; }
+  .situation-record-panel li span,
+  .wcc-ticket-simulator > header p { text-align: left; }
+  .wcc-ticket-simulator > header { align-items: flex-start; flex-direction: column; }
+  .situation-inline-form label,
+  .situation-record-panel:last-child .situation-inline-form label:nth-child(2),
+  .situation-inline-form button,
+  .wcc-ticket-simulator-controls button { grid-column: auto; width: 100%; }
+}
+
+/* Phase 76 final readability floor. Keep this after feature-specific rules. */
+.operator-title-bar :where(.operator-mode-label, time),
+.operator-brand-block small { font-size: 12px; }
+.alert-centre-grid[data-operator-workflow="signal-master-detail"] :where(
+  small,
+  dt,
+  dd,
+  code,
+  output,
+  .case-rule,
+  .mock-chip,
+  .alert-tabs button,
+  .alert-review-lifecycle strong,
+  .alert-queue-tools label > span,
+  .alert-ticket-row-meta b,
+  .alert-ticket-row-meta i,
+  .alert-evidence-bucket h3,
+  .alert-evidence-bucket header span,
+  .alert-evidence-bucket li,
+  .alert-evidence-bucket p,
+  .alert-evidence-section > header span,
+  .alert-staff-fields label > span,
+  .alert-workflow-result span,
+  .alert-state-strip small,
+  .alert-warning-action span,
+  .situation-gate > div > span,
+  .situation-signals > summary span,
+  .situation-record-panel li span,
+  .wcc-ticket-simulator > header span,
+  .wcc-ticket-simulator > header p,
+  .wcc-ticket-simulator-help,
+  .wcc-ticket-simulator-error,
+  .wcc-ticket-simulator > ol
+) { font-size: 12px !important; }
+.integration-registry[data-operator-workflow="source-master-detail"] :where(.contract-mode, dt, code, small),
+.ontology-dashboard[data-operator-workflow="ontology-step-inspector"] :where(.ontology-step-rail strong, .ontology-step-rail span, .ontology-step-rail em) { font-size: 12px !important; }
+
+/* Phase 77 final operational readability and touch targets. */
+.operator-mobile-nav a,
+.operator-footer :where(strong, span),
+.live-state-group-label,
+.live-refresh-state,
+.live-strip-actions button,
+.live-map-layer-filter,
+.alert-queue-tools > span,
+.alert-review-lifecycle li > span,
+.alert-replay-link :where(strong, span),
+.alert-signal-details-header span,
+.alert-classification-guidance :where(span, p),
+.alert-detail-actions span,
+.alert-authority-note :where(strong, span),
+.replay-investigation-compact-header :where(span, small),
+.replay-investigation-selector button,
+.replay-compact-inputs :where(button, input, select),
+.replay-filter-subbar button,
+.ontology-dashboard .semantic-node span,
+.setup-workspace .setup-fields label > span,
+.setup-workspace .source-icon-label,
+.setup-workspace .source-icon-choices button,
+.setup-workspace .source-icon-choices button span { font-size: 12px !important; }
+
+.replay-buttons > button { min-width: 44px; }
+.ontology-info-tip { min-width: 44px; min-height: 44px; }
+.replay-lazy-loading {
+  min-height: 420px;
+  display: grid;
+  place-items: center;
+  color: #44546f;
+  background: #f7f8f9;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* Phase 78 — truthful, browser-local storm exercise in Live Operations. */
+.live-command-deck {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  margin-bottom: 8px;
+  overflow: hidden;
+  border: 1px solid #c7ccd4;
+  border-radius: 9px;
+  background: #ffffff;
+}
+.live-command-deck .live-situation-strip {
+  min-width: 0;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+}
+.live-command-deck .live-state-group [data-live-metric] {
+  min-height: 32px;
+  padding: 6px 7px;
+}
+.live-command-deck .live-operational-review .live-inbox-truth {
+  min-height: 32px;
+}
+.live-time-modes {
+  min-height: 46px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0;
+  padding: 3px 4px;
+  border: 0;
+  border-left: 1px solid #dfe1e6;
+  border-radius: 0;
+  background: #ffffff;
+}
+.live-time-modes button {
+  min-width: 104px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 0 14px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  color: #344563;
+  background: transparent;
+  cursor: pointer;
+  font: 700 13px/1 "Segoe UI", sans-serif;
+}
+.live-time-modes button:hover { background: #f1f2f4; }
+.live-time-modes button[aria-pressed="true"] {
+  color: #0747a6;
+  border-color: #85b8ff;
+  background: #e9f2ff;
+}
+.live-time-modes [data-live-time-mode="simulation"][aria-pressed="true"] {
+  color: #5e3a8c;
+  border-color: #b8a3d6;
+  background: #f4effa;
+}
+.live-time-modes [data-simulation-icon],
+.live-simulation-heading > [data-simulation-icon] {
+  display: inline-grid;
+  place-items: center;
+}
+.live-history-dock[hidden],
+.live-simulation-dock[hidden],
+.live-map-tools button[hidden],
+.live-mobile-inbox-toggle[hidden] { display: none !important; }
+.live-history-dock,
+.live-simulation-dock {
+  grid-column: 1 / -1;
+  margin: 0;
+  border: 0;
+  border-top: 1px solid #dfe1e6;
+  border-radius: 0;
+  background: #ffffff;
+}
+.live-history-dock {
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 7px 10px;
+}
+.live-history-dock > div,
+.live-simulation-heading {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.live-history-dock span,
+.live-simulation-heading > span:nth-child(2),
+.live-simulation-match > span { min-width: 0; display: grid; gap: 2px; }
+.live-history-dock small,
+.live-simulation-heading small,
+.live-simulation-match small { color: #5e6c84; font-size: 12px; line-height: 1.25; }
+.live-history-dock a,
+.live-simulation-match a {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 13px;
+  border: 1px solid #0c66e4;
+  border-radius: 6px;
+  color: #0747a6;
+  background: #ffffff;
+  font-size: 12px;
+  font-weight: 750;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.live-simulation-dock {
+  display: grid;
+  grid-template-columns: minmax(250px, .72fr) minmax(340px, 1.18fr) minmax(340px, .9fr);
+  grid-template-areas:
+    "heading controls match"
+    "metrics metrics metrics";
+  gap: 3px 12px;
+  padding: 5px 8px 4px;
+  border-color: #b8a3d6;
+  box-shadow: inset 3px 0 #6e4aa3;
+}
+.live-simulation-heading { grid-area: heading; }
+.live-simulation-heading > [data-simulation-icon] { color: #5e3a8c; }
+.live-simulation-heading strong { font-size: 13px; }
+.live-simulation-heading output {
+  margin-left: auto;
+  color: #5e3a8c;
+  font-size: 12px;
+  font-weight: 750;
+  white-space: nowrap;
+}
+.live-simulation-controls {
+  grid-area: controls;
+  display: grid;
+  grid-template-columns: repeat(4, 44px) minmax(140px, 1fr);
+  gap: 4px;
+  align-items: center;
+}
+.live-simulation-controls button {
+  width: 44px;
+  min-height: 44px;
+  display: inline-grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid #b7bdc8;
+  border-radius: 6px;
+  color: #344563;
+  background: #ffffff;
+  cursor: pointer;
+}
+.live-simulation-controls button:nth-child(2) { color: #ffffff; border-color: #5e3a8c; background: #5e3a8c; }
+.live-simulation-controls button:disabled { color: #8993a4; background: #f1f2f4; cursor: not-allowed; }
+.live-simulation-controls label { min-width: 0; padding-inline: 8px; }
+.live-simulation-controls input[type="range"] { width: 100%; min-height: 44px; accent-color: #5e3a8c; }
+.live-simulation-metrics {
+  grid-area: metrics;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin: 0;
+  padding-top: 3px;
+  border-top: 1px solid #ebe6f2;
+}
+.live-simulation-metrics > div {
+  min-width: 0;
+  display: inline-flex;
+  flex: 1 1 0;
+  align-items: baseline;
+  gap: 5px;
+  padding: 3px 10px;
+}
+.live-simulation-metrics > div + div { border-left: 1px solid #dfe1e6; }
+.live-simulation-metrics dt { color: #5e6c84; font-size: 12px; }
+.live-simulation-metrics dd { margin: 0; color: #172b4d; font-size: 13px; font-weight: 750; white-space: nowrap; }
+.live-simulation-match {
+  grid-area: match;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(170px, 1fr) auto auto;
+  align-items: center;
+  gap: 10px;
+  padding-left: 12px;
+  border-left: 1px solid #d8c9ea;
+}
+.live-simulation-match strong { font-size: 13px; }
+.live-simulation-match output { color: #5e3a8c; font-size: 22px; font-weight: 800; }
+
+@media (max-width: 1180px) {
+  .live-command-deck { grid-template-columns: 1fr; }
+  .live-command-deck .live-time-modes {
+    grid-column: 1;
+    border-top: 1px solid #dfe1e6;
+    border-left: 0;
+  }
+  .live-simulation-dock {
+    grid-template-columns: minmax(230px, .8fr) minmax(350px, 1.2fr);
+    grid-template-areas:
+      "heading match"
+      "controls controls"
+      "metrics metrics";
+  }
+  .live-simulation-match { padding-left: 12px; }
+}
+
+@media (max-width: 620px) {
+  .live-command-deck .live-time-modes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .live-time-modes button { min-width: 0; padding: 0 7px; font-size: 12px; }
+  .live-history-dock { align-items: stretch; flex-direction: column; }
+  .live-history-dock a { width: 100%; }
+  .live-simulation-dock {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "heading"
+      "controls"
+      "match"
+      "metrics";
+  }
+  .live-simulation-heading { align-items: flex-start; flex-wrap: wrap; }
+  .live-simulation-heading output { width: 100%; margin-left: 29px; }
+  .live-simulation-controls { grid-template-columns: repeat(4, 44px) minmax(80px, 1fr); }
+  .live-simulation-controls label { padding-inline: 2px; }
+  .live-simulation-metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .live-simulation-metrics > div { padding-inline: 7px; }
+  .live-simulation-metrics > div + div { border-left: 0; }
+  .live-simulation-match { grid-template-columns: minmax(0, 1fr) auto; }
+  .live-simulation-match a { grid-column: 1 / -1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .live-simulation-dock,
+  .live-simulation-controls * { transition: none !important; animation: none !important; }
+}

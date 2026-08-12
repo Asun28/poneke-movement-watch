@@ -6,7 +6,6 @@ from movement_anomaly.hilltop_replay import (
     parse_hilltop_series,
 )
 
-
 SAMPLE_XML = """<?xml version="1.0"?>
 <Hilltop>
   <MeasurementData>

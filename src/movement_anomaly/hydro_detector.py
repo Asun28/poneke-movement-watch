@@ -30,7 +30,7 @@ def _quantile(values: list[float], probability: float) -> float:
 
 def _resolution(values: list[float]) -> float:
     unique = sorted(set(values))
-    gaps = [right - left for left, right in zip(unique, unique[1:]) if right > left]
+    gaps = [right - left for left, right in zip(unique, unique[1:], strict=False) if right > left]
     return min(gaps) if gaps else max(abs(unique[0]) * 0.01, 0.001)
 
 

@@ -67,6 +67,8 @@ observation or inference, never an incident decision.
 
 - Mock, synthetic, provider-shape, exercise, stale, unlicensed, unknown-time and `undetermined`
   records are excluded from training, calibration, scoring, thresholds and fusion weights.
+- Live storm/flood Simulation is a deterministic browser-local exercise only. Its saved-case
+  similarity is retrieval context, never a forecast, incident probability, alert or label.
 - Browser-local drafts, cases, tickets, warnings and adapter outputs are not training labels. A
   separate governed label-release process is required.
 - LLM output has weight `0`. It must not set a score, label, threshold, ontology relation, incident

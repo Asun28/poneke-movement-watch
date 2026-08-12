@@ -18,10 +18,15 @@ confirmed or resolved.
 ## Implemented evidence inputs
 
 1. **WCC Transport Sensors** — direct hourly pedestrian and vehicle counts,
-   mapped with WCC countline coordinates. This replay is batch data, not live.
-2. **WCC `TICKET_DETAIL`** — a strict adapter for the supplied field names,
-   statuses, priorities, channels and taxonomy. Tickets remain unverified reports.
-3. **NZTA TMS** — a strict adapter that preserves the provider site and start
+   mapped with WCC countline coordinates. August and April movement outputs are
+   batch/retrospective data, not live telemetry.
+2. **GWRC Hilltop historical observations** — 10,098 official April case records
+   across rainfall and river-flow series. They are bounded Replay evidence, not a
+   claim that the same records were available to operators at event time.
+3. **WCC `TICKET_DETAIL` simulator** — a strict mock adapter for the supplied
+   field names, statuses, priorities, channels and taxonomy. It has no WCC
+   connection, never sends and keeps tickets as unverified reports.
+4. **NZTA TMS** — a strict adapter that preserves the provider site and start
    date but emits no geometry or corridor link without an explicit crosswalk.
 
 The deployed replay uses a real WCC countline observation and a clearly marked
@@ -29,7 +34,7 @@ synthetic ticket-format fixture. The fixture has zero evidence weight.
 
 ## Source truth labels
 
-All 24 registry entries describe real source products. Their demo records are
+All 33 registry entries describe real source products. Their demo records are
 separately labelled:
 
 | Label | Meaning in this build |
@@ -37,6 +42,11 @@ separately labelled:
 | `real_replay` | Official WCC Transport Sensor records are used in the replay |
 | `mock_preview` | Synthetic capability example, always zero evidence weight |
 | `registered_only` | Contract is documented but no record is used |
+
+Live Simulation adds one runtime-only `mock_simulation` source. It is not a real
+provider product, does not enter the 33-source registry and never becomes a COP
+feed. Its deterministic frames carry evidence weight `0`, `alert_eligible: false`,
+`training_use: excluded` and `external_write: false`.
 
 Access is independently labelled `public_free`, `key_required`,
 `permission_required`, `publisher_clearance_required`,
@@ -54,13 +64,20 @@ Access is independently labelled `public_free`, `key_required`,
   accessibility only. The real services require an API key and billing. They
   have monthly free-usage caps, then usage pricing. Google map, attribution and
   caching rules apply; only `place_id` is treated as durable.
+- **Storm/flood Simulation** — browser-local exercise records for rain, surface
+  water, movement, transit delay and reports. Its April percentage is reference
+  similarity only, never incident likelihood, causal evidence or escalation.
 
 ### Registered only
 
-GWRC Hilltop, NZTA road events/TMS, MetService CAP, GeoNet quake/Tilde/Shaking,
+The **live GWRC Hilltop contract**, NZTA road events/TMS, MetService CAP, GeoNet quake/Tilde/Shaking,
 WREMO hubs, WCC emergency routes/water tanks, Metlink realtime/static GTFS and
 NEMA CDEM boundaries remain uncounted. They may affect a future case only when
 time alignment, entity resolution, licensing and quality gates all pass.
+
+This live-contract state is distinct from the packaged April Replay files, which
+contain official historical Hilltop observations with conservative cadence-derived
+availability bounds.
 
 ## Entity-resolution rules
 
@@ -86,13 +103,15 @@ workflow fields needed for review.
 - no automated dispatch, route closure, public warning or confirmation;
 - no trained classifier until verified disruption labels exist;
 - no uncalibrated score presented as incident likelihood.
+- no Simulation frame, similarity score or mock report used as training,
+  calibration, alert or confirmed-incident evidence.
 
 ## 2026 source-layer contract
 
 The v3 ontology includes 33 `DataLayer` nodes. A layer node records publisher
 role, access, current 2026 state and zero-safe evidence weight; it is not an
 incident observation. Only the WCC movement replay currently contributes an
-evidence weight. Empty activation, credentials-required, restricted, paid,
+evidence weight inside this registry contract. Empty activation, credentials-required, restricted, paid,
 terms-review, static/planned and stale-excluded states all remain explicit.
 
 Eventfinda events are planned-demand context and require HTTP Basic credentials

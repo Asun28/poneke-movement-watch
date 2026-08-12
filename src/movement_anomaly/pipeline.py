@@ -1,8 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from .detector import SEASONAL_KEYS, fit_seasonal_baseline, score_observations
-
+from .detector import fit_seasonal_baseline, score_observations
 
 GROUP_KEYS = ["countline_id", "transport_class", "direction"]
 

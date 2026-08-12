@@ -1,6 +1,5 @@
 import pandas as pd
 
-
 RAW_COLUMNS = {
     "_COL_0": "countline_id",
     "_COL_1": "date",

@@ -350,7 +350,10 @@ test("offers historical date-hour replay and a matched-hour trend view", async (
   const response = await render();
   assert.equal(response.status, 200);
   const html = await response.text();
-  const source = await readFile(new URL("../app/MovementCanvas.tsx", import.meta.url), "utf8");
+  const [source, trendSource] = await Promise.all([
+    readFile(new URL("../app/MovementCanvas.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/MovementTrendView.tsx", import.meta.url), "utf8"),
+  ]);
 
   assert.match(html, /aria-label="Replay controls"/);
   assert.doesNotMatch(html, /History replay/);
@@ -365,8 +368,8 @@ test("offers historical date-hour replay and a matched-hour trend view", async (
   assert.match(html, />2×</);
   assert.match(html, />4×</);
   assert.match(html, /Matched-hour trend/);
-  assert.match(source, /function TrendView\(\{ signal, visible \}/);
-  assert.match(source, /<TrendView signal=\{selected\} visible=\{isEvidenceOpen\}/);
+  assert.match(trendSource, /function MovementTrendView\(\{ signal, visible \}/);
+  assert.match(source, /<MovementTrendView signal=\{selected\} visible=\{isEvidenceOpen\}/);
   assert.match(html, /Observed count/);
   assert.match(html, /Expected baseline/);
   assert.match(html, /\/cop\/v1\/movement-replay\.json/);

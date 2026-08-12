@@ -4,11 +4,10 @@ from __future__ import annotations
 
 import argparse
 import json
-from pathlib import Path
 import sys
+from pathlib import Path
 
 import pandas as pd
-
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
@@ -17,7 +16,6 @@ from movement_anomaly.contract import to_replay_collection
 from movement_anomaly.detector import DetectorConfig
 from movement_anomaly.io import load_metadata, load_parquet_shards
 from movement_anomaly.pipeline import analyze_replay
-
 
 START_AT = "2026-04-18T00:00:00+12:00"
 END_AT = "2026-04-22T23:00:00+12:00"

@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
+import { readAppStyles } from "./read-app-styles.mjs";
 
 import {
   buildEvidenceInbox,
@@ -770,7 +771,7 @@ test("keeps April movement and official-impact layers operator-controlled", asyn
 });
 
 test("keeps Replay map controls visible below the compact header", async () => {
-  const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  const css = readAppStyles();
 
   assert.match(css, /\.sensor-replay-workspace \.ops-map-controls \{ top: calc\(var\(--replay-overlay-top\) \+ 8px\); right: 8px; bottom: auto; \}/);
   assert.doesNotMatch(css, /\.sensor-reading-strip/);
@@ -866,7 +867,7 @@ test("compares a simulated stage with April Storm as an explainable reference ma
 
 test("keeps Live mobile map details in one clear bottom sheet", async () => {
   const [css, component] = await Promise.all([
-    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+    Promise.resolve(readAppStyles()),
     readFile(new URL("../app/components/LiveOperationsClient.tsx", import.meta.url), "utf8"),
   ]);
 
@@ -896,7 +897,7 @@ test("projects Replay counts into compact visible and complete accessible status
 });
 
 test("keeps phone status compact and the final operator labels readable", async () => {
-  const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  const css = readAppStyles();
 
   assert.ok(css.includes(".replay-compact-count span { display: none; }"));
   assert.match(css, /\.wcc-ticket-simulator > ol\s*\) \{ font-size: 12px !important; \}/);

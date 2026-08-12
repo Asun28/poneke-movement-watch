@@ -51,13 +51,26 @@ An LLM may turn the structured evidence into a short operator explanation. It
 must not change the numerical score, create labels, declare an emergency or
 override `normal`, `candidate`, `data_gap` and `insufficient_baseline` states.
 
+## Simulation boundary
+
+Live Operations includes a deterministic browser-local storm/flood exercise so
+operators can see map layers change and open a relevant saved investigation when
+live movement telemetry is unavailable. Its rain, movement, transit and report
+values are authored scenario fixtures, not observations or labels.
+
+Every Simulation record and its April reference-similarity output has evidence
+weight `0`. They are excluded from this detector's fit, benchmark, thresholds,
+calibration and accuracy claims. Similarity is computed only over available
+scenario domains and is not a forecast, incident probability or classifier score.
+
 ## Ontology boundary
 
 The detector produces an observation. A deterministic evidence layer may rank a
 hypothesis using visible review units, but it cannot create a human decision or
 confirmed fact. The supplied synthetic ticket-format fixture is visible and has
-zero weight. No additional classifier is trained because verified disruption
-labels are not available.
+zero weight. The Live exercise and its saved-case comparison have the same
+zero-authority boundary. No additional classifier is trained because verified
+disruption labels are not available.
 
 ## Known limits
 

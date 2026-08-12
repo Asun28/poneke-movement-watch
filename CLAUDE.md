@@ -24,6 +24,19 @@ prototype and demos it for four minutes.
 Build time is roughly six and a half hours, minus lunch. Scope accordingly:
 a narrow thing that works beats a broad thing that doesn't demo.
 
+## Current prototype state
+
+The hackathon build has since become a seven-module decision-support demo. Live
+Operations now has `Live / History / Simulation` modes in one compact command
+deck. Simulation is a deterministic browser-local six-stage storm/flood exercise;
+it is Mock, evidence weight `0`, alert-ineligible, excluded from training and has
+no external write. Its April Storm percentage is reference-only pattern
+similarity, not a forecast, probability or automatic decision.
+
+Replay Analyzer remains the authority for bounded historical inspection. WCC
+movement data is batch replay, not live telemetry. The canonical repository is
+`https://github.com/Asun28/poneke-movement-watch`.
+
 ## This team's problem — 05: Detect unusual changes in movement around the city
 
 > How might we identify and map sudden changes in pedestrian or vehicle movement that could indicate disruption, unsafe conditions, evacuation or loss of access?
@@ -79,8 +92,10 @@ Three traps worth knowing before you lose an hour to them:
 
 ## Constraints that matter here
 
-- **Hazard-planning data, not live emergency information.** Nothing built today
-  should be presented as an operational emergency source. In an emergency, 111.
+- **Decision support, not an emergency service.** Connected current feeds retain
+  their source truth, but this prototype must not be presented as dispatch,
+  incident confirmation or public warning authority. Simulation and batch replay
+  are never live emergency information. In an emergency, call 111.
 - **Show reliability, don't hide it.** Several of these problem statements are
   explicitly about making limitations visible. If the prototype infers or
   aggregates, say so in the interface. Never present an unverified public post

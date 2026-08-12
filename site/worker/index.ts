@@ -7,6 +7,7 @@ import { buildSituationClusters } from "../lib/situationWorkflow.mjs";
 import { makeLiveAdapters } from "../lib/liveAdapters.mjs";
 import { PROVIDER_FIXTURES } from "../lib/providerFixtures.mjs";
 import { SOURCE_MANIFEST } from "../lib/sourceManifest.mjs";
+import { resolveCorsPolicy } from "../lib/corsPolicy.mjs";
 import {
   prepareWorkflowMock,
   simulateWccTicketEvent,
@@ -17,6 +18,7 @@ import {
 interface Env {
   ASSETS: Fetcher;
   DB: D1Database;
+  ALLOWED_POST_ORIGINS?: string;
   IMAGES: {
     input(stream: ReadableStream): {
       transform(options: Record<string, unknown>): {
@@ -33,61 +35,69 @@ interface ExecutionContext {
 
 const integrationContracts = buildSourceContracts(registry, SOURCE_MANIFEST);
 
-function jsonResponse(payload: unknown, init: ResponseInit = {}) {
+function jsonResponse(payload: unknown, init: ResponseInit = {}, allowOrigin: string | null = "*") {
   const headers = new Headers(init.headers);
   headers.set("content-type", "application/json; charset=utf-8");
-  headers.set("access-control-allow-origin", "*");
+  if (allowOrigin) headers.set("access-control-allow-origin", allowOrigin);
   headers.set("cache-control", "no-store");
   headers.set("x-content-type-options", "nosniff");
   return new Response(JSON.stringify(payload, null, 2), { ...init, headers });
 }
 
-async function handleIntegrationApi(request: Request, pathname: string) {
+async function handleIntegrationApi(request: Request, pathname: string, allowedPostOrigins = "") {
+  const cors = resolveCorsPolicy(request, allowedPostOrigins);
+  if (!cors.allowed) {
+    return jsonResponse({ error: "cors_origin_not_allowed" }, { status: 403 }, null);
+  }
   if (request.method === "OPTIONS") {
+    const headers = new Headers({
+      "access-control-allow-methods": cors.allowMethods,
+      "access-control-allow-headers": "accept, content-type",
+      "access-control-max-age": "600",
+      vary: "Origin",
+    });
+    if (cors.allowOrigin) headers.set("access-control-allow-origin", cors.allowOrigin);
     return new Response(null, {
       status: 204,
-      headers: {
-        "access-control-allow-origin": "*",
-        "access-control-allow-methods": "GET, POST, OPTIONS",
-        "access-control-allow-headers": "accept, content-type",
-      },
+      headers,
     });
   }
+  const respond = (payload: unknown, init: ResponseInit = {}) => jsonResponse(payload, init, cors.allowOrigin);
   if (pathname === "/api/integration/v1/workflow-adapters") {
-    if (request.method === "GET") return jsonResponse(workflowAdapterCatalog());
+    if (request.method === "GET") return respond(workflowAdapterCatalog());
     if (request.method === "POST") {
       try {
         const body = await request.json() as { adapter_id?: string; case?: Record<string, unknown> };
-        return jsonResponse(prepareWorkflowMock(body.adapter_id, body.case));
+        return respond(prepareWorkflowMock(body.adapter_id, body.case));
       } catch (error) {
         const code = error instanceof Error && "code" in error
           ? String(error.code)
           : "invalid_workflow_request";
-        return jsonResponse({ error: code }, { status: 400 });
+        return respond({ error: code }, { status: 400 });
       }
     }
-    return jsonResponse({ error: "method_not_allowed" }, { status: 405, headers: { allow: "GET, POST, OPTIONS" } });
+    return respond({ error: "method_not_allowed" }, { status: 405, headers: { allow: "GET, POST, OPTIONS" } });
   }
   if (pathname === "/api/integration/v1/wcc-ticket-events") {
-    if (request.method === "GET") return jsonResponse(wccTicketEventContract());
+    if (request.method === "GET") return respond(wccTicketEventContract());
     if (request.method === "POST") {
       try {
         const body = await request.json() as Record<string, unknown>;
-        return jsonResponse(simulateWccTicketEvent(body));
+        return respond(simulateWccTicketEvent(body));
       } catch (error) {
         const code = error instanceof Error && "code" in error
           ? String(error.code)
           : "invalid_wcc_ticket_event";
-        return jsonResponse({ error: code }, { status: 400 });
+        return respond({ error: code }, { status: 400 });
       }
     }
-    return jsonResponse({ error: "method_not_allowed" }, { status: 405, headers: { allow: "GET, POST, OPTIONS" } });
+    return respond({ error: "method_not_allowed" }, { status: 405, headers: { allow: "GET, POST, OPTIONS" } });
   }
   if (request.method !== "GET") {
-    return jsonResponse({ error: "method_not_allowed" }, { status: 405, headers: { allow: "GET, OPTIONS" } });
+    return respond({ error: "method_not_allowed" }, { status: 405, headers: { allow: "GET, OPTIONS" } });
   }
   if (pathname === "/api/integration/v1/contracts") {
-    return jsonResponse(integrationContracts, {
+    return respond(integrationContracts, {
       headers: { "cache-control": "public, max-age=300, stale-while-revalidate=3600" },
     });
   }
@@ -98,14 +108,14 @@ async function handleIntegrationApi(request: Request, pathname: string) {
     mockFixtures: PROVIDER_FIXTURES,
     now: new Date(),
   });
-  if (pathname === "/api/integration/v1/snapshot") return jsonResponse(snapshot);
+  if (pathname === "/api/integration/v1/snapshot") return respond(snapshot);
   if (pathname === "/api/alerts/v1/candidates") {
-    return jsonResponse(createAlertCandidates(snapshot));
+    return respond(createAlertCandidates(snapshot));
   }
   if (pathname === "/api/alerts/v1/situations") {
-    return jsonResponse(buildSituationClusters(createAlertCandidates(snapshot)));
+    return respond(buildSituationClusters(createAlertCandidates(snapshot)));
   }
-  return jsonResponse({ error: "not_found" }, { status: 404 });
+  return respond({ error: "not_found" }, { status: 404 });
 }
 
 // Image security config. SVG sources with .svg extension auto-skip the
@@ -119,7 +129,7 @@ const worker = {
     const url = new URL(request.url);
 
     if (url.pathname.startsWith("/api/integration/") || url.pathname.startsWith("/api/alerts/")) {
-      return handleIntegrationApi(request, url.pathname);
+      return handleIntegrationApi(request, url.pathname, env.ALLOWED_POST_ORIGINS);
     }
 
     if (url.pathname === "/_vinext/image") {

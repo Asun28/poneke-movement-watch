@@ -4,15 +4,18 @@ An evidence-first modular prototype for Wellington City Council (WCC) Emergency
 Management. A shared Data Integration Layer supplies current official feeds,
 source health, historical movement replay and review-only alert candidates to
 multiple dashboards without collapsing observations into confirmed incidents.
+Live Operations also includes an explicitly synthetic, browser-local storm
+exercise for demonstrating time-varying evidence and saved-case comparison.
 
 **Live demo:** [poneke-movement-watch.sun28long.chatgpt.site](https://poneke-movement-watch.sun28long.chatgpt.site/)
 
 **Licence:** [Apache-2.0](LICENSE) for project code and the synthetic sample.
 Third-party publisher data retains its own terms.
 
-The deployed view opens on one map-first **Live Operations** workspace. **Replay Analyzer** retains
-every published hour from 1–6 August 2026, including 12:00 Thursday 6 August. This is
-a decision-support prototype, not an emergency dispatch or public warning system.
+The deployed view opens on one map-first **Live Operations** workspace with
+**Live**, **History** and **Simulation** modes. **Replay Analyzer** retains every
+published hour from 1–6 August 2026, including 12:00 Thursday 6 August. This is a
+decision-support prototype, not an emergency dispatch or public warning system.
 
 ## Problem 05
 
@@ -41,6 +44,21 @@ fabricated map location.
 Core filters wrap instead of leaving the viewport, and zero promoted candidates is visibly labelled
 as uncertainty rather than an all-clear. The Live map supports geographic arrow-key navigation,
 Enter selection and Escape return; advanced Ontology graphs and source paths mount only when opened.
+
+The compact command deck keeps source health, operational review, refresh actions
+and the temporal mode switch in one bounded control. Its modes have distinct truth:
+
+- **Live** reads the current normalized snapshot and preserves source health and freshness;
+- **History** links to saved investigations whose evidence is inspected in Replay Analyzer;
+- **Simulation** plays six deterministic mock storm/flood stages from baseline to flood pattern.
+
+Simulation changes rainfall, surface water, pedestrian/vehicle movement, public
+transport delay and mock report records on the shared map. Every frame is
+browser-local, `evidence_weight: 0`, ineligible for alerts and excluded from
+training, calibration and external writes. Its April Storm percentage is a
+missing-aware pattern-similarity reference over available domains—not a forecast,
+incident probability, causal claim or automatic escalation. The comparison links
+directly to the saved April investigation for human review.
 
 ## Historical replay
 
@@ -75,11 +93,12 @@ observed and expected counts, observation time and source status. Inspection is
 disabled during playback and never appears for a zero-record source layer. The
 signal list exposes the same evidence as the keyboard-accessible alternative.
 
-Map navigation is not limited to fixed button steps. Use the mouse wheel or
-trackpad over the map, drag the 50%–1000% zoom slider, or use the plus/minus and
-reset buttons. Wheel zoom keeps the pointed area in place. After zooming, drag
+Map navigation is not limited to fixed button steps. Use the mouse wheel,
+trackpad/pinch gesture or the compact Google-style plus/minus controls across the
+50%–2000% operating range. Wheel zoom keeps the pointed area in place. After zooming, drag
 the map to reach another countline and click a visible marker to select its
-evidence. Reset restores both zoom and map position. **Full screen** expands the
+evidence. Clustering is operator-adjustable and keeps individual records visible
+until the chosen zoom threshold. Reset restores both zoom and map position. **Full screen** expands the
 map stage while keeping basemap, countlines, movement markers, layer state and
 paused inspection aligned.
 
@@ -108,6 +127,8 @@ flowchart LR
     B --> C["Data Integration API v1<br/>contracts · snapshot · health"]
     C --> D["Live Operations<br/>what is happening now"]
     C --> E["Replay Analyzer<br/>known historical event"]
+    S["Browser-local Simulation<br/>deterministic Mock · weight 0"] --> D
+    D -->|"open saved investigation"| E
     C --> F["Alert policy<br/>freshness · ontology · rules"]
     C --> G["Future WCC modules"]
     F --> H["LLM explanation<br/>no decision authority"]
@@ -120,7 +141,7 @@ flowchart LR
 
 | Route | Module | Purpose |
 |---|---|---|
-| `/live` | Live Operations | Inspect grouped evidence, map layers and zero-weight city context in one map-first workspace. |
+| `/live` | Live Operations | Inspect current evidence, open saved history or play a zero-authority storm exercise in one map-first workspace. |
 | `/alerts` | Signal Review | Triage candidates, investigate cases, classify outcomes, prepare approval packs and inspect read-only evidence. |
 | `/replay` | Replay Analyzer | Select April Storm or August movement cases, create local investigation drafts and inspect bounded historical evidence. |
 | `/integration` | Data Integration | Review all 33 source contracts, access, runtime health, provider formats and integration endpoints. |
@@ -464,13 +485,15 @@ The map's collapsible left workspace separates three control types:
 - **Source layers** — one selectable integration layer for each of the 33
   source-registry contracts.
 
-Only `wcc-transport-sensors` currently has real replay records. Playback stops
-when that source layer is deselected. Selecting a mock, restricted, paid or
-registered-only source changes the intended integration set, but it cannot add
+The August investigation plays real `wcc-transport-sensors` batch records; the
+April investigation separately plays packaged official GWRC Hilltop history and
+optional retrospective WCC movement outcomes. Playback responds only to sources
+with records in the selected case. Selecting a mock, restricted, paid or
+registered-only source changes the intended integration set, but cannot invent
 markers, evidence or animation; its layer says `0 playable records`. Operators
-can search, select all, clear all, return to the replay-only source, hide the
-workspace and adjust neutral map-symbol size. Person/car pictograms are not used;
-the existing direction arrows remain the movement marker.
+can search, select all, clear all, hide the workspace and adjust symbol size.
+People and vehicle markers use distinct icons while retaining the source travel
+direction.
 
 Source layers are presentation/integration controls, not new ontology evidence.
 A layer becomes playable only when a real adapter supplies time-aligned records
@@ -498,22 +521,30 @@ label reveals its contract but does not make it playable.
 
 | Demo status | Sources shown | Access / cost |
 |---|---|---|
-| **Real replay** | WCC Transport Sensors | Public source; real August 2026 batch records |
+| **Real replay** | WCC Transport Sensors; packaged GWRC Hilltop April history | Public official sources; historical/batch records with case-specific time limits |
 | **Mock · zero weight** | WCC ticket adapter | Council input required; synthetic fixture |
 | **Mock · zero weight** | NEMA Emergency Mobile Alert | Restricted; explicit NEMA/WCC permission required; no endpoint or polygon is published |
 | **Mock · zero weight** | WCC road closures | Public source; adapter preview only |
 | **Mock · zero weight** | Wellington Water jobs, NEMA electricity outages, WCC events, Wellington Airport flights, CentrePort cruise schedule | Publisher terms or reuse clearance required |
 | **Mock · zero weight** | Google Routes and Places APIs | API key and billing account required; monthly free caps exist, then usage pricing applies |
-| **Registered only** | NZTA, GWRC, MetService, GeoNet, WREMO, emergency assets, Metlink static/realtime, Eventfinda, planned works, EAC, public EMA CAP, cameras, FENZ and KiwiRail contracts | No records from these sources affect this replay unless a permitted adapter supplies a time-aligned record |
+| **Registered only** | NZTA, live GWRC contract, MetService, GeoNet, WREMO, emergency assets, Metlink static/realtime, Eventfinda, planned works, EAC, public EMA CAP, cameras, FENZ and KiwiRail contracts | No records from these contracts affect a case unless a permitted adapter or packaged investigation supplies time-aligned records |
 
 The capability cards on the demo use synthetic examples only to show possible
 ontology links. Mock cards always carry `evidence_weight: 0`. Timetables and
 event schedules are planned-demand context, not proof of attendance or disruption.
 
+The Live storm exercise is a browser-local scenario source, not a connected
+registry feed and not a COP endpoint. Its seven final-stage map observations are
+regenerated deterministically from six fixed scenario frames; they are never mixed
+with current source-health counts or persisted as operational evidence.
+
 ### April storm backtest
 
 The 18–22 April 2026 storm event pack is routed directly into Replay Analyzer as a backtest event.
 It is a retrospective case-study contract; it does not rewind or alter live feeds.
+Live Simulation may compare its current synthetic stage with a fixed April reference
+profile and open this pack. That comparison uses only the simulated domains currently
+present, reports coverage alongside the score and has `decision_role: reference_only`.
 
 - Training data must end before `2026-04-18T00:00:00+12:00`.
 - Every replay step may use only records whose `available_at` is not later than
@@ -577,6 +608,9 @@ The site publishes static, cacheable contracts that can slot into a shared map.
 | `/cop/v4/april-storm-hydro-detector.json` | Pre-event robust baselines and 99 grouped, investigation-only hydro episodes |
 | `/cop/v4/april-storm-movement-outcomes.json` | 120 hourly April movement-model slots; retrospective only, never event-time evidence |
 
+The browser-local Simulation has no COP feed by design. Publishing it as an
+operational endpoint would blur exercise data with evidence truth.
+
 Example:
 
 ```powershell
@@ -590,9 +624,9 @@ $case.hypotheses | Select-Object id, review_priority, evidence_state
 Requirements: Python 3.11+ and Node.js.
 
 ```powershell
-python -m venv .venv
-.\.venv\Scripts\pip install -e ".[test]"
-.\.venv\Scripts\python -m pytest -q
+uv sync --group dev --extra test
+uv run pytest -q
+uv run ruff check .
 
 Set-Location site
 npm install
@@ -651,11 +685,17 @@ Build the v2 ontology replay:
 
 ```text
 ├── src/movement_anomaly/       Python detector, contracts and ontology
+│   ├── ontology.py             Stable public ontology facade
+│   ├── ontology_evidence.py    Normalization and evidence evaluation
+│   └── ontology_city.py        City graph and source registry
 ├── scripts/                    Reproducible v1 and v2 artifact builders
 ├── tests/                      Detector, adapter, ontology and CLI tests
 ├── data/sample/                Synthetic clean-clone builder fixture
 ├── site/
 │   ├── app/                    Web interface
+│   │   ├── styles/             Ordered global style layers
+│   │   └── MovementCanvas.tsx  Replay workspace orchestration
+│   ├── lib/liveSimulation.mjs  Deterministic zero-authority exercise and reference comparison
 │   ├── public/cop/v1/          Movement signal contracts
 │   └── public/cop/v2/          Ontology and evidence contracts
 ├── artifacts/                  Benchmark and replay fixtures
@@ -665,7 +705,8 @@ Build the v2 ontology replay:
 ## Verification and further reading
 
 ```powershell
-.\.venv\Scripts\python -m pytest -q
+uv run pytest -q
+uv run ruff check .
 Set-Location site
 npm test
 npm run lint
@@ -676,6 +717,7 @@ npm run lint
 - [Curated architecture decisions](docs/decisions/README.md)
 - [Full-data reproduction guide](docs/data-reproduction.md)
 - [Four-minute demo script](docs/demo-script.md)
+- [Security policy](SECURITY.md)
 - [Machine-readable benchmark](artifacts/model-benchmark.json)
 
 ## Attribution

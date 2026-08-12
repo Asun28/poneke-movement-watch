@@ -1,13 +1,14 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
+import { readAppStyles } from "./read-app-styles.mjs";
 
 const workerUrl = new URL("../dist/server/index.js", import.meta.url);
 workerUrl.searchParams.set("operator-test", `${process.pid}-${Date.now()}`);
 const { default: worker } = await import(workerUrl.href);
 const env = { ASSETS: { fetch: async () => new Response("Not found", { status: 404 }) } };
 const ctx = { waitUntil() {}, passThroughOnException() {} };
-const operatorStyles = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
+const operatorStyles = readAppStyles();
 const replayWorkspaceSource = readFileSync(new URL("../app/components/ReplayWorkspaceClient.tsx", import.meta.url), "utf8");
 
 function request(pathname, init) {
@@ -837,6 +838,37 @@ test("serves provider-shaped workflow mocks and never reports a dispatch", async
   });
   assert.equal(invalidResponse.status, 400);
   assert.deepEqual(await invalidResponse.json(), { error: "unknown_workflow_adapter" });
+});
+
+test("keeps reads public while scoping browser mutation CORS", async () => {
+  const publicRead = await request("/api/integration/v1/contracts", {
+    headers: { origin: "https://public.example" },
+  });
+  assert.equal(publicRead.status, 200);
+  assert.equal(publicRead.headers.get("access-control-allow-origin"), "*");
+
+  const deniedMutation = await request("/api/integration/v1/workflow-adapters", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      origin: "https://untrusted.example",
+    },
+    body: "{}",
+  });
+  assert.equal(deniedMutation.status, 403);
+  assert.equal(deniedMutation.headers.get("access-control-allow-origin"), null);
+  assert.deepEqual(await deniedMutation.json(), { error: "cors_origin_not_allowed" });
+
+  const sameOriginMutation = await request("/api/integration/v1/workflow-adapters", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      origin: "http://localhost",
+    },
+    body: "{}",
+  });
+  assert.equal(sameOriginMutation.status, 400);
+  assert.equal(sameOriginMutation.headers.get("access-control-allow-origin"), "http://localhost");
 });
 
 test("serves Situation records and bidirectional WCC Ticket simulation without a connector", async () => {

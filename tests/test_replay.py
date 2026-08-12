@@ -1,7 +1,7 @@
 import pandas as pd
 
-from movement_anomaly.detector import DetectorConfig
 import movement_anomaly.pipeline as pipeline
+from movement_anomaly.detector import DetectorConfig
 
 
 def test_replay_uses_only_prior_matched_hours_and_keeps_empty_candidate_slots():

@@ -9,7 +9,6 @@ from typing import Iterable
 from xml.etree import ElementTree
 from zoneinfo import ZoneInfo
 
-
 WELLINGTON = ZoneInfo("Pacific/Auckland")
 
 
