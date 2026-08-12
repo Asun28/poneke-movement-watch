@@ -269,12 +269,13 @@ test("opens Live as one map-first workspace with readable evidence overlays", as
 
   assert.match(live, /aria-label="Unified Live map workspace"/);
   assert.match(live, /aria-label="Live Operations time modes"/);
+  assert.match(live, /class="live-command-deck"[^>]*data-live-command-deck="grouped">[\s\S]*?class="live-situation-strip"[\s\S]*?class="live-time-modes"/);
   assert.match(live, /data-live-time-mode="live"[^>]*aria-pressed="true"/);
   assert.match(live, /data-live-time-mode="history"/);
   assert.match(live, /data-live-time-mode="simulation"/);
   assert.match(live, /data-simulation-icon="flask"/);
   assert.match(live, />Simulation</);
-  assert.match(live, /class="live-simulation-dock"[^>]*hidden=""[^>]*aria-label="Storm and flood simulation controls"/);
+  assert.match(live, /class="live-simulation-dock"[^>]*data-density="compact"[^>]*hidden=""[^>]*aria-label="Storm and flood simulation controls"/);
   assert.match(live, /Mock scenario · weight 0 · no alert · no training/);
   assert.match(live, /aria-label="Simulation timeline"/);
   assert.match(live, /aria-label="Saved investigation comparison"/);

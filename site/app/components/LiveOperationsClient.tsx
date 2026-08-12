@@ -310,6 +310,7 @@ export default function LiveOperationsClient() {
 
   return (
     <section className="live-workspace live-map-first" aria-label="Live emergency information workspace" aria-busy={loading}>
+      <div className="live-command-deck" data-live-command-deck="grouped">
       <div className="live-situation-strip" aria-label="Live operational status">
         <section className="live-state-group live-source-health" data-live-state-group="source-health" aria-label="Source health">
           <span className="live-state-group-label">Source health</span>
@@ -352,7 +353,7 @@ export default function LiveOperationsClient() {
         <a href={simulationMatch.reference.replay_url}>Open April Storm 2026</a>
       </section>
 
-      <section className="live-simulation-dock" hidden={timeMode !== "simulation"} aria-label="Storm and flood simulation controls">
+      <section className="live-simulation-dock" data-density="compact" hidden={timeMode !== "simulation"} aria-label="Storm and flood simulation controls">
         <div className="live-simulation-heading">
           <span data-simulation-icon="flask"><Flask aria-hidden="true" size={20} weight="regular" /></span>
           <span><strong>Storm & flood exercise</strong><small>Mock scenario · weight 0 · no alert · no training</small></span>
@@ -380,6 +381,7 @@ export default function LiveOperationsClient() {
           <a href={simulationMatch.reference.replay_url}>Open saved investigation</a>
         </aside>
       </section>
+      </div>
 
       <section className={`live-map-workspace${selected || inboxOpen || layersOpen || contextOpen ? " has-mobile-sheet" : ""}`} aria-label="Unified Live map workspace" data-live-map-first="true">
         <LiveMap
