@@ -283,6 +283,8 @@ test("opens Live as one map-first workspace with readable evidence overlays", as
   assert.match(live, /data-live-layer-toggle="access-impacts"/);
   assert.match(live, /data-live-layer-toggle="reports"/);
   assert.match(live, /data-live-layer-toggle="other-live"/);
+  assert.equal((live.match(/class="live-map-layer-filter(?: is-active)?"/g) ?? []).length, 6);
+  assert.doesNotMatch(live, /live-filter-check/);
   assert.match(live, /data-filter-state="selected"/);
   assert.match(live, /aria-label="Live map layers"/);
   assert.match(live, /Current feeds/);

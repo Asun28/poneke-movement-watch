@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Buildings, Check, FunnelSimple, MagnifyingGlass, Stack, Tray, X } from "@phosphor-icons/react";
+import { Buildings, FunnelSimple, MagnifyingGlass, Stack, Tray, X } from "@phosphor-icons/react";
 import { buildLiveMapCard, filterLiveMapObservations, LIVE_MAP_LAYERS, toggleLiveMapPanel } from "../../lib/liveMapWorkspace.mjs";
 import EventSymbolBadge from "./EventSymbolBadge";
 import LiveMap from "./LiveMap";
@@ -319,12 +319,12 @@ export default function LiveOperationsClient() {
             <button
               key={layer.id}
               type="button"
-              className={activeLayers.has(layer.id) ? "is-active" : ""}
+              className={`live-map-layer-filter${activeLayers.has(layer.id) ? " is-active" : ""}`}
               aria-pressed={activeLayers.has(layer.id)}
               data-filter-state={activeLayers.has(layer.id) ? "selected" : "available"}
               data-live-layer-toggle={layer.id}
               onClick={() => toggleLayer(layer.id)}
-            ><EventSymbolBadge symbolId={LIVE_LAYER_SYMBOLS[layer.id]} decorative />{layer.label}{activeLayers.has(layer.id) ? <Check className="live-filter-check" aria-hidden="true" size={15} weight="bold" /> : null}</button>
+            ><EventSymbolBadge symbolId={LIVE_LAYER_SYMBOLS[layer.id]} decorative />{layer.label}</button>
           ))}
         </nav>
 
