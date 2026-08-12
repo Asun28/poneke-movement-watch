@@ -18,6 +18,13 @@ try {
   // The contract tests stay readable during the initial RED step.
 }
 
+let liveSimulation = {};
+try {
+  liveSimulation = await import("../lib/liveSimulation.mjs");
+} catch {
+  // The contract tests stay readable during the initial RED step.
+}
+
 let replayDataWorkspace = {};
 try {
   replayDataWorkspace = await import("../lib/replayDataWorkspace.mjs");
@@ -799,6 +806,62 @@ test("expands every Live map hit target to at least 44 pixels", () => {
   assert.equal(liveMapWorkspace.liveMapHitRadius(8), 22);
   assert.equal(liveMapWorkspace.liveMapHitRadius(13), 22);
   assert.equal(liveMapWorkspace.liveMapHitRadius(20), 27);
+});
+
+test("builds a deterministic zero-authority storm and flood simulation that changes by time step", () => {
+  const { buildStormFloodSimulation, simulationFrameAt } = liveSimulation;
+  assert.equal(typeof buildStormFloodSimulation, "function");
+  assert.equal(typeof simulationFrameAt, "function");
+
+  const scenario = buildStormFloodSimulation();
+  assert.equal(scenario.id, "mock-wellington-storm-flood-v1");
+  assert.equal(scenario.source.connector_mode, "mock");
+  assert.equal(scenario.source.alert_eligible, false);
+  assert.equal(scenario.truth.evidence_weight, 0);
+  assert.equal(scenario.truth.training_use, "excluded");
+  assert.equal(scenario.frames.length, 6);
+
+  const first = simulationFrameAt(scenario, -10);
+  const last = simulationFrameAt(scenario, 99);
+  assert.equal(first.index, 0);
+  assert.equal(last.index, 5);
+  assert.ok(last.metrics.rainfall_mm_h > first.metrics.rainfall_mm_h);
+  assert.ok(last.metrics.vehicle_change_pct < first.metrics.vehicle_change_pct);
+  assert.ok(last.observations.length > first.observations.length);
+  assert.ok(last.observations.some((item) => item.properties.transport_class === "Pedestrian" && item.properties.direction));
+  assert.ok(last.observations.some((item) => item.properties.transport_class === "Car" && item.properties.direction));
+  assert.ok(last.observations.every((item) => item.source_id === scenario.source.source_id));
+  assert.ok(last.observations.every((item) => item.evidence_weight === 0 && item.properties.demo_data_status === "mock_simulation"));
+  const layersByKind = new Map(last.observations.map((item) => [
+    item.kind,
+    liveMapWorkspace.classifyLiveObservationLayers(item, scenario.source),
+  ]));
+  assert.deepEqual(layersByKind.get("rain_sensor"), ["sensors-weather"]);
+  assert.deepEqual(layersByKind.get("public_transport_delay"), ["access-impacts"]);
+  assert.deepEqual(layersByKind.get("community_report"), ["reports"]);
+  assert.deepEqual(layersByKind.get("vehicle_movement"), ["other-live"]);
+});
+
+test("compares a simulated stage with April Storm as an explainable reference match, never a probability", () => {
+  const { buildStormFloodSimulation, compareSimulationToSavedInvestigation } = liveSimulation;
+  assert.equal(typeof compareSimulationToSavedInvestigation, "function");
+  const scenario = buildStormFloodSimulation();
+  const early = compareSimulationToSavedInvestigation(scenario.frames[0]);
+  const late = compareSimulationToSavedInvestigation(scenario.frames.at(-1));
+
+  assert.equal(late.reference.id, "wellington-april-storm-2026");
+  assert.match(late.reference.replay_url, /\/replay\?investigation=wellington-april-storm-2026/);
+  assert.ok(late.score > early.score);
+  assert.ok(late.coverage.available > early.coverage.available);
+  assert.equal(late.coverage.total, 5);
+  assert.equal(late.components.length, 5);
+  assert.ok(late.strongest_matches.length > 0);
+  assert.ok(late.material_differences.length > 0);
+  assert.equal(late.decision_role, "reference_only");
+  assert.equal(late.automatic_alert, false);
+  assert.equal(late.training_use, "excluded");
+  assert.equal("probability" in late, false);
+  assert.match(late.disclaimer, /not a forecast, incident probability or automatic alert/i);
 });
 
 test("keeps Live mobile map details in one clear bottom sheet", async () => {

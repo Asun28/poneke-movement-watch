@@ -268,6 +268,19 @@ test("opens Live as one map-first workspace with readable evidence overlays", as
   const review = await (await request("/alerts")).text();
 
   assert.match(live, /aria-label="Unified Live map workspace"/);
+  assert.match(live, /aria-label="Live Operations time modes"/);
+  assert.match(live, /data-live-time-mode="live"[^>]*aria-pressed="true"/);
+  assert.match(live, /data-live-time-mode="history"/);
+  assert.match(live, /data-live-time-mode="simulation"/);
+  assert.match(live, /data-simulation-icon="flask"/);
+  assert.match(live, />Simulation</);
+  assert.match(live, /class="live-simulation-dock"[^>]*hidden=""[^>]*aria-label="Storm and flood simulation controls"/);
+  assert.match(live, /Mock scenario · weight 0 · no alert · no training/);
+  assert.match(live, /aria-label="Simulation timeline"/);
+  assert.match(live, /aria-label="Saved investigation comparison"/);
+  assert.match(live, /April Storm 2026/);
+  assert.match(live, /Pattern similarity only/);
+  assert.match(live, /Open saved investigation/);
   assert.match(live, /data-live-map-first="true"/);
   assert.doesNotMatch(live, /aria-label="Live Operations views"/);
   assert.match(live, /id="live-evidence-inbox" class="live-map-inbox-overlay"[^>]*aria-label="Evidence Inbox overlay"[^>]*hidden=""/);
@@ -889,7 +902,7 @@ test("uses one compact title and status bar on every operator page", async () =>
 test("keeps the compact Live status bar operationally complete", async () => {
   const html = await (await request("/live")).text();
   const component = readFileSync(new URL("../app/components/LiveOperationsClient.tsx", import.meta.url), "utf8");
-  const status = html.match(/<div class="live-situation-strip" aria-label="Live operational status">([\s\S]*?)<\/div>\s*<section class="live-map-workspace"/)?.[1] ?? "";
+  const status = html.match(/<div class="live-situation-strip" aria-label="Live operational status">([\s\S]*?)<\/div>\s*<nav class="live-time-modes"/)?.[1] ?? "";
 
   assert.match(status, /data-live-state-group="source-health"/);
   assert.match(status, /class="live-state-group-label">Source health<\/span>/);

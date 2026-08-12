@@ -1,8 +1,24 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Buildings, FunnelSimple, MagnifyingGlass, Stack, Tray, X } from "@phosphor-icons/react";
+import {
+  ArrowCounterClockwise,
+  Buildings,
+  ClockCounterClockwise,
+  Flask,
+  FunnelSimple,
+  MagnifyingGlass,
+  Pause,
+  Play,
+  Pulse,
+  SkipBack,
+  SkipForward,
+  Stack,
+  Tray,
+  X,
+} from "@phosphor-icons/react";
 import { buildLiveMapCard, filterLiveMapObservations, LIVE_MAP_LAYERS, toggleLiveMapPanel } from "../../lib/liveMapWorkspace.mjs";
+import { buildStormFloodSimulation, compareSimulationToSavedInvestigation, simulationFrameAt } from "../../lib/liveSimulation.mjs";
 import EventSymbolBadge from "./EventSymbolBadge";
 import LiveMap from "./LiveMap";
 
@@ -110,6 +126,7 @@ function CloseIcon() {
 }
 
 type LiveMapPanel = "filters" | "inbox" | "layers" | "context" | null;
+type LiveTimeMode = "live" | "history" | "simulation";
 
 export default function LiveOperationsClient() {
   const sourceSelectionInitialized = useRef(false);
@@ -123,6 +140,13 @@ export default function LiveOperationsClient() {
   const [activeLayers, setActiveLayers] = useState<Set<string>>(new Set(LIVE_MAP_LAYERS.map(({ id }) => id)));
   const [activePanel, setActivePanel] = useState<LiveMapPanel>(null);
   const [query, setQuery] = useState("");
+  const [timeMode, setTimeMode] = useState<LiveTimeMode>("live");
+  const [simulationIndex, setSimulationIndex] = useState(0);
+  const [simulationPlaying, setSimulationPlaying] = useState(false);
+  const [simulationSourceEnabled, setSimulationSourceEnabled] = useState(true);
+  const scenario = useMemo(() => buildStormFloodSimulation(), []);
+  const simulationFrame = useMemo(() => simulationFrameAt(scenario, simulationIndex), [scenario, simulationIndex]);
+  const simulationMatch = useMemo(() => compareSimulationToSavedInvestigation(simulationFrame), [simulationFrame]);
 
   const refresh = useCallback(async () => {
     if (paused) return;
@@ -159,6 +183,20 @@ export default function LiveOperationsClient() {
     };
   }, [refresh]);
 
+  useEffect(() => {
+    if (timeMode !== "simulation" || !simulationPlaying) return;
+    const timer = window.setInterval(() => {
+      setSimulationIndex((current) => {
+        if (current >= scenario.frames.length - 1) {
+          setSimulationPlaying(false);
+          return current;
+        }
+        return current + 1;
+      });
+    }, 1_200);
+    return () => window.clearInterval(timer);
+  }, [scenario.frames.length, simulationPlaying, timeMode]);
+
   const liveSources = useMemo(() => {
     const sourcePriority = new Map([
       ["gwrc-hilltop", 0], ["geonet-tilde-wlgt", 1], ["metservice-cap", 2], ["geonet-quakes", 3],
@@ -183,17 +221,37 @@ export default function LiveOperationsClient() {
     () => new Set(inbox?.candidates.flatMap((candidate) => candidate.evidence.supporting) ?? []),
     [inbox],
   );
+  const mapSources = useMemo<SourceState[]>(() => {
+    if (timeMode === "simulation") return [{ ...scenario.source, record_count: simulationFrame.observations.length } as SourceState];
+    if (timeMode === "history") return [];
+    return snapshot?.sources ?? [];
+  }, [scenario.source, simulationFrame.observations.length, snapshot, timeMode]);
+  const mapObservations = useMemo<Observation[]>(() => {
+    if (timeMode === "simulation") return simulationFrame.observations as Observation[];
+    if (timeMode === "history") return [];
+    return snapshot?.observations ?? [];
+  }, [simulationFrame.observations, snapshot, timeMode]);
+  const effectiveSourceSelection = useMemo(
+    () => timeMode === "simulation" ? new Set(simulationSourceEnabled ? [scenario.source.source_id] : []) : selectedSources,
+    [scenario.source.source_id, selectedSources, simulationSourceEnabled, timeMode],
+  );
+  const effectiveCandidateEvidenceIds = useMemo(
+    () => timeMode === "live" ? candidateEvidenceIds : new Set<string>(),
+    [candidateEvidenceIds, timeMode],
+  );
   const visibleObservations = useMemo(() => filterLiveMapObservations({
-    observations: snapshot?.observations ?? [],
-    sources: snapshot?.sources ?? [],
-    selectedSourceIds: selectedSources,
+    observations: mapObservations,
+    sources: mapSources,
+    selectedSourceIds: effectiveSourceSelection,
     activeLayerIds: activeLayers,
-    candidateEvidenceIds,
+    candidateEvidenceIds: effectiveCandidateEvidenceIds,
     query,
-  }) as Observation[], [activeLayers, candidateEvidenceIds, query, selectedSources, snapshot]);
+  }) as Observation[], [activeLayers, effectiveCandidateEvidenceIds, effectiveSourceSelection, mapObservations, mapSources, query]);
   const selected = visibleObservations.find((observation) => observation.id === selectedObservation) ?? null;
-  const selectedSource = selected ? snapshot?.sources.find((source) => source.source_id === selected.source_id) : null;
+  const selectedSource = selected ? mapSources.find((source) => source.source_id === selected.source_id) : null;
   const selectedCard = selected ? buildLiveMapCard(selected, selectedSource) : null;
+  const simulationSelected = selected?.properties.demo_data_status === "mock_simulation";
+  const layerSources = timeMode === "simulation" ? mapSources : liveSources;
   const contextCards = inbox?.context_cards?.length ? inbox.context_cards : CONTEXT_PLACEHOLDERS;
   const filtersOpen = activePanel === "filters";
   const inboxOpen = activePanel === "inbox";
@@ -203,6 +261,15 @@ export default function LiveOperationsClient() {
   useEffect(() => {
     if (selected?.id) detailRef.current?.focus();
   }, [selected?.id]);
+
+  function changeTimeMode(nextMode: LiveTimeMode) {
+    setTimeMode(nextMode);
+    setSimulationPlaying(false);
+    if (nextMode === "simulation") setSimulationSourceEnabled(true);
+    setSelectedObservation(null);
+    setActivePanel(null);
+    setQuery("");
+  }
 
   function togglePanel(panel: Exclude<LiveMapPanel, null>) {
     setSelectedObservation(null);
@@ -265,20 +332,69 @@ export default function LiveOperationsClient() {
         </div>
       </div>
 
+      <nav className="live-time-modes" aria-label="Live Operations time modes">
+        <button type="button" data-live-time-mode="live" aria-pressed={timeMode === "live"} onClick={() => changeTimeMode("live")}>
+          <Pulse aria-hidden="true" size={18} weight="regular" />Live
+        </button>
+        <button type="button" data-live-time-mode="history" aria-pressed={timeMode === "history"} onClick={() => changeTimeMode("history")}>
+          <ClockCounterClockwise aria-hidden="true" size={18} weight="regular" />History
+        </button>
+        <button type="button" data-live-time-mode="simulation" aria-pressed={timeMode === "simulation"} onClick={() => changeTimeMode("simulation")}>
+          <span data-simulation-icon="flask"><Flask aria-hidden="true" size={18} weight="regular" /></span>Simulation
+        </button>
+      </nav>
+
+      <section className="live-history-dock" hidden={timeMode !== "history"} aria-label="Saved investigation history">
+        <div>
+          <ClockCounterClockwise aria-hidden="true" size={20} weight="regular" />
+          <span><strong>Saved investigations</strong><small>Historical records open in Replay with their original time boundary.</small></span>
+        </div>
+        <a href={simulationMatch.reference.replay_url}>Open April Storm 2026</a>
+      </section>
+
+      <section className="live-simulation-dock" hidden={timeMode !== "simulation"} aria-label="Storm and flood simulation controls">
+        <div className="live-simulation-heading">
+          <span data-simulation-icon="flask"><Flask aria-hidden="true" size={20} weight="regular" /></span>
+          <span><strong>Storm & flood exercise</strong><small>Mock scenario · weight 0 · no alert · no training</small></span>
+          <output aria-live="polite">T+{simulationFrame.elapsed_minutes} min · {simulationFrame.label}</output>
+        </div>
+        <div className="live-simulation-controls">
+          <button type="button" aria-label="Previous simulation step" disabled={simulationIndex === 0} onClick={() => { setSimulationPlaying(false); setSimulationIndex((current) => Math.max(0, current - 1)); }}><SkipBack aria-hidden="true" size={18} weight="regular" /></button>
+          <button type="button" aria-label={simulationPlaying ? "Pause simulation" : "Play simulation"} onClick={() => { if (simulationIndex >= scenario.frames.length - 1) setSimulationIndex(0); setSimulationPlaying((value) => !value); }}>
+            {simulationPlaying ? <Pause aria-hidden="true" size={18} weight="fill" /> : <Play aria-hidden="true" size={18} weight="fill" />}
+          </button>
+          <button type="button" aria-label="Next simulation step" disabled={simulationIndex === scenario.frames.length - 1} onClick={() => { setSimulationPlaying(false); setSimulationIndex((current) => Math.min(scenario.frames.length - 1, current + 1)); }}><SkipForward aria-hidden="true" size={18} weight="regular" /></button>
+          <button type="button" aria-label="Reset simulation" onClick={() => { setSimulationPlaying(false); setSimulationIndex(0); }}><ArrowCounterClockwise aria-hidden="true" size={18} weight="regular" /></button>
+          <label><span className="sr-only">Simulation timeline</span><input aria-label="Simulation timeline" type="range" min="0" max={scenario.frames.length - 1} step="1" value={simulationIndex} onChange={(event) => { setSimulationPlaying(false); setSimulationIndex(Number(event.currentTarget.value)); }} /></label>
+        </div>
+        <dl className="live-simulation-metrics">
+          <div><dt>Rain</dt><dd>{simulationFrame.metrics.rainfall_mm_h} mm/h</dd></div>
+          <div><dt>Vehicles</dt><dd>{simulationFrame.metrics.vehicle_change_pct}%</dd></div>
+          <div><dt>People</dt><dd>{simulationFrame.metrics.pedestrian_change_pct}%</dd></div>
+          <div><dt>Transit</dt><dd>+{simulationFrame.metrics.transit_delay_min} min</dd></div>
+          <div><dt>Reports</dt><dd>{simulationFrame.metrics.report_count}</dd></div>
+        </dl>
+        <aside className="live-simulation-match" aria-label="Saved investigation comparison">
+          <span><strong>{simulationMatch.reference.title}</strong><small>Pattern similarity only · {simulationMatch.coverage.available}/{simulationMatch.coverage.total} comparable signals</small></span>
+          <output>{simulationMatch.score}%</output>
+          <a href={simulationMatch.reference.replay_url}>Open saved investigation</a>
+        </aside>
+      </section>
+
       <section className={`live-map-workspace${selected || inboxOpen || layersOpen || contextOpen ? " has-mobile-sheet" : ""}`} aria-label="Unified Live map workspace" data-live-map-first="true">
         <LiveMap
           observations={visibleObservations}
-          sources={snapshot?.sources ?? []}
+          sources={mapSources}
           selectedId={selectedObservation}
-          highlightedIds={activeLayers.has("review-evidence") ? candidateEvidenceIds : undefined}
+          highlightedIds={timeMode === "live" && activeLayers.has("review-evidence") ? candidateEvidenceIds : undefined}
           onSelect={selectObservation}
         />
 
         <div className="live-map-search">
-          <label htmlFor="live-evidence-search" className="sr-only">Search current evidence</label>
+          <label htmlFor="live-evidence-search" className="sr-only">{timeMode === "simulation" ? "Search simulated evidence" : "Search current evidence"}</label>
           <MagnifyingGlass aria-hidden="true" size={19} weight="regular" />
-          <input id="live-evidence-search" type="search" value={query} onChange={(event) => setQuery(event.currentTarget.value)} placeholder="Search current evidence" />
-          <output className="live-map-search-count" aria-live="polite">{loading ? "…" : visibleObservations.length}</output>
+          <input id="live-evidence-search" type="search" value={query} onChange={(event) => setQuery(event.currentTarget.value)} placeholder={timeMode === "simulation" ? "Search simulated evidence" : "Search current evidence"} />
+          <output className="live-map-search-count" aria-live="polite">{timeMode === "live" && loading ? "…" : visibleObservations.length}</output>
           <button
             className="live-mobile-filter-toggle"
             type="button"
@@ -289,6 +405,7 @@ export default function LiveOperationsClient() {
           ><FunnelSimple aria-hidden="true" size={20} weight="regular" /></button>
           <button
             className="live-mobile-inbox-toggle"
+            hidden={timeMode !== "live"}
             type="button"
             aria-expanded={inboxOpen}
             aria-controls="live-evidence-inbox"
@@ -298,11 +415,11 @@ export default function LiveOperationsClient() {
         </div>
         {query.trim() && (
           <div className="live-map-search-results" aria-label="Live search results">
-            {loading ? <p role="status">Searching current feeds…</p> : null}
-            {!loading && error ? <p role="alert">Current feeds unavailable.</p> : null}
-            {!loading && !error && visibleObservations.length === 0 ? <p>No matches in selected layers.</p> : null}
+            {timeMode === "live" && loading ? <p role="status">Searching current feeds…</p> : null}
+            {timeMode === "live" && !loading && error ? <p role="alert">Current feeds unavailable.</p> : null}
+            {(timeMode !== "live" || !loading) && !error && visibleObservations.length === 0 ? <p>No matches in selected layers.</p> : null}
             {visibleObservations.slice(0, 7).map((observation) => {
-              const source = snapshot?.sources.find((item) => item.source_id === observation.source_id);
+              const source = mapSources.find((item) => item.source_id === observation.source_id);
               const card = buildLiveMapCard(observation, source);
               return (
                 <button key={observation.id} type="button" onClick={() => selectObservation(observation.id)}>
@@ -331,11 +448,11 @@ export default function LiveOperationsClient() {
         </nav>
 
         <div className="live-map-tools" role="toolbar" aria-label="Map tools">
-          <button data-map-tool="evidence" type="button" aria-expanded={inboxOpen} aria-controls="live-evidence-inbox" aria-label={inboxOpen ? "Hide Evidence Inbox" : "Show Evidence Inbox"} title="Evidence Inbox" onClick={() => togglePanel("inbox")}>
+          <button data-map-tool="evidence" type="button" hidden={timeMode !== "live"} aria-expanded={inboxOpen} aria-controls="live-evidence-inbox" aria-label={inboxOpen ? "Hide Evidence Inbox" : "Show Evidence Inbox"} title="Evidence Inbox" onClick={() => togglePanel("inbox")}>
             <Tray aria-hidden="true" size={20} weight="regular" />{(inbox?.review_candidate_count ?? 0) > 0 ? <span>{inbox?.review_candidate_count}</span> : null}
           </button>
           <button data-map-tool="layers" type="button" aria-expanded={layersOpen} aria-controls="live-map-layers" aria-label={layersOpen ? "Hide map layers" : "Show map layers"} title="Layers" onClick={() => togglePanel("layers")}><Stack aria-hidden="true" size={20} weight="regular" /></button>
-          <button data-map-tool="context" type="button" aria-expanded={contextOpen} aria-controls="live-map-context" aria-label={contextOpen ? "Hide city context" : "Show city context"} title="City context" onClick={() => togglePanel("context")}><Buildings aria-hidden="true" size={20} weight="regular" /></button>
+          <button data-map-tool="context" type="button" hidden={timeMode !== "live"} aria-expanded={contextOpen} aria-controls="live-map-context" aria-label={contextOpen ? "Hide city context" : "Show city context"} title="City context" onClick={() => togglePanel("context")}><Buildings aria-hidden="true" size={20} weight="regular" /></button>
         </div>
 
         <aside id="live-evidence-inbox" className="live-map-inbox-overlay" aria-label="Evidence Inbox overlay" hidden={!inboxOpen}>
@@ -375,7 +492,7 @@ export default function LiveOperationsClient() {
 
         <aside id="live-map-layers" className="live-map-layers-overlay" aria-label="Live map layers" hidden={!layersOpen}>
           <header><h2>Layers</h2><button type="button" aria-label="Close layers" onClick={() => setActivePanel(null)}><CloseIcon /></button></header>
-          {loading && <p className="ops-state is-loading" role="status">Loading current feeds…</p>}
+          {timeMode === "live" && loading && <p className="ops-state is-loading" role="status">Loading current feeds…</p>}
           <div className="live-layer-actions">
             <button type="button" onClick={() => setActiveLayers(new Set(LIVE_MAP_LAYERS.map(({ id }) => id)))}>Show all</button>
             <button type="button" onClick={() => setActiveLayers(new Set())}>Hide all</button>
@@ -386,19 +503,25 @@ export default function LiveOperationsClient() {
             ))}
           </div>
           <details>
-            <summary>Current feeds</summary>
+            <summary>{timeMode === "simulation" ? "Simulation source" : "Current feeds"}</summary>
             <div className="live-layer-actions">
-              <button type="button" onClick={() => setSelectedSources(new Set(liveSources.map((source) => source.source_id)))}>Show all</button>
-              <button type="button" onClick={() => setSelectedSources(new Set())}>Hide all</button>
+              <button type="button" onClick={() => timeMode === "simulation" ? setSimulationSourceEnabled(true) : setSelectedSources(new Set(layerSources.map((source) => source.source_id)))}>Show all</button>
+              <button type="button" onClick={() => timeMode === "simulation" ? setSimulationSourceEnabled(false) : setSelectedSources(new Set())}>Hide all</button>
             </div>
             <div className="live-source-list">
-              {liveSources.map((source) => (
+              {layerSources.map((source) => (
                 <label key={source.source_id} htmlFor={`live-source-${source.source_id}`} aria-label={`${source.name} layer`} className={`live-source-row state-${source.runtime_state}`}>
-                  <input id={`live-source-${source.source_id}`} type="checkbox" checked={selectedSources.has(source.source_id)} onChange={(event) => setSelectedSources((current) => {
-                    const next = new Set(current);
-                    if (event.target.checked) next.add(source.source_id); else next.delete(source.source_id);
-                    return next;
-                  })} />
+                  <input id={`live-source-${source.source_id}`} type="checkbox" checked={timeMode === "simulation" ? simulationSourceEnabled : selectedSources.has(source.source_id)} onChange={(event) => {
+                    if (timeMode === "simulation") {
+                      setSimulationSourceEnabled(event.target.checked);
+                      return;
+                    }
+                    setSelectedSources((current) => {
+                      const next = new Set(current);
+                      if (event.target.checked) next.add(source.source_id); else next.delete(source.source_id);
+                      return next;
+                    });
+                  }} />
                   <span><strong>{source.name}</strong><small>{source.runtime_state.replaceAll("_", " ")} · {source.record_count}</small></span>
                 </label>
               ))}
@@ -419,7 +542,7 @@ export default function LiveOperationsClient() {
 
         {selected && selectedCard && (
           <dialog open ref={detailRef} tabIndex={-1} className="live-map-detail-overlay" aria-modal="false" aria-label="Selected evidence details" aria-live="polite" data-mobile-surface="bottom-sheet" data-escape-returns-map="true" onKeyDown={(event) => { if (event.key === "Escape") closeSelectedObservation(); }}>
-            <header><div className="live-map-detail-status"><span className="truth-chip">Official live record</span><strong className={`state-${selectedCard.state.toLowerCase().replaceAll(" ", "-")}`}>{selectedCard.state}</strong></div><button type="button" aria-label="Close selected evidence" onClick={closeSelectedObservation}><CloseIcon /></button></header>
+            <header><div className="live-map-detail-status"><span className="truth-chip">{simulationSelected ? "Mock simulation · weight 0" : "Official live record"}</span><strong className={`state-${selectedCard.state.toLowerCase().replaceAll(" ", "-")}`}>{selectedCard.state}</strong></div><button type="button" aria-label="Close selected evidence" onClick={closeSelectedObservation}><CloseIcon /></button></header>
             <h2>{selectedCard.title}</h2>
             <dl>
               <div><dt>Value</dt><dd>{selectedCard.value}</dd></div>
@@ -428,7 +551,7 @@ export default function LiveOperationsClient() {
               <div><dt>Evidence</dt><dd>{selectedCard.evidence}</dd></div>
             </dl>
             <details className="record-raw"><summary>Raw record</summary><pre>{JSON.stringify(selected.properties, null, 2)}</pre></details>
-            <a href="/alerts">Open Signal Review</a>
+            <a href={simulationSelected ? simulationMatch.reference.replay_url : "/alerts"}>{simulationSelected ? "Open saved investigation" : "Open Signal Review"}</a>
           </dialog>
         )}
 
