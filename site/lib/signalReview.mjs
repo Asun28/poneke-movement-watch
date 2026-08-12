@@ -52,6 +52,40 @@ export function reviewQueueIncludesStatus(queue, status, { has_history = false }
   return queueForReviewStatus(status) === queue;
 }
 
+export function buildReviewQueueView(items, drafts, {
+  queue = "new",
+  query = "",
+  mock = null,
+} = {}) {
+  const normalizedQuery = String(query).trim().toLowerCase();
+  const candidates = Array.isArray(items) ? items.map((item) => ({
+    id: String(item?.id ?? ""),
+    status: drafts?.[item?.id]?.status ?? "open",
+    has_history: Boolean(drafts?.[item?.id]?.updatedAt),
+    search_text: [item?.id, item?.title, item?.source_id].filter(Boolean).join(" ").toLowerCase(),
+  })).filter((item) => item.id) : [];
+  const entries = mock?.id ? [...candidates, {
+    id: String(mock.id),
+    status: mock.status ?? "open",
+    has_history: Boolean(mock.has_history),
+    search_text: [mock.id, mock.title, mock.source_id].filter(Boolean).join(" ").toLowerCase(),
+  }] : candidates;
+  const searchable = normalizedQuery
+    ? entries.filter((item) => item.search_text.includes(normalizedQuery))
+    : entries;
+  const counts = Object.fromEntries(REVIEW_QUEUES.map(({ id }) => [
+    id,
+    searchable.filter((item) => reviewQueueIncludesStatus(id, item.status, { has_history: item.has_history })).length,
+  ]));
+
+  return {
+    counts,
+    visible_ids: searchable
+      .filter((item) => reviewQueueIncludesStatus(queue, item.status, { has_history: item.has_history }))
+      .map((item) => item.id),
+  };
+}
+
 export function classificationFeedback(classification, { is_mock = false } = {}) {
   const item = REVIEW_CLASSIFICATIONS.find(({ id }) => id === classification)
     ?? REVIEW_CLASSIFICATIONS.at(-1);

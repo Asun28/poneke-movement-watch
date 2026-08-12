@@ -556,6 +556,20 @@ test("offers Signal Review queues and governed human outcome feedback", async ()
   assert.match(html, /Not trained automatically/);
 });
 
+test("keeps Signal Review queue state, workflow and evidence presentation coherent", async () => {
+  const html = await (await request("/alerts")).text();
+
+  assert.match(html, /data-visible-review-count="1"/);
+  assert.match(html, /data-queue-count-new="1"/);
+  assert.doesNotMatch(html, /No current candidates/);
+  assert.match(html, /data-step-state="complete"/);
+  assert.match(html, /aria-hidden="true">✓</);
+  assert.match(html, /data-step-state="current"/);
+  assert.match(html, /data-step-state="future"/);
+  assert.match(html, /data-evidence-empty="true"/);
+  assert.match(html, /class="alert-detail-form alert-staff-fields"/);
+});
+
 test("renders a local case COP and warning-preparation workspace", async () => {
   const html = await (await request("/alerts")).text();
 

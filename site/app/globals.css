@@ -4520,3 +4520,119 @@ h1, h2, h3, h4, h5 { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-seri
   .sensor-replay-workspace .ops-map-legend { top: auto; right: 8px; bottom: 68px; left: 8px; max-width: calc(100% - 16px); }
   .sensor-replay-workspace .ops-map-attribution { top: auto; right: 60px; bottom: 12px; left: auto; max-width: calc(100% - 76px); }
 }
+
+/* Phase 62 — coherent Signal Review queue and readable decision workspace. */
+.alert-centre-grid[data-operator-workflow="signal-master-detail"] .alert-review-lifecycle li {
+  color: #42526e;
+  background: #f7f8f9;
+}
+.alert-centre-grid[data-operator-workflow="signal-master-detail"] .alert-review-lifecycle strong {
+  font-size: 11px;
+  font-weight: 700;
+}
+.alert-centre-grid[data-operator-workflow="signal-master-detail"] .alert-review-lifecycle li.is-complete {
+  color: #164b35;
+  border-color: #7abf9f;
+  background: #dcfff1;
+}
+.alert-centre-grid[data-operator-workflow="signal-master-detail"] .alert-review-lifecycle li.is-complete > span {
+  color: #ffffff;
+  border-color: #216e4e;
+  background: #216e4e;
+  font-size: 12px;
+}
+.alert-centre-grid[data-operator-workflow="signal-master-detail"] .alert-review-lifecycle li[aria-current="step"] {
+  color: #0747a6;
+  border-color: #0c66e4;
+  background: #e9f2ff;
+}
+.alert-centre-grid[data-operator-workflow="signal-master-detail"] .alert-review-lifecycle li[aria-current="step"] > span {
+  color: #ffffff;
+  border-color: #0c66e4;
+  background: #0c66e4;
+}
+.alert-centre-grid[data-operator-workflow="signal-master-detail"] .alert-review-lifecycle li[data-step-state="future"] > span {
+  color: #42526e;
+  border-color: #7a869a;
+}
+.alert-centre-grid[data-operator-workflow="signal-master-detail"] .alert-evidence-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  padding: 8px;
+  background: #f7f8f9;
+}
+.alert-centre-grid[data-operator-workflow="signal-master-detail"] .alert-evidence-bucket {
+  min-height: 94px;
+  padding: 11px 12px;
+  border: 1px solid #dfe1e6;
+  border-radius: 6px;
+  background: #ffffff;
+}
+.alert-centre-grid[data-operator-workflow="signal-master-detail"] .alert-evidence-bucket.is-empty {
+  min-height: 58px;
+  border-style: dashed;
+  background: #f1f2f4;
+}
+.alert-centre-grid[data-operator-workflow="signal-master-detail"] .alert-evidence-bucket.is-empty h3,
+.alert-centre-grid[data-operator-workflow="signal-master-detail"] .alert-evidence-bucket.is-empty p {
+  color: #5e6c84;
+}
+.alert-centre-grid[data-operator-workflow="signal-master-detail"] .alert-evidence-bucket h3,
+.alert-centre-grid[data-operator-workflow="signal-master-detail"] .alert-evidence-bucket header span,
+.alert-centre-grid[data-operator-workflow="signal-master-detail"] .alert-evidence-section > header span {
+  font-size: 10px;
+}
+.alert-centre-grid[data-operator-workflow="signal-master-detail"] .alert-evidence-bucket li,
+.alert-centre-grid[data-operator-workflow="signal-master-detail"] .alert-evidence-bucket p {
+  font-size: 11px;
+  line-height: 1.45;
+}
+.alert-centre-grid[data-operator-workflow="signal-master-detail"] .alert-evidence-section > header span,
+.alert-centre-grid[data-operator-workflow="signal-master-detail"] .alert-signal-details-header span,
+.alert-centre-grid[data-operator-workflow="signal-master-detail"] .alert-replay-link span,
+.alert-centre-grid[data-operator-workflow="signal-master-detail"] .alert-ticket-identity code,
+.alert-centre-grid[data-operator-workflow="signal-master-detail"] .alert-ticket-row small {
+  color: #42526e;
+}
+.alert-centre-grid[data-operator-workflow="signal-master-detail"] .alert-signal-details-header span,
+.alert-centre-grid[data-operator-workflow="signal-master-detail"] .alert-replay-link span,
+.alert-centre-grid[data-operator-workflow="signal-master-detail"] .alert-ticket-identity code {
+  font-size: 10px;
+}
+.alert-centre-grid[data-operator-workflow="signal-master-detail"] .mock-chip {
+  color: #6b3500;
+  border: 1px solid #d97008;
+  background: #fff0b3;
+}
+.alert-centre-grid[data-operator-workflow="signal-master-detail"] .alert-ticket-row.is-mock .alert-ticket-row-meta b {
+  color: #6b3500;
+}
+.alert-centre-grid[data-operator-workflow="signal-master-detail"] .alert-staff-fields {
+  margin-top: 14px;
+  padding: 12px;
+  border: 1px solid #dfe1e6;
+  border-radius: 7px;
+  background: #f7f8f9;
+}
+.alert-centre-grid[data-operator-workflow="signal-master-detail"] .alert-staff-fields fieldset {
+  padding: 0;
+  border: 0;
+}
+.alert-centre-grid[data-operator-workflow="signal-master-detail"] .alert-staff-fields legend {
+  color: #172b4d;
+}
+.alert-centre-grid[data-operator-workflow="signal-master-detail"] .alert-detail-form label > span,
+.alert-centre-grid[data-operator-workflow="signal-master-detail"] .alert-detail-form label small,
+.alert-centre-grid[data-operator-workflow="signal-master-detail"] .alert-detail-actions span {
+  color: #42526e;
+}
+
+@media (max-width: 700px) {
+  .alert-centre-grid[data-operator-workflow="signal-master-detail"] .alert-evidence-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 960px) {
+  .alert-centre-grid[data-operator-workflow="signal-master-detail"] { grid-template-columns: 1fr; min-height: 0; }
+  .alert-centre-grid[data-operator-workflow="signal-master-detail"] .alert-queue { border-right: 0; border-bottom: 1px solid var(--hairline); }
+  .alert-centre-grid[data-operator-workflow="signal-master-detail"] .alert-ticket-list { max-height: 230px; min-height: 0; }
+}

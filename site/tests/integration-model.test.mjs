@@ -657,6 +657,34 @@ test("groups review statuses into New, Active, Closed, activity-only History and
   assert.equal(reviewQueueIncludesStatus("closed", "investigating"), false);
 });
 
+test("projects queue counts from the same searchable items that can render", async () => {
+  const { buildReviewQueueView } = await import("../lib/signalReview.mjs");
+  const items = [
+    { id: "candidate-1", title: "Cuba Street movement drop", source_id: "wcc-transport-sensors" },
+  ];
+  const drafts = { "candidate-1": { status: "open", updatedAt: "" } };
+  const mock = {
+    id: "mock-preview",
+    title: "Synthetic northern-access investigation",
+    source_id: "synthetic-fixture",
+    status: "open",
+    has_history: false,
+  };
+
+  assert.deepEqual(buildReviewQueueView(items, drafts, { queue: "new", mock }), {
+    counts: { new: 2, active: 0, closed: 0, history: 0, all: 2 },
+    visible_ids: ["candidate-1", "mock-preview"],
+  });
+  assert.deepEqual(buildReviewQueueView(items, drafts, { queue: "new", query: "synthetic", mock }), {
+    counts: { new: 1, active: 0, closed: 0, history: 0, all: 1 },
+    visible_ids: ["mock-preview"],
+  });
+  assert.deepEqual(buildReviewQueueView(items, drafts, { queue: "active", mock }), {
+    counts: { new: 2, active: 0, closed: 0, history: 0, all: 2 },
+    visible_ids: [],
+  });
+});
+
 test("keeps human classifications governed and excludes mock or undetermined feedback", async () => {
   const { classificationFeedback } = await import("../lib/signalReview.mjs");
 

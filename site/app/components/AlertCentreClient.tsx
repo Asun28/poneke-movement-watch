@@ -3,12 +3,12 @@
 import { FormEvent, KeyboardEvent as ReactKeyboardEvent, useEffect, useState } from "react";
 import { prepareWarningApproval } from "../../lib/caseWorkflow.mjs";
 import {
+  buildReviewQueueView,
   classificationFeedback,
   queueForReviewStatus,
   REVIEW_CLASSIFICATIONS,
   REVIEW_QUEUES,
   REVIEW_STORAGE_KEY,
-  reviewQueueIncludesStatus,
 } from "../../lib/signalReview.mjs";
 import { WORKFLOW_ADAPTERS } from "../../lib/workflowAdapters.mjs";
 
@@ -163,7 +163,7 @@ function warningError(error: string) {
 
 function Bucket({ label, values }: { label: string; values: string[] }) {
   return (
-    <section className={`alert-evidence-bucket bucket-${label.toLowerCase()}`}>
+    <section className={`alert-evidence-bucket bucket-${label.toLowerCase()}${values.length ? "" : " is-empty"}`} data-evidence-empty={values.length === 0}>
       <header><h3>{label}</h3><span>{values.length}</span></header>
       {values.length ? <ul>{values.map((value) => <li key={value}>{value}</li>)}</ul> : <p className="empty">None received</p>}
     </section>
@@ -219,34 +219,29 @@ export default function AlertCentreClient() {
   const selectedKey = selected?.id ?? MOCK_ID;
   const activeReview = reviewDrafts[selectedKey] ?? EMPTY_REVIEW;
   const activeCase = caseDrafts[selectedKey] ?? emptyCaseDraft();
-  const normalizedQuery = query.trim().toLowerCase();
-  const queueCounts = Object.fromEntries(REVIEW_QUEUES.map((queue) => [
-    queue.id,
-    candidates.filter((candidate) => reviewQueueIncludesStatus(
-      queue.id,
-      reviewDrafts[candidate.id]?.status ?? "open",
-      { has_history: Boolean(reviewDrafts[candidate.id]?.updatedAt) },
-    )).length,
-  ])) as Record<ReviewQueue, number>;
-  const filteredCandidates = candidates.filter((candidate) => {
-    const reviewStatus = reviewDrafts[candidate.id]?.status ?? "open";
-    const matchesStatus = reviewQueueIncludesStatus(activeQueue, reviewStatus, {
-      has_history: Boolean(reviewDrafts[candidate.id]?.updatedAt),
-    });
-    const matchesQuery = !normalizedQuery || [candidate.id, candidate.title, candidate.source_id]
-      .some((value) => value.toLowerCase().includes(normalizedQuery));
-    return matchesStatus && matchesQuery;
-  });
+  const mockStatus = reviewDrafts[MOCK_ID]?.status ?? "open";
+  const mockQueueItem = {
+    id: MOCK_ID,
+    title: preview.title,
+    source_id: "synthetic-fixture",
+    status: mockStatus,
+    has_history: Boolean(reviewDrafts[MOCK_ID]?.updatedAt),
+  };
+  const queueView = buildReviewQueueView(candidates, reviewDrafts, {
+    queue: activeQueue,
+    query,
+    mock: mockQueueItem,
+  }) as { counts: Record<ReviewQueue, number>; visible_ids: string[] };
+  const queueCounts = queueView.counts;
+  const visibleIds = new Set(queueView.visible_ids);
+  const filteredCandidates = candidates.filter((candidate) => visibleIds.has(candidate.id));
   const observedLabel = selected
     ? new Intl.DateTimeFormat("en-NZ", { dateStyle: "medium", timeStyle: "short", timeZone: "Pacific/Auckland" }).format(new Date(selected.observed_at))
     : "No observation";
   const signalState = activeReview.status === "closed" ? "Dismissed" : activeReview.status === "needs_action" ? "Promoted" : activeReview.status === "open" ? "Candidate" : "Under review";
   const workflowStep = activeReview.status === "closed" ? 3 : activeReview.status === "open" ? 1 : 2;
   const classification = classificationFeedback(activeReview.classification, { is_mock: !selected });
-  const mockStatus = reviewDrafts[MOCK_ID]?.status ?? "open";
-  const showMock = reviewQueueIncludesStatus(activeQueue, mockStatus, {
-    has_history: Boolean(reviewDrafts[MOCK_ID]?.updatedAt),
-  });
+  const showMock = visibleIds.has(MOCK_ID);
   const channelRows = warningResult?.channels ?? (activeCase.warningState === "awaiting_approval"
     ? EMPTY_CHANNELS.map((channel) => ({ ...channel, status: "prepared_not_sent" }))
     : EMPTY_CHANNELS);
@@ -262,6 +257,9 @@ export default function AlertCentreClient() {
 
   function changeReview(change: Partial<ReviewDraft>) {
     setNotice("");
+    if (change.status && activeQueue !== "all" && activeQueue !== "history") {
+      setActiveQueue(queueForReviewStatus(change.status) as ReviewQueue);
+    }
     setReviewDrafts((current) => ({ ...current, [selectedKey]: { ...(current[selectedKey] ?? EMPTY_REVIEW), ...change } }));
   }
 
@@ -405,7 +403,7 @@ export default function AlertCentreClient() {
 
   return (
     <section className="alert-centre-grid" data-operator-workflow="signal-master-detail">
-      <aside className="alert-queue" data-review-surface="queue" data-default-queue="new" aria-label="Signal review queue" aria-busy={state === "loading"}>
+      <aside className="alert-queue" data-review-surface="queue" data-default-queue="new" data-visible-review-count={queueView.visible_ids.length} data-queue-count-new={queueCounts.new} aria-label="Signal review queue" aria-busy={state === "loading"}>
         <header className="alert-queue-header">
           <h2>Review queue</h2>
           <output>{queueCounts[activeQueue]}</output>
@@ -418,12 +416,8 @@ export default function AlertCentreClient() {
             onChange={(event) => {
               const queue = event.currentTarget.value as ReviewQueue;
               setActiveQueue(queue);
-              const next = candidates.find((candidate) => reviewQueueIncludesStatus(
-                queue,
-                reviewDrafts[candidate.id]?.status ?? "open",
-                { has_history: Boolean(reviewDrafts[candidate.id]?.updatedAt) },
-              ));
-              setSelectedId(next?.id ?? null);
+              const next = buildReviewQueueView(candidates, reviewDrafts, { queue, query, mock: mockQueueItem }).visible_ids[0];
+              setSelectedId(next && next !== MOCK_ID ? next : null);
             }}
           >
             {REVIEW_QUEUES.map((queue) => (
@@ -432,13 +426,17 @@ export default function AlertCentreClient() {
           </select>
         </label>
         <div className="alert-queue-tools">
-          <label><span>Search signals</span><input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="ID, source, title" /></label>
+          <label><span>Search signals</span><input type="search" value={query} onChange={(event) => {
+            const nextQuery = event.target.value;
+            setQuery(nextQuery);
+            const next = buildReviewQueueView(candidates, reviewDrafts, { queue: activeQueue, query: nextQuery, mock: mockQueueItem }).visible_ids[0];
+            setSelectedId(next && next !== MOCK_ID ? next : null);
+          }} placeholder="ID, source, title" /></label>
         </div>
         <div className="alert-ticket-list">
           {state === "loading" && <p className="ops-state is-loading" role="status">Loading review queue…</p>}
           {state === "error" && <p className="ops-state is-error" role="alert">Signal service unavailable.</p>}
-          {state === "ready" && candidates.length === 0 && <div className="alert-empty-state"><strong>No current candidates</strong><p>Not an all-clear</p></div>}
-          {state === "ready" && candidates.length > 0 && filteredCandidates.length === 0 && <div className="alert-empty-state"><strong>No matching signals</strong><p>Clear search or choose another queue.</p></div>}
+          {state === "ready" && queueView.visible_ids.length === 0 && <div className="alert-empty-state"><strong>{query.trim() ? "No matching signals" : "No signals in this queue"}</strong><p>{query.trim() ? "Clear search or choose another queue." : "Not an all-clear"}</p></div>}
           {filteredCandidates.map((candidate) => (
             <button key={candidate.id} type="button" className={`alert-ticket-row ${candidate.id === selectedId ? "is-selected" : ""}`} aria-pressed={candidate.id === selectedId} onClick={() => selectCandidate(candidate.id)}>
               <span className="alert-ticket-row-meta"><b>{candidate.severity}</b><i>{queueForReviewStatus(reviewDrafts[candidate.id]?.status ?? "open")}</i></span>
@@ -465,11 +463,14 @@ export default function AlertCentreClient() {
         </header>
 
         <ol className="alert-review-lifecycle" aria-label="Signal review workflow">
-          {["Signal", "Candidate", "Investigate", "Outcome"].map((step, index) => (
-            <li key={step} className={index < workflowStep ? "is-complete" : undefined} aria-current={index === workflowStep ? "step" : undefined}>
-              <span>{index + 1}</span><strong>{step}</strong>
-            </li>
-          ))}
+          {["Signal", "Candidate", "Investigate", "Outcome"].map((step, index) => {
+            const stepState = index < workflowStep ? "complete" : index === workflowStep ? "current" : "future";
+            return (
+              <li key={step} className={stepState === "complete" ? "is-complete" : undefined} data-step-state={stepState} aria-label={`${step}, ${stepState}`} aria-current={stepState === "current" ? "step" : undefined}>
+                <span aria-hidden="true">{stepState === "complete" ? "✓" : index + 1}</span><strong>{step}</strong>
+              </li>
+            );
+          })}
         </ol>
 
         <div className="alert-ticket-workspace">
@@ -573,7 +574,7 @@ export default function AlertCentreClient() {
               <div><dt>Affected area</dt><dd>{activeCase.affectedArea || "Not set"}</dd></div>
             </dl>
 
-            <form className="alert-detail-form" onSubmit={saveCase}>
+            <form className="alert-detail-form alert-staff-fields" onSubmit={saveCase}>
               <fieldset>
                 <legend>Staff fields</legend>
                 <label><span>Review status</span><select name="review-status" value={activeReview.status} onChange={(event) => changeReview({ status: event.target.value as ReviewStatus })}><option value="open">New</option><option value="investigating">Active · investigating</option><option value="needs_action">Active · needs action</option><option value="closed">Closed</option></select></label>
