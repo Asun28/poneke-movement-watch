@@ -1,9 +1,11 @@
 "use client";
 
 import { useMemo, useState, type CSSProperties } from "react";
+import { Info } from "@phosphor-icons/react";
 import {
   buildOntologyEgoGraph,
   buildOntologyFusionArchitecture,
+  buildOntologySourceTable,
   selectOntologyGraphNode,
   stepOntologyGraphZoom,
 } from "../../lib/dataIntegration.mjs";
@@ -119,6 +121,7 @@ const ONTOLOGY_CHAIN_STEPS = [
   { id: "decision", number: "06", label: "Human decision" },
 ] as const;
 type OntologyChainStep = typeof ONTOLOGY_CHAIN_STEPS[number]["id"];
+type OntologySourceSort = "source" | "concept" | "destination" | "runtime" | "access" | "evidence";
 
 function readable(value: string) {
   return value.replaceAll("_", " ");
@@ -145,12 +148,29 @@ function accessLabel(path: OntologyPath) {
   return readable(path.access_status);
 }
 
+function runtimeLabel(value: string) {
+  const labels: Record<string, string> = {
+    connected: "Connected",
+    batch_replay: "Replay",
+    mock: "Mock",
+    stale: "Stale",
+    credentials_required: "Key needed",
+    permission_required: "Permission",
+    unavailable: "Registered",
+  };
+  return labels[value] ?? readable(value);
+}
+
 export default function OntologyDashboard({ model }: { model: OntologyDashboardModel }) {
   const defaultGraphConcept = model.concepts[0]?.id ?? "";
   const defaultGraphSource = model.paths.find((path) => path.concept_id === defaultGraphConcept)?.source_id;
   const [query, setQuery] = useState("");
   const [concept, setConcept] = useState("all");
   const [target, setTarget] = useState("all");
+  const [runtime, setRuntime] = useState("all");
+  const [access, setAccess] = useState("all");
+  const [sourceSort, setSourceSort] = useState<OntologySourceSort>("evidence");
+  const [sourceSortDirection, setSourceSortDirection] = useState<"asc" | "desc">("desc");
   const [pathsOpen, setPathsOpen] = useState(false);
   const [view, setView] = useState<"chain" | "graph">("chain");
   const [activeChainStep, setActiveChainStep] = useState<OntologyChainStep>("sources");
@@ -163,14 +183,33 @@ export default function OntologyDashboard({ model }: { model: OntologyDashboardM
     () => new Set<string>(),
   );
 
-  const filtered = useMemo(() => model.paths.filter((path) => {
-    const matchesConcept = concept === "all" || path.concept_id === concept;
-    const matchesTarget = target === "all"
-      || path.operations_target === target
-      || (target === "alert_centre" && path.alert_eligible);
-    const haystack = `${path.source_name} ${path.source_id} ${path.ontology_role} ${path.concept_label}`.toLowerCase();
-    return matchesConcept && matchesTarget && haystack.includes(query.trim().toLowerCase());
-  }), [concept, model.paths, query, target]);
+  const sourceTable = useMemo(() => buildOntologySourceTable(model.paths, {
+    query,
+    concept,
+    target,
+    runtime,
+    access,
+    sort_by: sourceSort,
+    sort_direction: sourceSortDirection,
+  }), [access, concept, model.paths, query, runtime, sourceSort, sourceSortDirection, target]);
+  const filtered = sourceTable.rows as OntologyPath[];
+
+  const staleSources = model.paths.filter((path) => path.runtime_default === "stale").length;
+  const gatedSources = model.paths.filter((path) => [
+    "credentials_required",
+    "permission_required",
+  ].includes(path.runtime_default)).length;
+  const nonScoringSources = model.paths.filter((path) => path.ontology_evidence_weight === 0).length;
+  const chainStates: Record<OntologyChainStep, { label: string; tone: string }> = {
+    sources: staleSources
+      ? { label: `${staleSources} stale`, tone: "attention" }
+      : { label: "Ready", tone: "ready" },
+    alignment: { label: "Configured", tone: "ready" },
+    concepts: { label: "Versioned", tone: "ready" },
+    corroboration: { label: "Guarded", tone: "guarded" },
+    destinations: { label: "Mapped", tone: "ready" },
+    decision: { label: "Human only", tone: "human" },
+  };
 
   const destinations = [
     {
@@ -244,10 +283,24 @@ export default function OntologyDashboard({ model }: { model: OntologyDashboardM
     if (graph.nodes.some((node) => node.id === nodeId)) setGraphNodeId(nodeId);
   }
 
+  function changeSourceSort(next: OntologySourceSort) {
+    if (sourceSort === next) {
+      setSourceSortDirection((current) => current === "asc" ? "desc" : "asc");
+      return;
+    }
+    setSourceSort(next);
+    setSourceSortDirection(next === "evidence" ? "desc" : "asc");
+  }
+
+  function sourceSortState(key: OntologySourceSort): "ascending" | "descending" | "none" {
+    if (sourceSort !== key) return "none";
+    return sourceSortDirection === "asc" ? "ascending" : "descending";
+  }
+
   return (
     <section className="ontology-dashboard" aria-label="Ontology workspace" data-operator-workflow="ontology-step-inspector">
-      <header className="ontology-dashboard-header">
-        <dl aria-label="Ontology dashboard totals">
+      <header className="ontology-dashboard-header" data-ontology-scope="global">
+        <dl aria-label="Global ontology totals">
           <div><dt>Sources</dt><dd>{model.summary.sources}</dd></div>
           <div><dt>Exact roles</dt><dd>{model.summary.ontology_roles}</dd></div>
           <div><dt>Concepts</dt><dd>{model.summary.concepts}</dd></div>
@@ -256,7 +309,17 @@ export default function OntologyDashboard({ model }: { model: OntologyDashboardM
 
       <div className="ontology-view-switch" role="group" aria-label="Choose ontology view">
         <button type="button" aria-pressed={view === "chain"} onClick={() => setView("chain")}>Operational chain</button>
-        <button type="button" aria-pressed={view === "graph"} aria-controls="ontology-fusion-region" data-deferred-view="ontology-fusion" onClick={() => setView("graph")}>Fusion architecture</button>
+        <button
+          type="button"
+          aria-pressed={view === "graph"}
+          aria-controls="ontology-fusion-region"
+          data-deferred-view="ontology-fusion"
+          data-fusion-layout="horizontal"
+          onClick={() => {
+            setView("graph");
+            setPathsOpen(true);
+          }}
+        >Fusion architecture</button>
       </div>
 
       <div
@@ -265,18 +328,25 @@ export default function OntologyDashboard({ model }: { model: OntologyDashboardM
         data-ontology-view="chain"
         hidden={view !== "chain"}
       >
-        <nav className="ontology-step-rail" aria-label="Six ontology steps">
+        <nav className="ontology-step-rail" aria-label="Six ontology steps" data-stage-state-label="Current contract and policy state">
           {ONTOLOGY_CHAIN_STEPS.map((step, index) => (
             <div className="ontology-step-rail-item" key={step.id}>
               <button
                 type="button"
                 data-ontology-step={step.id}
                 data-ontology-level={step.id}
+                data-ontology-stage-state={chainStates[step.id].tone}
                 aria-pressed={activeChainStep === step.id}
                 aria-controls={`ontology-step-panel-${step.id}`}
                 onClick={() => setActiveChainStep(step.id)}
               >
-                <span>{step.number}</span><strong>{step.label}</strong>
+                <span>{step.number}</span>
+                <span className="ontology-step-label">
+                  <strong>{step.label}</strong>
+                  <small className={`ontology-step-state state-${chainStates[step.id].tone}`}>
+                    {chainStates[step.id].label}
+                  </small>
+                </span>
               </button>
               {index < ONTOLOGY_CHAIN_STEPS.length - 1 && (
                 <span data-hierarchy-connector={`${step.id}-to-${ONTOLOGY_CHAIN_STEPS[index + 1].id}`} aria-hidden="true">↓</span>
@@ -297,10 +367,38 @@ export default function OntologyDashboard({ model }: { model: OntologyDashboardM
             <span>01</span>
             <h3 id="ontology-level-sources">Data sources &amp; access</h3>
           </header>
-          <div className="ontology-source-summary">
+          <div className="ontology-source-summary" data-ontology-scope="active-step">
             <div><strong>{model.summary.sources}</strong><span>Source contracts</span></div>
             <div><strong>{model.summary.real_record_layers}</strong><span>Real-record layer</span></div>
-            <div><strong>{model.summary.zero_weight_layers}</strong><span>Zero-weight layers</span></div>
+            <div className="ontology-zero-weight-metric">
+              <strong>{model.summary.zero_weight_layers}</strong>
+              <span>
+                Zero-weight layers
+                <button type="button" className="ontology-info-tip" aria-label="Explain zero evidence weight" aria-describedby="ontology-zero-weight-note">
+                  <Info size={15} weight="bold" aria-hidden="true" />
+                </button>
+              </span>
+              <small id="ontology-zero-weight-note" role="tooltip">Zero weight means non-scoring. It is not a source failure.</small>
+            </div>
+          </div>
+          <div className="ontology-source-context">
+            <section className="ontology-source-coverage" data-source-coverage="concepts" aria-label="Source contracts by ontology concept">
+              <header><strong>Concept coverage</strong><span>{model.summary.sources} contracts</span></header>
+              <div>
+                {model.concepts.map((item) => (
+                  <article data-source-coverage-item={item.id} key={item.id}>
+                    <span>{item.label}</span>
+                    <meter min="0" max={model.summary.sources} value={item.source_count}>{item.source_count}</meter>
+                    <strong>{item.source_count}</strong>
+                  </article>
+                ))}
+              </div>
+            </section>
+            <section className="ontology-source-state-summary" data-source-state-summary="current-contracts" aria-label="Current source contract summary">
+              <article><span>Scoring</span><strong>{model.summary.sources - nonScoringSources}</strong><small>eligible weight</small></article>
+              <article><span>Gated</span><strong>{gatedSources}</strong><small>key or permission</small></article>
+              <article className={staleSources ? "has-attention" : ""}><span>Stale</span><strong>{staleSources}</strong><small>excluded</small></article>
+            </section>
           </div>
         </section>
 
@@ -504,9 +602,10 @@ export default function OntologyDashboard({ model }: { model: OntologyDashboardM
               </div>
             </div>
 
-            <div className="ontology-layer-viewport" role="region" aria-label="Scrollable six-layer fusion architecture">
+            <div className="ontology-layer-viewport" role="region" aria-label="Horizontal six-stage fusion architecture">
               <div
                 className="ontology-fusion-track"
+                data-flow-direction="horizontal"
                 style={{ "--ontology-zoom": graphZoom / 100 } as CSSProperties}
               >
                 {layerGraph.layers.map((layer) => {
@@ -625,15 +724,16 @@ export default function OntologyDashboard({ model }: { model: OntologyDashboardM
       <details
         className="ontology-pathways"
         data-deferred-content="source-paths"
+        data-source-register-layout="responsive-table"
         open={pathsOpen}
         onToggle={(event) => setPathsOpen(event.currentTarget.open)}
       >
         <summary>
           <div><strong>Source paths</strong></div>
-          <small>Showing {filtered.length}</small>
+          <small>Showing {sourceTable.filtered}</small>
         </summary>
         {pathsOpen && <>
-        <div className="ontology-toolbar">
+        <div className="ontology-toolbar ontology-source-table-filters">
           <label>
             <span>Search</span>
             <input
@@ -667,35 +767,97 @@ export default function OntologyDashboard({ model }: { model: OntologyDashboardM
               <option value="integration_only">Integration only</option>
             </select>
           </label>
-          <p aria-live="polite">Showing <strong>{filtered.length}</strong> of {model.summary.sources}</p>
+          <label>
+            <span>Runtime</span>
+            <select
+              aria-label="Filter ontology pathways by runtime"
+              value={runtime}
+              onChange={(event) => setRuntime(event.target.value)}
+            >
+              <option value="all">All runtime states</option>
+              {sourceTable.filters.runtime.map((item: string) => (
+                <option value={item} key={item}>{runtimeLabel(item)}</option>
+              ))}
+            </select>
+          </label>
+          <label>
+            <span>Access</span>
+            <select
+              aria-label="Filter ontology pathways by access"
+              value={access}
+              onChange={(event) => setAccess(event.target.value)}
+            >
+              <option value="all">All access states</option>
+              {sourceTable.filters.access.map((item: string) => (
+                <option value={item} key={item}>{readable(item)}</option>
+              ))}
+            </select>
+          </label>
+          <label className="ontology-mobile-sort">
+            <span>Sort</span>
+            <select
+              aria-label="Sort ontology source pathways"
+              value={`${sourceSort}:${sourceSortDirection}`}
+              onChange={(event) => {
+                const [nextSort, nextDirection] = event.target.value.split(":") as [OntologySourceSort, "asc" | "desc"];
+                setSourceSort(nextSort);
+                setSourceSortDirection(nextDirection);
+              }}
+            >
+              <option value="evidence:desc">Evidence · high first</option>
+              <option value="source:asc">Source · A–Z</option>
+              <option value="concept:asc">Concept · A–Z</option>
+              <option value="destination:asc">Destination · A–Z</option>
+              <option value="runtime:asc">Runtime · A–Z</option>
+              <option value="access:asc">Access · A–Z</option>
+            </select>
+          </label>
+          <p aria-live="polite">Showing <strong>{sourceTable.filtered}</strong> of {sourceTable.total}</p>
         </div>
 
-        <div className="ontology-path-list" aria-label="Source ontology pathways">
-          {filtered.map((path) => (
-            <article className="ontology-path" data-ontology-path={path.source_id} key={path.source_id}>
-              <div className="ontology-path-source">
-                <span>Source</span>
-                <strong>{path.source_name}</strong>
-                <code>{path.source_id}</code>
-              </div>
-              <b className="ontology-path-relation"><span aria-hidden="true">↓</span><small>typed as</small></b>
-              <div className="ontology-path-role">
-                <span>{path.concept_label}</span>
-                <strong>{readable(path.ontology_role)}</strong>
-              </div>
-              <b className="ontology-path-relation"><span aria-hidden="true">↓</span><small>used in</small></b>
-              <div className="ontology-path-target">
-                <span>Destination</span>
-                <strong>{operationsTargetLabel(path.operations_target)}</strong>
-                {path.alert_eligible && <small>Also eligible for Signal Review</small>}
-              </div>
-              <footer>
-                <span className={`ontology-tag truth-${path.demo_data_status}`}>{truthLabel(path)}</span>
-                <span className="ontology-tag">{accessLabel(path)}</span>
-                <span className="ontology-tag">Evidence weight {path.ontology_evidence_weight}</span>
-              </footer>
-            </article>
-          ))}
+        <div className="ontology-source-table-wrap" role="region" aria-label="Source ontology pathways">
+          <table className="ontology-source-table">
+            <thead>
+              <tr>
+                {([
+                  ["source", "Source"],
+                  ["concept", "Concept & role"],
+                  ["destination", "Used in"],
+                  ["runtime", "Runtime"],
+                  ["access", "Access"],
+                  ["evidence", "Evidence"],
+                ] as Array<[OntologySourceSort, string]>).map(([key, label]) => (
+                  <th scope="col" aria-sort={sourceSortState(key)} key={key}>
+                    <button type="button" onClick={() => changeSourceSort(key)}>
+                      {label}<span aria-hidden="true">{sourceSort === key ? sourceSortDirection === "asc" ? "↑" : "↓" : "↕"}</span>
+                    </button>
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((path) => (
+                <tr data-source-table-row={path.source_id} data-ontology-path={path.source_id} key={path.source_id}>
+                  <td data-label="Source">
+                    <strong>{path.source_name}</strong>
+                    <code>{path.source_id}</code>
+                    <small>{truthLabel(path)}</small>
+                  </td>
+                  <td data-label="Concept & role">
+                    <strong>{path.concept_label}</strong>
+                    <small>{readable(path.ontology_role)}</small>
+                  </td>
+                  <td data-label="Used in">
+                    <strong>{operationsTargetLabel(path.operations_target)}</strong>
+                    {path.alert_eligible && <small>Signal Review eligible</small>}
+                  </td>
+                  <td data-label="Runtime"><span className={`ontology-runtime-badge state-${path.runtime_default}`}>{runtimeLabel(path.runtime_default)}</span></td>
+                  <td data-label="Access"><span className="ontology-access-badge">{accessLabel(path)}</span></td>
+                  <td data-label="Evidence"><strong className={`ontology-weight weight-${path.ontology_evidence_weight}`}>{path.ontology_evidence_weight}</strong></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
         {!filtered.length && <p className="ops-state">No ontology pathways match these filters.</p>}
         </>}

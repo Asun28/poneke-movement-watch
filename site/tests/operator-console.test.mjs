@@ -485,16 +485,33 @@ test("shows the six-level operational evidence chain before advanced technical d
   assert.match(html, /Unknown is not open/);
 });
 
+test("separates ontology scope, stage state and source evidence context", async () => {
+  const html = await (await request("/ontology")).text();
+
+  assert.match(html, /data-ontology-scope="global"/);
+  assert.match(html, /data-ontology-scope="active-step"/);
+  assert.equal((html.match(/data-ontology-stage-state=/g) ?? []).length, 6);
+  assert.match(html, /data-stage-state-label="Current contract and policy state"/);
+  assert.match(html, /data-source-coverage="concepts"/);
+  assert.equal((html.match(/data-source-coverage-item=/g) ?? []).length, 5);
+  assert.match(html, /Zero weight means non-scoring/);
+  assert.match(html, /It is not a source failure/);
+  assert.match(html, /data-source-state-summary="current-contracts"/);
+  assert.doesNotMatch(html, /data-source-table-row=/);
+});
+
 test("offers an expandable ontology-aware fusion architecture without replacing the operational chain", async () => {
   const html = await (await request("/ontology")).text();
 
   assert.match(html, /aria-label="Choose ontology view"/);
   assert.match(html, /aria-pressed="true">Operational chain/);
-  assert.match(html, /aria-pressed="false"[^>]*aria-controls="ontology-fusion-region"[^>]*data-deferred-view="ontology-fusion">Fusion architecture/);
+  assert.match(html, /aria-pressed="false"[^>]*aria-controls="ontology-fusion-region"[^>]*data-deferred-view="ontology-fusion"[^>]*>Fusion architecture/);
+  assert.match(html, /data-fusion-layout="horizontal"/);
   assert.match(html, /data-ontology-view="chain"/);
   assert.doesNotMatch(html, /data-ontology-view="graph"/);
   assert.doesNotMatch(html, /id="ontology-fusion-region"/);
   assert.doesNotMatch(html, /data-ontology-fusion="late-fusion"/);
+  assert.match(html, /data-source-register-layout="responsive-table"/);
   assert.doesNotMatch(html, /data-fusion-stage=/);
   assert.doesNotMatch(html, /aria-label="Six-layer fusion architecture controls"/);
   assert.doesNotMatch(html, /Change timeline/);

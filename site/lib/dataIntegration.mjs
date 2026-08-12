@@ -224,6 +224,77 @@ export function buildOntologyDashboardModel(contracts, ontology) {
   };
 }
 
+const ONTOLOGY_SOURCE_SORTERS = {
+  source: (path) => path.source_name,
+  concept: (path) => `${path.concept_label}|${path.ontology_role}`,
+  destination: (path) => path.operations_target,
+  runtime: (path) => path.runtime_default,
+  access: (path) => `${path.access_status}|${path.cost}`,
+  evidence: (path) => path.ontology_evidence_weight,
+};
+
+export function buildOntologySourceTable(paths, options = {}) {
+  const sourcePaths = Array.isArray(paths) ? paths : [];
+  const {
+    query = "",
+    concept = "all",
+    target = "all",
+    runtime = "all",
+    access = "all",
+    sort_by: requestedSort = "evidence",
+    sort_direction: requestedDirection,
+  } = options;
+  const sortBy = Object.hasOwn(ONTOLOGY_SOURCE_SORTERS, requestedSort)
+    ? requestedSort
+    : "evidence";
+  const sortDirection = ["asc", "desc"].includes(requestedDirection)
+    ? requestedDirection
+    : sortBy === "evidence" ? "desc" : "asc";
+  const normalizedQuery = String(query).trim().toLocaleLowerCase("en-NZ");
+
+  const rows = sourcePaths.filter((path) => {
+    const matchesConcept = concept === "all" || path.concept_id === concept;
+    const matchesTarget = target === "all"
+      || path.operations_target === target
+      || (target === "alert_centre" && path.alert_eligible);
+    const matchesRuntime = runtime === "all" || path.runtime_default === runtime;
+    const matchesAccess = access === "all" || path.access_status === access;
+    const haystack = [
+      path.source_name,
+      path.source_id,
+      path.concept_label,
+      path.ontology_role,
+      path.operations_target,
+    ].join(" ").toLocaleLowerCase("en-NZ");
+    return matchesConcept
+      && matchesTarget
+      && matchesRuntime
+      && matchesAccess
+      && haystack.includes(normalizedQuery);
+  }).sort((left, right) => {
+    const leftValue = ONTOLOGY_SOURCE_SORTERS[sortBy](left);
+    const rightValue = ONTOLOGY_SOURCE_SORTERS[sortBy](right);
+    const comparison = typeof leftValue === "number" && typeof rightValue === "number"
+      ? leftValue - rightValue
+      : String(leftValue).localeCompare(String(rightValue), "en-NZ", { sensitivity: "base" });
+    if (comparison !== 0) return sortDirection === "desc" ? -comparison : comparison;
+    return left.source_name.localeCompare(right.source_name, "en-NZ", { sensitivity: "base" });
+  });
+
+  return {
+    total: sourcePaths.length,
+    filtered: rows.length,
+    sort_by: sortBy,
+    sort_direction: sortDirection,
+    filters: {
+      concepts: [...new Set(sourcePaths.map((path) => path.concept_id))],
+      runtime: [...new Set(sourcePaths.map((path) => path.runtime_default))].sort(),
+      access: [...new Set(sourcePaths.map((path) => path.access_status))].sort(),
+    },
+    rows,
+  };
+}
+
 const ONTOLOGY_GRAPH_DESTINATIONS = {
   live_operations: {
     label: "Live Operations",

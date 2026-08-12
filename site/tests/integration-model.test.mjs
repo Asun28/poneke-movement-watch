@@ -1280,6 +1280,59 @@ test("joins every source to one readable ontology concept and operator module", 
   assert.equal(paidMock.ontology_evidence_weight, 0);
 });
 
+test("projects ontology sources into a truthful sortable and filterable operations table", async () => {
+  const integration = await import("../lib/dataIntegration.mjs");
+  assert.equal(typeof integration.buildOntologySourceTable, "function");
+
+  const model = integration.buildOntologyDashboardModel(
+    buildSourceContracts(registry, manifest),
+    cityOntology,
+  );
+  const table = integration.buildOntologySourceTable(model.paths);
+
+  assert.equal(table.total, 33);
+  assert.equal(table.filtered, 33);
+  assert.equal(table.rows[0].source_id, "wcc-transport-sensors");
+  assert.equal(table.rows[0].ontology_evidence_weight, 2);
+  assert.ok(table.rows.slice(1).every((row) => row.ontology_evidence_weight === 0));
+  assert.deepEqual(
+    [...table.filters.concepts].sort(),
+    model.concepts.map((item) => item.id).sort(),
+  );
+  assert.ok(table.filters.runtime.includes("stale"));
+  assert.ok(table.filters.access.includes("permission_required"));
+
+  const stalePath = model.paths.find((path) => path.runtime_default === "stale");
+  const filtered = integration.buildOntologySourceTable(model.paths, {
+    concept: stalePath.concept_id,
+    runtime: "stale",
+  });
+  assert.ok(filtered.rows.length > 0);
+  assert.ok(filtered.rows.every((row) => (
+    row.concept_id === stalePath.concept_id && row.runtime_default === "stale"
+  )));
+
+  const access = integration.buildOntologySourceTable(model.paths, {
+    access: "permission_required",
+    sort_by: "source",
+    sort_direction: "asc",
+  });
+  assert.ok(access.rows.length > 0);
+  assert.ok(access.rows.every((row) => row.access_status === "permission_required"));
+  assert.deepEqual(
+    access.rows.map((row) => row.source_name),
+    [...access.rows.map((row) => row.source_name)].sort((a, b) => a.localeCompare(b)),
+  );
+
+  const reviewEligible = model.paths.find((path) => path.alert_eligible);
+  const destination = integration.buildOntologySourceTable(model.paths, {
+    target: "alert_centre",
+    query: reviewEligible.source_id,
+  });
+  assert.deepEqual(destination.rows.map((row) => row.source_id), [reviewEligible.source_id]);
+  assert.ok(destination.rows.every((row) => row.alert_eligible));
+});
+
 test("projects only explicit ontology paths into a bounded selectable ego graph", async () => {
   const integration = await import("../lib/dataIntegration.mjs");
   assert.equal(typeof integration.buildOntologyEgoGraph, "function");
