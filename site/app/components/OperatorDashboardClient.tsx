@@ -8,7 +8,6 @@ import {
   Pulse,
   ShieldWarning,
   Tray,
-  WarningCircle,
 } from "@phosphor-icons/react";
 import { buildOperatorDashboardSummary } from "../../lib/operatorDashboard.mjs";
 import { REVIEW_STORAGE_KEY } from "../../lib/signalReview.mjs";
@@ -36,14 +35,6 @@ function readReviewDrafts(): ReviewDrafts {
   } catch {
     return {};
   }
-}
-
-function timeLabel(value: string | null) {
-  if (!value) return "Waiting for update";
-  return new Intl.DateTimeFormat("en-NZ", {
-    day: "numeric", month: "short", hour: "2-digit", minute: "2-digit",
-    timeZone: "Pacific/Auckland", hour12: false,
-  }).format(new Date(value));
 }
 
 export default function OperatorDashboardClient({ investigations }: { investigations: Investigation[] }) {
@@ -91,14 +82,18 @@ export default function OperatorDashboardClient({ investigations }: { investigat
       <header className="dashboard-command-bar">
         <div>
           <h2>Current picture</h2>
-          <span>{state === "ready" ? `Updated ${timeLabel(summary?.generated_at ?? null)}` : "Checking current operations…"}</span>
+          <span className={`dashboard-sync-state is-${state}`} data-dashboard-sync={state === "error" ? "paused" : "auto"}>
+            <i aria-hidden="true" />
+            <strong>{state === "error" ? "Sync paused" : "Live"}</strong>
+            <span>{state === "error" ? "· Retry required" : "· Auto-syncing"}</span>
+          </span>
         </div>
         <div className="dashboard-command-actions">
           <button type="button" onClick={() => void refresh()} disabled={state === "loading"} aria-label="Refresh dashboard">
             <ArrowClockwise aria-hidden="true" size={18} />
             {state === "loading" ? "Checking" : "Refresh"}
           </button>
-          <a className="dashboard-primary-action" href="/alerts"><Tray aria-hidden="true" size={18} />Open Signal Review</a>
+          <a className="dashboard-secondary-action" href="/alerts"><Tray aria-hidden="true" size={18} />Open Signal Review</a>
         </div>
       </header>
 
@@ -108,7 +103,14 @@ export default function OperatorDashboardClient({ investigations }: { investigat
         <div><dt>Held</dt><dd>{summary?.held ?? "-"}</dd></div>
         <div><dt>Records</dt><dd>{summary?.current_records ?? "-"}</dd></div>
         <div><dt>Connected</dt><dd>{summary?.source_health.connected ?? "-"}</dd></div>
-        <div><dt>Issues</dt><dd>{summary?.source_health.issues ?? "-"}</dd></div>
+        <div
+          data-dashboard-metric="issues"
+          data-state={state === "ready" ? (summary?.source_health.issues ? "attention" : "clear") : "checking"}
+        >
+          <dt>Issues</dt>
+          <dd>{summary?.source_health.issues ?? "-"}</dd>
+          <small>{state === "ready" ? (summary?.source_health.issues ? "Needs attention" : "No issues") : "Checking"}</small>
+        </div>
       </dl>
 
       <div className="dashboard-layout">
@@ -128,7 +130,15 @@ export default function OperatorDashboardClient({ investigations }: { investigat
               </div>
             ) : (
               <div className="dashboard-attention-body">
-                <div><strong>{summary?.attention.label}</strong><p>{summary?.attention.detail}</p></div>
+                <div className="dashboard-attention-summary">
+                  <strong>{summary?.attention.source_label ?? summary?.attention.label}</strong>
+                  {summary?.attention.source_label && <span>{summary.attention.label}</span>}
+                  <ul aria-label="Current status">
+                    {summary?.attention.facts.map((fact) => (
+                      <li key={fact.id} data-tone={fact.tone}><span>{fact.label}</span><b>{fact.value}</b></li>
+                    ))}
+                  </ul>
+                </div>
                 <a href={summary?.attention.href}>{summary?.attention.action_label} <ArrowRight aria-hidden="true" size={17} /></a>
               </div>
             )}
@@ -143,7 +153,7 @@ export default function OperatorDashboardClient({ investigations }: { investigat
               {state === "loading" && [0, 1, 2, 3].map((item) => <div className="dashboard-skeleton-row" key={item} aria-hidden="true" />)}
               {state === "ready" && summary?.monitoring_groups.length === 0 && <p>No monitoring groups returned. Not an all-clear.</p>}
               {summary?.monitoring_groups.slice(0, 4).map((group) => (
-                <div key={group.id}>
+                <div key={group.id} data-monitoring-empty={group.is_empty ? "true" : "false"}>
                   <span><Pulse aria-hidden="true" size={17} /><strong>{group.label}</strong></span>
                   <span><b>{group.fresh_count}</b> fresh</span>
                 </div>
@@ -170,9 +180,9 @@ export default function OperatorDashboardClient({ investigations }: { investigat
           <section aria-labelledby="dashboard-source-health">
             <header><h2 id="dashboard-source-health">Source health</h2><a href="/integration">View sources</a></header>
             <dl>
-              <div><dt><CheckCircle aria-hidden="true" size={17} />Connected</dt><dd>{summary?.source_health.connected ?? "-"}</dd></div>
-              <div><dt><Pulse aria-hidden="true" size={17} />Empty</dt><dd>{summary?.source_health.empty ?? "-"}</dd></div>
-              <div><dt><WarningCircle aria-hidden="true" size={17} />Issues</dt><dd>{summary?.source_health.issues ?? "-"}</dd></div>
+              <div data-health-state="connected"><dt><span className="dashboard-health-dot" aria-hidden="true" />Connected</dt><dd>{summary?.source_health.connected ?? "-"}</dd></div>
+              <div data-health-state="empty"><dt><span className="dashboard-health-dot" aria-hidden="true" />Empty</dt><dd>{summary?.source_health.empty ?? "-"}</dd></div>
+              <div data-health-state="issues"><dt><span className="dashboard-health-dot" aria-hidden="true" />Issues</dt><dd>{summary?.source_health.issues ?? "-"}</dd></div>
             </dl>
             {summary?.issue_sources.slice(0, 3).map((source) => <p key={source.id}><strong>{source.name}</strong><span>{source.state}</span></p>)}
           </section>

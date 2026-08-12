@@ -74,11 +74,19 @@ test("renders a first-login dashboard that routes staff to the next operational 
   assert.match(html, /Source health/);
   assert.match(html, /Recent investigations/);
   assert.match(html, /Open Signal Review/);
+  assert.match(html, /data-dashboard-sync="auto"/);
+  assert.match(html, /Auto-syncing/);
+  assert.match(html, /data-dashboard-metric="issues" data-state=/);
+  assert.match(html, /class="dashboard-secondary-action" href="\/alerts"/);
+  assert.match(html, /data-health-state="connected"/);
+  assert.match(html, /data-health-state="empty"/);
+  assert.match(html, /data-health-state="issues"/);
   assert.match(html, /Open Live map/);
   assert.match(html, /April Storm/);
   assert.match(html, /August movement review/);
   assert.match(html, /Checking current operations/);
   assert.match(html, /Not an all-clear/);
+  assert.doesNotMatch(html, /dashboard-primary-action/);
   assert.doesNotMatch(html, /AI agent|Ask anything|Latest from our changelog/);
 });
 

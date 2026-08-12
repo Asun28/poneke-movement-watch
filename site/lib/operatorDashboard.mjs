@@ -33,14 +33,22 @@ export function buildOperatorDashboardSummary(snapshot = {}, reviewDrafts = {}) 
   };
   const issueSources = liveSources
     .filter((source) => ISSUE_STATES.has(source?.runtime_state))
-    .map((source) => ({ id: source.source_id, name: source.name, state: source.runtime_state }));
+    .map((source) => ({
+      id: source.source_id,
+      name: source.name || source.source_id || "Unknown source",
+      state: source.runtime_state,
+    }));
 
   let attention;
   if (review.new > 0) {
     attention = {
       kind: "candidate",
       label: `${review.new} new candidate${review.new === 1 ? "" : "s"}`,
-      detail: `${review.active} active. Review evidence before creating a case.`,
+      facts: [
+        { id: "review_state", label: "Review", value: `${review.new} new`, tone: "warning" },
+        { id: "active_state", label: "Active", value: String(review.active), tone: "neutral" },
+        { id: "decision_state", label: "Authority", value: "Human review", tone: "neutral" },
+      ],
       href: "/alerts",
       action_label: "Review evidence",
     };
@@ -48,7 +56,10 @@ export function buildOperatorDashboardSummary(snapshot = {}, reviewDrafts = {}) 
     attention = {
       kind: "active",
       label: `${review.active} active investigation${review.active === 1 ? "" : "s"}`,
-      detail: "Continue review in Signal Review.",
+      facts: [
+        { id: "active_state", label: "Active", value: String(review.active), tone: "warning" },
+        { id: "decision_state", label: "Next", value: "Continue review", tone: "neutral" },
+      ],
       href: "/alerts",
       action_label: "Continue investigation",
     };
@@ -56,7 +67,12 @@ export function buildOperatorDashboardSummary(snapshot = {}, reviewDrafts = {}) 
     attention = {
       kind: "source_issue",
       label: `${sourceHealth.issues} feed issue${sourceHealth.issues === 1 ? "" : "s"}`,
-      detail: `No promoted candidates. Not an all-clear. ${held} held observations remain monitored.`,
+      source_label: issueSources.map((source) => source.name).join(", "),
+      facts: [
+        { id: "candidate_state", label: "Candidates", value: "None promoted", tone: "neutral" },
+        { id: "operational_state", label: "Status", value: "Not an all-clear", tone: "warning" },
+        { id: "held_observations", label: "Held", value: `${held} monitored`, tone: "neutral" },
+      ],
       href: "/integration",
       action_label: "Check source health",
     };
@@ -64,7 +80,11 @@ export function buildOperatorDashboardSummary(snapshot = {}, reviewDrafts = {}) 
     attention = {
       kind: "monitoring",
       label: "No promoted candidates",
-      detail: `Not an all-clear. ${held} held observations remain monitored.`,
+      facts: [
+        { id: "candidate_state", label: "Candidates", value: "None promoted", tone: "neutral" },
+        { id: "operational_state", label: "Status", value: "Not an all-clear", tone: "warning" },
+        { id: "held_observations", label: "Held", value: `${held} monitored`, tone: "neutral" },
+      ],
       href: "/live",
       action_label: "Open Live map",
     };
@@ -80,7 +100,10 @@ export function buildOperatorDashboardSummary(snapshot = {}, reviewDrafts = {}) 
     review,
     attention,
     monitoring_groups: Array.isArray(snapshot?.evidence_inbox?.monitoring_groups)
-      ? snapshot.evidence_inbox.monitoring_groups
+      ? snapshot.evidence_inbox.monitoring_groups.map((group) => ({
+        ...group,
+        is_empty: (Number(group?.fresh_count) || 0) === 0,
+      }))
       : [],
   };
 }

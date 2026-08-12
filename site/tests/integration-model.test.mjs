@@ -108,9 +108,33 @@ test("summarises operator workload without treating zero candidates as all-clear
   assert.equal(summary.review.active, 0);
   assert.equal(summary.held, 63);
   assert.equal(summary.attention.kind, "source_issue");
-  assert.match(summary.attention.detail, /Not an all-clear/);
+  assert.equal(summary.attention.source_label, "river");
+  assert.deepEqual(summary.attention.facts, [
+    { id: "candidate_state", label: "Candidates", value: "None promoted", tone: "neutral" },
+    { id: "operational_state", label: "Status", value: "Not an all-clear", tone: "warning" },
+    { id: "held_observations", label: "Held", value: "63 monitored", tone: "neutral" },
+  ]);
+  assert.equal(summary.attention.detail, undefined);
   assert.equal(summary.attention.href, "/integration");
   assert.equal(summary.attention.action_label, "Check source health");
+  assert.equal(summary.monitoring_groups[0].is_empty, false);
+});
+
+test("marks zero-fresh monitoring groups without removing them", () => {
+  const summary = operatorDashboard.buildOperatorDashboardSummary({
+    sources: [], observations: [], evidence_inbox: {
+      candidates: [], suppressed_observation_count: 0,
+      monitoring_groups: [
+        { id: "reports", label: "Reports", fresh_count: 0, record_count: 0 },
+        { id: "weather", label: "Weather", fresh_count: 2, record_count: 2 },
+      ],
+    },
+  }, {});
+
+  assert.deepEqual(summary.monitoring_groups.map(({ id, is_empty }) => ({ id, is_empty })), [
+    { id: "reports", is_empty: true },
+    { id: "weather", is_empty: false },
+  ]);
 });
 
 test("uses browser review state to separate new, active, closed and history work", () => {
