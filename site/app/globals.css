@@ -5861,3 +5861,39 @@ h1, h2, h3, h4, h5 { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-seri
 ) { font-size: 12px !important; }
 .integration-registry[data-operator-workflow="source-master-detail"] :where(.contract-mode, dt, code, small),
 .ontology-dashboard[data-operator-workflow="ontology-step-inspector"] :where(.ontology-step-rail strong, .ontology-step-rail span, .ontology-step-rail em) { font-size: 12px !important; }
+
+/* Phase 77 final operational readability and touch targets. */
+.operator-mobile-nav a,
+.operator-footer :where(strong, span),
+.live-state-group-label,
+.live-refresh-state,
+.live-strip-actions button,
+.live-map-layer-filter,
+.alert-queue-tools > span,
+.alert-review-lifecycle li > span,
+.alert-replay-link :where(strong, span),
+.alert-signal-details-header span,
+.alert-classification-guidance :where(span, p),
+.alert-detail-actions span,
+.alert-authority-note :where(strong, span),
+.replay-investigation-compact-header :where(span, small),
+.replay-investigation-selector button,
+.replay-compact-inputs :where(button, input, select),
+.replay-filter-subbar button,
+.ontology-dashboard .semantic-node span,
+.setup-workspace .setup-fields label > span,
+.setup-workspace .source-icon-label,
+.setup-workspace .source-icon-choices button,
+.setup-workspace .source-icon-choices button span { font-size: 12px !important; }
+
+.replay-buttons > button { min-width: 44px; }
+.ontology-info-tip { min-width: 44px; min-height: 44px; }
+.replay-lazy-loading {
+  min-height: 420px;
+  display: grid;
+  place-items: center;
+  color: #44546f;
+  background: #f7f8f9;
+  font-size: 13px;
+  font-weight: 700;
+}

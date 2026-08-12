@@ -1101,6 +1101,7 @@ test("projects queue counts from the same searchable items that can render", asy
   const drafts = { "candidate-1": { status: "open", updatedAt: "" } };
   const mock = {
     id: "mock-preview",
+    signal_ref: "SIG-20260812-9001",
     title: "Synthetic northern-access investigation",
     source_id: "synthetic-fixture",
     status: "open",
@@ -1125,6 +1126,7 @@ test("projects queue counts from the same searchable items that can render", asy
     counts: { new: 1, active: 0, closed: 0, history: 0, all: 1 },
     visible_ids: ["candidate-1"],
   });
+  assert.deepEqual(buildReviewQueueView(items, drafts, { queue: "new", query: "9001", mock }).visible_ids, ["mock-preview"]);
 });
 
 test("counts one Situation in the queue while nested Signals remain searchable", async () => {

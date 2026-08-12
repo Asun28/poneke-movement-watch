@@ -131,6 +131,12 @@ const EMPTY_CHANNELS: ChannelPreparation[] = [
 
 const preview = {
   title: "Synthetic northern-access investigation",
+  signal: {
+    id: "mock-signal-1",
+    signal_ref: "SIG-20260812-9001",
+    title: "Synthetic countline movement drop",
+    source_id: "synthetic-fixture",
+  },
   supporting: ["Mock sensor drop at a synthetic countline"],
   contradicting: [],
   missing: ["No current official road-status record", "No independent movement source"],
@@ -283,12 +289,15 @@ export default function AlertCentreClient() {
   }, []);
 
   const selected = candidates.find((candidate) => candidate.id === selectedId) ?? null;
+  const displaySignals = selected?.signals ?? [preview.signal];
+  const displaySignalCount = selected?.signal_count ?? displaySignals.length;
   const selectedKey = selected?.id ?? MOCK_ID;
   const activeReview = reviewDrafts[selectedKey] ?? EMPTY_REVIEW;
   const activeCase = caseDrafts[selectedKey] ?? emptyCaseDraft();
   const mockStatus = reviewDrafts[MOCK_ID]?.status ?? "open";
   const mockQueueItem = {
     id: MOCK_ID,
+    signal_ref: preview.signal.signal_ref,
     title: preview.title,
     source_id: "synthetic-fixture",
     status: mockStatus,
@@ -657,7 +666,7 @@ export default function AlertCentreClient() {
           {showMock && (
             <button type="button" className={`alert-ticket-row is-mock ${selected ? "" : "is-selected"}`} aria-pressed={!selected} onClick={() => selectCandidate(null)}>
               <span className="alert-ticket-row-meta"><b>Mock · monitor gate</b><i>{queueForReviewStatus(mockStatus)}</i></span>
-              <strong>{preview.title}</strong><small>mock-preview · synthetic fixture</small>
+              <strong>{preview.title}</strong><small>mock-preview · {displaySignalCount} synthetic signal</small>
             </button>
           )}
         </div>
@@ -781,9 +790,9 @@ export default function AlertCentreClient() {
               <Bucket label="Missing" values={evidenceBuckets.missing} />
               <Bucket label="Context" values={evidenceBuckets.context} />
             </div>
-            <details className="situation-signals">
-              <summary><strong>Original signals</strong><span>{selected?.signal_count ?? 0}</span></summary>
-              {selected?.signals.length ? <ol>{selected.signals.map((signal) => <li key={signal.id}><code>{signal.signal_ref}</code><div><strong>{signal.title}</strong><span>{signal.source_id}</span></div></li>)}</ol> : <p>No live Signal in this synthetic preview.</p>}
+            <details className="situation-signals" data-mock-signal-count={selected ? undefined : displaySignalCount}>
+              <summary><strong>Original signals</strong><span>{displaySignalCount}</span></summary>
+              <ol>{displaySignals.map((signal) => <li key={signal.id}><code>{signal.signal_ref}</code><div><strong>{signal.title}</strong><span>{signal.source_id}</span></div></li>)}</ol>
             </details>
             <a className="alert-replay-link" href={`/replay?case=${encodeURIComponent(selectedKey)}&source=${encodeURIComponent(selected?.source_ids[0] ?? "synthetic-fixture")}${selected?.last_observed_at ? `&as_of=${encodeURIComponent(selected.last_observed_at)}` : ""}#history-replay`}><strong>Open in Replay</strong><span>available_at-only policy required in v1</span></a>
           </section>
@@ -793,7 +802,7 @@ export default function AlertCentreClient() {
           <section className="alert-activity-section">
             <header><h2>Activity</h2><span>Browser only</span></header>
             <ol className="alert-timeline">
-              <li><time>{observedLabel}</time><div><strong>situation_grouped</strong><span>{selected ? `${selected.signal_count} original Signal${selected.signal_count === 1 ? "" : "s"} grouped for review` : "Synthetic Situation available for demonstration"}</span></div></li>
+              <li><time>{observedLabel}</time><div><strong>situation_grouped</strong><span>{displaySignalCount} original Signal{displaySignalCount === 1 ? "" : "s"} grouped for review{selected ? "" : " · synthetic preview"}</span></div></li>
               {activeCase.timeline.map((item, index) => <li key={`${item.occurredAt}-${index}`}><time>{new Date(item.occurredAt).toLocaleString("en-NZ")}</time><div><strong><b>v{item.version}</b>{" "}{item.action}</strong><span>{item.summary}</span></div></li>)}
             </ol>
           </section>
@@ -831,7 +840,7 @@ export default function AlertCentreClient() {
               <div><dt>Situation ID</dt><dd><code>{signalReference}</code></dd></div>
               <div><dt>Case ID</dt><dd><code>{caseReference ?? "Not created"}</code></dd></div>
               <div><dt>Review</dt><dd>{signalState}</dd></div>
-              <div><dt>Signals</dt><dd>{selected?.signal_count ?? 0}</dd></div>
+              <div><dt>Signals</dt><dd>{displaySignalCount}</dd></div>
               <div><dt>Gate</dt><dd>{selected?.gate.type ?? "monitor"}</dd></div>
               <div><dt>Incident</dt><dd>{activeCase.incidentState}</dd></div>
               <div><dt>Warning</dt><dd>{activeCase.warningState.replaceAll("_", " ")}</dd></div>

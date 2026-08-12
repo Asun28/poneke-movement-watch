@@ -1,12 +1,13 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { lazy, Suspense, useCallback, useState } from "react";
 import MovementCanvas from "../MovementCanvas";
 import { replayDatasetKind } from "../../lib/replayDataWorkspace.mjs";
 import ReplayCaseContext from "./ReplayCaseContext";
 import ReplayInvestigationSelector from "./ReplayInvestigationSelector";
-import SensorReplayCanvas from "./SensorReplayCanvas";
 import AprilBacktestDetails, { AprilBacktestSummary } from "./AprilBacktestDetails";
+
+const SensorReplayCanvas = lazy(() => import("./SensorReplayCanvas"));
 
 type Investigation = {
   id: string;
@@ -42,7 +43,9 @@ export default function ReplayWorkspaceClient({ catalog, aprilSummary }: { catal
     <div className="replay-bound-workspace" data-investigation-switches-dataset="true" data-active-investigation={active.id}>
       <ReplayCaseContext investigation={active} />
       {datasetKind === "sensor"
-        ? <SensorReplayCanvas key={active.id} investigation={active} investigationControl={investigationControl} />
+        ? <Suspense fallback={<section className="replay-lazy-loading" role="status">Loading April investigation…</section>}>
+            <SensorReplayCanvas key={active.id} investigation={active} investigationControl={investigationControl} />
+          </Suspense>
         : <MovementCanvas key={active.id} investigation={active} investigationControl={investigationControl} />}
       {active.id === "wellington-april-storm-2026" ? <AprilBacktestDetails summary={aprilSummary} /> : null}
     </div>

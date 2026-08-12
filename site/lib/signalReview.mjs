@@ -81,7 +81,7 @@ export function buildReviewQueueView(items, drafts, {
     id: String(mock.id),
     status: mock.status ?? "open",
     has_history: Boolean(mock.has_history),
-    search_text: [mock.id, mock.title, mock.source_id].filter(Boolean).join(" ").toLowerCase(),
+    search_text: [mock.id, mock.signal_ref, mock.title, mock.source_id].filter(Boolean).join(" ").toLowerCase(),
   }] : candidates;
   const searchable = normalizedQuery
     ? entries.filter((item) => item.search_text.includes(normalizedQuery))

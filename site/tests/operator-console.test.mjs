@@ -7,6 +7,8 @@ workerUrl.searchParams.set("operator-test", `${process.pid}-${Date.now()}`);
 const { default: worker } = await import(workerUrl.href);
 const env = { ASSETS: { fetch: async () => new Response("Not found", { status: 404 }) } };
 const ctx = { waitUntil() {}, passThroughOnException() {} };
+const operatorStyles = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
+const replayWorkspaceSource = readFileSync(new URL("../app/components/ReplayWorkspaceClient.tsx", import.meta.url), "utf8");
 
 function request(pathname, init) {
   return worker.fetch(new Request(`http://localhost${pathname}`, init), env, ctx);
@@ -670,6 +672,9 @@ test("renders one Situation-first queue with progressive Signal drill-down and g
   assert.match(html, /Decisions/);
   assert.match(html, /WCC Ticket Simulator/);
   assert.match(html, /Mock · no external write/);
+  assert.match(html, /data-mock-signal-count="1"/);
+  assert.match(html, /SIG-20260812-9001/);
+  assert.doesNotMatch(html, /No live Signal in this synthetic preview/);
 });
 
 test("keeps Signal Review queue state, workflow and evidence presentation coherent", async () => {
@@ -912,6 +917,20 @@ test("publishes a readable operator type floor", async () => {
   }
 });
 
+test("keeps daily controls readable and touch-safe after feature-specific styles", () => {
+  assert.match(operatorStyles, /Phase 77 final operational readability and touch targets/);
+  for (const selector of [
+    ".operator-mobile-nav a",
+    ".live-map-layer-filter",
+    ".alert-replay-link",
+    ".replay-investigation-compact-header",
+    ".ontology-dashboard",
+    ".setup-workspace",
+  ]) assert.match(operatorStyles, new RegExp(selector.replaceAll(".", "\\.")), selector);
+  assert.match(operatorStyles, /\.replay-buttons > button[\s\S]*min-width:\s*44px/);
+  assert.match(operatorStyles, /\.ontology-info-tip[\s\S]*min-width:\s*44px[\s\S]*min-height:\s*44px/);
+});
+
 test("hides advanced architecture and replay evidence until requested", async () => {
   const integration = await (await request("/integration")).text();
   const replay = await (await request("/replay")).text();
@@ -920,4 +939,10 @@ test("hides advanced architecture and replay evidence until requested", async ()
   assert.doesNotMatch(integration, /<details class="operator-advanced" open/);
   assert.match(replay, /<details class="operator-advanced"><summary>Evidence review<\/summary>/);
   assert.doesNotMatch(replay, /<details class="operator-advanced" open/);
+});
+
+test("defers the multi-megabyte April sensor workspace until that case is selected", () => {
+  assert.doesNotMatch(replayWorkspaceSource, /import SensorReplayCanvas from/);
+  assert.match(replayWorkspaceSource, /lazy\(\(\) => import\("\.\/SensorReplayCanvas"\)\)/);
+  assert.match(replayWorkspaceSource, /<Suspense fallback=/);
 });
