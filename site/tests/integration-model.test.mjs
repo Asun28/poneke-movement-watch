@@ -53,6 +53,13 @@ try {
   // The contract stays readable during the initial RED step.
 }
 
+let situationWorkflow = {};
+try {
+  situationWorkflow = await import("../lib/situationWorkflow.mjs");
+} catch {
+  // The contract stays readable during the initial RED step.
+}
+
 const registry = JSON.parse(
   await readFile(new URL("../public/cop/v2/source-registry.json", import.meta.url), "utf8"),
 );
@@ -339,6 +346,102 @@ test("builds an available-at-safe April sensor replay for the selected investiga
   assert.equal(frame.target_at, dataset.available_from);
   assert.ok(frame.readings.length >= 1);
   assert.ok(frame.readings.every((reading) => new Date(reading.available_at) <= new Date(frame.target_at)));
+});
+
+test("expires stale sensor snapshots instead of carrying dead layer values forward", () => {
+  const dataset = {
+    slots: [
+      "2026-04-20T12:00:00+12:00",
+      "2026-04-20T12:20:00+12:00",
+    ],
+    series: [
+      {
+        id: "five-minute-flow",
+        site: "Test stream",
+        measurement: "Flow",
+        unit: "m3/s",
+        cadence_seconds: 300,
+        geometry: null,
+        observations: [
+          {
+            observed_at: "2026-04-20T12:00:00+12:00",
+            available_at: "2026-04-20T12:00:00+12:00",
+            value: 10,
+          },
+        ],
+      },
+      {
+        id: "clock-series",
+        site: "Clock",
+        measurement: "Flow",
+        unit: "m3/s",
+        cadence_seconds: 300,
+        geometry: null,
+        observations: [
+          {
+            observed_at: "2026-04-20T12:20:00+12:00",
+            available_at: "2026-04-20T12:20:00+12:00",
+            value: 1,
+          },
+        ],
+      },
+    ],
+  };
+
+  const frame = replayDataWorkspace.sensorReplayFrame(dataset, 1);
+
+  assert.deepEqual(frame.readings.map(({ series_id }) => series_id), ["clock-series"]);
+  assert.equal(frame.stale_reading_count, 1);
+  assert.equal(frame.current_reading_count, 1);
+  assert.equal(frame.readings[0].age_seconds, 0);
+  assert.equal(frame.readings[0].valid_until, "2026-04-20T00:35:00.000Z");
+});
+
+test("binds retrospective movement outcomes to their own replay hour", () => {
+  assert.equal(typeof replayDataWorkspace.movementOutcomeSignalsAt, "function");
+  const pack = {
+    slots: [
+      { target_at: "2026-04-20T12:00:00+12:00", signals: [{ id: "movement-12" }] },
+      { target_at: "2026-04-20T13:00:00+12:00", signals: [{ id: "movement-13" }] },
+    ],
+  };
+
+  assert.deepEqual(
+    replayDataWorkspace.movementOutcomeSignalsAt(pack, "2026-04-20T12:55:00+12:00").map(({ id }) => id),
+    ["movement-12"],
+  );
+  assert.deepEqual(
+    replayDataWorkspace.movementOutcomeSignalsAt(pack, "2026-04-20T13:05:00+12:00").map(({ id }) => id),
+    ["movement-13"],
+  );
+  assert.deepEqual(
+    replayDataWorkspace.movementOutcomeSignalsAt(pack, "2026-04-20T14:01:00+12:00"),
+    [],
+  );
+  assert.deepEqual(
+    replayDataWorkspace.movementOutcomeSignalsAt(pack, "2026-04-20T11:59:00+12:00"),
+    [],
+  );
+});
+
+test("separates playhead records from static Replay context in layer summaries", () => {
+  assert.equal(typeof replayDataWorkspace.buildSensorReplayLayerStates, "function");
+  const states = replayDataWorkspace.buildSensorReplayLayerStates({
+    readings: [
+      { measurement: "Rainfall Running Hourly Totals", detector_candidate: true },
+      { measurement: "Flow", detector_candidate: false },
+    ],
+    stale_reading_count: 3,
+  }, [{ id: "movement-1" }, { id: "movement-2" }], 5);
+
+  assert.deepEqual(states, {
+    movement_outcomes: { temporal_mode: "time_slot", current_count: 2, label: "2 now" },
+    rainfall: { temporal_mode: "snapshot", current_count: 1, label: "1 now" },
+    river_flow: { temporal_mode: "snapshot", current_count: 1, label: "1 now" },
+    detector_candidates: { temporal_mode: "snapshot", current_count: 1, label: "1 now" },
+    stale_sensors: { temporal_mode: "expired", current_count: 3, label: "3 stale · hidden" },
+    official_impacts: { temporal_mode: "static_context", current_count: null, label: "Static context · 5" },
+  });
 });
 
 test("bins Replay activity by time without turning density into severity", () => {
@@ -766,6 +869,180 @@ test("keeps Signal, Incident and Warning states independently human-controlled",
   assert.equal(workflow.storage, "browser_local_demo");
 });
 
+test("groups compatible signals into one governed Situation without inferring causation", () => {
+  const buildSituationClusters = situationWorkflow.buildSituationClusters;
+  assert.equal(typeof buildSituationClusters, "function");
+
+  const result = buildSituationClusters({
+    schema: "wellington-alert-candidates/v1",
+    generated_at: "2026-08-12T01:30:00.000Z",
+    candidates: [
+      {
+        id: "candidate:report:1+sensor:rain:1",
+        signal_ref: "SIG-20260812-1001",
+        title: "Flooding reported with rainfall change",
+        source_id: "wcc-ticket-detail",
+        observed_at: "2026-08-12T01:00:00.000Z",
+        severity: "moderate",
+        geometry: { type: "Point", coordinates: [174.776, -41.286] },
+        triage: { priority: "P2", promotion_reason: "report_and_sensor" },
+        evidence: { supporting: ["report:1", "sensor:rain:1"], contradicting: [], missing: ["official_status_confirmation"], context: [] },
+      },
+      {
+        id: "candidate:sensor:movement:1",
+        signal_ref: "SIG-20260812-1002",
+        title: "Movement drop near reported flooding",
+        source_id: "wcc-transport-sensors",
+        observed_at: "2026-08-12T01:20:00.000Z",
+        severity: "moderate",
+        geometry: { type: "Point", coordinates: [174.778, -41.286] },
+        triage: { priority: "P2", promotion_reason: "sensor_anomaly" },
+        evidence: { supporting: ["sensor:movement:1"], contradicting: [], missing: ["independent_current_source"], context: [] },
+      },
+      {
+        id: "candidate:quake:1",
+        signal_ref: "SIG-20260812-1003",
+        title: "Earthquake signal M6.1",
+        source_id: "geonet-quakes",
+        observed_at: "2026-08-12T01:10:00.000Z",
+        severity: "high",
+        geometry: { type: "Point", coordinates: [175.2, -41.7] },
+        triage: { priority: "P1", promotion_reason: "natural_hazard_signal" },
+        evidence: { supporting: ["quake:1"], contradicting: [], missing: ["local_impact_observation"], context: [] },
+      },
+    ],
+  });
+
+  assert.equal(result.schema, "wellington-situations/v1");
+  assert.equal(result.signal_count, 3);
+  assert.equal(result.situation_count, 2);
+  const flood = result.situations.find((item) => item.signal_ids.includes("candidate:report:1+sensor:rain:1"));
+  assert.match(flood.situation_ref, /^SIT-20260812-\d{4}$/);
+  assert.deepEqual(flood.signal_ids, ["candidate:report:1+sensor:rain:1", "candidate:sensor:movement:1"]);
+  assert.equal(flood.gate.type, "soft");
+  assert.equal(flood.gate.outcome, "investigate");
+  assert.ok(flood.gate.reason_codes.includes("report_sensor_corroboration"));
+  assert.equal(flood.causality, "not_inferred");
+  assert.ok(flood.evidence_links.some((link) => link.relation === "supports" && link.evidence_id === "report:1"));
+
+  const quake = result.situations.find((item) => item.signal_ids.includes("candidate:quake:1"));
+  assert.equal(quake.gate.type, "hard");
+  assert.equal(quake.gate.outcome, "urgent_human_review");
+  assert.ok(quake.gate.reason_codes.includes("priority_p1"));
+});
+
+test("keeps a standalone weak signal monitored with an explicit non-escalation reason", () => {
+  const result = situationWorkflow.buildSituationClusters({
+    generated_at: "2026-08-12T01:30:00.000Z",
+    candidates: [{
+      id: "candidate:sensor:movement:solo",
+      signal_ref: "SIG-20260812-2001",
+      title: "Movement change",
+      source_id: "wcc-transport-sensors",
+      observed_at: "2026-08-12T01:20:00.000Z",
+      severity: "moderate",
+      geometry: { type: "Point", coordinates: [174.778, -41.286] },
+      triage: { priority: "P2", promotion_reason: "sensor_anomaly" },
+      evidence: { supporting: ["sensor:movement:solo"], contradicting: [], missing: ["independent_current_source"], context: [] },
+    }],
+  });
+  const situation = result.situations[0];
+  assert.equal(situation.gate.type, "monitor");
+  assert.equal(situation.gate.outcome, "continue_monitoring");
+  assert.deepEqual(situation.non_escalation, {
+    reason_code: "insufficient_independent_evidence",
+    rationale: "One non-authoritative signal has no independent corroboration.",
+  });
+});
+
+test("appends typed evidence, draft field work, human decisions and immutable COP versions", async () => {
+  const {
+    addEvidenceLink,
+    createCaseWorkflow,
+    createFieldTask,
+    recordDecision,
+    updateCopSnapshot,
+  } = await import("../lib/caseWorkflow.mjs");
+  assert.equal(typeof addEvidenceLink, "function");
+  assert.equal(typeof createFieldTask, "function");
+  assert.equal(typeof recordDecision, "function");
+  assert.equal(typeof updateCopSnapshot, "function");
+
+  const started = createCaseWorkflow({ case_id: "situation:flood:1", evidence_ids: ["report:1"] }, new Date("2026-08-12T01:00:00.000Z"));
+  const linked = addEvidenceLink(started, {
+    evidence_id: "report:1", relation: "supports", subject_id: "situation:flood:1", reviewer_id: "operator:maya",
+  }, new Date("2026-08-12T01:05:00.000Z"));
+  const tasked = createFieldTask(linked, {
+    task_type: "field_verification", instruction: "Check road depth from a safe access point", owner: "WCC field team",
+  }, new Date("2026-08-12T01:10:00.000Z"));
+  const decided = recordDecision(tasked, {
+    outcome: "open_investigation", rationale: "Independent report and sensor change require verification", actor_id: "operator:maya",
+  }, new Date("2026-08-12T01:12:00.000Z"));
+  const updated = updateCopSnapshot(decided, {
+    situation: "Surface flooding under investigation", confirmed_items: ["Three independent reports"], unknown_items: ["Road depth"], current_actions: ["Field verification drafted"],
+  }, new Date("2026-08-12T01:15:00.000Z"));
+
+  assert.equal(started.cop_versions.length, 1);
+  assert.equal(updated.cop_versions.length, 2);
+  assert.equal(updated.cop_versions[0].version, 1);
+  assert.equal(updated.cop_versions[1].version, 2);
+  assert.equal(started.cop_versions.length, 1, "prior workflow must remain immutable");
+  assert.deepEqual(updated.evidence_links[0].relation, "supports");
+  assert.equal(updated.field_tasks[0].status, "draft_not_dispatched");
+  assert.equal(updated.field_tasks[0].dispatched, false);
+  assert.equal(updated.field_tasks[0].external_effect, "none");
+  assert.equal(updated.decisions[0].authority, "human");
+  assert.equal(updated.decisions[0].rationale, "Independent report and sensor change require verification");
+});
+
+test("simulates inbound and outbound WCC Ticket changes without changing provider-shaped fields", async () => {
+  const { simulateWccTicketEvent, wccTicketEventContract } = await import("../lib/workflowAdapters.mjs");
+  assert.equal(typeof simulateWccTicketEvent, "function");
+  assert.equal(typeof wccTicketEventContract, "function");
+  const contract = wccTicketEventContract();
+  assert.equal(contract.connector_state, "disconnected_demo");
+  assert.deepEqual(contract.directions, ["inbound", "outbound"]);
+
+  const provider = {
+    TICKET_ID: "MOCK-WCC-EM-2026-0042",
+    INCIDENT_ADDRESS: null,
+    LOCATION: "Berhampore",
+    LONGITUDE: null,
+    LATITUDE: null,
+    CREATED_AT: "2026-08-12T01:00:00.000Z",
+    TRIAGED_AT: "2026-08-12T01:05:00.000Z",
+    DUE_BY_TIME: "2026-08-12T02:00:00.000Z",
+    CURRENT_STATUS: "OPEN",
+    CLOSED_AT: null,
+    SERVICE_ITEM: "Weather Event",
+    SERVICE_ITEM_L2: "Flooding",
+    TICKET_DESCRIPTION: null,
+    PRIORITY: 2,
+    GROUP_NAME: "Emergency Management (mock)",
+    REQUESTER_NAME: null,
+    SOURCE_DERIVED: "Phone",
+    TICKET_TAGS: ["Weather Event", "Berhampore"],
+  };
+  const inbound = simulateWccTicketEvent({
+    direction: "inbound", event_type: "status_changed", situation_id: "situation:flood:1", provider_payload: provider,
+  }, new Date("2026-08-12T01:06:00.000Z"));
+  const outbound = simulateWccTicketEvent({
+    direction: "outbound", event_type: "link_prepared", situation_id: "situation:flood:1", provider_payload: provider,
+  }, new Date("2026-08-12T01:07:00.000Z"));
+
+  for (const event of [inbound, outbound]) {
+    assert.equal(event.mode, "mock");
+    assert.equal(event.connector_state, "disconnected_demo");
+    assert.equal(event.external_effect, "none");
+    assert.equal(event.dispatched, false);
+    assert.equal(event.evidence_weight, 0);
+    assert.deepEqual(event.provider_snapshot, provider);
+  }
+  assert.equal(inbound.direction, "inbound");
+  assert.equal(outbound.direction, "outbound");
+  assert.notEqual(inbound.event_id, outbound.event_id);
+});
+
 test("groups review statuses into New, Active, Closed, activity-only History and All views", async () => {
   const { queueForReviewStatus, reviewQueueIncludesStatus } = await import("../lib/signalReview.mjs");
 
@@ -813,6 +1090,26 @@ test("projects queue counts from the same searchable items that can render", asy
     counts: { new: 1, active: 0, closed: 0, history: 0, all: 1 },
     visible_ids: ["candidate-1"],
   });
+});
+
+test("counts one Situation in the queue while nested Signals remain searchable", async () => {
+  const { buildReviewQueueView } = await import("../lib/signalReview.mjs");
+  const situations = [{
+    id: "situation:flood:1",
+    situation_ref: "SIT-20260812-0042",
+    title: "Berhampore surface flooding",
+    source_ids: ["wcc-ticket-detail", "wcc-transport-sensors"],
+    signals: [
+      { id: "candidate:report:1", signal_ref: "SIG-20260812-1001", title: "Resident report", source_id: "wcc-ticket-detail" },
+      { id: "candidate:sensor:1", signal_ref: "SIG-20260812-1002", title: "Movement drop", source_id: "wcc-transport-sensors" },
+    ],
+  }];
+  const drafts = { "situation:flood:1": { status: "open", updatedAt: "" } };
+  assert.deepEqual(buildReviewQueueView(situations, drafts, { queue: "new" }), {
+    counts: { new: 1, active: 0, closed: 0, history: 0, all: 1 },
+    visible_ids: ["situation:flood:1"],
+  });
+  assert.deepEqual(buildReviewQueueView(situations, drafts, { queue: "new", query: "1002" }).visible_ids, ["situation:flood:1"]);
 });
 
 test("keeps human classifications governed and excludes mock or undetermined feedback", async () => {

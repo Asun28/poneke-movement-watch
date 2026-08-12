@@ -17,6 +17,22 @@ export const WORKFLOW_ADAPTERS = [
   { id: "public-warning-social", name: "Public warning / social media", target: "WCC public communications", contract_status: "authorised_interface_required" },
 ];
 
+export const WCC_TICKET_EVENT_TYPES = Object.freeze([
+  "created",
+  "triaged",
+  "status_changed",
+  "linked_to_situation",
+  "link_prepared",
+  "closed",
+]);
+
+const WCC_TICKET_FIELDS = Object.freeze([
+  "TICKET_ID", "INCIDENT_ADDRESS", "LOCATION", "LONGITUDE", "LATITUDE",
+  "CREATED_AT", "TRIAGED_AT", "DUE_BY_TIME", "CURRENT_STATUS", "CLOSED_AT",
+  "SERVICE_ITEM", "SERVICE_ITEM_L2", "TICKET_DESCRIPTION", "PRIORITY", "GROUP_NAME",
+  "REQUESTER_NAME", "SOURCE_DERIVED", "TICKET_TAGS",
+]);
+
 function cleanText(value, fallback) {
   return typeof value === "string" && value.trim() ? value.trim() : fallback;
 }
@@ -144,6 +160,66 @@ export function workflowAdapterCatalog() {
       "Preparing a mock never creates a ticket, sends a notification or publishes a warning.",
       "Non-WCC provider interfaces require an authorised specification before activation.",
     ],
+  };
+}
+
+export function wccTicketEventContract() {
+  return {
+    schema: "wellington-wcc-ticket-event-contract/v1",
+    mode: "mock",
+    connector_state: "disconnected_demo",
+    directions: ["inbound", "outbound"],
+    event_types: WCC_TICKET_EVENT_TYPES,
+    provider_fields: WCC_TICKET_FIELDS,
+    execution: "browser_or_request_scoped_simulation",
+    external_effect: "none",
+    limitations: [
+      "No WCC endpoint, authentication, receipt or external write is available.",
+      "Provider fields use the supplied contract; simulator metadata stays outside the provider snapshot.",
+      "Mock events have zero evidence weight and cannot become training labels.",
+    ],
+  };
+}
+
+export function simulateWccTicketEvent(input = {}, now = new Date()) {
+  const direction = cleanText(input.direction, "");
+  const eventType = cleanText(input.event_type, "");
+  if (!["inbound", "outbound"].includes(direction)) {
+    const error = new TypeError("invalid_wcc_ticket_direction");
+    error.code = "invalid_wcc_ticket_direction";
+    throw error;
+  }
+  if (!WCC_TICKET_EVENT_TYPES.includes(eventType)) {
+    const error = new TypeError("invalid_wcc_ticket_event_type");
+    error.code = "invalid_wcc_ticket_event_type";
+    throw error;
+  }
+  if (!input.provider_payload || typeof input.provider_payload !== "object" || Array.isArray(input.provider_payload)) {
+    const error = new TypeError("invalid_wcc_ticket_provider_payload");
+    error.code = "invalid_wcc_ticket_provider_payload";
+    throw error;
+  }
+  const occurredAt = now instanceof Date && Number.isFinite(now.getTime()) ? now : new Date();
+  const providerSnapshot = JSON.parse(JSON.stringify(input.provider_payload));
+  return {
+    schema: "wellington-wcc-ticket-event/v1",
+    event_id: `mock-wcc-ticket-event:${occurredAt.getTime()}:${direction}:${eventType}`,
+    occurred_at: occurredAt.toISOString(),
+    direction,
+    event_type: eventType,
+    situation_id: cleanText(input.situation_id, null),
+    case_id: cleanText(input.case_id, null),
+    previous_event_id: cleanText(input.previous_event_id, null),
+    mode: "mock",
+    is_synthetic: true,
+    connector_state: "disconnected_demo",
+    status: direction === "outbound" ? "prepared_not_sent" : "simulated_received",
+    provider_snapshot: providerSnapshot,
+    dispatched: false,
+    external_effect: "none",
+    evidence_weight: 0,
+    training_use: "excluded",
+    authority: { decision: "human_only", external_action: "not_authorised" },
   };
 }
 

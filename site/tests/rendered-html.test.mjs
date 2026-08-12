@@ -160,7 +160,8 @@ test("renders a unified Investigation Layers workspace with selected-data replay
   assert.match(html, /data-selected="true"/);
   assert.match(html, /class="source-layer-toggle is-selected"/);
   assert.match(html, /aria-pressed="true"/);
-  assert.match(html, /aria-label="Remove WCC Transport Sensors source layer"/);
+  assert.match(html, /aria-label="Remove WCC Transport Sensors time layer"/);
+  assert.match(html, /data-temporal-mode="time-slot"/);
   assert.doesNotMatch(html, /id="source-layer-wcc-transport-sensors"/);
 });
 

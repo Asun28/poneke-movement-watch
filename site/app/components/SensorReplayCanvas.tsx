@@ -5,7 +5,7 @@ import hilltopPack from "../../public/cop/v4/april-storm-hilltop-observations.js
 import detectorPack from "../../public/cop/v4/april-storm-hydro-detector.json";
 import eventPack from "../../public/cop/v4/april-storm-event-pack.json";
 import { buildAdaptiveEvidenceModel } from "../../lib/adaptiveEvidence.mjs";
-import { buildMovementEvidenceDetail, buildSensorReplayDataset, defaultSensorReplayLayers, filterSensorReplayReadings, sensorReplayFrame, sensorReplayTimelinePoints, toggleSensorEvidenceFilter, updateVisibleSensorSeries, wellingtonCityWeatherReadings } from "../../lib/replayDataWorkspace.mjs";
+import { buildMovementEvidenceDetail, buildSensorReplayDataset, buildSensorReplayLayerStates, defaultSensorReplayLayers, filterSensorReplayReadings, movementOutcomeSignalsAt, sensorReplayFrame, sensorReplayTimelinePoints, toggleSensorEvidenceFilter, updateVisibleSensorSeries, wellingtonCityWeatherReadings } from "../../lib/replayDataWorkspace.mjs";
 import { eventSymbolFor } from "../../lib/liveMapWorkspace.mjs";
 import { OPERATIONAL_BASEMAP } from "../../lib/operationalBasemap.mjs";
 import { replayIntervalMs } from "../layerModel.mjs";
@@ -206,11 +206,7 @@ export default function SensorReplayCanvas({ investigation, investigationControl
     }));
   const movementOutcomeSignals = useMemo(() => {
     if (!showMovementOutcomes || !movementOutcomePack || !frame.target_at) return [];
-    const target = new Date(frame.target_at).getTime();
-    const slot = [...(movementOutcomePack.slots ?? [])]
-      .filter((item) => new Date(item.target_at).getTime() <= target)
-      .at(-1);
-    return slot?.signals ?? [];
+    return movementOutcomeSignalsAt(movementOutcomePack, frame.target_at);
   }, [frame.target_at, movementOutcomePack, showMovementOutcomes]);
   const movementOutcomeObservations = useMemo(() => {
     if (!movementCoverage) return [];
@@ -250,6 +246,11 @@ export default function SensorReplayCanvas({ investigation, investigationControl
     [selectedMovementSignal],
   );
   const replayObservations = [...observations, ...movementOutcomeObservations];
+  const layerStates = buildSensorReplayLayerStates(
+    frame,
+    movementOutcomeSignals,
+    eventPack.ground_truth.length,
+  );
   const selectedObservation = replayObservations.find((observation) => observation.id === selectedId) ?? null;
   const selectedEvidence = selectedObservation
     ? buildAdaptiveEvidenceModel(selectedObservation, {
@@ -327,7 +328,7 @@ export default function SensorReplayCanvas({ investigation, investigationControl
   const replayTimelinePoints = useMemo(() => sensorReplayTimelinePoints(dataset), [dataset]);
 
   return (
-    <section id="replay-map" className="replay-map-workspace sensor-replay-workspace" data-replay-map-first="true" data-replay-dataset="sensor" data-primary-layer="movement-outcomes" data-delta-encoding="signed-centre-bar" data-weather-label-mode="marker" data-movement-icon-adapter="shared" aria-label="April movement impact replay">
+    <section id="replay-map" className="replay-map-workspace sensor-replay-workspace" data-replay-map-first="true" data-replay-time-policy="playhead-bound" data-replay-dataset="sensor" data-primary-layer="movement-outcomes" data-delta-encoding="signed-centre-bar" data-weather-label-mode="marker" data-movement-icon-adapter="shared" aria-label="April movement impact replay">
       <LiveMap
         observations={replayObservations}
         sources={[
@@ -353,7 +354,7 @@ export default function SensorReplayCanvas({ investigation, investigationControl
               <button type="button" aria-label="Next replay step" disabled={slotIndex >= dataset.slots.length - 1} onClick={() => { setSlotIndex((value) => Math.min(dataset.slots.length - 1, value + 1)); setPlaying(false); setSelectedId(null); }}>→</button>
             </div>
           </div>
-          <output className="replay-compact-count" aria-live="polite">{dataset.playable_record_count.toLocaleString("en-NZ")} / {dataset.total_record_count.toLocaleString("en-NZ")} records</output>
+          <output className="replay-compact-count" aria-live="polite">{replayObservations.length} at selected time{frame.stale_reading_count ? ` · ${frame.stale_reading_count} stale hidden` : ""}</output>
         </div>
         <ReplayDensityTimeline
           points={replayTimelinePoints}
@@ -387,25 +388,26 @@ export default function SensorReplayCanvas({ investigation, investigationControl
         <label className="sensor-core-layer"><input type="checkbox" checked={showBasemap} onChange={(event) => setShowBasemap(event.currentTarget.checked)} /><span>{OPERATIONAL_BASEMAP.label}</span></label>
         <div className="sensor-evidence-layer-summary" aria-label="April evidence layers">
           <span className="sensor-layer-role">Primary · city movement</span>
-          <button className="sensor-primary-layer" type="button" aria-pressed={showMovementOutcomes} onClick={toggleMovementOutcomes}>
-            <span>Movement outcomes</span><strong>{movementLoadState === "loading" ? "…" : movementOutcomeObservations.length || "Off"}</strong>
+          <button className="sensor-primary-layer" type="button" data-temporal-mode="time-slot" aria-pressed={showMovementOutcomes} onClick={toggleMovementOutcomes}>
+            <span>Movement outcomes<small>Current hour</small></span><strong>{movementLoadState === "loading" ? "…" : showMovementOutcomes ? layerStates.movement_outcomes.label : "Off"}</strong>
           </button>
           <span className="sensor-layer-role">Supporting · weather and river</span>
           {dataset.layer_groups.map((group: { id: string; label: string; series_count: number }) => {
             const groupFilter: Exclude<SensorFilter, null> = group.id === "rainfall" ? "rain" : group.id === "river-flow" ? "flow" : "anomaly";
             return (
-              <button key={group.id} type="button" aria-pressed={filter === groupFilter} onClick={() => { setFilter((current) => toggleSensorEvidenceFilter(current, groupFilter) as SensorFilter); setSelectedId(null); }}>
-                <span>{group.label}</span><strong>{group.series_count}</strong>
+              <button key={group.id} type="button" data-temporal-mode="snapshot" aria-pressed={filter === groupFilter} onClick={() => { setFilter((current) => toggleSensorEvidenceFilter(current, groupFilter) as SensorFilter); setSelectedId(null); }}>
+                <span>{group.label}<small>Snapshot</small></span><strong>{group.id === "rainfall" ? layerStates.rainfall.label : group.id === "river-flow" ? layerStates.river_flow.label : layerStates.detector_candidates.label}</strong>
               </button>
             );
           })}
-          <button type="button" aria-label="Toggle official impact evidence" aria-pressed={showImpactEvidence} onClick={() => setShowImpactEvidence((value) => !value)}>
-            <span>Official impacts</span><strong>{eventPack.ground_truth.length}</strong>
+          <button type="button" data-temporal-mode="static-context" aria-label="Toggle official impact evidence" aria-pressed={showImpactEvidence} onClick={() => setShowImpactEvidence((value) => !value)}>
+            <span>Official impacts<small>Static context</small></span><strong>{eventPack.ground_truth.length}</strong>
           </button>
+          {frame.stale_reading_count ? <output className="sensor-stale-summary">{layerStates.stale_sensors.label}</output> : null}
         </div>
         {movementLoadState === "error" ? <p className="sensor-layer-error" role="status">Movement layer unavailable</p> : null}
         <section className="sensor-impact-evidence" aria-label="Official impact evidence" hidden={!showImpactEvidence}>
-          <header><strong>Official impact evidence</strong><span>Post-event · withheld</span></header>
+          <header><strong>Official impact evidence</strong><span>{layerStates.official_impacts.label}</span></header>
           <ul>
             {eventPack.ground_truth.map((item) => <li key={item.id}><strong>{item.source}</strong><span>{item.label}</span></li>)}
           </ul>

@@ -12,6 +12,9 @@ export const CHANNEL_STATES = [
   "published",
 ];
 
+export const EVIDENCE_RELATIONS = ["supports", "contradicts", "missing", "context", "reported_as", "verified_by"];
+export const FIELD_TASK_STATES = ["draft_not_dispatched", "accepted", "enroute", "on_scene", "completed", "cancelled"];
+
 const CHANNELS = [
   { channel_id: "wcc_website", label: "WCC website", boundary: "No external delivery" },
   { channel_id: "wcc_social", label: "WCC social", boundary: "No external delivery" },
@@ -80,6 +83,18 @@ export function caseWorkflowContract() {
 export function createCaseWorkflow(input = {}, now = new Date()) {
   const createdAt = safeNow(now).toISOString();
   const caseId = cleanText(input.case_id, "mock-preview");
+  const initialCop = {
+    version: 1,
+    captured_at: createdAt,
+    information_manager: "",
+    next_review_at: null,
+    affected_area: { label: "", geometry: null, authority: "working_area" },
+    situation: "",
+    confirmed_items: [],
+    unknown_items: [],
+    current_actions: [],
+    source: "case_created",
+  };
   return {
     schema: "wellington-case-cop/v1",
     case_id: caseId,
@@ -102,15 +117,11 @@ export function createCaseWorkflow(input = {}, now = new Date()) {
       decision_authority: "human",
       captured_at: createdAt,
     },
-    cop: {
-      information_manager: "",
-      next_review_at: null,
-      affected_area: { label: "", geometry: null, authority: "working_area" },
-      situation: "",
-      confirmed_items: [],
-      unknown_items: [],
-      current_actions: [],
-    },
+    cop: initialCop,
+    cop_versions: [initialCop],
+    evidence_links: [],
+    field_tasks: [],
+    decisions: [],
     evidence_snapshot: {
       captured_at: createdAt,
       linked_ids: cleanList(input.evidence_ids),
@@ -135,6 +146,138 @@ export function createCaseWorkflow(input = {}, now = new Date()) {
       external_action: "not_authorised",
     },
   };
+}
+
+function appendTimeline(workflow, { action, summary, actorRole, actorLabel }, occurredAt) {
+  const version = Number(workflow?.version ?? 1) + 1;
+  return {
+    ...workflow,
+    version,
+    timeline: [...(workflow?.timeline ?? []), {
+      schema: "wellington-case-timeline-event/v1",
+      event_id: `${cleanText(workflow?.case_id, "mock-preview")}:v${version}:${action}`,
+      case_id: cleanText(workflow?.case_id, "mock-preview"),
+      case_version: version,
+      occurred_at: occurredAt,
+      action,
+      actor: { role: actorRole, label: actorLabel },
+      summary,
+      external_effect: "none",
+    }],
+  };
+}
+
+export function addEvidenceLink(workflow, input = {}, now = new Date()) {
+  const evidenceId = cleanText(input.evidence_id);
+  const subjectId = cleanText(input.subject_id, workflow?.case_id);
+  const reviewerId = cleanText(input.reviewer_id);
+  const relation = cleanText(input.relation);
+  if (!evidenceId) throw new TypeError("required:evidence_id");
+  if (!subjectId) throw new TypeError("required:subject_id");
+  if (!EVIDENCE_RELATIONS.includes(relation)) throw new TypeError("invalid:evidence_relation");
+  if (!reviewerId) throw new TypeError("required:reviewer_id");
+  const occurredAt = safeNow(now).toISOString();
+  const link = {
+    schema: "wellington-evidence-link/v1",
+    link_id: `${cleanText(workflow?.case_id, "mock-preview")}:evidence:${(workflow?.evidence_links?.length ?? 0) + 1}`,
+    subject_id: subjectId,
+    evidence_id: evidenceId,
+    relation,
+    valid_from: occurredAt,
+    provenance: { source: "operator_review", reviewer_id: reviewerId },
+    reviewer_state: "reviewed",
+    causality: "not_inferred",
+  };
+  const next = appendTimeline(workflow, {
+    action: "evidence_linked",
+    summary: `${relation}: ${evidenceId}`,
+    actorRole: "reviewer",
+    actorLabel: reviewerId,
+  }, occurredAt);
+  return { ...next, evidence_links: [...(workflow?.evidence_links ?? []), link] };
+}
+
+export function createFieldTask(workflow, input = {}, now = new Date()) {
+  const instruction = cleanText(input.instruction);
+  const owner = cleanText(input.owner);
+  const taskType = cleanText(input.task_type, "field_verification");
+  if (!instruction) throw new TypeError("required:instruction");
+  if (!owner) throw new TypeError("required:owner");
+  const occurredAt = safeNow(now).toISOString();
+  const task = {
+    schema: "wellington-field-task/v1",
+    task_id: `${cleanText(workflow?.case_id, "mock-preview")}:task:${(workflow?.field_tasks?.length ?? 0) + 1}`,
+    task_type: taskType,
+    instruction,
+    owner,
+    priority: cleanText(input.priority, "P2"),
+    due_at: cleanText(input.due_at, null),
+    status: "draft_not_dispatched",
+    created_at: occurredAt,
+    dispatched: false,
+    external_effect: "none",
+    authority: "human_dispatch_required",
+  };
+  const next = appendTimeline(workflow, {
+    action: "field_task_drafted",
+    summary: `${taskType}: ${instruction}`,
+    actorRole: "operator",
+    actorLabel: owner,
+  }, occurredAt);
+  return { ...next, field_tasks: [...(workflow?.field_tasks ?? []), task] };
+}
+
+export function recordDecision(workflow, input = {}, now = new Date()) {
+  const outcome = cleanText(input.outcome);
+  const rationale = cleanText(input.rationale);
+  const actorId = cleanText(input.actor_id);
+  if (!outcome) throw new TypeError("required:outcome");
+  if (!rationale) throw new TypeError("required:rationale");
+  if (!actorId) throw new TypeError("required:actor_id");
+  const occurredAt = safeNow(now).toISOString();
+  const decision = {
+    schema: "wellington-decision/v1",
+    decision_id: `${cleanText(workflow?.case_id, "mock-preview")}:decision:${(workflow?.decisions?.length ?? 0) + 1}`,
+    outcome,
+    rationale,
+    actor_id: actorId,
+    decided_at: occurredAt,
+    review_at: cleanText(input.review_at, null),
+    authority: "human",
+    external_effect: "none",
+  };
+  const next = appendTimeline(workflow, {
+    action: "decision_recorded",
+    summary: `${outcome}: ${rationale}`,
+    actorRole: "decision_maker",
+    actorLabel: actorId,
+  }, occurredAt);
+  return { ...next, decisions: [...(workflow?.decisions ?? []), decision] };
+}
+
+export function updateCopSnapshot(workflow, input = {}, now = new Date()) {
+  const occurredAt = safeNow(now).toISOString();
+  const versions = workflow?.cop_versions ?? [];
+  const previous = versions.at(-1) ?? workflow?.cop ?? {};
+  const snapshot = {
+    version: Number(previous?.version ?? versions.length) + 1,
+    captured_at: occurredAt,
+    information_manager: cleanText(input.information_manager, previous?.information_manager ?? ""),
+    next_review_at: cleanText(input.next_review_at, previous?.next_review_at ?? null),
+    affected_area: input.affected_area ?? previous?.affected_area ?? { label: "", geometry: null, authority: "working_area" },
+    situation: cleanText(input.situation, previous?.situation ?? ""),
+    confirmed_items: input.confirmed_items ? cleanList(input.confirmed_items) : [...(previous?.confirmed_items ?? [])],
+    unknown_items: input.unknown_items ? cleanList(input.unknown_items) : [...(previous?.unknown_items ?? [])],
+    current_actions: input.current_actions ? cleanList(input.current_actions) : [...(previous?.current_actions ?? [])],
+    source: "operator_update",
+  };
+  const next = appendTimeline(workflow, {
+    action: "cop_snapshot_saved",
+    summary: `COP v${snapshot.version} saved locally`,
+    actorRole: "information_manager",
+    actorLabel: cleanText(input.information_manager, "Browser operator"),
+  }, occurredAt);
+  return { ...next, cop: snapshot, cop_versions: [...versions, snapshot] };
 }
 
 export function prepareWarningApproval(input = {}, now = new Date()) {

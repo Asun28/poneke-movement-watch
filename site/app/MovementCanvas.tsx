@@ -833,7 +833,7 @@ function LayerWorkspace({
           <h4 id="base-layers-heading">Map layers</h4>
           <span>2 display layers</span>
         </div>
-        <label className="core-layer-row" htmlFor="layer-basemap">
+        <label className="core-layer-row" htmlFor="layer-basemap" data-temporal-mode="static-context">
           <input
             id="layer-basemap"
             aria-label="Calm streets basemap"
@@ -843,9 +843,9 @@ function LayerWorkspace({
           />
           <span className="sr-only">Calm streets basemap</span>
           <span className="layer-mini-symbol basemap-symbol" aria-hidden="true" />
-          <span><strong>{OPERATIONAL_BASEMAP.label}</strong><small>Low-clutter · display only</small></span>
+          <span><strong>{OPERATIONAL_BASEMAP.label}</strong><small>Static context · display only</small></span>
         </label>
-        <label className="core-layer-row" htmlFor="layer-coverage">
+        <label className="core-layer-row" htmlFor="layer-coverage" data-temporal-mode="static-context">
           <input
             id="layer-coverage"
             aria-label="Sensor coverage"
@@ -855,7 +855,7 @@ function LayerWorkspace({
           />
           <span className="sr-only">Sensor coverage</span>
           <span className="layer-mini-symbol coverage-symbol" aria-hidden="true" />
-          <span><strong>Sensor coverage</strong><small>414 WCC countlines</small></span>
+          <span><strong>Sensor coverage</strong><small>Static context · 414 WCC countlines</small></span>
         </label>
         <label className="symbol-size-control">
           <span><strong>Map symbol size</strong><output>{symbolSize}px</output></span>
@@ -874,6 +874,11 @@ function LayerWorkspace({
         <div className="layer-group-heading">
           <h4 id="source-layers-heading">Investigation sources</h4>
           <span>{sourceStorageNotice}</span>
+        </div>
+        <div className="replay-temporal-key" aria-label="Replay layer time modes">
+          <span data-temporal-mode="time-slot">Current slot</span>
+          <span data-temporal-mode="snapshot">Snapshot</span>
+          <span data-temporal-mode="static-context">Static context</span>
         </div>
         <details
           className="source-onboarding"
@@ -1017,6 +1022,7 @@ function LayerWorkspace({
                 className={`source-layer-row ${state.playable ? "is-playable" : "is-contract"}`}
                 data-source-layer={source.id}
                 data-playable={String(state.playable)}
+                data-temporal-mode={state.playable ? "time-slot" : "static-context"}
                 data-selected={String(isSelected)}
                 key={source.id}
               >
@@ -1024,7 +1030,7 @@ function LayerWorkspace({
                   className={`source-layer-toggle ${isSelected ? "is-selected" : ""}`}
                   type="button"
                   aria-pressed={isSelected}
-                  aria-label={`${isSelected ? "Remove" : "Add"} ${source.name} source layer`}
+                  aria-label={`${isSelected ? "Remove" : "Add"} ${source.name} ${state.playable ? "time layer" : "context reference"}`}
                   onClick={() => onToggleSource(source.id)}
                 >
                   <SourceIconPreview
@@ -1561,6 +1567,7 @@ export default function MovementCanvas({ investigation, investigationControl }: 
       className="investigation-frame replay-map-workspace"
       aria-label={`${investigation?.title ?? "Movement changes"} replay map`}
       data-replay-map-first="true"
+      data-replay-time-policy="playhead-bound"
       data-replay-dataset="movement"
       data-delta-encoding="signed-centre-bar"
       data-marker-direction="icon-arrow"
@@ -1659,7 +1666,7 @@ export default function MovementCanvas({ investigation, investigationControl }: 
               {!replaySourceSelected
                 ? "No playable data"
                 : currentSlot
-                ? `${currentSlot.candidate_count} signals · ${currentSlot.data_gap_groups} gaps`
+                ? `${currentSlot.candidate_count} signals · ${currentSlot.data_gap_groups} gaps · at selected time`
                 : "Loading…"}
             </output>
           </div>

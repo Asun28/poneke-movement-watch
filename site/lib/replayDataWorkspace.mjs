@@ -125,7 +125,8 @@ export function buildSensorReplayDataset(pack, investigation, detectorPack = nul
       site: cleanText(item?.site, "Unknown site"),
       measurement: cleanText(item?.measurement, "Measurement"),
       unit: cleanText(item?.unit),
-      cadence_seconds: Number(item?.cadence_seconds) || null,
+      cadence_seconds: Number(item?.cadence_seconds)
+        || (Number(item?.cadence_minutes) > 0 ? Number(item.cadence_minutes) * 60 : null),
       geometry: item?.geometry ?? null,
       domain: String(item?.measurement ?? "").toLowerCase().includes("rain") ? "rainfall" : "river-flow",
       detector_episode_count: Number(detector?.episode_count) || 0,
@@ -169,11 +170,19 @@ export function sensorReplayFrame(dataset, requestedIndex) {
   const targetAt = dataset?.slots?.[index] ?? null;
   const targetEpoch = epoch(targetAt);
   if (targetEpoch === null) {
-    return { index: 0, target_at: null, readings: [], newly_available_count: 0 };
+    return {
+      index: 0,
+      target_at: null,
+      readings: [],
+      newly_available_count: 0,
+      current_reading_count: 0,
+      stale_reading_count: 0,
+    };
   }
 
   const readings = [];
   let newlyAvailableCount = 0;
+  let staleReadingCount = 0;
   for (const item of dataset.series ?? []) {
     let currentIndex = -1;
     for (let observationIndex = item.observations.length - 1; observationIndex >= 0; observationIndex -= 1) {
@@ -187,6 +196,13 @@ export function sensorReplayFrame(dataset, requestedIndex) {
     if (currentIndex < 0) continue;
     const observation = item.observations[currentIndex];
     const previous = item.observations[currentIndex - 1];
+    const observedEpoch = epoch(observation.observed_at) ?? epoch(observation.available_at);
+    const cadenceSeconds = Number(item.cadence_seconds) > 0 ? Number(item.cadence_seconds) : 3600;
+    const validUntilEpoch = observedEpoch + cadenceSeconds * 3 * 1000;
+    if (targetEpoch > validUntilEpoch) {
+      staleReadingCount += 1;
+      continue;
+    }
     readings.push({
       id: `${item.id}:${observation.available_at}`,
       series_id: item.id,
@@ -197,6 +213,9 @@ export function sensorReplayFrame(dataset, requestedIndex) {
       observed_at: observation.observed_at,
       available_at: observation.available_at,
       available_at_quality: observation.available_at_quality ?? null,
+      age_seconds: Math.max(0, Math.round((targetEpoch - observedEpoch) / 1000)),
+      valid_until: new Date(validUntilEpoch).toISOString(),
+      temporal_state: "current_at_playhead",
       value: Number(observation.value),
       change: previous ? Number(observation.value) - Number(previous.value) : null,
       detector_candidate: observation.detector_candidate === true,
@@ -204,7 +223,65 @@ export function sensorReplayFrame(dataset, requestedIndex) {
     });
   }
 
-  return { index, target_at: targetAt, readings, newly_available_count: newlyAvailableCount };
+  return {
+    index,
+    target_at: targetAt,
+    readings,
+    newly_available_count: newlyAvailableCount,
+    current_reading_count: readings.length,
+    stale_reading_count: staleReadingCount,
+  };
+}
+
+export function movementOutcomeSignalsAt(pack, targetAt) {
+  const targetEpoch = epoch(targetAt);
+  if (targetEpoch === null) return [];
+  const slots = (Array.isArray(pack?.slots) ? pack.slots : [])
+    .map((slot) => ({ ...slot, target_epoch: epoch(slot?.target_at) }))
+    .filter((slot) => slot.target_epoch !== null)
+    .toSorted((first, second) => first.target_epoch - second.target_epoch);
+  if (slots.length === 0) return [];
+
+  const slotIndex = slots.findLastIndex((slot) => slot.target_epoch <= targetEpoch);
+  if (slotIndex < 0) return [];
+  const slot = slots[slotIndex];
+  const previousEpoch = slots[slotIndex - 1]?.target_epoch;
+  const inferredDuration = previousEpoch === undefined
+    ? 60 * 60 * 1000
+    : Math.max(1, slot.target_epoch - previousEpoch);
+  const validUntil = slots[slotIndex + 1]?.target_epoch ?? slot.target_epoch + inferredDuration;
+  if (targetEpoch >= validUntil) return [];
+  return Array.isArray(slot.signals) ? slot.signals : [];
+}
+
+export function buildSensorReplayLayerStates(frame, movementSignals, officialImpactCount = 0) {
+  const readings = Array.isArray(frame?.readings) ? frame.readings : [];
+  const countNow = (predicate) => readings.filter(predicate).length;
+  const snapshot = (count) => ({ temporal_mode: "snapshot", current_count: count, label: `${count} now` });
+  const movementCount = Array.isArray(movementSignals) ? movementSignals.length : 0;
+  const staleCount = Math.max(0, Number(frame?.stale_reading_count) || 0);
+  const impactCount = Math.max(0, Number(officialImpactCount) || 0);
+
+  return {
+    movement_outcomes: {
+      temporal_mode: "time_slot",
+      current_count: movementCount,
+      label: `${movementCount} now`,
+    },
+    rainfall: snapshot(countNow((reading) => String(reading?.measurement ?? "").toLowerCase().includes("rain"))),
+    river_flow: snapshot(countNow((reading) => !String(reading?.measurement ?? "").toLowerCase().includes("rain"))),
+    detector_candidates: snapshot(countNow((reading) => reading?.detector_candidate === true)),
+    stale_sensors: {
+      temporal_mode: "expired",
+      current_count: staleCount,
+      label: `${staleCount} stale · hidden`,
+    },
+    official_impacts: {
+      temporal_mode: "static_context",
+      current_count: null,
+      label: `Static context · ${impactCount}`,
+    },
+  };
 }
 
 function finiteNumber(value, fallback = 0) {

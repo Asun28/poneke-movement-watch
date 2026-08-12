@@ -3,10 +3,16 @@ import { handleImageOptimization, DEFAULT_DEVICE_SIZES, DEFAULT_IMAGE_SIZES } fr
 import handler from "vinext/server/app-router-entry";
 import registry from "../public/cop/v2/source-registry.json";
 import { buildLiveSnapshot, buildSourceContracts, createAlertCandidates } from "../lib/dataIntegration.mjs";
+import { buildSituationClusters } from "../lib/situationWorkflow.mjs";
 import { makeLiveAdapters } from "../lib/liveAdapters.mjs";
 import { PROVIDER_FIXTURES } from "../lib/providerFixtures.mjs";
 import { SOURCE_MANIFEST } from "../lib/sourceManifest.mjs";
-import { prepareWorkflowMock, workflowAdapterCatalog } from "../lib/workflowAdapters.mjs";
+import {
+  prepareWorkflowMock,
+  simulateWccTicketEvent,
+  wccTicketEventContract,
+  workflowAdapterCatalog,
+} from "../lib/workflowAdapters.mjs";
 
 interface Env {
   ASSETS: Fetcher;
@@ -62,6 +68,21 @@ async function handleIntegrationApi(request: Request, pathname: string) {
     }
     return jsonResponse({ error: "method_not_allowed" }, { status: 405, headers: { allow: "GET, POST, OPTIONS" } });
   }
+  if (pathname === "/api/integration/v1/wcc-ticket-events") {
+    if (request.method === "GET") return jsonResponse(wccTicketEventContract());
+    if (request.method === "POST") {
+      try {
+        const body = await request.json() as Record<string, unknown>;
+        return jsonResponse(simulateWccTicketEvent(body));
+      } catch (error) {
+        const code = error instanceof Error && "code" in error
+          ? String(error.code)
+          : "invalid_wcc_ticket_event";
+        return jsonResponse({ error: code }, { status: 400 });
+      }
+    }
+    return jsonResponse({ error: "method_not_allowed" }, { status: 405, headers: { allow: "GET, POST, OPTIONS" } });
+  }
   if (request.method !== "GET") {
     return jsonResponse({ error: "method_not_allowed" }, { status: 405, headers: { allow: "GET, OPTIONS" } });
   }
@@ -80,6 +101,9 @@ async function handleIntegrationApi(request: Request, pathname: string) {
   if (pathname === "/api/integration/v1/snapshot") return jsonResponse(snapshot);
   if (pathname === "/api/alerts/v1/candidates") {
     return jsonResponse(createAlertCandidates(snapshot));
+  }
+  if (pathname === "/api/alerts/v1/situations") {
+    return jsonResponse(buildSituationClusters(createAlertCandidates(snapshot)));
   }
   return jsonResponse({ error: "not_found" }, { status: 404 });
 }

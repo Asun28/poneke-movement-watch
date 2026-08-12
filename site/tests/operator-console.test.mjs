@@ -185,8 +185,8 @@ test("announces live and alert loading without presenting provisional zeroes", a
   assert.match(live, /aria-busy="true"/);
   assert.match(live, /Loading current feeds/);
   assert.doesNotMatch(live, /<span>Connected<\/span><strong>0<\/strong>/);
-  assert.match(alerts, /aria-label="Signal review queue"[^>]*aria-busy="true"/);
-  assert.match(alerts, /Loading review queue/);
+  assert.match(alerts, /aria-label="Situation review queue"[^>]*aria-busy="true"/);
+  assert.match(alerts, /Loading situation queue/);
 });
 
 test("offers short safe setup paths for sources, API, MCP and A2A", async () => {
@@ -566,45 +566,57 @@ test("provides a friendly Replay investigation source workspace", async () => {
   assert.match(html, /This browser only/);
 });
 
+test("labels Replay layers by playhead state instead of presenting static contracts as moving data", async () => {
+  const html = await (await request("/replay")).text();
+
+  assert.match(html, /data-replay-time-policy="playhead-bound"/);
+  assert.match(html, /data-temporal-mode="time-slot"/);
+  assert.match(html, /data-temporal-mode="snapshot"/);
+  assert.match(html, /data-temporal-mode="static-context"/);
+  assert.match(html, /Static context/);
+  assert.doesNotMatch(html, />[\d,]+ \/ [\d,]+ records</);
+});
+
 test("makes model authority and mock alert exclusion explicit", async () => {
   const response = await request("/alerts");
   const html = await response.text();
 
   assert.match(html, /Decision authority/);
   assert.match(html, /Human approval required/);
-  assert.match(html, /Mock · zero evidence/);
+  assert.match(html, /Mock · no external write/);
+  assert.match(html, /Excluded from model feedback/);
   assert.match(html, /Supporting/);
   assert.match(html, /Contradicting/);
   assert.match(html, /Missing/);
   assert.match(html, /Context/);
 });
 
-test("provides a focused editable review ticket without changing system truth", async () => {
+test("provides a focused editable Situation without changing system truth", async () => {
   const response = await request("/alerts");
   assert.equal(response.status, 200);
   const html = await response.text();
 
-  assert.match(html, /aria-label="Signal review queue"/);
-  assert.match(html, /Search signals/);
+  assert.match(html, /aria-label="Situation review queue"/);
+  assert.match(html, /Search situations/);
   assert.match(html, /aria-label="Review queue"/);
   assert.match(html, /Review status/);
   assert.match(html, /Assigned to/);
   assert.match(html, /Review note/);
-  assert.match(html, /Save local draft/);
+  assert.match(html, /Save COP version/);
   assert.match(html, /This browser only/);
   assert.match(html, /System severity/);
   assert.match(html, /Observed/);
   assert.doesNotMatch(html, /name="severity"/);
 });
 
-test("lays out each signal as a compact investigation with a dedicated details rail", async () => {
+test("lays out each Situation as a compact investigation with a dedicated details rail", async () => {
   const response = await request("/alerts");
   assert.equal(response.status, 200);
   const html = await response.text();
 
   assert.match(html, /aria-label="Investigation content"/);
-  assert.match(html, /aria-label="Signal details"/);
-  assert.match(html, /aria-label="Signal details fields"/);
+  assert.match(html, /aria-label="Situation details"/);
+  assert.match(html, /aria-label="Situation details fields"/);
   assert.match(html, /Affected area/);
   assert.match(html, /Update details/);
   assert.match(html, /name="review-status"/);
@@ -623,8 +635,8 @@ test("offers Signal Review queues and governed human outcome feedback", async ()
   for (const queue of ["New", "Active", "Closed", "History", "All"]) {
     assert.match(html, new RegExp(`>${queue}(?: · [^<]+)?<`), queue);
   }
-  assert.match(html, /aria-label="Signal review workflow"/);
-  assert.match(html, /Signal[\s\S]*Candidate[\s\S]*Investigate[\s\S]*Outcome/);
+  assert.match(html, /aria-label="Situation review workflow"/);
+  assert.match(html, /Signals[\s\S]*Situation[\s\S]*Investigate[\s\S]*Outcome/);
   assert.match(html, /name="classification"/);
   for (const outcome of ["True Positive", "Benign Positive", "False Positive", "Undetermined"]) {
     assert.match(html, new RegExp(outcome), outcome);
@@ -632,6 +644,22 @@ test("offers Signal Review queues and governed human outcome feedback", async ()
   assert.match(html, /Meaning/);
   assert.match(html, /Next step/);
   assert.match(html, /Not trained automatically/);
+});
+
+test("renders one Situation-first queue with progressive Signal drill-down and governed records", async () => {
+  const html = await (await request("/alerts")).text();
+
+  assert.match(html, /data-review-unit="situation"/);
+  assert.match(html, /aria-label="Situation review queue"/);
+  assert.match(html, /Search situations/);
+  assert.match(html, /Original signals/);
+  assert.match(html, /Gate decision/);
+  assert.match(html, /Typed evidence/);
+  assert.match(html, /COP versions/);
+  assert.match(html, /Field tasks/);
+  assert.match(html, /Decisions/);
+  assert.match(html, /WCC Ticket Simulator/);
+  assert.match(html, /Mock · no external write/);
 });
 
 test("keeps Signal Review queue state, workflow and evidence presentation coherent", async () => {
@@ -660,7 +688,8 @@ test("renders a local case COP and warning-preparation workspace", async () => {
   ]) assert.match(html, new RegExp(label), label);
 
   assert.match(html, /Unconfirmed/);
-  assert.match(html, /Signal ID/);
+  assert.match(html, /Situation ID/);
+  assert.match(html, /Original signals/);
   assert.match(html, /Case ID/);
   assert.match(html, /Not created/);
   assert.match(html, /This browser only|Browser-local demo/);
@@ -779,6 +808,41 @@ test("serves provider-shaped workflow mocks and never reports a dispatch", async
   });
   assert.equal(invalidResponse.status, 400);
   assert.deepEqual(await invalidResponse.json(), { error: "unknown_workflow_adapter" });
+});
+
+test("serves Situation records and bidirectional WCC Ticket simulation without a connector", async () => {
+  const situationResponse = await request("/api/alerts/v1/situations");
+  assert.equal(situationResponse.status, 200);
+  const situations = await situationResponse.json();
+  assert.equal(situations.schema, "wellington-situations/v1");
+  assert.equal(situations.signal_count >= situations.situation_count, true);
+
+  const contractResponse = await request("/api/integration/v1/wcc-ticket-events");
+  assert.equal(contractResponse.status, 200);
+  const contract = await contractResponse.json();
+  assert.equal(contract.connector_state, "disconnected_demo");
+  assert.deepEqual(contract.directions, ["inbound", "outbound"]);
+
+  for (const direction of ["inbound", "outbound"]) {
+    const eventResponse = await request("/api/integration/v1/wcc-ticket-events", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        direction,
+        event_type: direction === "inbound" ? "status_changed" : "link_prepared",
+        situation_id: "situation:flood:1",
+        provider_payload: { TICKET_ID: "MOCK-WCC-EM-2026-0042", CURRENT_STATUS: "OPEN" },
+      }),
+    });
+    assert.equal(eventResponse.status, 200);
+    const event = await eventResponse.json();
+    assert.equal(event.direction, direction);
+    assert.equal(event.mode, "mock");
+    assert.equal(event.connector_state, "disconnected_demo");
+    assert.equal(event.external_effect, "none");
+    assert.equal(event.dispatched, false);
+    assert.equal(event.evidence_weight, 0);
+  }
 });
 
 test("uses one compact title and status bar on every operator page", async () => {
