@@ -124,8 +124,8 @@ function drawTiles(
   context.fillRect(0, 0, width, height);
 }
 
-function drawMarker(context: CanvasRenderingContext2D, point: Coordinate, observation: Observation, selected: boolean, highlighted: boolean, markerScale: number) {
-  const { colour, shape, glyph } = eventSymbolFor(observation);
+function drawMarker(context: CanvasRenderingContext2D, point: Coordinate, observation: Observation, source: MapSource | undefined, selected: boolean, highlighted: boolean, markerScale: number) {
+  const { colour, shape, glyph } = eventSymbolFor(observation, source);
   const radius = (selected ? 11 : 8) * markerScale;
   context.save();
   context.translate(point[0], point[1]);
@@ -300,7 +300,7 @@ export default function LiveMap({
         const highlighted = cluster.points.some((point) => highlightedIds.has(point.observation.id));
         const radius = cluster.count > 1
           ? drawCluster(context, [cluster.x, cluster.y], cluster.count, highlighted)
-          : drawMarker(context, [cluster.x, cluster.y], observation, selected, highlighted, markerScale);
+          : drawMarker(context, [cluster.x, cluster.y], observation, sourceById.get(observation.source_id), selected, highlighted, markerScale);
         return {
           observation,
           observations: cluster.points.map((point) => point.observation),
@@ -315,7 +315,7 @@ export default function LiveMap({
     const observer = new ResizeObserver(draw);
     observer.observe(canvas);
     return () => observer.disconnect();
-  }, [highlightedIds, markerScale, pan, plottable, revision, selectedId, showBasemap, zoom]);
+  }, [highlightedIds, markerScale, pan, plottable, revision, selectedId, showBasemap, sourceById, zoom]);
 
   function localPoint(event: React.PointerEvent): Coordinate {
     const rect = event.currentTarget.getBoundingClientRect();

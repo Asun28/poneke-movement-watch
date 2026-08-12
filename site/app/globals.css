@@ -4696,3 +4696,179 @@ h1, h2, h3, h4, h5 { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-seri
   .alert-centre-grid[data-operator-workflow="signal-master-detail"] .alert-queue { border-right: 0; border-bottom: 1px solid var(--hairline); }
   .alert-centre-grid[data-operator-workflow="signal-master-detail"] .alert-ticket-list { max-height: 230px; min-height: 0; }
 }
+
+/* Phase 65 — calm, map-first Live Operations workspace. */
+.live-situation-strip[aria-label="Live operational status"] {
+  align-items: stretch;
+  overflow: hidden;
+  border-color: #c7ccd4;
+}
+.live-state-group {
+  min-width: 0;
+  min-height: 46px;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 4px 8px;
+}
+.live-state-group + .live-state-group { border-left: 1px solid #dfe1e6; }
+.live-state-group-label {
+  flex: 0 0 auto;
+  margin-right: 4px;
+  color: #44546f;
+  font-size: 11px;
+  font-weight: 700;
+}
+.live-state-group [data-live-metric] {
+  min-height: 34px;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  padding: 7px 8px;
+  border-radius: 6px;
+  background: #f7f8f9;
+}
+.live-state-group [data-live-metric] > span {
+  color: #44546f;
+  font-size: 12px;
+  font-weight: 650;
+  text-transform: none;
+}
+.live-state-group [data-live-metric] > strong {
+  color: #172b4d;
+  font: 750 15px/1 "Segoe UI", sans-serif;
+}
+.live-state-group [data-live-metric="connected"] > strong { color: #216e4e; }
+.live-state-group [data-live-metric="issues"] > strong { color: #ae2a19; }
+.live-source-health { flex: 0 1 auto; }
+.live-operational-review { flex: 1 1 auto; }
+.live-operational-review .live-inbox-truth {
+  min-height: 34px;
+  margin: 0;
+  padding: 0 10px;
+  border-color: #b7bdc8;
+  border-radius: 6px;
+  color: #344563;
+  background: #f7f8f9;
+  font-size: 12px;
+  font-weight: 650;
+}
+.live-situation-strip[aria-label="Live operational status"] > .live-strip-actions {
+  min-height: 46px;
+  flex: 0 0 auto;
+  border-left: 1px solid #dfe1e6;
+  background: #ffffff;
+}
+.live-refresh-state { color: #44546f; font-size: 12px; font-weight: 650; white-space: nowrap; }
+
+.live-map-overlay-bar button.is-active {
+  color: #0747a6;
+  border-color: #85b8ff;
+  background: rgba(233,242,255,.96);
+  box-shadow: 0 1px 3px rgba(9,30,66,.1);
+}
+.live-map-overlay-bar button.is-active:hover { background: #dbeafe; }
+.live-filter-check { flex: 0 0 auto; color: #0c66e4; }
+
+.live-map-tools {
+  position: absolute;
+  z-index: 9;
+  right: 68px;
+  bottom: 16px;
+  display: grid;
+  overflow: hidden;
+  border: 1px solid rgba(9,30,66,.18);
+  border-radius: 8px;
+  background: rgba(255,255,255,.98);
+  box-shadow: 0 1px 4px rgba(9,30,66,.18);
+}
+.live-map-tools button {
+  position: relative;
+  width: 44px;
+  min-height: 44px;
+  display: inline-grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-top: 1px solid #dfe1e6;
+  color: #344563;
+  background: transparent;
+  cursor: pointer;
+}
+.live-map-tools button:first-child { border-top: 0; }
+.live-map-tools button:hover,
+.live-map-tools button:focus-visible { color: #0747a6; background: #e9f2ff; }
+.live-map-tools button[aria-expanded="true"] { color: #ffffff; background: #0c66e4; }
+.live-map-tools button > span {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  min-width: 16px;
+  height: 16px;
+  display: inline-grid;
+  place-items: center;
+  padding: 0 3px;
+  border-radius: 8px;
+  color: #ffffff;
+  background: #ae2a19;
+  font-size: 9px;
+  font-weight: 750;
+}
+
+.live-map-inbox-overlay[hidden],
+.live-map-layers-overlay[hidden],
+.live-map-context-overlay[hidden] { display: none !important; }
+.live-map-inbox-overlay {
+  top: 72px;
+  bottom: 16px;
+  left: 0;
+  width: min(340px, calc(100% - 32px));
+  border-left: 0;
+  border-radius: 0 10px 10px 0;
+}
+
+@media (min-width: 801px) {
+  .live-map-overlay-bar[data-live-filter-layout="wrapped"] {
+    right: 16px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+  }
+}
+
+@media (max-width: 960px) {
+  .live-state-group-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .live-state-group { padding-inline: 4px; }
+  .live-state-group [data-live-metric] { padding-inline: 6px; }
+  .live-operational-review .live-inbox-truth { max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .live-refresh-state { display: none; }
+}
+
+@media (max-width: 800px) {
+  .live-map-tools {
+    right: 60px;
+    bottom: 82px;
+    grid-auto-flow: column;
+  }
+  .live-map-tools button { border-top: 0; border-left: 1px solid #dfe1e6; }
+  .live-map-tools button:first-child { border-left: 0; }
+  .live-map-tools [data-map-tool="evidence"] { display: none; }
+  .live-map-workspace.has-mobile-sheet .live-map-tools { top: 72px; bottom: auto; }
+  .live-map-inbox-overlay {
+    top: auto;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    border-right: 0;
+    border-bottom: 0;
+    border-radius: 12px 12px 0 0;
+  }
+}
+
+@media (max-width: 620px) {
+  .live-situation-strip[aria-label="Live operational status"] { display: grid; grid-template-columns: minmax(0, 1fr) auto; }
+  .live-source-health { grid-column: 1; overflow-x: auto; }
+  .live-operational-review { grid-column: 1 / -1; grid-row: 2; min-height: 38px; border-top: 1px solid #dfe1e6; border-left: 0 !important; }
+  .live-operational-review .live-inbox-truth { max-width: none; flex: 1; justify-content: center; }
+  .live-situation-strip[aria-label="Live operational status"] > .live-strip-actions { grid-column: 2; grid-row: 1; }
+}

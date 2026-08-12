@@ -290,6 +290,12 @@ test("maps operational event families to distinct accessible symbols", () => {
   });
   assert.equal(new Set(symbols.map(({ id }) => id)).size, examples.length);
   assert.equal(liveMapWorkspace.EVENT_SYMBOLS.rain.glyph, "☔");
+
+  const sourceClassified = symbolFor(
+    { source_id: "metservice-cap", kind: "official_status_observation", properties: {} },
+    { source_id: "metservice-cap", name: "MetService weather warnings", role: "official_warning" },
+  );
+  assert.equal(sourceClassified.id, "warning");
 });
 
 test("builds an available-at-safe April sensor replay for the selected investigation", async () => {

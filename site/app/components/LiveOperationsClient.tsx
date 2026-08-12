@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { CaretRight, FunnelSimple, MagnifyingGlass, Tray, X } from "@phosphor-icons/react";
+import { Buildings, Check, FunnelSimple, MagnifyingGlass, Stack, Tray, X } from "@phosphor-icons/react";
 import { buildLiveMapCard, filterLiveMapObservations, LIVE_MAP_LAYERS, toggleLiveMapPanel } from "../../lib/liveMapWorkspace.mjs";
 import EventSymbolBadge from "./EventSymbolBadge";
 import LiveMap from "./LiveMap";
@@ -172,9 +172,9 @@ export default function LiveOperationsClient() {
   const inbox = snapshot?.evidence_inbox;
   const candidateCount = inbox?.candidates.length ?? null;
   const candidateStatus = loading || candidateCount === null
-    ? "Checking candidates…"
+    ? "Checking review queue…"
     : candidateCount === 0
-      ? "Zero candidates ≠ all-clear"
+      ? "0 candidates to review · monitoring continues"
       : `${candidateCount} candidate${candidateCount === 1 ? "" : "s"} to review`;
   const inboxSummary = loading || !inbox
     ? "Review — · Held —"
@@ -243,17 +243,21 @@ export default function LiveOperationsClient() {
 
   return (
     <section className="live-workspace live-map-first" aria-label="Live emergency information workspace" aria-busy={loading}>
-      <div className="live-situation-strip" aria-label="Live source status">
-        <div data-live-metric="connected"><span>Connected</span><strong>{loading ? "—" : liveCount}</strong></div>
-        <div data-live-metric="empty">
-          <span>Empty</span><strong>{loading ? "—" : emptyCount}</strong>
-          <span className="sr-only">No current records. Not all-clear.</span>
-        </div>
-        <div data-live-metric="issues"><span>Issues</span><strong>{loading ? "—" : issueCount}</strong></div>
-        <span className="live-inbox-truth">{candidateStatus}</span>
+      <div className="live-situation-strip" aria-label="Live operational status">
+        <section className="live-state-group live-source-health" data-live-state-group="source-health" aria-label="Source health">
+          <span className="live-state-group-label">Source health</span>
+          <div data-live-metric="connected"><span>Connected</span><strong>{loading ? "—" : liveCount}</strong></div>
+          <div data-live-metric="empty"><span>Empty</span><strong>{loading ? "—" : emptyCount}</strong></div>
+          <div data-live-metric="issues"><span>Issues</span><strong>{loading ? "—" : issueCount}</strong></div>
+        </section>
+        <section className="live-state-group live-operational-review" data-live-state-group="operational-review" aria-label="Operational review">
+          <span className="live-state-group-label">Operational review</span>
+          <span className="live-inbox-truth">{candidateStatus}</span>
+          <span className="sr-only">Monitoring continues while the review queue updates.</span>
+        </section>
         <div className="live-strip-actions">
           <span className="sr-only">{paused ? "Display paused." : "Auto refresh every 60 seconds."}</span>
-          <time className="live-status-time" dateTime={snapshot?.generated_at}>{snapshot ? timeLabel(snapshot.generated_at) : "—"}</time>
+          <span className="live-refresh-state" aria-hidden="true">{paused ? "Paused" : "Auto · 60s"}</span>
           <div>
             <button type="button" onClick={() => setPaused((value) => !value)}>{paused ? "Resume" : "Pause"}</button>
             <button type="button" onClick={() => void refresh()} disabled={paused || loading}>{loading ? "Refreshing…" : "Refresh"}</button>
@@ -317,18 +321,25 @@ export default function LiveOperationsClient() {
               type="button"
               className={activeLayers.has(layer.id) ? "is-active" : ""}
               aria-pressed={activeLayers.has(layer.id)}
+              data-filter-state={activeLayers.has(layer.id) ? "selected" : "available"}
               data-live-layer-toggle={layer.id}
               onClick={() => toggleLayer(layer.id)}
-            ><EventSymbolBadge symbolId={LIVE_LAYER_SYMBOLS[layer.id]} decorative />{layer.label}</button>
+            ><EventSymbolBadge symbolId={LIVE_LAYER_SYMBOLS[layer.id]} decorative />{layer.label}{activeLayers.has(layer.id) ? <Check className="live-filter-check" aria-hidden="true" size={15} weight="bold" /> : null}</button>
           ))}
-          <button type="button" aria-expanded={layersOpen} onClick={() => togglePanel("layers")}>Layers</button>
-          <button type="button" aria-expanded={contextOpen} onClick={() => togglePanel("context")}>City context</button>
         </nav>
 
-        <aside id="live-evidence-inbox" className={`live-map-inbox-overlay ${inboxOpen ? "" : "is-collapsed"}`} aria-label="Evidence Inbox overlay">
+        <div className="live-map-tools" role="toolbar" aria-label="Map tools">
+          <button data-map-tool="evidence" type="button" aria-expanded={inboxOpen} aria-controls="live-evidence-inbox" aria-label={inboxOpen ? "Hide Evidence Inbox" : "Show Evidence Inbox"} title="Evidence Inbox" onClick={() => togglePanel("inbox")}>
+            <Tray aria-hidden="true" size={20} weight="regular" />{(inbox?.review_candidate_count ?? 0) > 0 ? <span>{inbox?.review_candidate_count}</span> : null}
+          </button>
+          <button data-map-tool="layers" type="button" aria-expanded={layersOpen} aria-controls="live-map-layers" aria-label={layersOpen ? "Hide map layers" : "Show map layers"} title="Layers" onClick={() => togglePanel("layers")}><Stack aria-hidden="true" size={20} weight="regular" /></button>
+          <button data-map-tool="context" type="button" aria-expanded={contextOpen} aria-controls="live-map-context" aria-label={contextOpen ? "Hide city context" : "Show city context"} title="City context" onClick={() => togglePanel("context")}><Buildings aria-hidden="true" size={20} weight="regular" /></button>
+        </div>
+
+        <aside id="live-evidence-inbox" className="live-map-inbox-overlay" aria-label="Evidence Inbox overlay" hidden={!inboxOpen}>
           <header>
             <div><h2>Evidence Inbox</h2><span data-inbox-summary="review-held">{inboxSummary}</span></div>
-            <button type="button" aria-expanded={inboxOpen} aria-label={inboxOpen ? "Hide Evidence Inbox" : "Show Evidence Inbox"} onClick={() => togglePanel("inbox")}>{inboxOpen ? <CloseIcon /> : <CaretRight aria-hidden="true" size={18} weight="regular" />}</button>
+            <button type="button" aria-label="Hide Evidence Inbox" onClick={() => setActivePanel(null)}><CloseIcon /></button>
           </header>
           {inboxOpen && (
             <div className="live-map-inbox-body">
@@ -339,7 +350,7 @@ export default function LiveOperationsClient() {
               </dl>
               {loading && <p className="ops-state is-loading" role="status">Checking evidence…</p>}
               {error && <p className="ops-state is-error" role="alert">Snapshot unavailable. Showing last data.</p>}
-              {!loading && inbox?.candidates.length === 0 && <div className="live-no-candidates"><strong>No promoted candidates</strong><span>Not an all-clear</span></div>}
+              {!loading && inbox?.candidates.length === 0 && <div className="live-no-candidates"><strong>0 candidates to review</strong><span>Monitoring continues</span></div>}
               <div className="live-candidate-list">
                 {inbox?.candidates.map((candidate) => (
                   <button key={candidate.id} type="button" onClick={() => showCandidate(candidate)}>
@@ -360,7 +371,7 @@ export default function LiveOperationsClient() {
           )}
         </aside>
 
-        <aside className="live-map-layers-overlay" aria-label="Live map layers" hidden={!layersOpen}>
+        <aside id="live-map-layers" className="live-map-layers-overlay" aria-label="Live map layers" hidden={!layersOpen}>
           <header><h2>Layers</h2><button type="button" aria-label="Close layers" onClick={() => setActivePanel(null)}><CloseIcon /></button></header>
           {loading && <p className="ops-state is-loading" role="status">Loading current feeds…</p>}
           <div className="live-layer-actions">
@@ -393,7 +404,7 @@ export default function LiveOperationsClient() {
           </details>
         </aside>
 
-        <aside className="live-map-context-overlay" aria-label="City context overlay" hidden={!contextOpen}>
+        <aside id="live-map-context" className="live-map-context-overlay" aria-label="City context overlay" hidden={!contextOpen}>
           <header><h2>City context</h2><button type="button" aria-label="Close city context" onClick={() => setActivePanel(null)}><CloseIcon /></button></header>
           {contextCards.map((card) => (
             <article key={card.source_id}>

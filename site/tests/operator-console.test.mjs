@@ -140,7 +140,7 @@ test("keeps every operator route task-first without tutorial copy", async () => 
     "Arrow shows travel direction",
   ]) assert.doesNotMatch(html, new RegExp(phrase.replace(/[+]/g, "\\+")), phrase);
 
-  assert.match(html, /Not all-clear/);
+  assert.match(html, /Monitoring continues/);
   assert.match(html, /Mock · zero evidence/);
   assert.match(html, /Needs server activation/);
   assert.match(html, /Call 111 for immediate danger/);
@@ -216,7 +216,8 @@ test("keeps replay controls out of the live module and preserves them in replay"
   const replay = await (await request("/replay")).text();
 
   assert.doesNotMatch(live, /aria-label="Replay speed"/);
-  assert.match(live, /No current records/);
+  assert.match(live, /data-live-state-group="source-health"/);
+  assert.match(live, /data-live-state-group="operational-review"/);
   assert.match(replay, /aria-label="Replay speed"/);
   assert.match(replay, /Batch replay/);
 });
@@ -258,8 +259,11 @@ test("opens Live as one map-first workspace with readable evidence overlays", as
   assert.match(live, /aria-label="Unified Live map workspace"/);
   assert.match(live, /data-live-map-first="true"/);
   assert.doesNotMatch(live, /aria-label="Live Operations views"/);
-  assert.match(live, /class="live-map-inbox-overlay is-collapsed"[^>]*aria-label="Evidence Inbox overlay"/);
-  assert.match(live, /aria-expanded="false" aria-label="Show Evidence Inbox"/);
+  assert.match(live, /id="live-evidence-inbox" class="live-map-inbox-overlay"[^>]*aria-label="Evidence Inbox overlay"[^>]*hidden=""/);
+  assert.match(live, /class="live-map-tools"[^>]*aria-label="Map tools"/);
+  assert.match(live, /data-map-tool="evidence"[^>]*aria-expanded="false"[^>]*aria-label="Show Evidence Inbox"/);
+  assert.match(live, /data-map-tool="layers"[^>]*aria-expanded="false"[^>]*aria-label="Show map layers"/);
+  assert.match(live, /data-map-tool="context"[^>]*aria-expanded="false"[^>]*aria-label="Show city context"/);
   assert.match(live, /data-inbox-summary="review-held">Review — · Held —<\/span>/);
   assert.match(live, /aria-label="Live map overlays"/);
   assert.match(live, /class="live-mobile-filter-toggle"[^>]*aria-expanded="false"[^>]*aria-controls="live-map-overlay-filters"[^>]*aria-label="Show map filters"/);
@@ -271,6 +275,7 @@ test("opens Live as one map-first workspace with readable evidence overlays", as
   assert.match(live, /data-live-layer-toggle="access-impacts"/);
   assert.match(live, /data-live-layer-toggle="reports"/);
   assert.match(live, /data-live-layer-toggle="other-live"/);
+  assert.match(live, /data-filter-state="selected"/);
   assert.match(live, /aria-label="Live map layers"/);
   assert.match(live, /Current feeds/);
   assert.match(live, /aria-label="City context overlay"/);
@@ -288,7 +293,7 @@ test("opens Live as one map-first workspace with readable evidence overlays", as
   assert.match(live, /data-event-symbol="road"/);
   assert.match(live, /data-event-symbol="report"/);
   assert.match(live, /Mock · zero evidence/);
-  assert.match(live, /class="live-inbox-truth">Checking candidates…<\/span>/);
+  assert.match(live, /class="live-inbox-truth">Checking review queue…<\/span>/);
   assert.match(live, /aria-label="Map controls"[^>]*data-max-zoom="2000%"[^>]*data-style="google-vertical"[^>]*data-corner="bottom-right"/);
   assert.match(live, /aria-label="Map zoom controls"[^>]*>[\s\S]*?aria-label="Zoom in"[\s\S]*?aria-label="Zoom out"/);
   assert.match(live, /role="application"[^>]*tabindex="0"[^>]*aria-label="Interactive evidence map"[^>]*aria-keyshortcuts="ArrowUp ArrowDown ArrowLeft ArrowRight Enter Escape"/i);
@@ -740,16 +745,20 @@ test("uses one compact title and status bar on every operator page", async () =>
 test("keeps the compact Live status bar operationally complete", async () => {
   const html = await (await request("/live")).text();
   const component = readFileSync(new URL("../app/components/LiveOperationsClient.tsx", import.meta.url), "utf8");
-  const status = html.match(/<div class="live-situation-strip" aria-label="Live source status">([\s\S]*?)<\/div>\s*<section class="live-map-workspace"/)?.[1] ?? "";
+  const status = html.match(/<div class="live-situation-strip" aria-label="Live operational status">([\s\S]*?)<\/div>\s*<section class="live-map-workspace"/)?.[1] ?? "";
 
+  assert.match(status, /data-live-state-group="source-health"/);
+  assert.match(status, /class="live-state-group-label">Source health<\/span>/);
   assert.match(status, /data-live-metric="connected"[^>]*><span>Connected<\/span><strong>/);
   assert.match(status, /data-live-metric="empty"[^>]*><span>Empty<\/span><strong>/);
   assert.match(status, /data-live-metric="issues"[^>]*><span>Issues<\/span><strong>/);
-  assert.match(status, /class="live-status-time"/);
-  assert.match(status, /class="sr-only">No current records\. Not all-clear\.<\/span>/);
-  assert.match(status, /class="live-inbox-truth">Checking candidates…<\/span>/);
-  assert.match(component, /candidateCount === 0\s*\? "Zero candidates ≠ all-clear"/);
+  assert.match(status, /data-live-state-group="operational-review"/);
+  assert.match(status, /class="live-state-group-label">Operational review<\/span>/);
+  assert.match(status, /class="live-inbox-truth">Checking review queue…<\/span>/);
+  assert.match(component, /candidateCount === 0\s*\? "0 candidates to review · monitoring continues"/);
   assert.match(component, /`\$\{candidateCount\} candidate\$\{candidateCount === 1/);
+  assert.doesNotMatch(status, /class="live-status-time"/);
+  assert.doesNotMatch(status, /all-clear/i);
   assert.match(status, /class="sr-only">Auto refresh every 60 seconds\.<\/span>/);
   assert.match(status, /type="button">Pause<\/button>/);
   assert.match(status, /type="button" disabled="">Refreshing…<\/button>/);
