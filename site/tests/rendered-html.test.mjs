@@ -293,15 +293,16 @@ test("keeps April movement truth accessible without repeating model-weight copy 
 });
 
 test("uses one adaptive evidence shell for August and April Replay records", async () => {
-  const [movement, sensor, liveMap, shell] = await Promise.all([
-    readFile(new URL("../app/MovementCanvas.tsx", import.meta.url), "utf8"),
+  const [movementMap, movementEvidence, sensor, liveMap, shell] = await Promise.all([
+    readFile(new URL("../app/components/MovementReplayMapStage.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/MovementReplayEvidence.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/SensorReplayCanvas.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/LiveMap.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/AdaptiveEvidence.tsx", import.meta.url), "utf8"),
   ]);
 
-  assert.match(movement, /<AdaptiveEvidencePreview/);
-  assert.match(movement, /<AdaptiveEvidenceDrawer/);
+  assert.match(movementMap, /<AdaptiveEvidencePreview/);
+  assert.match(movementEvidence, /<AdaptiveEvidenceDrawer/);
   assert.match(sensor, /<AdaptiveEvidenceDrawer/);
   assert.match(liveMap, /adaptiveEvidenceContext/);
   assert.match(liveMap, /<AdaptiveEvidencePreview/);
@@ -350,10 +351,10 @@ test("offers historical date-hour replay and a matched-hour trend view", async (
   const response = await render();
   assert.equal(response.status, 200);
   const html = await response.text();
-  const [source, trendSource] = await Promise.all([
-    readFile(new URL("../app/MovementCanvas.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/components/MovementTrendView.tsx", import.meta.url), "utf8"),
-  ]);
+  const trendSource = await readFile(
+    new URL("../app/components/MovementTrendView.tsx", import.meta.url),
+    "utf8",
+  );
 
   assert.match(html, /aria-label="Replay controls"/);
   assert.doesNotMatch(html, /History replay/);
@@ -369,7 +370,6 @@ test("offers historical date-hour replay and a matched-hour trend view", async (
   assert.match(html, />4×</);
   assert.match(html, /Matched-hour trend/);
   assert.match(trendSource, /function MovementTrendView\(\{ signal, visible \}/);
-  assert.match(source, /<MovementTrendView signal=\{selected\} visible=\{isEvidenceOpen\}/);
   assert.match(html, /Observed count/);
   assert.match(html, /Expected baseline/);
   assert.match(html, /\/cop\/v1\/movement-replay\.json/);

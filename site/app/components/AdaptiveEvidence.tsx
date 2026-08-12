@@ -21,7 +21,7 @@ export type AdaptiveEvidenceModel = {
   boundary: string;
 };
 
-type EvidenceClusterModel = {
+export type EvidenceClusterModel = {
   title: string;
   groups: Array<{ entity_type: string; label: string; count: number }>;
   action: string;
