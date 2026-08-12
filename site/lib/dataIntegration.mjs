@@ -1,4 +1,5 @@
 import { operationsTargetForConnectorMode } from "./sourceOperations.mjs";
+import { buildSignalReference, OPERATIONAL_REFERENCE_CONVENTIONS } from "./operationalIdentifiers.mjs";
 
 const RUNTIME_STATES = [
   "live",
@@ -818,8 +819,12 @@ function eligibleObservation(observation, sourceState) {
 }
 
 function makeCandidate(snapshot, observation, rule, supporting, context = []) {
+  const canonicalId = `candidate:${supporting.join("+")}`;
   return {
-    id: `candidate:${supporting.join("+")}`,
+    id: canonicalId,
+    canonical_id: canonicalId,
+    signal_ref: buildSignalReference({ canonicalId, occurredAt: observation.observed_at }),
+    signal_name: rule.title,
     alert_schema: "wellington-alert-candidate/v1",
     created_at: snapshot.generated_at,
     observed_at: observation.observed_at,
@@ -905,6 +910,7 @@ export function createAlertCandidates(snapshot) {
 
   return {
     schema: "wellington-alert-candidates/v1",
+    reference_conventions: OPERATIONAL_REFERENCE_CONVENTIONS,
     generated_at: snapshot.generated_at,
     count: candidates.length,
     candidates,

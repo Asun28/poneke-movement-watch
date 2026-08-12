@@ -1,4 +1,12 @@
 import { buildReplayHandoff } from "./caseWorkflow.mjs";
+import {
+  buildCaseName,
+  buildCaseReference,
+  buildSignalReference,
+  buildTicketName,
+  buildTicketReference,
+  OPERATIONAL_REFERENCE_CONVENTIONS,
+} from "./operationalIdentifiers.mjs";
 
 export const WORKFLOW_ADAPTERS = [
   { id: "wcc-ticket", name: "WCC ticket", target: "WCC ticket system", contract_status: "supplied_field_contract" },
@@ -13,14 +21,21 @@ function cleanText(value, fallback) {
   return typeof value === "string" && value.trim() ? value.trim() : fallback;
 }
 
-function normaliseCase(input = {}) {
+function normaliseCase(input = {}, preparedAt) {
+  const observedAt = cleanText(input.observed_at, preparedAt.toISOString());
+  const caseId = cleanText(input.case_id, "mock-case");
+  const title = cleanText(input.title, "Potential city disruption requires investigation");
+  const affectedArea = cleanText(input.affected_area, "Wellington impact area");
+  const caseRef = buildCaseReference({ canonicalId: caseId, occurredAt: observedAt });
   return {
-    case_id: cleanText(input.case_id, "mock-case"),
-    title: cleanText(input.title, "Potential city disruption requires investigation"),
+    case_id: caseId,
+    case_ref: caseRef,
+    case_name: buildCaseName({ title, affectedArea }),
+    title,
     severity: cleanText(input.severity, "unassigned"),
     source_id: cleanText(input.source_id, "unknown-source"),
-    observed_at: cleanText(input.observed_at, null),
-    affected_area: cleanText(input.affected_area, "Wellington impact area"),
+    observed_at: observedAt,
+    affected_area: affectedArea,
     as_of: cleanText(input.as_of, null),
   };
 }
@@ -32,14 +47,10 @@ function wccPriority(severity) {
   return 4;
 }
 
-function ticketId(caseId) {
-  return `MOCK-WCC-${caseId.replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "").toUpperCase()}`;
-}
-
-function buildProviderPayload(adapterId, caseRecord, now) {
+function buildProviderPayload(adapterId, caseRecord, now, references) {
   if (adapterId === "wcc-ticket") {
     return {
-      TICKET_ID: ticketId(caseRecord.case_id),
+      TICKET_ID: `MOCK-${references.ticket}`,
       INCIDENT_ADDRESS: null,
       LOCATION: caseRecord.affected_area,
       LONGITUDE: null,
@@ -121,6 +132,7 @@ function buildProviderPayload(adapterId, caseRecord, now) {
 export function workflowAdapterCatalog() {
   return {
     schema: "wellington-workflow-adapters/v1",
+    reference_conventions: OPERATIONAL_REFERENCE_CONVENTIONS,
     execution: "mock_prepare_only",
     adapters: WORKFLOW_ADAPTERS.map((adapter) => ({
       ...adapter,
@@ -143,7 +155,21 @@ export function prepareWorkflowMock(adapterId, input, now = new Date()) {
     throw error;
   }
   const preparedAt = now instanceof Date && Number.isFinite(now.getTime()) ? now : new Date();
-  const caseRecord = normaliseCase(input);
+  const caseRecord = normaliseCase(input, preparedAt);
+  const referenceTime = caseRecord.observed_at ?? preparedAt.toISOString();
+  const references = {
+    signal: buildSignalReference({ canonicalId: caseRecord.case_id, occurredAt: referenceTime }),
+    case: caseRecord.case_ref,
+    ...(adapter.id === "wcc-ticket" ? {
+      ticket: buildTicketReference({ canonicalId: caseRecord.case_id, occurredAt: preparedAt.toISOString() }),
+    } : {}),
+  };
+  const names = {
+    case: caseRecord.case_name,
+    ...(references.ticket ? {
+      ticket: buildTicketName({ caseReference: references.case, service: "Weather Event / Flooding" }),
+    } : {}),
+  };
   return {
     schema: "wellington-workflow-adapter-result/v1",
     adapter_id: adapter.id,
@@ -157,8 +183,10 @@ export function prepareWorkflowMock(adapterId, input, now = new Date()) {
     status: "prepared_not_sent",
     delivery_receipts: [],
     prepared_at: preparedAt.toISOString(),
+    references,
+    names,
     case: caseRecord,
-    provider_payload: buildProviderPayload(adapter.id, caseRecord, preparedAt),
+    provider_payload: buildProviderPayload(adapter.id, caseRecord, preparedAt, references),
     privacy: {
       requester_name: "removed",
       incident_address: "withheld",

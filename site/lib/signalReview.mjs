@@ -62,7 +62,7 @@ export function buildReviewQueueView(items, drafts, {
     id: String(item?.id ?? ""),
     status: drafts?.[item?.id]?.status ?? "open",
     has_history: Boolean(drafts?.[item?.id]?.updatedAt),
-    search_text: [item?.id, item?.title, item?.source_id].filter(Boolean).join(" ").toLowerCase(),
+    search_text: [item?.id, item?.signal_ref, item?.title, item?.source_id].filter(Boolean).join(" ").toLowerCase(),
   })).filter((item) => item.id) : [];
   const entries = mock?.id ? [...candidates, {
     id: String(mock.id),

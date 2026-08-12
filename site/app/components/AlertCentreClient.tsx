@@ -11,9 +11,13 @@ import {
   REVIEW_STORAGE_KEY,
 } from "../../lib/signalReview.mjs";
 import { WORKFLOW_ADAPTERS } from "../../lib/workflowAdapters.mjs";
+import { buildStartedCaseReference } from "../../lib/operationalIdentifiers.mjs";
 
 type Candidate = {
   id: string;
+  canonical_id: string;
+  signal_ref: string;
+  signal_name: string;
   title: string;
   severity: string;
   observed_at: string;
@@ -64,6 +68,8 @@ type WorkflowResult = {
   status: string;
   dispatched: boolean;
   provider_payload: Record<string, unknown>;
+  references?: { signal: string; case: string; ticket?: string };
+  names?: { case: string; ticket?: string };
 };
 type ChannelPreparation = { channel_id: string; label: string; status: string; boundary: string };
 type WarningResult = {
@@ -241,6 +247,13 @@ export default function AlertCentreClient() {
   const signalState = activeReview.status === "closed" ? "Dismissed" : activeReview.status === "needs_action" ? "Promoted" : activeReview.status === "open" ? "Candidate" : "Under review";
   const workflowStep = activeReview.status === "closed" ? 3 : activeReview.status === "open" ? 1 : 2;
   const classification = classificationFeedback(activeReview.classification, { is_mock: !selected });
+  const signalReference = selected?.signal_ref ?? "MOCK-PREVIEW";
+  const caseReference = selected ? buildStartedCaseReference({
+    canonicalId: selected.id,
+    occurredAt: selected.observed_at,
+    reviewStatus: activeReview.status,
+    caseUpdatedAt: activeCase.updatedAt,
+  }) : null;
   const showMock = visibleIds.has(MOCK_ID);
   const channelRows = warningResult?.channels ?? (activeCase.warningState === "awaiting_approval"
     ? EMPTY_CHANNELS.map((channel) => ({ ...channel, status: "prepared_not_sent" }))
@@ -440,7 +453,7 @@ export default function AlertCentreClient() {
           {filteredCandidates.map((candidate) => (
             <button key={candidate.id} type="button" className={`alert-ticket-row ${candidate.id === selectedId ? "is-selected" : ""}`} aria-pressed={candidate.id === selectedId} onClick={() => selectCandidate(candidate.id)}>
               <span className="alert-ticket-row-meta"><b>{candidate.severity}</b><i>{queueForReviewStatus(reviewDrafts[candidate.id]?.status ?? "open")}</i></span>
-              <strong>{candidate.title}</strong><small>{candidate.id} · {candidate.source_id}</small>
+              <strong>{candidate.title}</strong><small>{candidate.signal_ref} · {candidate.source_id}</small>
             </button>
           ))}
           {showMock && (
@@ -456,7 +469,7 @@ export default function AlertCentreClient() {
         <header className="alert-ticket-header">
           <div className="alert-ticket-identity">
             <span className={selected ? "truth-chip" : "mock-chip"}>{selected ? "Evidence candidate · unreviewed" : "Mock · not a live alert"}</span>
-            <code>{selectedKey}</code>
+            <code>{signalReference}</code>
           </div>
           <h2 id="alert-ticket-title">{selected?.title ?? preview.title}</h2>
           <span className="case-rule">{selected?.rule_id ?? "synthetic-preview"}</span>
@@ -553,7 +566,7 @@ export default function AlertCentreClient() {
               </div>
               <div className="alert-workflow-result" aria-live="polite">
                 {workflowState === "error" ? <strong>Mock adapter unavailable</strong> : null}
-                {workflowResult ? <><div><strong>{workflowResult.adapter_name} prepared</strong><span>Not sent · zero evidence weight</span></div>{workflowResult.adapter_id === "replay-case-handoff" && typeof workflowResult.provider_payload.replay_url === "string" ? <a href={workflowResult.provider_payload.replay_url}>Open case in Replay</a> : null}<details><summary>View mock payload</summary><pre>{JSON.stringify(workflowResult.provider_payload, null, 2)}</pre></details></> : null}
+                {workflowResult ? <><div><strong>{workflowResult.adapter_id === "wcc-ticket" ? workflowResult.references?.ticket : workflowResult.references?.case} · {workflowResult.adapter_name}</strong><span>Prepared · not sent · zero evidence weight</span></div>{workflowResult.adapter_id === "replay-case-handoff" && typeof workflowResult.provider_payload.replay_url === "string" ? <a href={workflowResult.provider_payload.replay_url}>Open case in Replay</a> : null}<details><summary>View mock payload</summary><pre>{JSON.stringify(workflowResult.provider_payload, null, 2)}</pre></details></> : null}
               </div>
             </section>
           </details>
@@ -563,11 +576,14 @@ export default function AlertCentreClient() {
           <aside className="alert-signal-details" aria-label="Signal details">
             <header className="alert-signal-details-header"><h3>Details</h3><span>Browser draft</span></header>
             <dl className="alert-detail-fields" aria-label="Signal details fields">
+              <div><dt>Signal ID</dt><dd><code>{signalReference}</code></dd></div>
+              <div><dt>Case ID</dt><dd><code>{caseReference ?? "Not created"}</code></dd></div>
               <div><dt>Signal</dt><dd>{signalState}</dd></div>
               <div><dt>Incident</dt><dd>{activeCase.incidentState}</dd></div>
               <div><dt>Warning</dt><dd>{activeCase.warningState.replaceAll("_", " ")}</dd></div>
               <div><dt>System severity</dt><dd>{selected?.severity ?? "Not computed"}</dd></div>
               <div><dt>Source</dt><dd>{selected?.source_id ?? "Synthetic fixture"}</dd></div>
+              <div><dt>Source record</dt><dd>{selected?.canonical_id ?? selectedKey}</dd></div>
               <div><dt>Observed</dt><dd>{observedLabel}</dd></div>
               <div><dt>Evidence state</dt><dd>{selected?.epistemic_state ?? "Zero weight"}</dd></div>
               <div><dt>Decision authority</dt><dd>Human</dd></div>

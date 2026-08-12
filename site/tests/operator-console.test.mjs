@@ -590,6 +590,9 @@ test("renders a local case COP and warning-preparation workspace", async () => {
   ]) assert.match(html, new RegExp(label), label);
 
   assert.match(html, /Unconfirmed/);
+  assert.match(html, /Signal ID/);
+  assert.match(html, /Case ID/);
+  assert.match(html, /Not created/);
   assert.match(html, /This browser only|Browser-local demo/);
   assert.match(html, /aria-label="Mock workflow actions; no external delivery"/);
   assert.match(html, /prepared_not_sent/);
@@ -614,6 +617,11 @@ test("serves provider-shaped workflow mocks and never reports a dispatch", async
   const catalogueResponse = await request("/api/integration/v1/workflow-adapters");
   assert.equal(catalogueResponse.status, 200);
   const catalogue = await catalogueResponse.json();
+  assert.deepEqual(catalogue.reference_conventions, {
+    signal: { pattern: "SIG-YYYYMMDD-####", lifecycle: "candidate_created" },
+    case: { pattern: "CASE-YYYY-####", lifecycle: "investigation_started" },
+    ticket: { pattern: "WCC-EM-YYYY-####", lifecycle: "ticket_prepared" },
+  });
   assert.deepEqual(catalogue.adapters.map((adapter) => adapter.id), [
     "wcc-ticket",
     "replay-case-handoff",
@@ -649,6 +657,7 @@ test("serves provider-shaped workflow mocks and never reports a dispatch", async
     assert.equal(result.dispatched, false);
     assert.equal(result.evidence_weight, 0);
     assert.equal(result.status, "prepared_not_sent");
+    if (adapter.id !== "wcc-ticket") assert.equal(result.references.ticket, undefined);
     if (adapter.id === "wcc-ticket") wccTicket = result;
     if (adapter.id === "public-warning-social") publicWarning = result;
   }
@@ -660,6 +669,12 @@ test("serves provider-shaped workflow mocks and never reports a dispatch", async
     "TICKET_DESCRIPTION", "TICKET_ID", "TICKET_TAGS", "TRIAGED_AT",
   ].sort());
   assert.equal(wccTicket.provider_payload.CURRENT_STATUS, "OPEN");
+  assert.match(wccTicket.references.signal, /^SIG-20260810-\d{4}$/);
+  assert.match(wccTicket.references.case, /^CASE-2026-\d{4}$/);
+  assert.match(wccTicket.references.ticket, /^WCC-EM-2026-\d{4}$/);
+  assert.equal(wccTicket.case.case_id, "candidate:test:1");
+  assert.equal(wccTicket.case.case_ref, wccTicket.references.case);
+  assert.equal(wccTicket.provider_payload.TICKET_ID, `MOCK-${wccTicket.references.ticket}`);
   assert.equal(wccTicket.provider_payload.PRIORITY, 1);
   assert.equal(wccTicket.provider_payload.SOURCE_DERIVED, "Website");
   assert.deepEqual(wccTicket.provider_payload.TICKET_TAGS, ["Weather Event", "Berhampore", "escalation"]);

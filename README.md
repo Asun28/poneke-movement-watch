@@ -155,6 +155,18 @@ mutable status. Staff can classify an outcome as True Positive, Benign Positive,
 False Positive or Undetermined. These are browser-local human feedback labels,
 not automatic training data; mock and Undetermined records are always excluded.
 
+Operational handoffs use stable display references:
+
+| Record | Pattern | Assigned when |
+|---|---|---|
+| Signal | `SIG-YYYYMMDD-####` | A review candidate is created |
+| Case | `CASE-YYYY-####` | Staff start or save an investigation |
+| WCC ticket | `WCC-EM-YYYY-####` | The WCC ticket adapter prepares a ticket |
+
+The suffix is deterministically derived from the canonical source ID. These short
+references are for search and spoken handoff; the full canonical ID remains the
+audit and API key. A four-digit collision is resolved by that canonical ID.
+
 The Warning tab validates hazard, area, level, public action, effective/expiry/
 next-update times, linked evidence, and distinct creator/approver roles before it
 can prepare an `awaiting_approval` package. This demo cannot reach `issued`.

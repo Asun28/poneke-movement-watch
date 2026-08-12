@@ -39,6 +39,13 @@ try {
   // The contract stays readable during the initial RED step.
 }
 
+let operationalIdentifiers = {};
+try {
+  operationalIdentifiers = await import("../lib/operationalIdentifiers.mjs");
+} catch {
+  // The contract stays readable during the initial RED step.
+}
+
 const registry = JSON.parse(
   await readFile(new URL("../public/cop/v2/source-registry.json", import.meta.url), "utf8"),
 );
@@ -81,6 +88,39 @@ const validWarningDraft = {
   creator_id: "operator:maya",
   approver_id: "operator:ana",
 };
+
+test("builds stable human references without replacing canonical identifiers", () => {
+  const {
+    buildSignalReference,
+    buildCaseReference,
+    buildTicketReference,
+    buildStartedCaseReference,
+    buildCaseName,
+    buildTicketName,
+  } = operationalIdentifiers;
+
+  assert.equal(typeof buildSignalReference, "function");
+  assert.equal(typeof buildCaseReference, "function");
+  assert.equal(typeof buildTicketReference, "function");
+  assert.equal(typeof buildStartedCaseReference, "function");
+
+  const source = { canonicalId: "candidate:report:1+sensor:1", occurredAt: "2026-08-12T01:02:03.000Z" };
+  const signalReference = buildSignalReference(source);
+  const caseReference = buildCaseReference(source);
+  const ticketReference = buildTicketReference(source);
+
+  assert.match(signalReference, /^SIG-20260812-\d{4}$/);
+  assert.match(caseReference, /^CASE-2026-\d{4}$/);
+  assert.match(ticketReference, /^WCC-EM-2026-\d{4}$/);
+  assert.equal(buildSignalReference(source), signalReference);
+  assert.notEqual(buildSignalReference({ ...source, canonicalId: "candidate:report:2+sensor:1" }), signalReference);
+  assert.equal(buildStartedCaseReference({ ...source, reviewStatus: "open", caseUpdatedAt: "" }), null);
+  assert.equal(buildStartedCaseReference({ ...source, reviewStatus: "investigating", caseUpdatedAt: "" }), caseReference);
+  assert.equal(buildStartedCaseReference({ ...source, reviewStatus: "open", caseUpdatedAt: "2026-08-12T02:00:00Z" }), caseReference);
+  assert.equal(buildCaseName({ title: " Movement change  ", affectedArea: "Cuba Street" }), "Movement change · Cuba Street");
+  assert.equal(buildTicketName({ caseReference, service: "Flooding response" }), `${caseReference} · Flooding response`);
+  assert.equal(source.canonicalId, "candidate:report:1+sensor:1");
+});
 
 test("summarises operator workload without treating zero candidates as all-clear", () => {
   assert.equal(typeof operatorDashboard.buildOperatorDashboardSummary, "function");
@@ -706,6 +746,12 @@ test("projects queue counts from the same searchable items that can render", asy
   assert.deepEqual(buildReviewQueueView(items, drafts, { queue: "active", mock }), {
     counts: { new: 2, active: 0, closed: 0, history: 0, all: 2 },
     visible_ids: [],
+  });
+  assert.deepEqual(buildReviewQueueView([
+    { ...items[0], signal_ref: "SIG-20260812-0042" },
+  ], drafts, { queue: "new", query: "0042" }), {
+    counts: { new: 1, active: 0, closed: 0, history: 0, all: 1 },
+    visible_ids: ["candidate-1"],
   });
 });
 
@@ -1465,10 +1511,13 @@ test("creates review-only alert candidates from fresh real evidence, never mock 
   const alerts = createAlertCandidates(snapshot);
 
   assert.equal(alerts.schema, "wellington-alert-candidates/v1");
+  assert.equal(alerts.reference_conventions.signal.pattern, "SIG-YYYYMMDD-####");
   assert.equal(alerts.candidates.length, 1);
   assert.equal(alerts.candidates[0].review_state, "unreviewed");
   assert.equal(alerts.candidates[0].epistemic_state, "inference");
   assert.equal(alerts.candidates[0].decision_authority, "human");
+  assert.match(alerts.candidates[0].signal_ref, /^SIG-20260810-\d{4}$/);
+  assert.equal(alerts.candidates[0].canonical_id, alerts.candidates[0].id);
   assert.equal(alerts.candidates[0].llm.authority, "explanation_only");
   assert.deepEqual(alerts.candidates[0].evidence.supporting, ["geonet:quake:1"]);
   assert.doesNotMatch(JSON.stringify(alerts), /google:route:mock/);
