@@ -1,5 +1,7 @@
 # Evidence ontology and exclusions
 
+[Documentation index](README.md) · [Architecture](architecture.md)
+
 ## Truth model
 
 The v2 contract keeps four states separate:

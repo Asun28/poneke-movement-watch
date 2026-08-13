@@ -1,5 +1,7 @@
 # Curated decisions
 
+[Documentation index](../README.md) · [Project overview](../../README.md)
+
 These short records explain the decisions most likely to affect reuse or
 evaluation. They replace the agent working logs that are intentionally kept out
 of the public repository.

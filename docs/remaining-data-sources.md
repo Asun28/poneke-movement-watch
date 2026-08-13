@@ -1,5 +1,7 @@
 # Remaining data-source inventory
 
+[Documentation index](README.md) · [Evidence policy](ontology-and-exclusions.md)
+
 Verified 10 August 2026 for Pōneke Movement Watch.
 
 ## Scope
@@ -133,4 +135,3 @@ human review; empty activation feeds are a valid state.
   evidence contribution.
 - Public output must strip requester names, precise household addresses,
   responder-only locations and unnecessary infrastructure detail.
-

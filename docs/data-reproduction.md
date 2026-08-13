@@ -1,5 +1,7 @@
 # Reproduce the WCC movement artifacts
 
+[Documentation index](README.md) · [Project overview](../README.md)
+
 ## Offline sample
 
 The checked-in sample is synthetic and exists only to exercise the complete

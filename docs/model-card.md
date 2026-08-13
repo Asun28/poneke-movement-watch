@@ -1,5 +1,7 @@
 # Movement anomaly model card
 
+[Documentation index](README.md) · [Architecture](architecture.md)
+
 ## Decision
 
 Use a 12-week, matched weekday/hour median and median absolute deviation (MAD)

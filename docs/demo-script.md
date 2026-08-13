@@ -1,5 +1,7 @@
 # Four-minute demo
 
+[Documentation index](README.md) · [Current screenshots](README.md#current-product-views)
+
 ## 0:00–0:25 — The operating picture
 
 Open **Dashboard**. Say:
