@@ -1,10 +1,13 @@
 # Security policy
 
+[Project overview](README.md) · [Architecture](docs/architecture.md) · [Documentation index](docs/README.md)
+
 ## Supported versions
 
 | Version | Supported |
 | --- | --- |
-| 0.1.x | Yes |
+| 0.2.x | Yes |
+| 0.1.x | No |
 | Earlier prototypes | No |
 
 Security fixes are prepared on the current `main` branch and included in the

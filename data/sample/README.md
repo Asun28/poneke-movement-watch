@@ -1,5 +1,7 @@
 # Minimal transport-sensor sample
 
+[Data reproduction](../../docs/data-reproduction.md) · [Project overview](../../README.md)
+
 This directory contains a deliberately small, synthetic fixture with the same
 column shape consumed by `scripts/build_demo.py`:
 

@@ -2,7 +2,7 @@
 
 The Next.js operator interface for Pōneke Movement Watch.
 
-[Project overview](../README.md) · [Architecture](../docs/architecture.md) · [Documentation index](../docs/README.md)
+[Project overview](../README.md) · [Architecture](../docs/architecture.md) · [Product design](../docs/product-design.md) · [Documentation index](../docs/README.md)
 
 ## Run
 

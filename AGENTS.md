@@ -3,6 +3,16 @@
 These rules apply to this repository. Preserve the evidence, time, source-truth and
 human-authority boundaries when changing code, data, models or documentation.
 
+## Sources of truth
+
+- `README.md` is the concise product entry point.
+- `docs/architecture.md` owns system, workflow, API and code boundaries.
+- `docs/product-design.md` owns information hierarchy, visual language, maps,
+  responsive behavior, accessibility and operator content rules.
+- `docs/ontology-and-exclusions.md` owns evidence, access, privacy and exclusion policy.
+- `docs/model-card.md` owns detector choice, metrics and limitations.
+- `docs/decisions/` owns durable trade-offs. Do not bury a long-lived decision in agent notes.
+
 ## Ontology-aware fusion architecture
 
 Use ontology-aware late fusion, not one monolithic model over all raw records:
@@ -95,3 +105,15 @@ observation or inference, never an incident decision.
 - Do not train an intermediate or production model merely because parallel compute is available;
   the data, label, split, governance and acceptance rules above still apply.
 - Do not push the GitHub origin or change remote `main` unless the user explicitly requests it.
+
+## Product and documentation changes
+
+- Preserve the stable seven-module navigation and existing public-sector operations language.
+- Use the established CSS layers and tokens; do not introduce a second design system or icon set.
+- Keep map visibility, 44 px primary touch targets, visible focus, reduced-motion behavior and
+  phone access to Layers/Evidence.
+- Do not use colour alone for source, movement, severity, selection or truth state.
+- A queue row represents a `SituationCluster`; raw Signals remain available on expansion.
+- Do not add routine-screen coaching when progressive disclosure or documentation is sufficient.
+- When behavior changes, update the owning document above instead of copying the same explanation
+  into multiple READMEs. Run local-link checks after documentation changes.

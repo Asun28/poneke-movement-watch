@@ -1,111 +1,64 @@
-# Impact Lab Wellington — Team 7
+# Pōneke Movement Watch — Claude Code context
 
-Context for Claude Code working in this repo.
+Pōneke Movement Watch began as Wellington City Council Emergency Management Impact Lab Problem 05 and is now a seven-module decision-support prototype.
 
-## The event
+Canonical repository: `https://github.com/Asun28/poneke-movement-watch.git`.
 
-A one-day build with Wellington City Council Emergency Management, Saturday
-8 August 2026, at the Waimanga Room, Wellington City Council. Ten teams, five
-problem statements, two teams per statement. Each team ships one working
-prototype and demos it for four minutes.
-
-## Timeline for the day
-
-| Time | What |
-|---|---|
-| 08:00 | Arrival and mingle |
-| 09:00 | Opening address & problem briefing |
-| 09:30 | Build begins |
-| 12:30 | Lunch + lightning talks |
-| 16:00 | Submissions close |
-| 16:30 | Demos + judging |
-| 17:45 | Awards + next steps |
-
-Build time is roughly six and a half hours, minus lunch. Scope accordingly:
-a narrow thing that works beats a broad thing that doesn't demo.
-
-## Current prototype state
-
-The hackathon build has since become a seven-module decision-support demo. Live
-Operations now has `Live / History / Simulation` modes in one compact command
-deck. Simulation is a deterministic browser-local six-stage storm/flood exercise;
-it is Mock, evidence weight `0`, alert-ineligible, excluded from training and has
-no external write. Its April Storm percentage is reference-only pattern
-similarity, not a forecast, probability or automatic decision.
-
-Replay Analyzer remains the authority for bounded historical inspection. WCC
-movement data is batch replay, not live telemetry. The canonical repository is
-`https://github.com/Asun28/poneke-movement-watch`.
-
-## This team's problem — 05: Detect unusual changes in movement around the city
+## Problem
 
 > How might we identify and map sudden changes in pedestrian or vehicle movement that could indicate disruption, unsafe conditions, evacuation or loss of access?
 
-A prototype could compare current or recent movement with usual patterns and flag significant changes for investigation. It could also compare movement changes with weather warnings, road closures or public reports.
+The desired outcome is another early indication for Council investigation, not an automated incident, dispatch or warning system.
 
-This could build on Pōneke Travel Insights, which already allows users to examine movement patterns, busy periods and changes over time. The existing material notes that the data has limitations, which would need to be visible in any emergency use.
+## Current system
 
-**Desired outcome:** WCC receives another early indication of where an event may be affecting people, rather than relying only on individual reports.
+- **Dashboard** separates operational candidates from source-health issues.
+- **Live Operations** provides Live, History and deterministic zero-authority Simulation modes.
+- **Signal Review** groups raw Signals into non-causal `SituationCluster` queue items, then supports browser-local typed evidence, Field Tasks, Decisions and versioned COP records.
+- **Replay Analyzer** inspects bounded April Storm and August movement investigations.
+- **Data Integration** exposes 33 source contracts with access, cost, truth and runtime state.
+- **City Ontology** shows the operational chain and ontology-aware fusion design.
+- **Easy setup** prepares local source/API/MCP/A2A drafts without activation.
 
-All five statements sit inside one frame: the common theme is improving the flow and use of information between communities and Council before and during an event.
+WCC Transport Sensor data is Batch replay, not live telemetry. Simulation is Mock, evidence weight `0`, alert-ineligible, excluded from training/calibration and incapable of external writes. April similarity is retrieval context, not a forecast, incident probability or causal claim.
 
-## What success looks like
+WCC Ticket is a supplied-shape simulator. It does not connect to or write into WCC. Every prepared action is labelled Mock or `Prepared · not sent`.
 
-Each prototype is a module in a shared **common operating picture**: a live map
-of emergency signals. Prefer outputs that compose — GeoJSON, a feed, an
-endpoint — over a self-contained UI that nothing else can read.
+## Required reading
 
-Judging is on a four-minute demo. Something running and pointed at real
-Wellington data will land better than architecture that isn't finished.
+1. [Agent rules](AGENTS.md)
+2. [Architecture](docs/architecture.md)
+3. [Product design](docs/product-design.md)
+4. [Evidence ontology and exclusions](docs/ontology-and-exclusions.md)
+5. [Model card](docs/model-card.md)
 
-## Data
+## Data boundaries
 
-The public GIS datasets Wellington City Council Emergency Management shared are
-catalogued, checked and made queryable here:
+- Public Wellington GIS and telemetry sources retain publisher terms and attribution.
+- ArcGIS geometry is commonly NZTM2000; request/project to WGS84 for web maps.
+- Page capped FeatureServer queries and verify `exceededTransferLimit`.
+- Do not invent coordinates, identifier joins, incident labels or publication times.
+- Keep private emergency, 111, identity, exact household address, responder-only and unrestricted ticket text out of the public repository.
+- Empty, stale, Mock, registered-only and context records do not become contrary or supporting incident evidence by UI placement.
 
-- **Catalogue + SDK** — https://github.com/claudecommunity-nz/wcc-emergency-gis-data
-- **Browse the datasets** — https://claudecommunity-nz.github.io/wcc-emergency-gis-data/
+The original public data catalogue remains a research input, not this repository's Git remote:
 
-74 datasets: flood, landslide, earthquake, tsunami, coastal inundation and
-climate layers, plus emergency hubs, post-quake road reopening order, water
-tanks, deprivation by area, and live river-level and rainfall telemetry.
-`wcc_gis.py` is a single file with no dependencies — copy it and
-`catalogue.json` into your project.
+- `https://github.com/claudecommunity-nz/wcc-emergency-gis-data`
+- `https://claudecommunity-nz.github.io/wcc-emergency-gis-data/`
 
-```python
-import wcc_gis
+Do not add, fetch from or push to the former team repository. Keep `origin` on Asun28.
 
-wcc_gis.ids("tsunami")                                    # find datasets
-wcc_gis.features("tsunami-evacuation-zones", at=(-41.2790, 174.7804))
-wcc_gis.geojson("footpaths", bbox=wcc_gis.WELLINGTON)     # straight into MapLibre
-wcc_gis.hilltop_data("Hutt River at Taita Gorge", "Flow")[-1]
+## Development
+
+```powershell
+uv sync --group dev --extra test
+uv run pytest -q
+uv run ruff check .
+
+Set-Location site
+npm install
+npm test
+npm run lint
 ```
 
-Three traps worth knowing before you lose an hour to them:
-
-- Everything is published in **NZTM2000, not lat/lng**. Request raw and your
-  pins land off the coast of Africa. Always ask for `outSR=4326`.
-- **A quarter of the layers are rasters** that advertise a query capability,
-  then refuse to answer. Ask them for a PNG instead.
-- **One query is silently capped** (`footpaths` has 8,130 features; a request
-  returns 2,000). Page properly, or check `exceededTransferLimit`.
-
-## Constraints that matter here
-
-- **Decision support, not an emergency service.** Connected current feeds retain
-  their source truth, but this prototype must not be presented as dispatch,
-  incident confirmation or public warning authority. Simulation and batch replay
-  are never live emergency information. In an emergency, call 111.
-- **Show reliability, don't hide it.** Several of these problem statements are
-  explicitly about making limitations visible. If the prototype infers or
-  aggregates, say so in the interface. Never present an unverified public post
-  as confirmed fact.
-- **This repo is public and must stay free of personal information** — no
-  participant names, contact details, or anything from the application process.
-- **Attribution.** Data belongs to its publishers and licences vary per dataset.
-  Check before publishing anything derived.
-
-## Conventions
-
-- Keep the README's problem statement in sync if the scope shifts during the day.
-- Commit early and often — the repo is the submission.
+For interface changes, preserve the design system and run desktop/phone browser QA in addition to automated tests. For documentation changes, update the owning source of truth and verify local Markdown links.

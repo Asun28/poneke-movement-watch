@@ -2,7 +2,7 @@
 
 An evidence-first emergency-operations prototype for Wellington City Council (WCC). It brings movement sensors, weather and hazard signals, reports and operational context into one review workflow without turning observations into confirmed incidents.
 
-[Open the live demo](https://poneke-movement-watch.sun28long.chatgpt.site/) · [Documentation](docs/README.md) · [Architecture](docs/architecture.md) · [Security](SECURITY.md)
+[Open the live demo](https://poneke-movement-watch.sun28long.chatgpt.site/) · [Documentation](docs/README.md) · [Architecture](docs/architecture.md) · [Product design](docs/product-design.md) · [Changelog](CHANGELOG.md) · [Security](SECURITY.md)
 
 > Decision support only. The prototype does not dispatch responders, write to WCC systems, close roads or publish warnings.
 
@@ -172,6 +172,7 @@ Verified on 13 August 2026:
 Start with the [documentation index](docs/README.md):
 
 - [Architecture and operating workflow](docs/architecture.md)
+- [Product design system](docs/product-design.md)
 - [Evidence ontology and exclusions](docs/ontology-and-exclusions.md)
 - [Movement anomaly model card](docs/model-card.md)
 - [Data reproduction](docs/data-reproduction.md)

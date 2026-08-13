@@ -17,6 +17,19 @@ Missing evidence is uncertainty. It is never converted into contradicting
 evidence. A closed ticket is workflow state, not proof that an incident was
 confirmed or resolved.
 
+## Situation-first investigation
+
+Raw Signals are grouped into a deterministic, non-causal `SituationCluster`
+before reaching the queue. One Situation is one review unit; its original
+Signals remain immutable and expandable. A hard, soft or monitor gate records
+whether the Situation should progress and why.
+
+Human investigation may add typed supporting, contradicting, missing and context
+`EvidenceLink` records, draft `FieldTask` records, `Decision` records and
+append-only `COPVersion` snapshots. These workflow records do not change source
+observations and do not become training labels without a separate governed
+release. See [ADR 0005](decisions/0005-situation-first-investigation.md).
+
 ## Implemented evidence inputs
 
 1. **WCC Transport Sensors** — direct hourly pedestrian and vehicle counts,
@@ -74,7 +87,7 @@ Access is independently labelled `public_free`, `key_required`,
 
 The **live GWRC Hilltop contract**, NZTA road events/TMS, MetService CAP, GeoNet quake/Tilde/Shaking,
 WREMO hubs, WCC emergency routes/water tanks, Metlink realtime/static GTFS and
-NEMA CDEM boundaries remain uncounted. They may affect a future case only when
+NEMA CDEM boundaries remain zero-scoring unless an eligible time-aligned record is present. They may affect a future case only when
 time alignment, entity resolution, licensing and quality gates all pass.
 
 This live-contract state is distinct from the packaged April Replay files, which

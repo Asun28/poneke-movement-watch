@@ -74,6 +74,11 @@ zero weight. The Live exercise and its saved-case comparison have the same
 zero-authority boundary. No additional classifier is trained because verified
 disruption labels are not available.
 
+Situation clustering happens after candidate generation. It reduces operator
+queue noise but does not change the detector score, create a causal relationship
+or increase evidence weight. Human Case/COP outcomes and browser-local feedback
+remain excluded from training until a governed label-release process exists.
+
 ## Known limits
 
 This is a transparent signal detector, not a causal or predictive emergency

@@ -2,14 +2,16 @@
 
 [Documentation index](README.md) · [Evidence policy](ontology-and-exclusions.md)
 
-Verified 10 August 2026 for Pōneke Movement Watch.
+Research verified 10 August 2026; registry status reconciled 13 August 2026 for
+Pōneke Movement Watch.
 
 ## Scope
 
-This is a systematic pass over official Wellington, regional and New Zealand
-sources relevant to movement, access, hazards, lifelines, planned demand and
-exposure. It excludes the 24 contracts already present in
-`/cop/v2/source-registry.json` and classifies 53 remaining source groups.
+This is the point-in-time research inventory behind the current registry. The
+original pass examined 53 source groups beyond the then-current 24 contracts.
+Eight candidates in section A have since been promoted into the current
+33-contract registry. Promotion means the source contract and truth state are
+represented; it does not mean every source is connected, current or eligible.
 
 `Connect next` does not mean that a record proves an incident. Every adapter must
 retain publisher, observed/published time, geometry, freshness, access terms and
@@ -20,14 +22,21 @@ human review; empty activation feeds are a valid state.
 
 | Class | Count | Recommendation |
 |---|---:|---|
-| Connect next | 8 | Add adapters or registry contracts with strict freshness and truth labels. |
+| Promoted to registry | 8 | Maintain strict freshness and truth labels; activate only permitted adapters. |
 | Permission, key or terms review | 11 | Demonstrate as mock/contract-only until access is cleared. |
 | Context only | 17 | Use for entity resolution, exposure or expected patterns; never as live evidence. |
 | Extend an existing contract | 6 | Add measurements/fields without inflating the source count. |
 | Optional non-government corroboration | 4 | Lower priority than the official source for the same fact. |
 | Exclude | 7 | Do not ingest or publish. |
 
-## A. Connect next
+## A. Promoted into the current registry
+
+These contracts are now represented. Their current states remain different:
+WCC Planned Works, FENZ and KiwiRail are context; WCC EAC is a permitted empty
+activation feed; GWRC Incident Areas is stale-excluded; NZTA Cameras requires
+human interpretation; GWRC Parks Notices is a current notice contract; and the
+NEMA contract remains Mock/restricted until public CAP messages and restricted
+broadcast polygons are modelled as separate products.
 
 | # | Source | Interface and verified state | Ontology use and hard limit |
 |---:|---|---|---|
@@ -110,17 +119,18 @@ human review; empty activation feeds are a valid state.
 | 52 | Property-title owner details | Unnecessary personal data with no role in movement anomaly detection. Use parcels/buildings without owners. |
 | 53 | General social-media scraping | No stable, consented, representative official contract. WCC tickets and official event/alert feeds are safer. |
 
-## Recommended integration order
+## Recommended next integration work
 
-1. Add `WCC Planned Works`, `WCC EAC`, public `NEMA CAP` and `NZTA Cameras` to
-   the source registry, with zero evidence by default.
-2. Add adapters for time overlap, freshness, geometry and source-specific status;
-   require human review for camera evidence.
-3. Add GWRC Incident Areas only with a strict age gate that rejects the 2019 row.
-4. Add planned KiwiRail work and FENZ reports as text/context adapters, not
+1. Keep the promoted contracts' current state explicit: live, empty activation,
+   context, stale-excluded or Mock/restricted.
+2. Model NEMA public CAP messages separately from restricted EMA broadcast
+   polygons before activating any NEMA alert adapter.
+3. Preserve strict time-overlap, freshness, geometry and source-specific status
+   gates; require human review for camera evidence.
+4. Treat planned KiwiRail work and FENZ reports as context/corroboration, not
    automated incident truth.
 5. Seek WCC/private permission for PSN, FENZ FireMapper, three-waters and other
-   operational integrations before enabling them outside a mock preview.
+   operational integrations before enabling them outside a Mock preview.
 
 ## Selection rules
 

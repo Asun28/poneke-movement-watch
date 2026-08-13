@@ -1,5 +1,7 @@
 # Architecture and operating workflow
 
+[Documentation index](README.md) · [Product design](product-design.md) · [Evidence policy](ontology-and-exclusions.md)
+
 ## Purpose
 
 Pōneke Movement Watch is a modular common operating picture for investigation support. It combines permitted provider records, historical movement replay and clearly labelled Mock capability contracts while keeping observation, inference, human decision and confirmed fact separate.
